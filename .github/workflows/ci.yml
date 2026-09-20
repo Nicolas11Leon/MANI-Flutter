@@ -28,7 +28,7 @@ jobs:
         run: flutter pub get
 
       - name: Check code formatting
-        run: dart format --output=none --set-exit-if-changed .
+        run: dart format --output=show --set-exit-if-changed .
 
       - name: Analyze code (Linter)
         run: flutter analyze
