@@ -40,3 +40,4 @@ jobs:
           generate_release_notes: true
           files: |
             flutter-web-release.zip
+
