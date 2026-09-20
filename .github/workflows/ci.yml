@@ -49,5 +49,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
 
+      - name: Ensure environment file exists
+        run: cp .env.example .env 2>/dev/null || touch .env
+
       - name: Verify Web Build
         run: flutter build web --release

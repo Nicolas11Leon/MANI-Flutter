@@ -12,6 +12,9 @@ RUN flutter pub get
 # Copy all source files
 COPY . .
 
+# Ensure a dummy .env exists for asset bundling if required
+RUN cp .env.example .env 2>/dev/null || touch .env
+
 # Build web in release mode
 RUN flutter build web --release
 
