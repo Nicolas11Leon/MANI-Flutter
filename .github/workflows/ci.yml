@@ -36,6 +36,9 @@ jobs:
       - name: Run widget & unit tests with coverage
         run: flutter test --coverage
 
+      - name: Run integration tests (RF-14)
+        run: flutter test test/integration
+
 
       - name: Ensure environment file exists
         run: cp .env.example .env 2>/dev/null || touch .env
