@@ -17,7 +17,9 @@ Future<void> main() async {
   // Inicializar Supabase
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
-    publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? dotenv.env['SUPABASE_PUBLISHABLE_KEY']!,
+    publishableKey:
+        dotenv.env['SUPABASE_ANON_KEY'] ??
+        dotenv.env['SUPABASE_PUBLISHABLE_KEY']!,
   );
 
   runApp(const ManiApp());
