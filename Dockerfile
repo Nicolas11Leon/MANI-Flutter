@@ -12,8 +12,9 @@ RUN flutter pub get
 # Copy all source files
 COPY . .
 
-# Ensure a dummy .env exists for asset bundling if required
-RUN cp .env.example .env 2>/dev/null || touch .env
+# Usar el .env real (incluido en el build context para dev).
+# En CI/CD se inyecta via ARG o secret antes de este paso.
+RUN if [ ! -f .env ]; then cp .env.example .env 2>/dev/null || touch .env; fi
 
 # Build web in release mode
 RUN flutter build web --release

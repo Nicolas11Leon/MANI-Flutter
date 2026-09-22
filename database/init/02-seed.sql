@@ -2,10 +2,12 @@
 -- Datos Semilla de Prueba (Seed Data) - MANI Local Development
 -- =====================================================================
 
--- 1. Tenant de Prueba
+-- 1. Tenants de Prueba
 INSERT INTO tenant (id, nombre, slug, estado, fecha_alta)
 VALUES 
-    ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'TRAMA Servicios Demo', 'trama-demo', 'ACTIVO', now())
+    ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Plomería Express CDMX SA', 'plomeria-express', 'ACTIVO', now()),
+    ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Electricistas Pro Monterrey', 'electricistas-pro', 'ACTIVO', now()),
+    ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33', 'Cerrajería Total GDL', 'cerrajeria-total', 'ACTIVO', now())
 ON CONFLICT (slug) DO NOTHING;
 
 -- 2. Zonas Geográficas
@@ -24,10 +26,12 @@ VALUES
     ('c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'cliente@trama.com', 'CLIENTE', 'ACTIVO', now())
 ON CONFLICT DO NOTHING;
 
--- 4. Categoría de Servicio
+-- 4. Categorías de Servicio
 INSERT INTO categoria_servicio (id, tenant_id, nombre, estado, flujo_operativo)
 VALUES 
-    ('d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a18', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Plomería y Mantenimiento', 'ACTIVO', 'COTIZACION_PREVIA')
+    ('d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a18', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Plomería y Redes Hidráulicas', 'ACTIVO', 'COTIZACION_PREVIA'),
+    ('d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a19', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Electricidad Residencial e Industrial', 'ACTIVO', 'COTIZACION_PREVIA'),
+    ('d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a20', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Cerrajería y Seguridad', 'ACTIVO', 'TARIFA_ESTANDAR')
 ON CONFLICT DO NOTHING;
 
 -- 5. Aliado y Cliente

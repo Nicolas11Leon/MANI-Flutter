@@ -1,0 +1,207 @@
+<USER_REQUEST>
+te voy a mandar el contexto del prouecto para que lo tengas en cuienta 
+
+
+# MANI — Contexto de Arquitectura para Agente de Desarrollo
+
+> Documento de handoff técnico. Compilado a partir del SAD (MANI-SAD.xlsx), el inventario de ADRs, el CSV de Escenarios de Calidad y el formato de ADR del proyecto TRAMA · Ingeniería de Software. Los vacíos de información se marcan explícitamente con 🔴 — no se rellenan con supuestos.
+
+---
+
+## 1. Identidad del proyecto
+
+- **Nombre:** MANI
+- **Equipo:** TRAMA · Ingeniería de Software
+- **Tipo:** Proyecto académico de arquitectura de software (metodología ADD/ATAM, marco de calidad ISO/IEC 25010:2023)
+- **Propósito:** Plataforma SaaS multi-tenant que formaliza el ciclo de vida de servicios entre clientes, aliados (proveedores de servicio) y empresas tenant, reemplazando la coordinación informal actual vía apps de mensajería.
+
+## 2. Actores del sistema
+
+| Actor | Rol |
+|---|---|
+| Cliente | Solicita servicios |
+| Aliado | Proveedor de servicio aliado del tenant |
+| Administrador de tenant | Administra la configuración y operación de su empresa (tenant) |
+| Administrador de plataforma | Administra tenants a nivel de toda la plataforma |
+
+## 3. Alcance funcional
+
+- **MVP (1er incremento):** RF-01 a RF-23
+- **2º incremento (fuera de alcance del MVP):** RF-24 a RF-28 — pagos, quejas/reclamos, comercialización
+- 🔴 **Gap:** el listado detallado de cada RF-01 a RF-28 (nombre, descripción, criterios de aceptación) no está disponible en esta sesión — vive en el workbook `MANI-SAD.xlsx` (hoja no incluida aquí). Los RF solo se conocen por referencia cruzada desde la hoja `Escenarios_Calidad` (sección 8).
+
+## 4. Gobernanza (aplica al proceso, no a la arquitectura en sí)
+
+- Modelo **Mesa de Arquitectura**: quórum de 5/7, disidente obligatorio, disenso documentado.
+- **Ninguna decisión (ADR) es válida hasta ser ratificada por la Mesa**, incluidas las generadas o sugeridas por IA.
+- Toda sugerencia de ADR generada por IA se marca explícitamente **"Propuesto"** con disclaimer de asistencia de IA (regla fijada en ADR-0009).
+- Estas reglas de gobernanza son proceso de equipo, no drivers arquitectónicos — no deben mezclarse con la sección 6/7.
+
+## 5. Stack tecnológico
+
+### 5.1 Stack ratificado (ADR-0012)
+
+| Capa | Tecnología |
+|---|---|
+| Backend | Dart / Serverpod |
+| Base de datos | Supabase (PostgreSQL con Row-Level Security — RLS) |
+| Cliente | Flutter (código único Android/iOS) |
+
+### 5.2 🔴 Contradicción activa de stack — bloqueante para un agente de código
+
+- **ADR-0004, ADR-0005, ADR-0006** están en estado **Aceptado** y describen un stack **Java / .NET / Azure**.
+- Este stack es **mutuamente excluyente** con el de ADR-0012 (Dart/Serverpod + Supabase + Flutter), y **ninguno de los dos conjuntos ha sido formalmente superseded**.
+- Riesgo documentado como **KI-01**: contradicción Dart/Serverpod vs. requisito curricular Java/.NET.
+- Riesgo documentado como **KI-02**: Kubernetes tratado como opcional pese a ser una restricción curricular no negociable — **no tiene fila propia en la hoja Killers pese a citarse 3 veces en la hoja ADR** (issue de integridad de datos).
+- **Implicación práctica para el agente de código:** antes de generar cualquier código de infraestructura o backend, el proyecto debe resolver cuál stack es el vigente. No asumir Dart/Serverpod por defecto sin confirmación — hay dos conjuntos de ADRs "Aceptado" en conflicto real.
+
+## 6. Marco de calidad
+
+- Framework de atributos de calidad: **ISO/IEC 25010:2023**
+- Framework de decisiones/drivers: **ADD (Attribute-Driven Design, Bass/Clements/Kazman)**
+- Drivers reestructurados en:
+  - Business Goals: **BG-01, BG-02**
+  - Quality Attribute Drivers: **QA-01 a QA-08**
+  - Constraints: **C-01 a C-05**
+- 🔴 **Gap:** el contenido detallado de cada BG/QA/C no está disponible en esta sesión (vive en la hoja `Drivers` del Excel, que además está pendiente de actualizarse formalmente al framework ADD). También falta el **Driver #12**, ausente de la numeración en el Excel fuente (issue de integridad de datos, no corregido silenciosamente).
+- La matriz de tensiones cruza **escenarios de calidad entre sí (QS × QS)**, no atributos de calidad entre sí (AC × AC).
+
+## 7. Riesgos arquitectónicos activos (Killers) — lo conocido
+
+- 13 riesgos activos + 1 cerrado, cada uno con Probabilidad, Impacto y Estado.
+- Detalle confirmado:
+  - **KI-01** — contradicción de stack Dart/Serverpod vs. Java/.NET (ver sección 5.2)
+  - **KI-02** — Kubernetes tratado como opcional pese a ser restricción curricular no negociable; sin fila propia en la hoja Killers (issue de integridad de datos)
+- 🔴 **Gap:** el resto de los 13 riesgos activos (KI-03 en adelante) no está disponible en esta sesión — vive en la hoja `Killers` del Excel.
+
+## 8. Escenarios de Calidad (QS) — fuente: `Escenarios_Calidad`
+
+Formato **Source / Stimulus / Artifact / Environment / Response / Response Measure**. 24 escenarios cubren RF-01 a RF-28 completos: RF-01 a RF-23 (MVP) en QS-01 a QS-15; RF-24 a RF-28 (2º incremento) en QS-21 a QS-24; QS-16 a QS-20 son transversales (no prueban un RF puntual, sino una condición de calidad que protege a todos los módulos).
+
+🔴 **Gap de integridad de datos:** QS-21 a QS-24 aparecen en el encabezado de la hoja pero **no tienen filas de datos** — es decir, los escenarios de calidad del 2º incremento (RF-24–RF-28) están sin definir. No inventar su contenido.
+
+| ID | Módulo | RF cubiertos | Atributo | Source | Stimulus | Artifact | Environment | Response | Response Measure | Prioridad | Impacto | Complejidad |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| QS-01 | Mód. 1 – Acceso | RF-01 | Seguridad / Confidencialidad | Admin. plataforma | Da de alta una nueva empresa (tenant) en la plataforma | Módulo de administración de tenants | Producción, operación normal | El sistema crea el tenant con su propio espacio de datos, aislado desde el primer momento | El tenant queda operativo en menos de 5 minutos; 0 datos de otros tenants visibles desde su creación | Alta | Alto | Media |
+| QS-02 | Mód. 1 – Acceso | RF-03 | Seguridad / Confidencialidad | Usuario ya registrado (Cliente, Aliado o Admin.) | Inicia sesión y navega la app | Capa de acceso a datos (RLS en Supabase) + módulo de autenticación | Producción, uso normal | El sistema autentica al usuario y solo le muestra datos del tenant al que pertenece | 0 registros de otro tenant visibles en el 100% de 6 pruebas automáticas de acceso cruzado, ejecutadas en cada cambio que toque autenticación, RLS o el esquema | Alta | Alto | Media |
+| QS-03 | Mód. 1 – Acceso | RF-04 | Seguridad / Autenticación | Usuario que olvidó su contraseña | Solicita recuperar el acceso a su cuenta | Flujo de recuperación de contraseña | Producción, cualquier hora | El sistema verifica la identidad del usuario antes de permitir el cambio de contraseña | 0 cambios de contraseña sin verificación exitosa; el código o enlace de verificación expira antes de 15 minutos | Media | Alto | Baja |
+| QS-04 | Mód. 2 – Directorio | RF-05, RF-06 | Idoneidad funcional / Corrección | Admin. tenant revisando la bandeja de verificación | Un aliado envía su registro con los documentos que el tenant exige | Bandeja de verificación de aliados | Producción, operación normal | El sistema muestra el registro pendiente con todos sus documentos, y permite aprobarlo o rechazarlo | 100% de los registros nuevos aparecen en la bandeja en menos de 1 minuto; el aliado ve el resultado sin tener que preguntar | Alta | Alto | Media |
+| QS-05 | Mód. 2 – Directorio | RF-07 | Idoneidad funcional / Corrección | Aliado configurando su perfil | Declara las zonas donde presta servicio | Selector de zonas (catálogo jerárquico ciudad → localidad → barrio) | Producción, primera configuración o edición posterior | El sistema guarda la selección y la usa después para las búsquedas de cobertura de RF-12 | El aliado completa la selección en menos de 2 minutos; 0 errores al guardar | Alta | Medio | Baja |
+| QS-06 | Mód. 2 – Directorio | RF-08, RF-09 | Flexibilidad / Adaptabilidad | Cliente empresa con varios sitios | Registra un nuevo sitio con reglas propias (ej. horario de acceso) | Módulo de gestión de sitios del cliente | Producción, operación normal | El sistema guarda el sitio con sus reglas y se las muestra al aliado antes de que acepte una solicitud de ese sitio | 100% de las reglas del sitio visibles para el aliado antes de aceptar la solicitud | Media | Medio | Media |
+| QS-07 | Mód. 3 – Catálogo | RF-02, RF-10, RF-11 | Flexibilidad / Adaptabilidad | Admin. tenant | Activa o desactiva una categoría de servicio, o ajusta una regla del tenant (documentos, tarifas, orden de listado) | Módulo de configuración de categorías y reglas del tenant | Producción, operación normal | El cambio se refleja de inmediato para clientes y aliados de ese tenant, sin necesidad de desplegar código nuevo | Tiempo entre guardar el cambio y que quede activo < 1 min; 0 despliegues de código requeridos | Alta | Alto | Alta |
+| QS-08 | Mód. 4 – Ciclo servicio | RF-12, RF-13 | Eficiencia de desempeño / Capacidad | Cliente creando una solicitud de servicio | Pide ver los aliados disponibles para su categoría y zona, en hora pico | Módulo de búsqueda y listado de aliados | Producción, pico de tráfico | El sistema muestra el listado de aliados válidos, ordenado según la regla configurada por el tenant | Objetivo propuesto: listado entregado en menos de 1 segundo con 20 usuarios buscando a la vez; pendiente validar con volumen real | Alta | Alto | Alta |
+| QS-09 | Mód. 4 – Ciclo servicio | RF-14 | Fiabilidad / Tolerancia a fallos | Varios aliados recibiendo la misma solicitud a la vez | Dos o más aliados aceptan la solicitud al mismo tiempo | Tabla solicitud (columnas status, aliado_id) | Producción, alta concurrencia (la solicitud se envía a todos los aliados válidos a la vez) | El sistema asigna la solicitud a un solo aliado y avisa "ya no disponible" a los demás | Exactamente 1 asignación válida por solicitud en el 100% de los casos; el aliado recibe respuesta en menos de 500 ms | Alta | Alto | Media |
+| QS-10 | Mód. 4 – Ciclo servicio | RF-15, RF-16 | Idoneidad funcional / Corrección | Aliado elaborando una cotización | Ingresa el valor de mano de obra y materiales, y el total queda fuera del rango de tarifas del tenant | Formulario de cotización + tarifario de referencia | Producción, operación normal | El sistema muestra una alerta visible antes de que el aliado envíe la cotización | 100% de las cotizaciones fuera de rango muestran la alerta antes del envío; el evento queda disponible para el reporte de QS-15 | Media | Medio | Baja |
+| QS-11 | Mód. 4 – Ciclo servicio | RF-17 | Fiabilidad / Tolerancia a fallos (idempotencia) | Cliente revisando una cotización, con conexión inestable | Toca "aceptar" y, por un reintento de red, el sistema recibe la misma acción dos veces | Capa de API con clave de idempotencia por solicitud | Producción, condición de red inestable | El sistema procesa la aceptación una sola vez, sin duplicar el efecto | 0 aceptaciones duplicadas en el 100% de reintentos con la misma clave de idempotencia | Media | Medio | Baja |
+| QS-12 | Mód. 4 – Ciclo servicio | RF-18 | Seguridad / No repudio | Cualquier actor del ciclo de servicio (Cliente, Aliado, Admin. tenant) | Ocurre un evento relevante del servicio (cambio de estado, mensaje, cotización) | Log cronológico del servicio | Producción | El sistema registra el evento con actor, fecha/hora y descripción, visible en la línea de tiempo del servicio | 100% de los eventos del ciclo de servicio quedan registrados; tiempo de escritura < 200 ms adicionales sobre la operación original | Media | Alto | Media |
+| QS-13 | Mód. 4 – Ciclo servicio | RF-19 | Fiabilidad / Tolerancia a fallos (idempotencia) | Cliente o Aliado al cierre del servicio | Envía su calificación del otro actor | Módulo de calificación mutua | Producción, cierre del servicio | El sistema guarda una sola calificación por actor y por servicio, incluso si el botón se toca más de una vez | Máximo 1 calificación registrada por actor y servicio en el 100% de los casos | Media | Medio | Baja |
+| QS-14 | Mód. 5 – Comunicación | RF-20, RF-21 | Compatibilidad / Interoperabilidad | Cliente o Aliado con un servicio activo | Envía un mensaje, o se genera una notificación del ciclo de servicio | Supabase Realtime (Broadcast) + servicio de push (FCM/APNs) | Producción, app en primer o segundo plano | El mensaje llega por WebSocket si el otro actor está conectado, o por notificación push si no lo está | Latencia de entrega < 2 s en clientes conectados; 100% de mensajes con al menos un canal de entrega exitoso | Media | Medio | Media |
+| QS-15 | Mód. 6 – Tarifario | RF-22, RF-23 | Mantenibilidad / Analizabilidad | Admin. tenant | Consulta el reporte de cotizaciones fuera de rango en un período | Módulo de reportes, con filtro por fecha | Producción, operación normal | El sistema entrega la tabla filtrada, apoyada en los eventos registrados en QS-10 | Reporte generado en menos de 3 segundos para un rango de hasta 12 meses | Media | Medio | Baja |
+| QS-16 | Transversal | Transversal (todos los módulos) | Fiabilidad / Disponibilidad | Infraestructura (Supabase, hosting del backend Serverpod) | Falla o cae un componente (base de datos, backend, Storage) | Sistema completo (backend + Supabase) | Producción, horario operativo del tenant | El sistema se recupera automáticamente o entra en modo degradado documentado | Disponibilidad objetivo ≥ 99.5% mensual (≤ 3.6 h de indisponibilidad/mes); tiempo de detección de fallo < 5 min | Media | Alto | Media |
+| QS-17 | Transversal | Transversal (protege RF-01 a RF-28) | Mantenibilidad / Verificabilidad | Cualquier integrante del equipo de desarrollo | Un Pull Request modifica autenticación, políticas RLS o el esquema de datos | Pipeline de CI (GitHub Actions + Newman) | Pipeline de CI, antes de fusionar a la rama principal | GitHub Actions ejecuta automáticamente la colección Postman de aislamiento multi-tenant | 6 casos de prueba ejecutados en el 100% de los PR que tocan auth/RLS/esquema; el pipeline bloquea el merge si algún caso falla | Alta | Alto | Media |
+| QS-18 | Transversal | Transversal (todos los módulos) | Mantenibilidad / Analizabilidad | Cualquier servicio instrumentado | Ocurre una anomalía o error en producción | Stack de observabilidad (Prometheus + Grafana + Datadog) | Producción | El sistema genera una alerta y, para anomalías críticas, crea automáticamente un issue en Jira | Tiempo de detección de la anomalía < 5 min desde que ocurre; tasa de falsos positivos aún sin umbral definido | Media | Alto | Alta |
+| QS-19 | Transversal | RF-12 (flujo crítico) | Usabilidad / Capacidad de aprendizaje | Cliente o Aliado nuevo, primera sesión en la app | Completa su primer flujo crítico (solicitar un servicio / aceptar una solicitud) | Interfaz de usuario (Flutter) | Primer uso, sin capacitación previa | El usuario completa el flujo guiado por la interfaz, sin soporte externo | ≥ 80% de usuarios nuevos completan el flujo crítico sin abandonar en su primera sesión; tiempo promedio < 3 min | Media | Medio | Baja |
+| QS-20 | Transversal | Transversal (todos los módulos) | Portabilidad / Adaptabilidad | Cliente o Aliado instalando/usando la app | Abre la aplicación desde Android o iOS | Cliente Flutter | Dispositivo móvil del usuario final | La aplicación se ejecuta con la misma base de código, sin rama de plataforma específica | 1 sola base de código para Android e iOS; 0 líneas de UI condicionadas por plataforma fuera de lo estrictamente necesario | Baja | Medio | Baja |
+| QS-21 a QS-24 | 🔴 sin datos | RF-24 a RF-28 (2º incremento) | 🔴 sin datos | 🔴 sin datos | 🔴 sin datos | 🔴 sin datos | 🔴 sin datos | 🔴 sin datos | 🔴 sin datos | 🔴 sin datos | 🔴 sin datos | 🔴 sin datos |
+
+## 9. Inventario de ADRs
+
+| Aspecto | Detalle |
+|---|---|
+| Rango existente | ADR-0001 a ADR-0017 (ADR-0014 **no existe**) |
+| Último generado | ADR-0018 — patrón Feature Toggle, estado "Propuesto" |
+| ADR-0018 — trazabilidad | Ancla driver #14/RNF-02, la contradicción ADR-0004/ADR-0012, trade-off TO-05, escenario QS-17 |
+| ADR-0009 | Establece que las sugerencias de ADR generadas por IA llevan disclaimer y se marcan "Propuesto" |
+| ADR-0012 | Stack ratificado: Dart/Serverpod + Supabase + Flutter |
+| ADR-0004, 0005, 0006 | Aceptados; describen Java/.NET/Azure — contradicen a ADR-0012 (ver sección 5.2) |
+| ADR-0016, ADR-0017 | Ambos "Propuesto" e **incompletos** — faltan campos Redactor, Disenso y Quórum |
+| Convención de nombre | `ADR-NNNN-titulo-con-guiones.md`, numeración de 4 dígitos con ceros a la izquierda |
+| Anomalía conocida | ADR-0008 tiene un espacio inicial en el nombre de archivo |
+
+🔴 **Gap:** el texto completo de cada ADR (Contexto, Alternativas, Decisión, Trade-off, Consecuencias, Trazabilidad) no está disponible en esta sesión — vive en el repo GitHub. Un agente de código que necesite el detalle completo debe leer los archivos directamente del repositorio (sección 11).
+
+## 10. Formato estándar de ADR (para generar nuevos)
+
+```markdown
+# ADR-NNN: <título breve de la decisión>
+
+- Fecha: AAAA-MM-DD
+- Sprint: <n>
+- Autor: <nombre y rol>
+- Origen: <Mesa Técnica | Sprint Planning | issue #NNN>
+- Revisor: <integrante distinto del autor que aprueba el pull request>
+
+## Contexto
+<Fuerzas en tensión: técnicas, de proceso, de negocio y de plazo académico. Lenguaje neutral, solo hechos.>
+
+## Alternativas evaluadas
+1. <Opción A> — descartada porque <motivo objetivo y verificable>.
+2. <Opción B> — descartada porque <motivo objetivo y verificable>.
+<Mínimo dos alternativas reales.>
+
+## Decisión
+Usaremos <...>.
+<Una sola frase, voz activa, primera persona del plural. Sin condicionales.>
+
+## Trade-off asumido
+<Lo que el equipo sacrifica conscientemente: costo, tiempo, acoplamiento, portabilidad o deuda técnica.>
+
+## Estado
+<Propuesto | Aceptado | Obsoleto | Reemplazado> — última actualización: AAAA-MM-DD
+
+## Consecuencias
+- Positivas: <...>
+- Negativas: <...>
+- Neutras: <...>
+
+## Trazabilidad
+- Issues: #<n>
+- Pull requests: #<n>
+- Componentes del modelo C4 afectados: <contenedor o componente>
+- Documentos que deben actualizarse: <instructivo, guía de contribución, estrategia de pruebas>
+```
+
+**Checklist antes de abrir el PR (Gobierno del Equipo, sección 2.6):**
+1. Los siete campos presentes, sin marcadores `<...>` sin reemplazar.
+2. La decisión cabe en una frase y no admite dos lecturas.
+3. Al menos dos alternativas descartadas con motivo verificable.
+4. Al menos una consecuencia negativa o neutra.
+5. Estado único, fechado y enlazado si corresponde.
+6. Enlazado al issue y al pull request de implementación.
+7. Revisado por un integrante distinto del autor.
+
+## 11. Repositorio y convenciones técnicas
+
+- **Repo:** `Trama-AS/MANI-docs` en GitHub (organización: `github.com/Trama-AS`)
+- Acceso a contenido raw: `raw.githubusercontent.com/Trama-AS/MANI-docs/main/[carpeta]/[archivo]`
+- La API de GitHub es poco confiable por rate limiting; parsear la página HTML del árbol de archivos es más estable.
+- Extracción de Excel: `openpyxl` con `data_only=True`. Layout de hoja: fila 0 = título, fila 1 = subtítulo, fila 2 = encabezados, filas 3+ = datos.
+- Pipeline PDF: `pandoc` (md → HTML5, `--standalone -c style.css`) → `weasyprint` (HTML → PDF).
+
+## 12. Principios de trabajo (aplican también al agente de código)
+
+- **Disciplina de evidencia estricta:** drivers, killers y decisiones arquitectónicas deben respaldarse en ADRs o artefactos documentados — no rellenar vacíos con supuestos.
+- **Los vacíos se marcan explícitamente** (🔴 o `<...>`) en vez de inventarse.
+- **Integridad de datos sobre corrección silenciosa:** si el dato fuente tiene un problema, se documenta — no se corrige sin avisar.
+- Ningún ADR (ni humano ni generado por IA) es válido para implementación hasta ser ratificado por la Mesa de Arquitectura.
+
+## 13. Resumen de vacíos críticos antes de codificar
+
+| # | Vacío | Bloqueante para codificar |
+|---|---|---|
+| 1 | Contradicción de stack no resuelta: Dart/Serverpod (ADR-0012) vs. Java/.NET/Azure (ADR-0004/5/6) | **Sí** — define lenguaje, framework y BD |
+| 2 | QS-21 a QS-24 sin datos (escenarios del 2º incremento, RF-24–RF-28) | Solo si se implementa el 2º incremento |
+| 3 | Detalle completo de RF-01 a RF-28 no incluido aquí | **Sí** — falta la especificación funcional línea por línea |
+| 4 | Detalle completo de Drivers (BG/QA/C) y Driver #12 faltante | Recomendable antes de decisiones de diseño |
+| 5 | 13 Killers activos, solo 2 detallados (KI-01, KI-02) | Recomendable para gestión de riesgo |
+| 6 | Texto completo de los ADRs (solo se tiene el inventario de estados) | **Sí** — decisiones de diseño dependen del contenido, no solo del estado |
+| 7 | ADR-0016 y ADR-0017 incompletos (Propuesto, sin ratificar) | No usar como base de implementación aún |
+| 8 | KI-02 (Kubernetes) sin fila en hoja Killers pese a citarse 3 veces | Aclarar antes de definir estrategia de despliegue |
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-21T11:23:16-05:00.
+
+The user's current state is as follows:
+Active Document: c:\Users\juans\Documents\Universidad\MANI-Flutter\database\init\02-seed.sql (LANGUAGE_UNSPECIFIED)
+Cursor is on line: 1
+</ADDITIONAL_METADATA>
