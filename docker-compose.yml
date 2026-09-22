@@ -1,0 +1,58 @@
+services:
+  # =====================================================================
+  # Aplicación Flutter Web - MANI
+  # =====================================================================
+  mani-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mani-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # =====================================================================
+  # Base de Datos PostgreSQL para Desarrollo Local - MANI
+  # =====================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: mani-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mani_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-mani_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # =====================================================================
+  # Interfaz Web de Administración de Base de Datos (Adminer)
+  # Acceso: http://localhost:8088
+  # =====================================================================
+  adminer:
+    image: adminer:latest
+    container_name: mani-adminer
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "${ADMINER_PORT:-8088}:8080"
+
+volumes:
+  postgres_data:
+    name: mani_postgres_data

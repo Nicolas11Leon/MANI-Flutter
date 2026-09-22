@@ -1,0 +1,14 @@
+.git
+.github
+.idea
+.dart_tool
+build/
+android/
+ios/
+windows/
+macos/
+linux/
+*.iml
+# .env se incluye en el build context para que flutter_dotenv lo empaquete como asset.
+# En CI/CD, el .env se inyecta como secret antes del build.
+# .env
