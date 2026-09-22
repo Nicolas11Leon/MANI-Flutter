@@ -40,10 +40,7 @@ class ManiTextField extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted,
       autofillHints: autofillHints,
       validator: validator,
-      style: const TextStyle(
-        color: AppTheme.textPrimary,
-        fontSize: 15,
-      ),
+      style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
@@ -61,4 +58,3 @@ class ManiTextField extends StatelessWidget {
     );
   }
 }
-

@@ -12,7 +12,8 @@ class RegistroAliadoEmpresaPage extends StatefulWidget {
   const RegistroAliadoEmpresaPage({super.key});
 
   @override
-  State<RegistroAliadoEmpresaPage> createState() => _RegistroAliadoEmpresaPageState();
+  State<RegistroAliadoEmpresaPage> createState() =>
+      _RegistroAliadoEmpresaPageState();
 }
 
 class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
@@ -43,7 +44,8 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
   String _selectedCategoriaId = 'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a18';
   final Map<String, String> _categorias = const {
     'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a18': 'Plomería y Redes Hidráulicas',
-    'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a19': 'Electricidad Residencial e Industrial',
+    'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a19':
+        'Electricidad Residencial e Industrial',
     'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a20': 'Cerrajería y Seguridad',
   };
 
@@ -91,7 +93,9 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     if (_camaraComercioFile == null) {
-      _showNotification('Debes adjuntar el Certificado de Cámara de Comercio vigente.');
+      _showNotification(
+        'Debes adjuntar el Certificado de Cámara de Comercio vigente.',
+      );
       return;
     }
 
@@ -106,7 +110,8 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
       final documentos = <Map<String, String>>[
         {
           'tipo_documento': 'CAMARA_COMERCIO',
-          'ruta_storage': 'kyc/$_selectedTenantId/camara_${_camaraComercioFile!.name}',
+          'ruta_storage':
+              'kyc/$_selectedTenantId/camara_${_camaraComercioFile!.name}',
         },
         {
           'tipo_documento': 'RUT_EMPRESA',
@@ -115,7 +120,8 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
         if (_cedulaRepFile != null)
           {
             'tipo_documento': 'CEDULA_REPRESENTANTE',
-            'ruta_storage': 'kyc/$_selectedTenantId/rep_${_cedulaRepFile!.name}',
+            'ruta_storage':
+                'kyc/$_selectedTenantId/rep_${_cedulaRepFile!.name}',
           },
       ];
 
@@ -165,7 +171,10 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   border: Border.all(color: AppTheme.dark, width: 2),
                 ),
-                child: const Icon(Icons.apartment_rounded, color: AppTheme.dark),
+                child: const Icon(
+                  Icons.apartment_rounded,
+                  color: AppTheme.dark,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -234,7 +243,10 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
                 context.go('/login');
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.primary,
                   borderRadius: BorderRadius.circular(AppTheme.radiusXl),
@@ -291,7 +303,10 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
             // ── Contenido Principal ────────────────────────────────────────
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 36,
+                  vertical: 24,
+                ),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1200),
@@ -312,9 +327,15 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
                                 return Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(flex: 5, child: _buildLeftColumn()),
+                                    Expanded(
+                                      flex: 5,
+                                      child: _buildLeftColumn(),
+                                    ),
                                     const SizedBox(width: 28),
-                                    Expanded(flex: 5, child: _buildRightColumn()),
+                                    Expanded(
+                                      flex: 5,
+                                      child: _buildRightColumn(),
+                                    ),
                                   ],
                                 );
                               } else {
@@ -488,7 +509,10 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTitle(Icons.business_rounded, '1. Datos de la Empresa y Representante'),
+          _buildCardTitle(
+            Icons.business_rounded,
+            '1. Datos de la Empresa y Representante',
+          ),
           const SizedBox(height: 20),
 
           // Selector de Empresa / Tenant Operador
@@ -618,7 +642,10 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildCardTitle(Icons.lock_rounded, '2. Credenciales de Acceso Corporativo'),
+              _buildCardTitle(
+                Icons.lock_rounded,
+                '2. Credenciales de Acceso Corporativo',
+              ),
               const SizedBox(height: 18),
 
               // Correo
@@ -637,7 +664,8 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
                   prefixIcon: Icons.email_outlined,
                 ),
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'El correo corporativo es obligatorio';
+                  if (v == null || v.trim().isEmpty)
+                    return 'El correo corporativo es obligatorio';
                   if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim())) {
                     return 'Ingresa un correo electrónico válido';
                   }
@@ -661,7 +689,8 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
                   hint: '••••••••',
                   prefixIcon: Icons.key_outlined,
                   suffixIcon: TextButton(
-                    onPressed: () => setState(() => _showPassword = !_showPassword),
+                    onPressed: () =>
+                        setState(() => _showPassword = !_showPassword),
                     child: Text(
                       _showPassword ? 'OCULTAR' : 'VER',
                       style: GoogleFonts.plusJakartaSans(
@@ -673,7 +702,8 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
                   ),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'La contraseña es obligatoria';
+                  if (v == null || v.isEmpty)
+                    return 'La contraseña es obligatoria';
                   if (v.length < 6) return 'Mínimo 6 caracteres';
                   return null;
                 },
@@ -695,7 +725,10 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildCardTitle(Icons.file_copy_rounded, '3. Documentación Corporativa (KYC)'),
+              _buildCardTitle(
+                Icons.file_copy_rounded,
+                '3. Documentación Corporativa (KYC)',
+              ),
               const SizedBox(height: 6),
               Text(
                 'El Backoffice valida estos certificados legales para habilitar tu empresa en proyectos corporativos.',
@@ -709,7 +742,8 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
               // Uploader 1: Cámara de Comercio
               _buildWebFileUploader(
                 title: 'Certificado de Cámara de Comercio (Obligatorio)',
-                subtitle: 'Certificado de existencia y representación legal vigente (PDF)',
+                subtitle:
+                    'Certificado de existencia y representación legal vigente (PDF)',
                 file: _camaraComercioFile,
                 onTap: () => _pickDocument(docType: 'camara'),
               ),
@@ -718,7 +752,8 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
               // Uploader 2: RUT Empresarial
               _buildWebFileUploader(
                 title: 'RUT de la Empresa (Obligatorio)',
-                subtitle: 'RUT actualizado con NIT y actividad económica principal (PDF)',
+                subtitle:
+                    'RUT actualizado con NIT y actividad económica principal (PDF)',
                 file: _rutEmpresaFile,
                 onTap: () => _pickDocument(docType: 'rut'),
               ),
@@ -727,7 +762,8 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
               // Uploader 3: Cédula Representante Legal
               _buildWebFileUploader(
                 title: 'Cédula del Representante Legal (Recomendado)',
-                subtitle: 'Documento de identidad legible del representante (PDF/IMG)',
+                subtitle:
+                    'Documento de identidad legible del representante (PDF/IMG)',
                 file: _cedulaRepFile,
                 onTap: () => _pickDocument(docType: 'rep'),
               ),
@@ -753,7 +789,11 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.verified_user_rounded, color: AppTheme.dark, size: 24),
+              const Icon(
+                Icons.verified_user_rounded,
+                color: AppTheme.dark,
+                size: 24,
+              ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -865,10 +905,7 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
             color: AppTheme.dark,
           ),
           items: _tenants.entries.map((e) {
-            return DropdownMenuItem<String>(
-              value: e.key,
-              child: Text(e.value),
-            );
+            return DropdownMenuItem<String>(value: e.key, child: Text(e.value));
           }).toList(),
           onChanged: (val) {
             if (val != null) setState(() => _selectedTenantId = val);
@@ -897,10 +934,7 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
             color: AppTheme.dark,
           ),
           items: _categorias.entries.map((e) {
-            return DropdownMenuItem<String>(
-              value: e.key,
-              child: Text(e.value),
-            );
+            return DropdownMenuItem<String>(value: e.key, child: Text(e.value));
           }).toList(),
           onChanged: (val) {
             if (val != null) setState(() => _selectedCategoriaId = val);
@@ -943,7 +977,9 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
                 ),
               ),
               child: Icon(
-                isSelected ? Icons.check_circle_rounded : Icons.upload_file_rounded,
+                isSelected
+                    ? Icons.check_circle_rounded
+                    : Icons.upload_file_rounded,
                 color: isSelected ? AppTheme.success : AppTheme.dark,
                 size: 22,
               ),
@@ -968,8 +1004,12 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
                         : subtitle,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? AppTheme.success : AppTheme.textSecondary,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? AppTheme.success
+                          : AppTheme.textSecondary,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1010,7 +1050,9 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),
-      prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppTheme.dark, size: 18) : null,
+      prefixIcon: prefixIcon != null
+          ? Icon(prefixIcon, color: AppTheme.dark, size: 18)
+          : null,
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: Colors.white,
@@ -1038,4 +1080,3 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
     );
   }
 }
-

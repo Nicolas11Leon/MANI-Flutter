@@ -55,7 +55,9 @@ class AuthRepository {
     final userId = user?.id;
 
     if (userId == null) {
-      throw const AuthException('No se pudo crear el usuario en Supabase Auth.');
+      throw const AuthException(
+        'No se pudo crear el usuario en Supabase Auth.',
+      );
     }
 
     // 2. Intentar autenticar la sesión para tener permisos autenticados
@@ -101,13 +103,17 @@ class AuthRepository {
         });
 
         // Inserción en aliado
-        final aliadoRes = await _client.from('aliado').insert({
-          'tenant_id': tenantId,
-          'usuario_id': userId,
-          'tipo': 'PERSONA_NATURAL',
-          'nombre_razon_social': cleanNombre,
-          'estado_verificacion': 'PENDIENTE',
-        }).select('id').maybeSingle();
+        final aliadoRes = await _client
+            .from('aliado')
+            .insert({
+              'tenant_id': tenantId,
+              'usuario_id': userId,
+              'tipo': 'PERSONA_NATURAL',
+              'nombre_razon_social': cleanNombre,
+              'estado_verificacion': 'PENDIENTE',
+            })
+            .select('id')
+            .maybeSingle();
 
         final aliadoId = aliadoRes?['id'];
 
@@ -141,7 +147,8 @@ class AuthRepository {
       'success': true,
       'usuario_id': userId,
       'estado_verificacion': 'PENDIENTE',
-      'mensaje': 'Registro completado con éxito. Tu cuenta está en revisión por Backoffice.',
+      'mensaje':
+          'Registro completado con éxito. Tu cuenta está en revisión por Backoffice.',
     };
   }
 
@@ -177,7 +184,9 @@ class AuthRepository {
     final userId = user?.id;
 
     if (userId == null) {
-      throw const AuthException('No se pudo crear el usuario en Supabase Auth.');
+      throw const AuthException(
+        'No se pudo crear el usuario en Supabase Auth.',
+      );
     }
 
     // 2. Intentar autenticar sesión para permisos autenticados
@@ -208,7 +217,9 @@ class AuthRepository {
         return Map<String, dynamic>.from(rpcResult);
       }
     } catch (rpcError) {
-      debugPrint('Nota RPC cliente: $rpcError. Intentando inserción directa...');
+      debugPrint(
+        'Nota RPC cliente: $rpcError. Intentando inserción directa...',
+      );
       try {
         await _client.from('usuario').upsert({
           'id': userId,
@@ -233,7 +244,8 @@ class AuthRepository {
       'usuario_id': userId,
       'rol': 'CLIENTE',
       'estado': 'ACTIVO',
-      'mensaje': 'Cuenta de cliente creada exitosamente. Ya puedes solicitar servicios.',
+      'mensaje':
+          'Cuenta de cliente creada exitosamente. Ya puedes solicitar servicios.',
     };
   }
 
@@ -280,7 +292,9 @@ class AuthRepository {
     final userId = user?.id;
 
     if (userId == null) {
-      throw const AuthException('No se pudo crear el usuario empresarial en Supabase Auth.');
+      throw const AuthException(
+        'No se pudo crear el usuario empresarial en Supabase Auth.',
+      );
     }
 
     // 2. Intentar autenticar la sesión para permisos autenticados
@@ -317,7 +331,9 @@ class AuthRepository {
         return Map<String, dynamic>.from(rpcResult);
       }
     } catch (rpcError) {
-      debugPrint('Nota RPC empresa: $rpcError. Intentando inserción directa...');
+      debugPrint(
+        'Nota RPC empresa: $rpcError. Intentando inserción directa...',
+      );
       try {
         await _client.from('usuario').upsert({
           'id': userId,
@@ -327,13 +343,17 @@ class AuthRepository {
           'estado': 'ACTIVO',
         });
 
-        final aliadoRes = await _client.from('aliado').insert({
-          'tenant_id': tenantId,
-          'usuario_id': userId,
-          'tipo': 'PERSONA_JURIDICA',
-          'nombre_razon_social': cleanRazonSocial,
-          'estado_verificacion': 'PENDIENTE',
-        }).select('id').maybeSingle();
+        final aliadoRes = await _client
+            .from('aliado')
+            .insert({
+              'tenant_id': tenantId,
+              'usuario_id': userId,
+              'tipo': 'PERSONA_JURIDICA',
+              'nombre_razon_social': cleanRazonSocial,
+              'estado_verificacion': 'PENDIENTE',
+            })
+            .select('id')
+            .maybeSingle();
 
         final aliadoId = aliadoRes?['id'];
 
@@ -365,7 +385,8 @@ class AuthRepository {
       'success': true,
       'usuario_id': userId,
       'estado_verificacion': 'PENDIENTE',
-      'mensaje': 'Registro empresarial completado con éxito. Tu cuenta está en revisión por Backoffice.',
+      'mensaje':
+          'Registro empresarial completado con éxito. Tu cuenta está en revisión por Backoffice.',
     };
   }
 

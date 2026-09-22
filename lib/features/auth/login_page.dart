@@ -323,8 +323,10 @@ class _LoginPageState extends State<LoginPage> {
             ),
             filled: true,
             fillColor: AppTheme.surface,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTheme.radiusXl),
               borderSide: const BorderSide(color: AppTheme.dark, width: 2),
@@ -378,8 +380,10 @@ class _LoginPageState extends State<LoginPage> {
             ),
             filled: true,
             fillColor: AppTheme.surface,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
             suffixIcon: TextButton(
               onPressed: () => setState(() => _showPassword = !_showPassword),
               child: Text(
@@ -473,7 +477,9 @@ class _LoginPageState extends State<LoginPage> {
         // Divisor "¿NO TIENES CUENTA?"
         Row(
           children: [
-            const Expanded(child: Divider(color: AppTheme.dark, thickness: 1.5)),
+            const Expanded(
+              child: Divider(color: AppTheme.dark, thickness: 1.5),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
@@ -486,7 +492,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            const Expanded(child: Divider(color: AppTheme.dark, thickness: 1.5)),
+            const Expanded(
+              child: Divider(color: AppTheme.dark, thickness: 1.5),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -544,7 +552,11 @@ class _LoginPageState extends State<LoginPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.handyman_outlined, color: AppTheme.dark, size: 18),
+                const Icon(
+                  Icons.handyman_outlined,
+                  color: AppTheme.dark,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'REGISTRARME COMO ALIADO TÉCNICO',
@@ -570,15 +582,16 @@ class _LoginPageState extends State<LoginPage> {
             decoration: BoxDecoration(
               color: AppTheme.surface,
               borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              border: Border.all(
-                color: AppTheme.dark,
-                width: 1.5,
-              ),
+              border: Border.all(color: AppTheme.dark, width: 1.5),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.business_outlined, color: AppTheme.dark, size: 18),
+                const Icon(
+                  Icons.business_outlined,
+                  color: AppTheme.dark,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'REGISTRAR MI EMPRESA DE SERVICIOS',

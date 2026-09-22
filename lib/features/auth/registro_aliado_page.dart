@@ -81,7 +81,9 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     if (_cedulaFile == null) {
-      _showNotification('Debes adjuntar tu Cédula de Ciudadanía para validación.');
+      _showNotification(
+        'Debes adjuntar tu Cédula de Ciudadanía para validación.',
+      );
       return;
     }
 
@@ -142,7 +144,10 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   border: Border.all(color: AppTheme.dark, width: 2),
                 ),
-                child: const Icon(Icons.check_circle_outline, color: AppTheme.dark),
+                child: const Icon(
+                  Icons.check_circle_outline,
+                  color: AppTheme.dark,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -211,7 +216,10 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
                 context.go('/login');
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.primary,
                   borderRadius: BorderRadius.circular(AppTheme.radiusXl),
@@ -268,7 +276,10 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
             // ── Contenido Principal ────────────────────────────────────────
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 36,
+                  vertical: 24,
+                ),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1200),
@@ -289,9 +300,15 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
                                 return Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(flex: 5, child: _buildLeftColumn()),
+                                    Expanded(
+                                      flex: 5,
+                                      child: _buildLeftColumn(),
+                                    ),
                                     const SizedBox(width: 28),
-                                    Expanded(flex: 5, child: _buildRightColumn()),
+                                    Expanded(
+                                      flex: 5,
+                                      child: _buildRightColumn(),
+                                    ),
                                   ],
                                 );
                               } else {
@@ -545,7 +562,8 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
                   prefixIcon: Icons.email_outlined,
                 ),
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'El correo es obligatorio';
+                  if (v == null || v.trim().isEmpty)
+                    return 'El correo es obligatorio';
                   if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim())) {
                     return 'Ingresa un correo electrónico válido';
                   }
@@ -569,7 +587,8 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
                   hint: '••••••••',
                   prefixIcon: Icons.key_outlined,
                   suffixIcon: TextButton(
-                    onPressed: () => setState(() => _showPassword = !_showPassword),
+                    onPressed: () =>
+                        setState(() => _showPassword = !_showPassword),
                     child: Text(
                       _showPassword ? 'OCULTAR' : 'VER',
                       style: GoogleFonts.plusJakartaSans(
@@ -581,7 +600,8 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
                   ),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'La contraseña es obligatoria';
+                  if (v == null || v.isEmpty)
+                    return 'La contraseña es obligatoria';
                   if (v.length < 6) return 'Mínimo 6 caracteres';
                   return null;
                 },
@@ -603,7 +623,10 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildCardTitle(Icons.document_scanner_rounded, '3. Documentos de Validación (KYC)'),
+              _buildCardTitle(
+                Icons.document_scanner_rounded,
+                '3. Documentos de Validación (KYC)',
+              ),
               const SizedBox(height: 6),
               Text(
                 'El Backoffice valida estos documentos antes de habilitar tu cuenta para recibir solicitudes.',
@@ -622,7 +645,8 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
               const SizedBox(height: 14),
               _buildWebFileUploader(
                 title: 'RUT o Certificado Técnico (Recomendado)',
-                subtitle: 'Acredita tu experiencia técnica para mayor prioridad',
+                subtitle:
+                    'Acredita tu experiencia técnica para mayor prioridad',
                 file: _rutFile,
                 onTap: () => _pickDocument(isCedula: false),
               ),
@@ -648,7 +672,11 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.security_rounded, color: AppTheme.dark, size: 24),
+              const Icon(
+                Icons.security_rounded,
+                color: AppTheme.dark,
+                size: 24,
+              ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -760,10 +788,7 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
             color: AppTheme.dark,
           ),
           items: _tenants.entries.map((e) {
-            return DropdownMenuItem<String>(
-              value: e.key,
-              child: Text(e.value),
-            );
+            return DropdownMenuItem<String>(value: e.key, child: Text(e.value));
           }).toList(),
           onChanged: (val) {
             if (val != null) setState(() => _selectedTenantId = val);
@@ -792,10 +817,7 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
             color: AppTheme.dark,
           ),
           items: _categorias.entries.map((e) {
-            return DropdownMenuItem<String>(
-              value: e.key,
-              child: Text(e.value),
-            );
+            return DropdownMenuItem<String>(value: e.key, child: Text(e.value));
           }).toList(),
           onChanged: (val) {
             if (val != null) setState(() => _selectedCategoriaId = val);
@@ -822,7 +844,11 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               border: Border.all(color: AppTheme.dark, width: 1.5),
             ),
-            child: const Icon(Icons.engineering_rounded, color: AppTheme.dark, size: 20),
+            child: const Icon(
+              Icons.engineering_rounded,
+              color: AppTheme.dark,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -885,7 +911,9 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
                 ),
               ),
               child: Icon(
-                isSelected ? Icons.check_circle_rounded : Icons.upload_file_rounded,
+                isSelected
+                    ? Icons.check_circle_rounded
+                    : Icons.upload_file_rounded,
                 color: isSelected ? AppTheme.success : AppTheme.dark,
                 size: 22,
               ),
@@ -910,8 +938,12 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
                         : subtitle,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? AppTheme.success : AppTheme.textSecondary,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? AppTheme.success
+                          : AppTheme.textSecondary,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -952,7 +984,9 @@ class _RegistroAliadoPageState extends State<RegistroAliadoPage> {
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),
-      prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppTheme.dark, size: 18) : null,
+      prefixIcon: prefixIcon != null
+          ? Icon(prefixIcon, color: AppTheme.dark, size: 18)
+          : null,
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: Colors.white,

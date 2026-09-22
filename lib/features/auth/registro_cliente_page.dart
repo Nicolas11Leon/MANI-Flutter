@@ -91,7 +91,10 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   border: Border.all(color: AppTheme.dark, width: 2),
                 ),
-                child: const Icon(Icons.home_repair_service_rounded, color: AppTheme.dark),
+                child: const Icon(
+                  Icons.home_repair_service_rounded,
+                  color: AppTheme.dark,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -160,7 +163,10 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
                 context.go('/login');
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.primary,
                   borderRadius: BorderRadius.circular(AppTheme.radiusXl),
@@ -217,7 +223,10 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
             // ── Contenido Principal ────────────────────────────────────────
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 36,
+                  vertical: 24,
+                ),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1200),
@@ -238,9 +247,15 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
                                 return Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(flex: 5, child: _buildLeftColumn()),
+                                    Expanded(
+                                      flex: 5,
+                                      child: _buildLeftColumn(),
+                                    ),
                                     const SizedBox(width: 28),
-                                    Expanded(flex: 5, child: _buildRightColumn()),
+                                    Expanded(
+                                      flex: 5,
+                                      child: _buildRightColumn(),
+                                    ),
                                   ],
                                 );
                               } else {
@@ -511,7 +526,8 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
                   prefixIcon: Icons.email_outlined,
                 ),
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'El correo es obligatorio';
+                  if (v == null || v.trim().isEmpty)
+                    return 'El correo es obligatorio';
                   if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim())) {
                     return 'Ingresa un correo electrónico válido';
                   }
@@ -535,7 +551,8 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
                   hint: '••••••••',
                   prefixIcon: Icons.key_outlined,
                   suffixIcon: TextButton(
-                    onPressed: () => setState(() => _showPassword = !_showPassword),
+                    onPressed: () =>
+                        setState(() => _showPassword = !_showPassword),
                     child: Text(
                       _showPassword ? 'OCULTAR' : 'VER',
                       style: GoogleFonts.plusJakartaSans(
@@ -547,7 +564,8 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
                   ),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'La contraseña es obligatoria';
+                  if (v == null || v.isEmpty)
+                    return 'La contraseña es obligatoria';
                   if (v.length < 6) return 'Mínimo 6 caracteres';
                   return null;
                 },
@@ -569,7 +587,10 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildCardTitle(Icons.verified_outlined, '3. Beneficios de tu Cuenta'),
+              _buildCardTitle(
+                Icons.verified_outlined,
+                '3. Beneficios de tu Cuenta',
+              ),
               const SizedBox(height: 14),
               _buildBenefitItem(
                 Icons.flash_on_rounded,
@@ -650,7 +671,11 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.security_rounded, color: AppTheme.dark, size: 24),
+              const Icon(
+                Icons.security_rounded,
+                color: AppTheme.dark,
+                size: 24,
+              ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -755,7 +780,9 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),
-      prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppTheme.dark, size: 18) : null,
+      prefixIcon: prefixIcon != null
+          ? Icon(prefixIcon, color: AppTheme.dark, size: 18)
+          : null,
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: Colors.white,
@@ -783,4 +810,3 @@ class _RegistroClientePageState extends State<RegistroClientePage> {
     );
   }
 }
-

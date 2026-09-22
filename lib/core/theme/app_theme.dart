@@ -15,9 +15,11 @@ class AppTheme {
 
   // ── Colores base ──────────────────────────────────────────────────────────
   static const Color background = Color(0xFFFDFBF7); // Crema de fondo oficial
-  static const Color surface = Color(0xFFFFFFFF);    // Blanco
-  static const Color primary = Color(0xFFFACC15);    // Amarillo característico MANI
-  static const Color dark = Color(0xFF1E1E1E);       // Tinta negra / bordes
+  static const Color surface = Color(0xFFFFFFFF); // Blanco
+  static const Color primary = Color(
+    0xFFFACC15,
+  ); // Amarillo característico MANI
+  static const Color dark = Color(0xFF1E1E1E); // Tinta negra / bordes
   static const Color textPrimary = Color(0xFF1E1E1E);
   static const Color textSecondary = Color(0xFF6B7280);
   static const Color textTertiary = Color(0xFF9CA3AF);

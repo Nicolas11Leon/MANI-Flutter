@@ -12,10 +12,7 @@ import 'package:mani/features/auth/registro_aliado_empresa_page.dart';
 final appRouter = GoRouter(
   initialLocation: '/login',
   routes: [
-    GoRoute(
-      path: '/',
-      redirect: (context, state) => '/login',
-    ),
+    GoRoute(path: '/', redirect: (context, state) => '/login'),
     GoRoute(
       path: '/login',
       name: 'login',
