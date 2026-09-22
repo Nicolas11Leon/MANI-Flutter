@@ -1,6 +1,6 @@
 -- =====================================================================
--- Esquema Oficial de Base de Datos - MANI
--- Dialecto: PostgreSQL (Compatible con Supabase / Postgres 15+)
+-- Migración 001: Esquema Base Inicial - MANI
+-- Dialecto: PostgreSQL 15+ / Supabase
 -- =====================================================================
 
 -- 1. Tabla de Control de Migraciones Versionadas
@@ -10,11 +10,11 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
     applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Habilitar extensión para generación de UUIDs (por defecto en Supabase)
+-- 2. Habilitar extensión para generación de UUIDs
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ==========================================
--- 1. TABLAS INDEPENDIENTES / BASE
+-- 3. TABLAS INDEPENDIENTES / BASE
 -- ==========================================
 
 -- Tabla: tenant
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS usuario (
 );
 
 -- ==========================================
--- 2. ENTIDADES PRINCIPALES Y PERFILES
+-- 4. ENTIDADES PRINCIPALES Y PERFILES
 -- ==========================================
 
 -- Tabla: categoria_servicio
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS cliente (
 );
 
 -- ==========================================
--- 3. DETALLES Y CONFIGURACIONES DE NEGOCIO
+-- 5. DETALLES Y CONFIGURACIONES DE NEGOCIO
 -- ==========================================
 
 -- Tabla: aliado_categoria
@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS sitio (
 );
 
 -- ==========================================
--- 4. FLUJO TRANSACCIONAL (OPERACIÓN)
+-- 6. FLUJO TRANSACCIONAL (OPERACIÓN)
 -- ==========================================
 
 -- Tabla: solicitud
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS notificacion (
 );
 
 -- ==========================================
--- REGISTRO DE LA MIGRACIÓN
+-- 7. REGISTRO DE LA MIGRACIÓN
 -- ==========================================
 INSERT INTO schema_migrations (version, description)
 VALUES ('001', 'Initial database schema with 17 core tables and pgcrypto')

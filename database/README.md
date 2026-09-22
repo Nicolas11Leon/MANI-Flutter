@@ -77,9 +77,28 @@ docker compose up -d
 
 ---
 
-## 🗄️ Tablas Incluidas en el Esquema
+## 📜 Migraciones Versionadas (CFG-07)
 
+Cuando se introducen cambios de base de datos en una rama de desarrollo (nuevas tablas, columnas o índices):
+
+1. **Crear la migración:** Agrega un archivo numerado en [`database/migrations/`](file:///C:/Users/santi/OneDrive/Documentos/MANI-Flutter/database/migrations/) (ej. `002_add_field_to_table.sql`).
+2. **Aplicar en local sin perder datos:**
+   ```powershell
+   # En Windows PowerShell:
+   .\scripts\migrate-local.ps1
+
+   # En Linux / Mac / WSL:
+   ./scripts/migrate-local.sh
+   ```
+   El script consulta la tabla `schema_migrations` y ejecuta únicamente los scripts SQL que aún no se hayan aplicado.
+
+---
+
+## 🗄️ Tablas Incluidas en el Esquema Base
+
+0. **Control:** `schema_migrations` (seguimiento de versiones aplicadas).
 1. **Base:** `tenant`, `zona`, `usuario`.
 2. **Entidades & Perfiles:** `categoria_servicio`, `aliado`, `cliente`.
 3. **Detalles & Negocio:** `aliado_categoria`, `documento_kyc`, `tarifa_referencia`, `cobertura_aliado`, `sitio`.
 4. **Flujo Operativo:** `solicitud`, `cotizacion`, `mensaje`, `evento_servicio`, `calificacion`, `notificacion`.
+
