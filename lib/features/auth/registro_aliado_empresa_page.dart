@@ -664,8 +664,9 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
                   prefixIcon: Icons.email_outlined,
                 ),
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty)
+                  if (v == null || v.trim().isEmpty) {
                     return 'El correo corporativo es obligatorio';
+                  }
                   if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim())) {
                     return 'Ingresa un correo electrónico válido';
                   }
@@ -702,9 +703,12 @@ class _RegistroAliadoEmpresaPageState extends State<RegistroAliadoEmpresaPage> {
                   ),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty)
+                  if (v == null || v.isEmpty) {
                     return 'La contraseña es obligatoria';
-                  if (v.length < 6) return 'Mínimo 6 caracteres';
+                  }
+                  if (v.length < 6) {
+                    return 'Mínimo 6 caracteres';
+                  }
                   return null;
                 },
               ),

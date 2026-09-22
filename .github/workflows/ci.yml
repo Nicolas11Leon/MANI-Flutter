@@ -18,6 +18,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Ensure environment file exists
+        run: cp .env.example .env 2>/dev/null || touch .env
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -38,10 +41,6 @@ jobs:
 
       - name: Run integration tests (RF-14)
         run: flutter test test/integration
-
-
-      - name: Ensure environment file exists
-        run: cp .env.example .env 2>/dev/null || touch .env
 
       - name: Verify Web Build
         run: flutter build web --release
