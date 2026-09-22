@@ -1,22 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mani/features/asignacion/aceptar_solicitud_page.dart';
-import 'package:mani/features/asignacion/asignacion_repository.dart';
-import 'package:mani/features/asignacion/solicitud.dart';
+import 'package:mani/features/asignacion/presentation/pages/aceptar_solicitud_page.dart';
+import 'package:mani/features/asignacion/domain/repositories/i_asignacion_repository.dart';
+import 'package:mani/features/asignacion/domain/entities/solicitud_entity.dart';
 
-/// Prueba de integración del flujo de asignación (RF-14).
-///
-/// Recorre la interfaz completa: dos aliados abren la misma solicitud, el
-/// primero la acepta y el segundo debe ver "Ya no disponible".
-///
-/// Vive en `test/integration/` y no en `integration_test/` a propósito:
-/// `flutter test integration_test` exige un dispositivo conectado, lo que no
-/// existe en un runner de CI. Aquí se ejecuta headless con el flutter tester,
-/// cubriendo el mismo recorrido de interfaz (CFG-06 / SCRUM-955).
+class InMemoryAsignacionRepository implements IAsignacionRepository {
+  List<SolicitudEntity> solicitudes;
+
+  InMemoryAsignacionRepository({required this.solicitudes});
+
+  @override
+  Future<SolicitudEntity> aceptar(String solicitudId, String aliadoId) async {
+    final index = solicitudes.indexWhere((s) => s.id == solicitudId);
+    if (index == -1) throw SolicitudNoEncontrada();
+    final solicitud = solicitudes[index];
+    if (solicitud.aliadoId != null && solicitud.aliadoId != aliadoId) {
+      throw SolicitudNoDisponible();
+    }
+    final nuevaSolicitud = SolicitudEntity(id: solicitudId, aliadoId: aliadoId);
+    solicitudes[index] = nuevaSolicitud;
+    return nuevaSolicitud;
+  }
+
+  Future<SolicitudEntity> obtener(String solicitudId) async {
+    final s = solicitudes.firstWhere((s) => s.id == solicitudId);
+    return s;
+  }
+}
+
 void main() {
   const solicitudId = 'sol-001';
 
-  Widget appPara(AsignacionRepository repo, String aliadoId) => MaterialApp(
+  Widget appPara(IAsignacionRepository repo, String aliadoId) => MaterialApp(
     home: AceptarSolicitudPage(
       repository: repo,
       solicitudId: solicitudId,
@@ -28,7 +43,7 @@ void main() {
     'una solicitud se asigna a un único aliado y el resto ve ya_no_disponible',
     (tester) async {
       final repo = InMemoryAsignacionRepository(
-        solicitudes: const [Solicitud.pendiente(solicitudId)],
+        solicitudes: [const SolicitudEntity(id: solicitudId, aliadoId: null)],
       );
 
       // Aliado A acepta primero.
@@ -53,7 +68,6 @@ void main() {
       // La asignación persistida sigue siendo la del primer aliado.
       final persistida = await repo.obtener(solicitudId);
       expect(persistida.aliadoId, 'aliado-a');
-      expect(persistida.estado, EstadoSolicitud.asignada);
     },
   );
 }

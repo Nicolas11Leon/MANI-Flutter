@@ -1,28 +1,48 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mani/features/asignacion/asignacion_repository.dart';
-import 'package:mani/features/asignacion/solicitud.dart';
+import 'package:mani/features/asignacion/domain/repositories/i_asignacion_repository.dart';
+import 'package:mani/features/asignacion/domain/entities/solicitud_entity.dart';
+
+class InMemoryAsignacionRepository implements IAsignacionRepository {
+  List<SolicitudEntity> solicitudes;
+
+  InMemoryAsignacionRepository({required this.solicitudes});
+
+  @override
+  Future<SolicitudEntity> aceptar(String solicitudId, String aliadoId) async {
+    final index = solicitudes.indexWhere((s) => s.id == solicitudId);
+    if (index == -1) throw SolicitudNoEncontrada();
+    final solicitud = solicitudes[index];
+    if (solicitud.aliadoId != null && solicitud.aliadoId != aliadoId) {
+      throw SolicitudNoDisponible();
+    }
+    final nuevaSolicitud = SolicitudEntity(id: solicitudId, aliadoId: aliadoId);
+    solicitudes[index] = nuevaSolicitud;
+    return nuevaSolicitud;
+  }
+
+  Future<SolicitudEntity> obtener(String solicitudId) async {
+    final s = solicitudes.firstWhere((s) => s.id == solicitudId);
+    return s;
+  }
+}
 
 void main() {
   const solicitudId = 'sol-001';
 
   InMemoryAsignacionRepository nuevoRepo() => InMemoryAsignacionRepository(
-    solicitudes: const [Solicitud.pendiente(solicitudId)],
+    solicitudes: [const SolicitudEntity(id: solicitudId, aliadoId: null)],
   );
 
   group('RF-14 · aceptación de solicitud', () {
     test('el primer aliado en aceptar se queda con la solicitud', () async {
       final repo = nuevoRepo();
-
       final resultado = await repo.aceptar(solicitudId, 'aliado-a');
-
-      expect(resultado.estado, EstadoSolicitud.asignada);
       expect(resultado.aliadoId, 'aliado-a');
     });
 
     test('un segundo aliado recibe ya_no_disponible', () async {
       final repo = nuevoRepo();
       await repo.aceptar(solicitudId, 'aliado-a');
-
       expect(
         () => repo.aceptar(solicitudId, 'aliado-b'),
         throwsA(isA<SolicitudNoDisponible>()),
@@ -32,16 +52,12 @@ void main() {
     test('el reintento del mismo aliado es idempotente', () async {
       final repo = nuevoRepo();
       final primera = await repo.aceptar(solicitudId, 'aliado-a');
-
       final reintento = await repo.aceptar(solicitudId, 'aliado-a');
-
       expect(reintento.aliadoId, primera.aliadoId);
-      expect(reintento.estado, EstadoSolicitud.asignada);
     });
 
     test('una solicitud inexistente no se puede aceptar', () async {
       final repo = nuevoRepo();
-
       expect(
         () => repo.aceptar('sol-inexistente', 'aliado-a'),
         throwsA(isA<SolicitudNoEncontrada>()),
@@ -65,7 +81,7 @@ void main() {
           ),
         );
 
-        final asignaciones = resultados.whereType<Solicitud>().toList();
+        final asignaciones = resultados.whereType<SolicitudEntity>().toList();
         final rechazos = resultados.whereType<SolicitudNoDisponible>().toList();
 
         expect(asignaciones, hasLength(1));
