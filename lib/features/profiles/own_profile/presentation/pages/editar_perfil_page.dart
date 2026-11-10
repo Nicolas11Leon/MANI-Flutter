@@ -9,6 +9,7 @@ import 'package:mani/features/profiles/own_profile/data/datasources/perfil_propi
 import 'package:mani/features/profiles/own_profile/domain/entities/perfil_propio.dart';
 import 'package:mani/features/profiles/own_profile/presentation/widgets/foto_perfil_selector_widget.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart' show ManiBarraPagina;
 
 /// US-02.3.1 (SCRUM-854 / SCRUM-1029 / SCRUM-1030):
 /// Formulario donde el usuario (Cliente o Aliado) ve sus datos actuales y puede
@@ -156,56 +157,62 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _cargando
-          ? const ManiCargando()
-          : LayoutBuilder(
-              builder: (context, c) => SingleChildScrollView(
-                padding: ManiContenido.margenes(c.maxWidth),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const ManiEncabezado(
-                        icono: Icons.manage_accounts_outlined,
-                        titulo: 'Editar mi perfil',
-                        descripcion:
-                            'Actualiza tus datos de contacto y tu foto. El rol y el estado de la cuenta no se pueden cambiar.',
-                      ),
-                      ManiGap.vXxl,
-                      if (_mensajeError != null)
-                        _Aviso(
-                          texto: _mensajeError!,
-                          textoKey: const Key('banner-error-perfil'),
-                          error: true,
-                        ),
-                      if (_mensajeExito != null)
-                        _Aviso(
-                          texto: _mensajeExito!,
-                          textoKey: const Key('banner-exito-perfil'),
-                        ),
-                      if (c.maxWidth >= anchoEscritorio)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const ManiBarraPagina(
+            icono: Icons.manage_accounts_outlined,
+            titulo: 'Editar mi perfil',
+            descripcion:
+                'Actualiza tus datos de contacto y tu foto. El rol y el estado de la cuenta no se pueden cambiar.',
+          ),
+          Expanded(
+            child: _cargando
+                ? const ManiCargando()
+                : LayoutBuilder(
+                    builder: (context, c) => SingleChildScrollView(
+                      padding: ManiContenido.margenes(c.maxWidth),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(flex: 4, child: _tarjetaCuenta()),
-                            ManiGap.hXxl,
-                            Expanded(flex: 6, child: _tarjetaDatos()),
+                            if (_mensajeError != null)
+                              _Aviso(
+                                texto: _mensajeError!,
+                                textoKey: const Key('banner-error-perfil'),
+                                error: true,
+                              ),
+                            if (_mensajeExito != null)
+                              _Aviso(
+                                texto: _mensajeExito!,
+                                textoKey: const Key('banner-exito-perfil'),
+                              ),
+                            if (c.maxWidth >= anchoEscritorio)
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(flex: 4, child: _tarjetaCuenta()),
+                                  ManiGap.hXxl,
+                                  Expanded(flex: 6, child: _tarjetaDatos()),
+                                ],
+                              )
+                            else ...[
+                              _tarjetaCuenta(),
+                              ManiGap.vXxl,
+                              _tarjetaDatos(),
+                            ],
+                            ManiGap.vXxl,
+                            _barraAccion(c.maxWidth),
+                            ManiGap.vHuge,
                           ],
-                        )
-                      else ...[
-                        _tarjetaCuenta(),
-                        ManiGap.vXxl,
-                        _tarjetaDatos(),
-                      ],
-                      ManiGap.vXxl,
-                      _barraAccion(c.maxWidth),
-                      ManiGap.vHuge,
-                    ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -232,8 +239,8 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
             ManiGap.vLg,
             Wrap(
               alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
+              spacing: ManiSpace.sm,
+              runSpacing: ManiSpace.sm,
               children: [
                 Chip(
                   key: const Key('chip-rol-solo-lectura'),

@@ -8,6 +8,7 @@ import '../widgets/resumen_cobertura_bar.dart';
 import '../widgets/zona_tiles.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// US-02.1.4 — Declarar zona de cobertura (SCRUM-849).
 ///
@@ -98,8 +99,16 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
           }
         },
         child: Scaffold(
-          appBar: AppBar(title: const Text('Zona de cobertura')),
-          body: _cuerpo(context),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ManiBarraPagina(
+                icono: Icons.map_outlined,
+                titulo: 'Zona de cobertura',
+              ),
+              Expanded(child: _cuerpo(context)),
+            ],
+          ),
           bottomNavigationBar: c.carga == EstadoCarga.listo
               ? ResumenCoberturaBar(controller: c)
               : null,

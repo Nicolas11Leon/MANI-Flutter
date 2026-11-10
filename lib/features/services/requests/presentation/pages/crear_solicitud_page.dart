@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/platform/selector_fotos.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
@@ -321,74 +322,10 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final puedeVolver = Navigator.of(context).canPop();
-    return Container(
-      decoration: const BoxDecoration(
-        color: ManiColors.surface,
-        border: Border(bottom: ManiBorder.side),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.xl,
-        vertical: ManiSpace.md,
-      ),
-      child: Row(
-        children: [
-          if (puedeVolver) ...[
-            IconButton(
-              tooltip: 'Volver',
-              onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: ManiColors.ink),
-            ),
-            ManiGap.hXs,
-          ],
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: ManiColors.brand,
-              borderRadius: ManiRadius.brSm,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.regular,
-              ),
-              boxShadow: const [ManiShadow.sm],
-            ),
-            child: const Icon(
-              Icons.home_repair_service_rounded,
-              color: ManiColors.ink,
-              size: 22,
-            ),
-          ),
-          ManiGap.hMd,
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Nueva solicitud',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: ManiFontSize.bodyLg,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-                Text(
-                  'Cuéntanos qué necesitas reparar',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: ManiFontSize.micro,
-                    fontWeight: FontWeight.w600,
-                    color: ManiColors.inkMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return ManiBarraPagina(
+      icono: Icons.home_repair_service_rounded,
+      titulo: 'Nueva solicitud',
+      descripcion: 'Cuéntanos qué necesitas reparar',
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:mani/core/widgets/mani_card.dart';
 import '../domain/aliado_elegible.dart';
 import 'aliados_elegibles_cubit.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Aliados elegibles de la solicitud (SCRUM-1398, 1400 y 1401). Filtra por
 /// tipo con chips y muestra la lista en el orden exacto que entrega
@@ -19,75 +20,80 @@ class AliadosElegiblesPage extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<AliadosElegiblesCubit>();
         final lista = state.lista;
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: RefreshIndicator(
-              color: ManiColors.ink,
-              backgroundColor: ManiColors.brand,
-              onRefresh: cubit.cargar,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: ManiSpace.xl,
-                  vertical: ManiSpace.xxl,
-                ),
-                children: [
-                  const Text(
-                    'Aliados para tu solicitud',
-                    style: TextStyle(
-                      fontSize: ManiFontSize.h3,
-                      fontWeight: FontWeight.w900,
-                      color: ManiColors.ink,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ManiBarraPagina(
+              icono: Icons.engineering_rounded,
+              titulo: 'Aliados para tu solicitud',
+            ),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: RefreshIndicator(
+                    color: ManiColors.ink,
+                    backgroundColor: ManiColors.brand,
+                    onRefresh: cubit.cargar,
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: ManiSpace.xl,
+                        vertical: ManiSpace.xxl,
+                      ),
+                      children: [
+                        _FiltroTipo(
+                          seleccionado: state.tipo,
+                          onCambiar: state.cargando ? null : cubit.filtrar,
+                        ),
+                        ManiGap.vLg,
+                        if (state.error != null)
+                          _Error(
+                            mensaje: state.error!,
+                            onReintentar: cubit.cargar,
+                          ),
+                        if (state.cargando && lista == null)
+                          const Padding(
+                            key: Key('elegibles-cargando'),
+                            padding: EdgeInsets.all(ManiSpace.xxxl),
+                            child: ManiCargando(),
+                          )
+                        else if (lista != null) ...[
+                          _AvisoOrden(lista),
+                          ManiGap.vMd,
+                          if (lista.aliados.isEmpty)
+                            _Vacio(filtrado: state.tipo != null)
+                          else ...[
+                            for (final (i, a) in lista.aliados.indexed) ...[
+                              _TarjetaAliado(
+                                a,
+                                puesto: lista.ordenAplicado
+                                    ? (a.posicion ?? i + 1)
+                                    : null,
+                              ),
+                              ManiGap.vSm,
+                            ],
+                            if (lista.total > lista.aliados.length)
+                              Padding(
+                                padding: const EdgeInsets.all(ManiSpace.sm),
+                                child: Text(
+                                  'Mostrando ${lista.aliados.length} de ${lista.total} aliados.',
+                                  key: const Key('elegibles-parcial'),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: ManiColors.inkMuted,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ],
+                      ],
                     ),
                   ),
-                  ManiGap.vLg,
-                  _FiltroTipo(
-                    seleccionado: state.tipo,
-                    onCambiar: state.cargando ? null : cubit.filtrar,
-                  ),
-                  ManiGap.vLg,
-                  if (state.error != null)
-                    _Error(mensaje: state.error!, onReintentar: cubit.cargar),
-                  if (state.cargando && lista == null)
-                    const Padding(
-                      key: Key('elegibles-cargando'),
-                      padding: EdgeInsets.all(ManiSpace.xxxl),
-                      child: ManiCargando(),
-                    )
-                  else if (lista != null) ...[
-                    _AvisoOrden(lista),
-                    ManiGap.vMd,
-                    if (lista.aliados.isEmpty)
-                      _Vacio(filtrado: state.tipo != null)
-                    else ...[
-                      for (final (i, a) in lista.aliados.indexed) ...[
-                        _TarjetaAliado(
-                          a,
-                          puesto: lista.ordenAplicado
-                              ? (a.posicion ?? i + 1)
-                              : null,
-                        ),
-                        ManiGap.vSm,
-                      ],
-                      if (lista.total > lista.aliados.length)
-                        Padding(
-                          padding: const EdgeInsets.all(ManiSpace.sm),
-                          child: Text(
-                            'Mostrando ${lista.aliados.length} de ${lista.total} aliados.',
-                            key: const Key('elegibles-parcial'),
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: ManiColors.inkMuted,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ],
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         );
       },
     );
@@ -126,8 +132,8 @@ class _FiltroTipo extends StatelessWidget {
     }
 
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: ManiSpace.sm,
+      runSpacing: ManiSpace.sm,
       children: [
         chip(null, 'Todos'),
         for (final t in TipoAliado.values) chip(t, t.etiqueta),

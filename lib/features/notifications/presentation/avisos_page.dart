@@ -7,6 +7,7 @@ import '../domain/aviso.dart';
 import 'avisos_cubit.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Bandeja de avisos (SCRUM-882 y 884): mensajes nuevos del servicio y cambios
 /// de estado, para cualquier rol. Si un aviso trae la solicitud, tocarlo llama a
@@ -34,62 +35,72 @@ class AvisosView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Avisos')),
-      body: BlocBuilder<AvisosCubit, AvisosState>(
-        builder: (context, state) {
-          if (state.fase == FaseAvisos.cargando) {
-            return const ManiCargando();
-          }
-          if (state.fase == FaseAvisos.error) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(ManiSpace.xxl),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      state.error!,
-                      key: const Key('error-avisos'),
-                      textAlign: TextAlign.center,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ManiBarraPagina(icono: Icons.notifications_rounded, titulo: 'Avisos'),
+          Expanded(
+            child: BlocBuilder<AvisosCubit, AvisosState>(
+              builder: (context, state) {
+                if (state.fase == FaseAvisos.cargando) {
+                  return const ManiCargando();
+                }
+                if (state.fase == FaseAvisos.error) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(ManiSpace.xxl),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            state.error!,
+                            key: const Key('error-avisos'),
+                            textAlign: TextAlign.center,
+                          ),
+                          ManiGap.vMd,
+                          OutlinedButton(
+                            key: const Key('reintentar-avisos'),
+                            onPressed: context.read<AvisosCubit>().cargar,
+                            child: const Text('Reintentar'),
+                          ),
+                        ],
+                      ),
                     ),
-                    ManiGap.vMd,
-                    OutlinedButton(
-                      key: const Key('reintentar-avisos'),
-                      onPressed: context.read<AvisosCubit>().cargar,
-                      child: const Text('Reintentar'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-          final bandeja = state.bandeja!;
-          return RefreshIndicator(
-            onRefresh: context.read<AvisosCubit>().cargar,
-            child: ListView(
-              padding: const EdgeInsets.all(ManiSpace.lg),
-              children: [
-                if (bandeja.simulada)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: ManiSpace.md),
-                    child: Text(avisoSimulado, key: Key('aviso-simulado')),
+                  );
+                }
+                final bandeja = state.bandeja!;
+                return RefreshIndicator(
+                  onRefresh: context.read<AvisosCubit>().cargar,
+                  child: ListView(
+                    padding: const EdgeInsets.all(ManiSpace.lg),
+                    children: [
+                      if (bandeja.simulada)
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: ManiSpace.md),
+                          child: Text(
+                            avisoSimulado,
+                            key: Key('aviso-simulado'),
+                          ),
+                        ),
+                      if (bandeja.items.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.only(top: ManiSpace.xxxl),
+                          child: Text(
+                            'No tienes avisos todavía. Aquí verás los mensajes '
+                            'nuevos y los cambios de estado de tus servicios.',
+                            key: Key('avisos-vacio'),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      for (final a in bandeja.items)
+                        _TarjetaAviso(aviso: a, onAbrir: onAbrir),
+                    ],
                   ),
-                if (bandeja.items.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: ManiSpace.xxxl),
-                    child: Text(
-                      'No tienes avisos todavía. Aquí verás los mensajes '
-                      'nuevos y los cambios de estado de tus servicios.',
-                      key: Key('avisos-vacio'),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                for (final a in bandeja.items)
-                  _TarjetaAviso(aviso: a, onAbrir: onAbrir),
-              ],
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

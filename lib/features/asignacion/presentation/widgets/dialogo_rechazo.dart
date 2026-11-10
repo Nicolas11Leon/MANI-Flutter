@@ -102,8 +102,8 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
             ),
             ManiGap.vSm,
             Wrap(
-              spacing: 6,
-              runSpacing: 6,
+              spacing: ManiSpace.sm,
+              runSpacing: ManiSpace.sm,
               children: [
                 for (final m in MotivoRechazo.values)
                   ChoiceChip(
@@ -162,8 +162,8 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
       actions: [
         Wrap(
           alignment: WrapAlignment.end,
-          spacing: 12,
-          runSpacing: 12,
+          spacing: ManiSpace.md,
+          runSpacing: ManiSpace.md,
           children: [
             ManiButton(
               key: const ValueKey('dlg-cancelar-rechazo'),

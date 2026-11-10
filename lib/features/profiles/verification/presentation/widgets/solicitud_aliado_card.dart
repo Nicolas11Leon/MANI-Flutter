@@ -77,8 +77,8 @@ class SolicitudAliadoCard extends StatelessWidget {
                   ),
                   ManiGap.vSm,
                   Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
+                    spacing: ManiSpace.sm,
+                    runSpacing: ManiSpace.sm,
                     children: [
                       _Etiqueta(
                         icono: Icons.badge_outlined,

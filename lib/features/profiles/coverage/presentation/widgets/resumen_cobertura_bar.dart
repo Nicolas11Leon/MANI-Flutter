@@ -43,8 +43,8 @@ class ResumenCoberturaBar extends StatelessWidget {
               if (zonas.isNotEmpty) ...[
                 ManiGap.vSm,
                 Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
+                  spacing: ManiSpace.sm,
+                  runSpacing: ManiSpace.sm,
                   children: [
                     for (final z in zonas.take(_maxChips))
                       InputChip(

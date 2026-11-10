@@ -117,16 +117,15 @@ class TenantsPage extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<TenantsCubit>();
         return ManiPagina(
+          encabezado: const ManiBarraPagina(
+            icono: Icons.domain_outlined,
+            titulo: 'Tenants de la plataforma',
+            descripcion:
+                'Habilita, suspende o inactiva un tenant. Cada cambio pide '
+                'un motivo y queda registrado con tu usuario.',
+          ),
           alRefrescar: cubit.cargar,
           children: [
-            const ManiEncabezadoPagina(
-              icono: Icons.domain_outlined,
-              titulo: 'Tenants de la plataforma',
-              descripcion:
-                  'Habilita, suspende o inactiva un tenant. Cada cambio pide '
-                  'un motivo y queda registrado con tu usuario.',
-            ),
-            ManiGap.vXxl,
             if (state.cargando && state.tenants.isEmpty)
               const ManiCargando()
             else if (state.error != null)

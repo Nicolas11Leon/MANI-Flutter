@@ -15,11 +15,16 @@ class ManiPagina extends StatelessWidget {
     required this.children,
     this.alRefrescar,
     this.ancho = anchoMaximoPagina,
+    this.encabezado,
   });
 
   final List<Widget> children;
   final Future<void> Function()? alRefrescar;
   final double ancho;
+
+  /// Barra fija sobre el contenido (normalmente una [ManiBarraPagina]); no se
+  /// desplaza con el scroll.
+  final Widget? encabezado;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,7 @@ class ManiPagina extends StatelessWidget {
       builder: (context, c) => SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(
-          horizontal: c.maxWidth >= 600 ? 32 : 16,
+          horizontal: c.maxWidth >= 600 ? ManiSpace.xxxl : ManiSpace.lg,
           vertical: ManiSpace.xxl,
         ),
         child: Center(
@@ -41,12 +46,151 @@ class ManiPagina extends StatelessWidget {
         ),
       ),
     );
-    if (alRefrescar == null) return contenido;
-    return RefreshIndicator(
-      color: ManiColors.ink,
-      backgroundColor: ManiColors.brand,
-      onRefresh: alRefrescar!,
-      child: contenido,
+    final cuerpo = alRefrescar == null
+        ? contenido
+        : RefreshIndicator(
+            color: ManiColors.ink,
+            backgroundColor: ManiColors.brand,
+            onRefresh: alRefrescar!,
+            child: contenido,
+          );
+    if (encabezado == null) return cuerpo;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        encabezado!,
+        Expanded(child: cuerpo),
+      ],
+    );
+  }
+}
+
+/// Barra de encabezado de las pantallas con sesión: va justo debajo del menú
+/// principal, en todo el ancho, y es la misma en toda la app.
+///
+/// Ícono en caja de marca, título, descripción opcional y acciones a la
+/// derecha. Por debajo de 600 px las acciones pasan a una segunda fila para
+/// que el título nunca se aplaste. Si la pantalla se abrió encima de otra,
+/// muestra la flecha para volver.
+class ManiBarraPagina extends StatelessWidget {
+  const ManiBarraPagina({
+    super.key,
+    required this.icono,
+    required this.titulo,
+    this.descripcion,
+    this.acciones = const [],
+    this.tituloKey,
+    this.descripcionKey,
+  });
+
+  final IconData icono;
+  final String titulo;
+  final String? descripcion;
+  final List<Widget> acciones;
+  final Key? tituloKey;
+  final Key? descripcionKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final puedeVolver = ModalRoute.of(context)?.canPop ?? false;
+    return Material(
+      color: ManiColors.surface,
+      child: Container(
+        decoration: const BoxDecoration(
+          border: Border(bottom: ManiBorder.side),
+        ),
+        child: LayoutBuilder(
+          builder: (context, c) {
+            final angosta = c.maxWidth < 600;
+            final identidad = Row(
+              children: [
+                if (puedeVolver) ...[
+                  IconButton(
+                    tooltip: 'Volver',
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    icon: const Icon(Icons.arrow_back_rounded),
+                  ),
+                  ManiGap.hXs,
+                ],
+                ExcludeSemantics(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: ManiColors.brand,
+                      borderRadius: ManiRadius.brSm,
+                      border: Border.all(
+                        color: ManiColors.border,
+                        width: ManiBorder.regular,
+                      ),
+                      boxShadow: const [ManiShadow.sm],
+                    ),
+                    child: Icon(icono, color: ManiColors.onBrand, size: 22),
+                  ),
+                ),
+                ManiGap.hMd,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          titulo,
+                          key: tituloKey,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: ManiText.title,
+                        ),
+                      ),
+                      if (descripcion != null)
+                        Text(
+                          descripcion!,
+                          key: descripcionKey,
+                          maxLines: angosta ? 3 : 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: ManiText.caption,
+                        ),
+                    ],
+                  ),
+                ),
+                if (!angosta && acciones.isNotEmpty) ...[
+                  ManiGap.hLg,
+                  Wrap(
+                    spacing: ManiSpace.sm,
+                    runSpacing: ManiSpace.sm,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: acciones,
+                  ),
+                ],
+              ],
+            );
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: angosta ? ManiSpace.lg : ManiSpace.xxxl,
+                vertical: ManiSpace.md,
+              ),
+              child: angosta && acciones.isNotEmpty
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        identidad,
+                        ManiGap.vSm,
+                        Wrap(
+                          spacing: ManiSpace.sm,
+                          runSpacing: ManiSpace.sm,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: acciones,
+                        ),
+                      ],
+                    )
+                  : identidad,
+            );
+          },
+        ),
+      ),
     );
   }
 }
@@ -61,12 +205,16 @@ class ManiEncabezadoPagina extends StatelessWidget {
     required this.titulo,
     this.descripcion,
     this.accion,
+    this.descripcionKey,
   });
 
   final IconData icono;
   final String titulo;
   final String? descripcion;
   final Widget? accion;
+
+  /// Key del texto de [descripcion], para pantallas que lo prueban.
+  final Key? descripcionKey;
 
   @override
   Widget build(BuildContext context) {
@@ -90,23 +238,13 @@ class ManiEncabezadoPagina extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                titulo,
-                style: const TextStyle(
-                  fontSize: ManiFontSize.h3,
-                  fontWeight: FontWeight.w900,
-                  color: ManiColors.ink,
-                ),
-              ),
+              Semantics(header: true, child: Text(titulo, style: ManiText.h3)),
               if (descripcion != null) ...[
                 ManiGap.vXs,
                 Text(
                   descripcion!,
-                  style: const TextStyle(
-                    fontSize: ManiFontSize.bodySm,
-                    fontWeight: FontWeight.w600,
-                    color: ManiColors.inkMuted,
-                  ),
+                  key: descripcionKey,
+                  style: ManiText.bodySm.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ],
@@ -227,9 +365,9 @@ class ManiRejilla extends StatelessWidget {
   }
 }
 
-/// Botón en píldora con borde negro: amarillo con sombra si es [principal],
+/// Botón en píldora con borde negro: color de marca con sombra si es [principal],
 /// blanco si no. Es el de las acciones de Mis solicitudes; el texto oscuro
-/// sobre amarillo o blanco cumple el contraste AA.
+/// sobre la marca o blanco cumple el contraste AA.
 class ManiBotonPildora extends StatelessWidget {
   const ManiBotonPildora({
     super.key,

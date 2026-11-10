@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 import 'package:mani/features/services/ratings/data/calificacion_cierre_datasource.dart';
@@ -430,129 +431,64 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final puedeVolver = Navigator.of(context).canPop();
-    return Container(
-      decoration: const BoxDecoration(
-        color: ManiColors.surface,
-        border: Border(bottom: ManiBorder.side),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.xl,
-        vertical: ManiSpace.md,
-      ),
-      child: Row(
-        children: [
-          if (puedeVolver) ...[
-            IconButton(
-              tooltip: 'Volver',
-              onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: ManiColors.ink),
-            ),
-            ManiGap.hXs,
-          ],
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: ManiColors.brand,
-              borderRadius: ManiRadius.brSm,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.regular,
-              ),
-              boxShadow: const [ManiShadow.sm],
-            ),
-            child: const Icon(
-              Icons.handyman_rounded,
-              color: ManiColors.ink,
-              size: 22,
-            ),
-          ),
-          ManiGap.hMd,
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Solicitudes de servicio',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: ManiFontSize.bodyLg,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-                Text(
-                  'Panel del aliado',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: ManiFontSize.micro,
-                    fontWeight: FontWeight.w600,
-                    color: ManiColors.inkMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (onAbrirCobertura != null)
-            IconButton(
-              key: const ValueKey('btn-ir-cobertura'),
-              tooltip: 'Mis zonas de cobertura',
-              onPressed: onAbrirCobertura,
-              icon: const Icon(Icons.map_outlined, color: ManiColors.ink),
-            ),
-          if (onAbrirCategorias != null)
-            IconButton(
-              key: const ValueKey('btn-ir-especialidades'),
-              tooltip: 'Mis especialidades',
-              onPressed: onAbrirCategorias,
-              icon: const Icon(Icons.handyman_outlined, color: ManiColors.ink),
-            ),
-          if (onAbrirDisponibilidad != null)
-            IconButton(
-              key: const ValueKey('btn-ir-disponibilidad'),
-              tooltip: 'Mi disponibilidad',
-              onPressed: onAbrirDisponibilidad,
-              icon: const Icon(
-                Icons.event_busy_outlined,
-                color: ManiColors.ink,
-              ),
-            ),
-          if (sl.isRegistered<FuenteModuloM08>())
-            IconButton(
-              key: const ValueKey('btn-ir-historial-aliado'),
-              tooltip: 'Historial de trabajos',
-              onPressed: () => showDialog<void>(
-                context: context,
-                builder: (_) => Dialog(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 720,
-                      maxHeight: 620,
-                    ),
-                    child: BlocProvider(
-                      create: (_) => HistorialServiciosCubit(
-                        sl<FuenteModuloM08>(),
-                        esAliado: true,
-                      )..cargar(),
-                      child: const HistorialServiciosPage(),
-                    ),
-                  ),
-                ),
-              ),
-              icon: const Icon(Icons.history_rounded, color: ManiColors.ink),
-            ),
+    return ManiBarraPagina(
+      icono: Icons.handyman_rounded,
+      titulo: 'Solicitudes de servicio',
+      descripcion: 'Panel del aliado',
+      acciones: [
+        if (onAbrirCobertura != null)
           IconButton(
-            key: const ValueKey('btn-actualizar-solicitudes'),
-            tooltip: 'Actualizar',
-            onPressed: () =>
-                context.read<SolicitudesAliadoCubit>().cargar(silencioso: true),
-            icon: const Icon(Icons.refresh_rounded, color: ManiColors.ink),
+            key: const ValueKey('btn-ir-cobertura'),
+            tooltip: 'Mis zonas de cobertura',
+            onPressed: onAbrirCobertura,
+            icon: const Icon(Icons.map_outlined, color: ManiColors.ink),
           ),
-        ],
-      ),
+        if (onAbrirCategorias != null)
+          IconButton(
+            key: const ValueKey('btn-ir-especialidades'),
+            tooltip: 'Mis especialidades',
+            onPressed: onAbrirCategorias,
+            icon: const Icon(Icons.handyman_outlined, color: ManiColors.ink),
+          ),
+        if (onAbrirDisponibilidad != null)
+          IconButton(
+            key: const ValueKey('btn-ir-disponibilidad'),
+            tooltip: 'Mi disponibilidad',
+            onPressed: onAbrirDisponibilidad,
+            icon: const Icon(Icons.event_busy_outlined, color: ManiColors.ink),
+          ),
+        if (sl.isRegistered<FuenteModuloM08>())
+          IconButton(
+            key: const ValueKey('btn-ir-historial-aliado'),
+            tooltip: 'Historial de trabajos',
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (_) => Dialog(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 720,
+                    maxHeight: 620,
+                  ),
+                  child: BlocProvider(
+                    create: (_) => HistorialServiciosCubit(
+                      sl<FuenteModuloM08>(),
+                      esAliado: true,
+                    )..cargar(),
+                    child: const HistorialServiciosPage(),
+                  ),
+                ),
+              ),
+            ),
+            icon: const Icon(Icons.history_rounded, color: ManiColors.ink),
+          ),
+        IconButton(
+          key: const ValueKey('btn-actualizar-solicitudes'),
+          tooltip: 'Actualizar',
+          onPressed: () =>
+              context.read<SolicitudesAliadoCubit>().cargar(silencioso: true),
+          icon: const Icon(Icons.refresh_rounded, color: ManiColors.ink),
+        ),
+      ],
     );
   }
 }

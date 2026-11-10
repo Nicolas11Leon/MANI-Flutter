@@ -8,6 +8,7 @@ import 'package:mani/core/widgets/mani_card.dart';
 import '../domain/cotizacion.dart';
 import 'cotizacion_cubit.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Importe de la cotización: no negativo, hasta diez enteros y dos decimales,
 /// el mismo formato que valida Core (DECIMAL(12,2)).
@@ -157,113 +158,76 @@ class CotizacionPage extends StatelessWidget {
               child: calificacion!,
             ),
         ];
-        return RefreshIndicator(
-          color: ManiColors.ink,
-          backgroundColor: ManiColors.brand,
-          onRefresh: () async {
-            await Future.wait([cubit.cargar(), ?alRefrescar?.call()]);
-          },
-          child: LayoutBuilder(
-            builder: (context, c) {
-              final enColumnas =
-                  columnas.length > 1 && c.maxWidth >= anchoTresColumnas;
-              // Scroll que construye todo (no perezoso): cada columna es un
-              // bloque alto que debe existir completo aunque quede fuera de vista.
-              return SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(
-                  horizontal: c.maxWidth >= 600 ? 32 : 16,
-                  vertical: ManiSpace.xxl,
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1400),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _encabezado(),
-                        ManiGap.vXxl,
-                        if (enColumnas)
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _encabezado(),
+            Expanded(
+              child: RefreshIndicator(
+                color: ManiColors.ink,
+                backgroundColor: ManiColors.brand,
+                onRefresh: () async {
+                  await Future.wait([cubit.cargar(), ?alRefrescar?.call()]);
+                },
+                child: LayoutBuilder(
+                  builder: (context, c) {
+                    final enColumnas =
+                        columnas.length > 1 && c.maxWidth >= anchoTresColumnas;
+                    // Scroll que construye todo (no perezoso): cada columna es un
+                    // bloque alto que debe existir completo aunque quede fuera de vista.
+                    return SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: c.maxWidth >= 600
+                            ? ManiSpace.xxxl
+                            : ManiSpace.lg,
+                        vertical: ManiSpace.xxl,
+                      ),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 1400),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              for (var k = 0; k < columnas.length; k++) ...[
-                                if (k > 0) ManiGap.hXxl,
-                                Expanded(child: columnas[k]),
-                              ],
+                              if (enColumnas)
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    for (
+                                      var k = 0;
+                                      k < columnas.length;
+                                      k++
+                                    ) ...[
+                                      if (k > 0) ManiGap.hXxl,
+                                      Expanded(child: columnas[k]),
+                                    ],
+                                  ],
+                                )
+                              else
+                                for (var k = 0; k < columnas.length; k++) ...[
+                                  if (k > 0) ManiGap.vXxl,
+                                  columnas[k],
+                                ],
                             ],
-                          )
-                        else
-                          for (var k = 0; k < columnas.length; k++) ...[
-                            if (k > 0) ManiGap.vXxl,
-                            columnas[k],
-                          ],
-                      ],
-                    ),
-                  ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
   Widget _encabezado() {
-    return ManiCard(
-      padding: const EdgeInsets.all(ManiSpace.xl),
-      child: LayoutBuilder(
-        builder: (context, c) {
-          final titulo = Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(ManiSpace.sm),
-                decoration: BoxDecoration(
-                  color: ManiColors.brand,
-                  borderRadius: ManiRadius.brMd,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.regular,
-                  ),
-                  boxShadow: const [ManiShadow.sm],
-                ),
-                child: const Icon(
-                  Icons.request_quote_outlined,
-                  color: ManiColors.ink,
-                  size: 24,
-                ),
-              ),
-              ManiGap.hMd,
-              Expanded(
-                child: Text(
-                  esAliado ? 'Cotizar el servicio' : 'Cotización del servicio',
-                  style: const TextStyle(
-                    fontSize: ManiFontSize.h3,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-              ),
-            ],
-          );
-          // En escritorio el botón va a la derecha del título; en móvil, debajo.
-          if (accionEncabezado == null) return titulo;
-          if (c.maxWidth < 600) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [titulo, ManiGap.vMd, accionEncabezado!],
-            );
-          }
-          return Row(
-            children: [
-              Expanded(child: titulo),
-              ManiGap.hLg,
-              accionEncabezado!,
-            ],
-          );
-        },
-      ),
+    return ManiBarraPagina(
+      icono: Icons.request_quote_outlined,
+      titulo: esAliado ? 'Cotizar el servicio' : 'Cotización del servicio',
+      acciones: [?accionEncabezado],
     );
   }
 }
@@ -710,8 +674,8 @@ class _SeccionCliente extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: ManiSpace.md),
       child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
+        spacing: ManiSpace.md,
+        runSpacing: ManiSpace.md,
         children: [
           ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 160, maxWidth: 230),

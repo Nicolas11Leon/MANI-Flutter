@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mani/features/catalog/map/presentation/bloc/mapa_cubit.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Mapa de zonas, barrios y sitios (HU-M04-07 / SCRUM-1396).
 ///
@@ -21,77 +22,85 @@ class MapaZonasPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mapa de zonas')),
-      body: BlocBuilder<MapaCubit, MapaState>(
-        builder: (context, state) {
-          if (state.estado == MapaEstado.cargando && state.geometrias.isEmpty) {
-            return const ManiCargando();
-          }
-          if (state.estado == MapaEstado.error) {
-            return _Aviso(
-              icono: Icons.error_outline,
-              titulo: 'No se pudo cargar el mapa',
-              detalle: state.mensajeError ?? 'Intenta de nuevo.',
-              accion: () => context.read<MapaCubit>().cargar(),
-            );
-          }
-          return Column(
-            children: [
-              if (state.localidades.length > 1)
-                _SelectorLocalidad(state: state),
-              Expanded(
-                // Hay algo que dibujar si existe un límite o una sede ubicada:
-                // con solo sedes el mapa sigue teniendo sentido.
-                child: state.geometrias.isEmpty && state.sitios.isEmpty
-                    ? const _Aviso(
-                        icono: Icons.map_outlined,
-                        titulo: 'Sin límites para mostrar',
-                        detalle:
-                            'El catálogo no tiene todavía los límites de esta zona. '
-                            'No se dibuja una forma aproximada.',
-                      )
-                    : _Mapa(state: state),
-              ),
-              if (state.sinGeometria.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(ManiSpace.md),
-                  child: Text(
-                    '${state.sinGeometria.length} zona(s) sin límite cargado: no se dibujan.',
-                    key: const Key('mapa_sin_geometria'),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              if (state.coberturaPropia.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: ManiSpace.md,
-                    right: ManiSpace.md,
-                    top: ManiSpace.sm,
-                  ),
-                  child: Text(
-                    'En verde, las zonas que ya declaraste como cobertura. '
-                    'Para cambiarlas, usa Cobertura en el menú.',
-                    key: const Key('mapa_leyenda_cobertura'),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              if (state.sitiosSinUbicacion > 0)
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: ManiSpace.md,
-                    right: ManiSpace.md,
-                    bottom: ManiSpace.md,
-                  ),
-                  child: Text(
-                    '${state.sitiosSinUbicacion} sede(s) sin ubicación capturada: '
-                    'no se marcan en el mapa.',
-                    key: const Key('mapa_sitios_sin_ubicacion'),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-            ],
-          );
-        },
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ManiBarraPagina(icono: Icons.map_rounded, titulo: 'Mapa de zonas'),
+          Expanded(
+            child: BlocBuilder<MapaCubit, MapaState>(
+              builder: (context, state) {
+                if (state.estado == MapaEstado.cargando &&
+                    state.geometrias.isEmpty) {
+                  return const ManiCargando();
+                }
+                if (state.estado == MapaEstado.error) {
+                  return _Aviso(
+                    icono: Icons.error_outline,
+                    titulo: 'No se pudo cargar el mapa',
+                    detalle: state.mensajeError ?? 'Intenta de nuevo.',
+                    accion: () => context.read<MapaCubit>().cargar(),
+                  );
+                }
+                return Column(
+                  children: [
+                    if (state.localidades.length > 1)
+                      _SelectorLocalidad(state: state),
+                    Expanded(
+                      // Hay algo que dibujar si existe un límite o una sede ubicada:
+                      // con solo sedes el mapa sigue teniendo sentido.
+                      child: state.geometrias.isEmpty && state.sitios.isEmpty
+                          ? const _Aviso(
+                              icono: Icons.map_outlined,
+                              titulo: 'Sin límites para mostrar',
+                              detalle:
+                                  'El catálogo no tiene todavía los límites de esta zona. '
+                                  'No se dibuja una forma aproximada.',
+                            )
+                          : _Mapa(state: state),
+                    ),
+                    if (state.sinGeometria.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(ManiSpace.md),
+                        child: Text(
+                          '${state.sinGeometria.length} zona(s) sin límite cargado: no se dibujan.',
+                          key: const Key('mapa_sin_geometria'),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    if (state.coberturaPropia.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: ManiSpace.md,
+                          right: ManiSpace.md,
+                          top: ManiSpace.sm,
+                        ),
+                        child: Text(
+                          'En verde, las zonas que ya declaraste como cobertura. '
+                          'Para cambiarlas, usa Cobertura en el menú.',
+                          key: const Key('mapa_leyenda_cobertura'),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    if (state.sitiosSinUbicacion > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: ManiSpace.md,
+                          right: ManiSpace.md,
+                          bottom: ManiSpace.md,
+                        ),
+                        child: Text(
+                          '${state.sitiosSinUbicacion} sede(s) sin ubicación capturada: '
+                          'no se marcan en el mapa.',
+                          key: const Key('mapa_sitios_sin_ubicacion'),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

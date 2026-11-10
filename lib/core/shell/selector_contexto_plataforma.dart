@@ -91,8 +91,8 @@ class _SelectorContextoPlataformaState
         border: Border(bottom: ManiBorder.side),
       ),
       child: Wrap(
-        spacing: 12,
-        runSpacing: 8,
+        spacing: ManiSpace.md,
+        runSpacing: ManiSpace.sm,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           const Row(

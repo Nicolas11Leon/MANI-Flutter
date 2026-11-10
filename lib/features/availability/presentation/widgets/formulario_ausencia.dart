@@ -181,7 +181,7 @@ class _FormularioAusenciaState extends State<FormularioAusencia> {
             ManiGap.vLg,
             const _Etiqueta('Motivo'),
             Wrap(
-              spacing: 8,
+              spacing: ManiSpace.sm,
               children: [
                 for (final m in MotivoAusencia.values)
                   ChoiceChip(

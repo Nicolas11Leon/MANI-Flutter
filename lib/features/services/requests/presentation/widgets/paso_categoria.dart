@@ -33,8 +33,8 @@ class PasoCategoria extends StatelessWidget {
                 crossAxisCount: columnas,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
+                mainAxisSpacing: ManiSpace.md,
+                crossAxisSpacing: ManiSpace.md,
                 childAspectRatio: columnas == 2 ? 2.6 : 4.2,
                 children: [
                   for (final cat in categorias)

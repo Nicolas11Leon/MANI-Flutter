@@ -213,8 +213,8 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                       ),
                       ManiGap.vSm,
                       Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
+                        spacing: ManiSpace.sm,
+                        runSpacing: ManiSpace.sm,
                         children: [
                           for (final s in sugerencias)
                             ActionChip(

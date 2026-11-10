@@ -8,6 +8,7 @@ import '../data/politica_cancelacion_datasource.dart';
 import '../domain/calificacion_cierre_modelos.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 class PoliticaCancelacionState extends Equatable {
   const PoliticaCancelacionState({
@@ -118,47 +119,51 @@ class PoliticaCancelacionPage extends StatelessWidget {
       },
       builder: (context, state) {
         final cubit = context.read<PoliticaCancelacionCubit>();
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 640),
-            child: ListView(
-              padding: const EdgeInsets.all(ManiSpace.lg),
-              children: [
-                Text(
-                  'Política de cancelación',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                ManiGap.vXs,
-                const Text(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ManiBarraPagina(
+              icono: Icons.event_busy_rounded,
+              titulo: 'Política de cancelación',
+              descripcion:
                   'Si está activa, el cliente que cancela un servicio ya asignado después de la ventana gratuita '
                   'paga una penalización. El cliente la ve antes de confirmar la cancelación.',
-                ),
-                ManiGap.vLg,
-                if (state.cargando)
-                  const ManiCargando()
-                else if (state.error != null)
-                  Card(
-                    key: const Key('politica-error'),
-                    child: ListTile(
-                      leading: const Icon(Icons.error_outline),
-                      title: Text(state.error!),
-                      trailing: TextButton(
-                        onPressed: cubit.cargar,
-                        child: const Text('Reintentar'),
-                      ),
-                    ),
-                  )
-                else if (state.politica != null)
-                  _FormularioPolitica(
-                    // La clave renueva el formulario con lo que devolvió Core tras guardar.
-                    key: ValueKey(state.politica),
-                    politica: state.politica!,
-                    guardando: state.guardando,
-                    onGuardar: cubit.guardar,
-                  ),
-              ],
             ),
-          ),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 640),
+                  child: ListView(
+                    padding: const EdgeInsets.all(ManiSpace.lg),
+                    children: [
+                      if (state.cargando)
+                        const ManiCargando()
+                      else if (state.error != null)
+                        Card(
+                          key: const Key('politica-error'),
+                          child: ListTile(
+                            leading: const Icon(Icons.error_outline),
+                            title: Text(state.error!),
+                            trailing: TextButton(
+                              onPressed: cubit.cargar,
+                              child: const Text('Reintentar'),
+                            ),
+                          ),
+                        )
+                      else if (state.politica != null)
+                        _FormularioPolitica(
+                          // La clave renueva el formulario con lo que devolvió Core tras guardar.
+                          key: ValueKey(state.politica),
+                          politica: state.politica!,
+                          guardando: state.guardando,
+                          onGuardar: cubit.guardar,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

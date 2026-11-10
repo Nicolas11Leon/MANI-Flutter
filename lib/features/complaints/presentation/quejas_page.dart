@@ -43,24 +43,23 @@ class QuejasPage extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<QuejasCubit>();
         return ManiPagina(
+          encabezado: ManiBarraPagina(
+            icono: cubit.esAdmin
+                ? Icons.support_agent_outlined
+                : Icons.feedback_outlined,
+            titulo: cubit.esAdmin ? 'Quejas del tenant' : 'Mis quejas',
+            descripcion: cubit.esAdmin
+                ? 'Atiende las quejas de los clientes y cambia su estado. '
+                      'Cada cambio queda registrado con tu usuario.'
+                : 'Quejas que presentaste sobre tus servicios. Para '
+                      'presentar una nueva, ve a Mis solicitudes.',
+          ),
           alRefrescar: cubit.cargar,
           children: [
-            ManiEncabezadoPagina(
-              icono: cubit.esAdmin
-                  ? Icons.support_agent_outlined
-                  : Icons.feedback_outlined,
-              titulo: cubit.esAdmin ? 'Quejas del tenant' : 'Mis quejas',
-              descripcion: cubit.esAdmin
-                  ? 'Atiende las quejas de los clientes y cambia su estado. '
-                        'Cada cambio queda registrado con tu usuario.'
-                  : 'Quejas que presentaste sobre tus servicios. Para '
-                        'presentar una nueva, ve a Mis solicitudes.',
-            ),
-            ManiGap.vXxl,
             if (cubit.esAdmin) ...[
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: ManiSpace.sm,
+                runSpacing: ManiSpace.sm,
                 children: [
                   _Filtro(
                     clave: const Key('filtro-todas'),
@@ -120,7 +119,7 @@ class QuejasPage extends StatelessWidget {
   }
 }
 
-/// Filtro por estado en píldora: amarillo con sombra el activo.
+/// Filtro por estado en píldora: color de marca con sombra el activo.
 class _Filtro extends StatelessWidget {
   const _Filtro({
     required this.clave,
@@ -277,8 +276,8 @@ class _TarjetaQueja extends StatelessWidget {
           ManiGap.vLg,
           Wrap(
             alignment: WrapAlignment.end,
-            spacing: 8,
-            runSpacing: 8,
+            spacing: ManiSpace.sm,
+            runSpacing: ManiSpace.sm,
             children: [
               ManiBotonPildora(
                 key: Key('queja-historial-${queja.id}'),

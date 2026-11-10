@@ -91,16 +91,16 @@ class MetricasPage extends StatelessWidget {
         final cubit = context.read<MetricasCubit>();
         final m = state.metricas;
         return ManiPagina(
-          children: [
-            ManiEncabezadoPagina(
-              icono: Icons.insights_outlined,
-              titulo: 'Métricas operativas',
-              descripcion:
-                  'Indicadores de tu empresa en el periodo elegido (fechas de '
-                  'Colombia, inclusive).',
-              accion: Wrap(
-                spacing: 10,
-                runSpacing: 10,
+          encabezado: ManiBarraPagina(
+            icono: Icons.insights_outlined,
+            titulo: 'Métricas operativas',
+            descripcion:
+                'Indicadores de tu empresa en el periodo elegido (fechas de '
+                'Colombia, inclusive).',
+            acciones: [
+              Wrap(
+                spacing: ManiSpace.sm,
+                runSpacing: ManiSpace.sm,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   ManiBotonPildora(
@@ -132,8 +132,9 @@ class MetricasPage extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            ManiGap.vXxl,
+            ],
+          ),
+          children: [
             if (state.error != null)
               ManiAvisoTarjeta(
                 key: const Key('metricas-error'),

@@ -148,8 +148,8 @@ class PasoDetalle extends StatelessWidget {
         ),
         ManiGap.vSm,
         Wrap(
-          spacing: 10,
-          runSpacing: 10,
+          spacing: ManiSpace.sm,
+          runSpacing: ManiSpace.sm,
           children: [
             for (var i = 0; i < state.fotos.length; i++)
               _Miniatura(

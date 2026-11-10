@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/profiles/site_rules/domain/entities/reglas_sitio.dart';
 import 'package:mani/features/profiles/site_rules/presentation/bloc/reglas_sitio_cubit.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Pantalla dual para US-02.2.3 (SCRUM-853):
 /// - Como Cliente Corporativo (`esVistaAliado = false`): permite configurar
@@ -85,47 +86,48 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ManiColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          widget.esVistaAliado
-              ? 'Reglas de Ingreso a la Sede (Vista Aliado)'
-              : 'Configurar Reglas Contextuales de la Sede',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: ManiFontSize.title,
-            fontWeight: FontWeight.w900,
-            color: ManiColors.ink,
+
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ManiBarraPagina(
+            icono: Icons.rule_rounded,
+            titulo: widget.esVistaAliado
+                ? 'Reglas de ingreso a la sede'
+                : 'Configurar reglas contextuales de la sede',
           ),
-        ),
-      ),
-      body: BlocConsumer<ReglasSitioCubit, ReglasSitioState>(
-        listener: (context, state) {
-          if (state.reglas != null && !state.guardadoExitoso) {
-            setState(() => _sincronizarFormulario(state.reglas!));
-          }
-        },
-        builder: (context, state) {
-          final reglas = state.reglas;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(ManiSpace.xxl),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 760),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (reglas != null) _buildTarjetaVisibleAliado(reglas),
-                    if (!widget.esVistaAliado) ...[
-                      ManiGap.vXl,
-                      _buildFormularioConfiguracion(state.cargando),
-                    ],
-                  ],
-                ),
-              ),
+          Expanded(
+            child: BlocConsumer<ReglasSitioCubit, ReglasSitioState>(
+              listener: (context, state) {
+                if (state.reglas != null && !state.guardadoExitoso) {
+                  setState(() => _sincronizarFormulario(state.reglas!));
+                }
+              },
+              builder: (context, state) {
+                final reglas = state.reglas;
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(ManiSpace.xxl),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 760),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (reglas != null)
+                            _buildTarjetaVisibleAliado(reglas),
+                          if (!widget.esVistaAliado) ...[
+                            ManiGap.vXl,
+                            _buildFormularioConfiguracion(state.cargando),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:mani/core/widgets/mani_button.dart';
 
 import '../domain/mensaje.dart';
 import 'chat_cubit.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Conversación del cliente con el aliado de un servicio (SCRUM-881, HU-M09-02).
 /// Se actualiza consultando a Core cada pocos segundos mientras está abierta, y
@@ -69,46 +70,56 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mensajes del servicio')),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 780),
-          child: BlocConsumer<ChatCubit, ChatState>(
-            listenWhen: (a, b) => a.mensajes.length != b.mensajes.length,
-            listener: (context, state) =>
-                _bajarSiCorresponde(state.mensajes.length),
-            builder: (context, state) => Column(
-              children: [
-                if (state.errorLectura != null)
-                  _Aviso(
-                    key: const Key('aviso-lectura'),
-                    texto: state.errorLectura!.mensajeUsuario,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ManiBarraPagina(
+            icono: Icons.chat_rounded,
+            titulo: 'Mensajes del servicio',
+          ),
+          Expanded(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 780),
+                child: BlocConsumer<ChatCubit, ChatState>(
+                  listenWhen: (a, b) => a.mensajes.length != b.mensajes.length,
+                  listener: (context, state) =>
+                      _bajarSiCorresponde(state.mensajes.length),
+                  builder: (context, state) => Column(
+                    children: [
+                      if (state.errorLectura != null)
+                        _Aviso(
+                          key: const Key('aviso-lectura'),
+                          texto: state.errorLectura!.mensajeUsuario,
+                        ),
+                      Expanded(
+                        child: _Hilo(state: state, scroll: _scroll),
+                      ),
+                      if (state.soloLectura)
+                        const _Aviso(
+                          key: Key('aviso-solo-lectura'),
+                          texto:
+                              'Este servicio ya no admite mensajes nuevos. Puedes leer '
+                              'la conversación.',
+                        )
+                      else if (state.errorEnvio != null)
+                        _Aviso(
+                          key: const Key('error-envio'),
+                          texto: state.errorEnvio!.mensajeUsuario,
+                        ),
+                      if (state.puedeEscribir)
+                        _Redactor(
+                          controlador: _texto,
+                          enviando: state.enviando,
+                          alEnviar: _enviar,
+                        ),
+                    ],
                   ),
-                Expanded(
-                  child: _Hilo(state: state, scroll: _scroll),
                 ),
-                if (state.soloLectura)
-                  const _Aviso(
-                    key: Key('aviso-solo-lectura'),
-                    texto:
-                        'Este servicio ya no admite mensajes nuevos. Puedes leer '
-                        'la conversación.',
-                  )
-                else if (state.errorEnvio != null)
-                  _Aviso(
-                    key: const Key('error-envio'),
-                    texto: state.errorEnvio!.mensajeUsuario,
-                  ),
-                if (state.puedeEscribir)
-                  _Redactor(
-                    controlador: _texto,
-                    enviando: state.enviando,
-                    alEnviar: _enviar,
-                  ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

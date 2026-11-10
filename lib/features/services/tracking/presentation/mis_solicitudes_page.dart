@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/features/services/ratings/data/calificacion_cierre_datasource.dart';
 import 'package:mani/features/services/ratings/domain/calificacion_cierre_modelos.dart';
 import 'package:mani/features/services/ratings/presentation/calificacion_cierre_cubit.dart';
@@ -47,68 +48,78 @@ class MisSolicitudesPage extends StatelessWidget {
     return BlocBuilder<MisSolicitudesCubit, MisSolicitudesState>(
       builder: (context, state) {
         final cubit = context.read<MisSolicitudesCubit>();
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 920),
-            child: RefreshIndicator(
-              color: ManiColors.ink,
-              backgroundColor: ManiColors.brand,
-              onRefresh: cubit.cargar,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: ManiSpace.xxl,
-                  vertical: ManiSpace.xxl,
-                ),
-                children: [
-                  _Encabezado(state: state, onActualizar: cubit.cargar),
-                  ManiGap.vMd,
-                  const _AvisoZona(),
-                  ManiGap.vLg,
-                  if (state.error != null)
-                    _Error(mensaje: state.error!, onReintentar: cubit.cargar),
-                  if (state.cargando && state.solicitudes.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(ManiSpace.xxxl),
-                      child: ManiCargando(),
-                    )
-                  else if (state.solicitudes.isEmpty && state.error == null)
-                    _Vacio(onNuevaSolicitud: onNuevaSolicitud)
-                  else
-                    for (final s in state.solicitudes) ...[
-                      _TarjetaSolicitud(
-                        s,
-                        onVerCotizacion:
-                            onVerCotizacion == null || !s.tieneCotizacion
-                            ? null
-                            : () => onVerCotizacion!(s.id),
-                        onVerAliados:
-                            onVerAliados == null ||
-                                s.estado != EstadoSeguimiento.pendiente
-                            ? null
-                            : () => onVerAliados!(s.id),
-                        onPresentarQueja:
-                            onPresentarQueja == null ||
-                                s.estado == EstadoSeguimiento.pendiente ||
-                                s.estado == EstadoSeguimiento.otro
-                            ? null
-                            : () => onPresentarQueja!(s.id),
-                        cancelando: state.cancelandoId == s.id,
-                        onCancelar:
-                            !s.puedeCancelar || state.cancelandoId != null
-                            ? null
-                            : () => _confirmarCancelacion(
-                                context,
-                                cubit,
-                                s,
-                                previsualizarCancelacion,
-                              ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _Encabezado(state: state, onActualizar: cubit.cargar),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 920),
+                  child: RefreshIndicator(
+                    color: ManiColors.ink,
+                    backgroundColor: ManiColors.brand,
+                    onRefresh: cubit.cargar,
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: ManiSpace.xxl,
+                        vertical: ManiSpace.xxl,
                       ),
-                      ManiGap.vMd,
-                    ],
-                ],
+                      children: [
+                        const _AvisoZona(),
+                        ManiGap.vLg,
+                        if (state.error != null)
+                          _Error(
+                            mensaje: state.error!,
+                            onReintentar: cubit.cargar,
+                          ),
+                        if (state.cargando && state.solicitudes.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.all(ManiSpace.xxxl),
+                            child: ManiCargando(),
+                          )
+                        else if (state.solicitudes.isEmpty &&
+                            state.error == null)
+                          _Vacio(onNuevaSolicitud: onNuevaSolicitud)
+                        else
+                          for (final s in state.solicitudes) ...[
+                            _TarjetaSolicitud(
+                              s,
+                              onVerCotizacion:
+                                  onVerCotizacion == null || !s.tieneCotizacion
+                                  ? null
+                                  : () => onVerCotizacion!(s.id),
+                              onVerAliados:
+                                  onVerAliados == null ||
+                                      s.estado != EstadoSeguimiento.pendiente
+                                  ? null
+                                  : () => onVerAliados!(s.id),
+                              onPresentarQueja:
+                                  onPresentarQueja == null ||
+                                      s.estado == EstadoSeguimiento.pendiente ||
+                                      s.estado == EstadoSeguimiento.otro
+                                  ? null
+                                  : () => onPresentarQueja!(s.id),
+                              cancelando: state.cancelandoId == s.id,
+                              onCancelar:
+                                  !s.puedeCancelar || state.cancelandoId != null
+                                  ? null
+                                  : () => _confirmarCancelacion(
+                                      context,
+                                      cubit,
+                                      s,
+                                      previsualizarCancelacion,
+                                    ),
+                            ),
+                            ManiGap.vMd,
+                          ],
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         );
       },
     );
@@ -242,97 +253,20 @@ class _Encabezado extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final consultado = state.consultadoEn;
-    return ManiCard(
-      padding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.xl,
-        vertical: ManiSpace.lg,
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(ManiSpace.sm),
-            decoration: BoxDecoration(
-              color: ManiColors.brand,
-              borderRadius: ManiRadius.brMd,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.regular,
-              ),
-              boxShadow: const [ManiShadow.sm],
-            ),
-            child: const Icon(
-              Icons.list_alt_rounded,
-              color: ManiColors.ink,
-              size: 24,
-            ),
-          ),
-          ManiGap.hMd,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Mis solicitudes',
-                  style: TextStyle(
-                    fontSize: ManiFontSize.h3,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-                if (consultado != null)
-                  Text(
-                    'Consultado: ${formatearFecha(consultado)}',
-                    key: const Key('seguimiento-consultado'),
-                    style: const TextStyle(
-                      fontSize: ManiFontSize.caption,
-                      fontWeight: FontWeight.w600,
-                      color: ManiColors.inkMuted,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          if (sl.isRegistered<FuenteModuloM08>())
-            Padding(
-              padding: const EdgeInsets.only(right: ManiSpace.sm),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: ManiColors.surface,
-                  borderRadius: ManiRadius.brMd,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.regular,
-                  ),
-                  boxShadow: const [ManiShadow.sm],
-                ),
-                child: TextButton.icon(
-                  key: const Key('seguimiento-ver-historial'),
-                  onPressed: () => showDialog<void>(
-                    context: context,
-                    builder: (_) => Dialog(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: 720,
-                          maxHeight: 620,
-                        ),
-                        child: BlocProvider(
-                          create: (_) => HistorialServiciosCubit(
-                            sl<FuenteModuloM08>(),
-                            esAliado: false,
-                          )..cargar(),
-                          child: const HistorialServiciosPage(),
-                        ),
-                      ),
-                    ),
-                  ),
-                  icon: const Icon(Icons.history, size: 18),
-                  label: const Text('Historial'),
-                ),
-              ),
-            ),
+    return ManiBarraPagina(
+      icono: Icons.list_alt_rounded,
+      titulo: 'Mis solicitudes',
+      descripcion: consultado == null
+          ? null
+          : 'Consultado: ${formatearFecha(consultado)}',
+      descripcionKey: const Key('seguimiento-consultado'),
+      // En móvil las acciones pasan debajo del título (antes el título quedaba
+      // aplastado y se partía letra por letra a 390 px).
+      acciones: [
+        if (sl.isRegistered<FuenteModuloM08>())
           DecoratedBox(
             decoration: BoxDecoration(
-              color: ManiColors.brand,
+              color: ManiColors.surface,
               borderRadius: ManiRadius.brMd,
               border: Border.all(
                 color: ManiColors.border,
@@ -341,14 +275,47 @@ class _Encabezado extends StatelessWidget {
               boxShadow: const [ManiShadow.sm],
             ),
             child: TextButton.icon(
-              key: const Key('seguimiento-actualizar'),
-              onPressed: state.cargando ? null : onActualizar,
-              icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Actualizar'),
+              key: const Key('seguimiento-ver-historial'),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => Dialog(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 720,
+                      maxHeight: 620,
+                    ),
+                    child: BlocProvider(
+                      create: (_) => HistorialServiciosCubit(
+                        sl<FuenteModuloM08>(),
+                        esAliado: false,
+                      )..cargar(),
+                      child: const HistorialServiciosPage(),
+                    ),
+                  ),
+                ),
+              ),
+              icon: const Icon(Icons.history, size: 18),
+              label: const Text('Historial'),
             ),
           ),
-        ],
-      ),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: ManiColors.brand,
+            borderRadius: ManiRadius.brMd,
+            border: Border.all(
+              color: ManiColors.border,
+              width: ManiBorder.regular,
+            ),
+            boxShadow: const [ManiShadow.sm],
+          ),
+          child: TextButton.icon(
+            key: const Key('seguimiento-actualizar'),
+            onPressed: state.cargando ? null : onActualizar,
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Actualizar'),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -463,8 +430,8 @@ class _TarjetaSolicitud extends StatelessWidget {
             ManiGap.vMd,
             Wrap(
               alignment: WrapAlignment.end,
-              spacing: 10,
-              runSpacing: 8,
+              spacing: ManiSpace.sm,
+              runSpacing: ManiSpace.sm,
               children: [
                 if (cancelando)
                   const Padding(

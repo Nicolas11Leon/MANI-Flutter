@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 
@@ -312,89 +313,26 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final puedeVolver = Navigator.of(context).canPop();
-    return Container(
-      decoration: const BoxDecoration(
-        color: ManiColors.surface,
-        border: Border(bottom: ManiBorder.side),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.xl,
-        vertical: ManiSpace.md,
-      ),
-      child: Row(
-        children: [
-          if (puedeVolver) ...[
-            IconButton(
-              tooltip: 'Volver',
-              onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: ManiColors.ink),
-            ),
-            ManiGap.hXs,
-          ],
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: ManiColors.brand,
-              borderRadius: ManiRadius.brSm,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.regular,
-              ),
-              boxShadow: const [ManiShadow.sm],
-            ),
-            child: const Icon(
-              Icons.verified_user_rounded,
-              color: ManiColors.ink,
-              size: 22,
-            ),
-          ),
-          ManiGap.hMd,
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Verificación de aliados',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: ManiFontSize.bodyLg,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-                Text(
-                  'Panel del administrador',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: ManiFontSize.micro,
-                    fontWeight: FontWeight.w600,
-                    color: ManiColors.inkMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (onAbrirCategorias != null)
-            IconButton(
-              key: const ValueKey('btn-ir-categorias'),
-              tooltip: 'Categorías de servicio',
-              onPressed: onAbrirCategorias,
-              icon: const Icon(Icons.category_outlined, color: ManiColors.ink),
-            ),
+    return ManiBarraPagina(
+      icono: Icons.verified_user_rounded,
+      titulo: 'Verificación de aliados',
+      descripcion: 'Panel del administrador',
+      acciones: [
+        if (onAbrirCategorias != null)
           IconButton(
-            key: const ValueKey('btn-actualizar'),
-            tooltip: 'Actualizar bandeja',
-            onPressed: () => context.read<BandejaVerificacionCubit>().cargar(
-              silencioso: true,
-            ),
-            icon: const Icon(Icons.refresh_rounded, color: ManiColors.ink),
+            key: const ValueKey('btn-ir-categorias'),
+            tooltip: 'Categorías de servicio',
+            onPressed: onAbrirCategorias,
+            icon: const Icon(Icons.category_outlined, color: ManiColors.ink),
           ),
-        ],
-      ),
+        IconButton(
+          key: const ValueKey('btn-actualizar'),
+          tooltip: 'Actualizar bandeja',
+          onPressed: () =>
+              context.read<BandejaVerificacionCubit>().cargar(silencioso: true),
+          icon: const Icon(Icons.refresh_rounded, color: ManiColors.ink),
+        ),
+      ],
     );
   }
 }

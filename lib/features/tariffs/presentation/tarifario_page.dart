@@ -11,6 +11,7 @@ import '../domain/tarifa.dart';
 import 'tarifario_cubit.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 final _importeRe = RegExp(r'^\d{1,10}([.,]\d{1,2})?$');
 final _fechaRe = RegExp(r'^\d{4}-\d{2}-\d{2}$');
@@ -48,51 +49,60 @@ class TarifarioPage extends StatelessWidget {
       },
       builder: (context, state) {
         final cubit = context.read<TarifarioCubit>();
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 820),
-            child: RefreshIndicator(
-              onRefresh: cubit.cargar,
-              child: ListView(
-                padding: const EdgeInsets.all(ManiSpace.lg),
-                children: [
-                  Text(
-                    'Tarifario de referencia',
-                    style: Theme.of(context).textTheme.headlineSmall,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ManiBarraPagina(
+              icono: Icons.sell_rounded,
+              titulo: 'Tarifario de referencia',
+              descripcion:
+                  'Rango de precios por categoría que el motor de reglas usa '
+                  'para contrastar las cotizaciones. Editar crea una versión '
+                  'nueva y conserva la anterior.',
+            ),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 820),
+                  child: RefreshIndicator(
+                    onRefresh: cubit.cargar,
+                    child: ListView(
+                      padding: const EdgeInsets.all(ManiSpace.lg),
+                      children: [
+                        if (state.cargando && state.categorias.isEmpty)
+                          const ManiCargando()
+                        else if (state.error != null)
+                          _Error(
+                            mensaje: state.error!,
+                            onReintentar: cubit.cargar,
+                          )
+                        else if (state.categorias.isEmpty)
+                          const Card(
+                            key: Key('tarifario-sin-categorias'),
+                            child: ListTile(
+                              leading: Icon(Icons.info_outline),
+                              title: Text(
+                                'Aún no hay categorías en el catálogo',
+                              ),
+                              subtitle: Text(
+                                'Crea una categoría para poder cargar su tarifa.',
+                              ),
+                            ),
+                          )
+                        else
+                          for (final c in state.categorias)
+                            _TarjetaCategoria(
+                              categoria: c,
+                              tarifas: state.tarifasDe(c.id),
+                              guardando: state.guardando,
+                            ),
+                      ],
+                    ),
                   ),
-                  ManiGap.vXs,
-                  const Text(
-                    'Rango de precios por categoría que el motor de reglas usa '
-                    'para contrastar las cotizaciones. Editar crea una versión '
-                    'nueva y conserva la anterior.',
-                  ),
-                  ManiGap.vLg,
-                  if (state.cargando && state.categorias.isEmpty)
-                    const ManiCargando()
-                  else if (state.error != null)
-                    _Error(mensaje: state.error!, onReintentar: cubit.cargar)
-                  else if (state.categorias.isEmpty)
-                    const Card(
-                      key: Key('tarifario-sin-categorias'),
-                      child: ListTile(
-                        leading: Icon(Icons.info_outline),
-                        title: Text('Aún no hay categorías en el catálogo'),
-                        subtitle: Text(
-                          'Crea una categoría para poder cargar su tarifa.',
-                        ),
-                      ),
-                    )
-                  else
-                    for (final c in state.categorias)
-                      _TarjetaCategoria(
-                        categoria: c,
-                        tarifas: state.tarifasDe(c.id),
-                        guardando: state.guardando,
-                      ),
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         );
       },
     );
@@ -160,7 +170,7 @@ class _TarjetaCategoria extends StatelessWidget {
               ],
             Wrap(
               alignment: WrapAlignment.end,
-              spacing: 8,
+              spacing: ManiSpace.sm,
               children: [
                 TextButton.icon(
                   key: Key('historial-tarifa-${categoria.id}'),

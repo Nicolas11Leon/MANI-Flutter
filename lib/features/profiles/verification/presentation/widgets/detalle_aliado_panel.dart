@@ -203,8 +203,8 @@ class _DatosRegistro extends StatelessWidget {
                   style: TextStyle(color: ManiColors.inkMuted),
                 )
               : Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
+                  spacing: ManiSpace.sm,
+                  runSpacing: ManiSpace.sm,
                   children: [
                     for (final c in aliado.categorias)
                       Container(

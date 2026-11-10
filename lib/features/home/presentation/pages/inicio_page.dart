@@ -163,8 +163,8 @@ class _InicioPageState extends State<InicioPage> {
                   final indicadores = snap.data ?? const <IndicadorResumen>[];
                   if (indicadores.isEmpty) return const SizedBox.shrink();
                   return Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
+                    spacing: ManiSpace.lg,
+                    runSpacing: ManiSpace.lg,
                     children: [
                       for (final i in indicadores)
                         _TarjetaIndicador(

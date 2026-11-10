@@ -7,6 +7,7 @@ import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/profiles/direct_employees/domain/entities/empleado_directo.dart';
 import 'package:mani/features/profiles/direct_employees/presentation/bloc/empleado_directo_cubit.dart';
 import 'package:mani/features/services/categories/data/datasources/categorias_remote_datasource.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Pantalla de administración del Tenant para registrar empleados directos
 /// que quedan con estado `VERIFICADO` inmediato sin pasar por cola KYC (US-02.1.5 / SCRUM-850 / SCRUM-1376).
@@ -119,56 +120,56 @@ class _RegistrarEmpleadoDirectoPageState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ManiColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'Registrar Empleado Directo del Tenant',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: ManiFontSize.title,
-            fontWeight: FontWeight.w900,
-            color: ManiColors.ink,
+
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ManiBarraPagina(
+            icono: Icons.badge_rounded,
+            titulo: 'Registrar empleado directo del tenant',
           ),
-        ),
-      ),
-      body: BlocConsumer<EmpleadoDirectoCubit, EmpleadoDirectoState>(
-        listener: (context, state) {
-          if (state is EmpleadoDirectoError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                key: const Key('snackbar_error_empleado_directo'),
-                backgroundColor: ManiColors.danger,
-                content: Text(state.message),
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          final cargando = state is EmpleadoDirectoLoading;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(ManiSpace.xxl),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 760),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildBannerInfo(),
-                      ManiGap.vXl,
-                      if (state is EmpleadoDirectoRegistrado) ...[
-                        _buildConfirmacionCard(state),
-                        ManiGap.vXl,
-                      ],
-                      _buildFormularioCard(cargando),
-                    ],
+          Expanded(
+            child: BlocConsumer<EmpleadoDirectoCubit, EmpleadoDirectoState>(
+              listener: (context, state) {
+                if (state is EmpleadoDirectoError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      key: const Key('snackbar_error_empleado_directo'),
+                      backgroundColor: ManiColors.danger,
+                      content: Text(state.message),
+                    ),
+                  );
+                }
+              },
+              builder: (context, state) {
+                final cargando = state is EmpleadoDirectoLoading;
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(ManiSpace.xxl),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 760),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildBannerInfo(),
+                            ManiGap.vXl,
+                            if (state is EmpleadoDirectoRegistrado) ...[
+                              _buildConfirmacionCard(state),
+                              ManiGap.vXl,
+                            ],
+                            _buildFormularioCard(cargando),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

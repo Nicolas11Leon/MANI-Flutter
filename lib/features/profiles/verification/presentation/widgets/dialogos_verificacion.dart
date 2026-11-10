@@ -123,8 +123,8 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
           ),
           ManiGap.vMd,
           Wrap(
-            spacing: 6,
-            runSpacing: 6,
+            spacing: ManiSpace.sm,
+            runSpacing: ManiSpace.sm,
             children: [
               for (final m in _DialogoRechazo.motivosRapidos)
                 ActionChip(
@@ -273,8 +273,8 @@ class _DialogoMani extends StatelessWidget {
       actions: [
         Wrap(
           alignment: WrapAlignment.end,
-          spacing: 12,
-          runSpacing: 12,
+          spacing: ManiSpace.md,
+          runSpacing: ManiSpace.md,
           children: acciones,
         ),
       ],
