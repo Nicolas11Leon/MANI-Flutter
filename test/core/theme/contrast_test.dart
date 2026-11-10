@@ -55,6 +55,9 @@ void main() {
       contraste(ManiColors.onBrand, ManiColors.brand),
       greaterThanOrEqualTo(4.5),
     );
+    for (final f in [ManiColors.brand, ManiColors.brandSoft]) {
+      expect(contraste(ManiColors.onBrandMuted, f), greaterThanOrEqualTo(4.5));
+    }
     expect(
       contraste(ManiColors.onInk, ManiColors.ink),
       greaterThanOrEqualTo(4.5),

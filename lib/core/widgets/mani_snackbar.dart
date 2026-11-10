@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mani/core/theme/app_theme.dart';
 
-/// SnackBar flotante con el estilo MANI (rojo para errores, amarillo para
+/// SnackBar flotante con el estilo MANI (rojo para errores, color de marca para
 /// éxito), con ícono para que el estado no dependa solo del color.
 /// [margin] permite elevarla sobre barras de acción fijas para no taparlas.
 void showManiSnackBar(
@@ -14,7 +14,7 @@ void showManiSnackBar(
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        // Ícono además del color: el estado no depende solo del rojo/amarillo.
+        // Ícono además del color: el estado no depende solo del rojo o la marca.
         content: Row(
           children: [
             Icon(

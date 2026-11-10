@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 ///
 /// Cada par texto/fondo que se declara aquí cumple WCAG AA (≥ 4.5:1 para
 /// texto normal); lo verifica `test/core/theme/contrast_test.dart`. Reglas:
-/// - El amarillo [brand] es fondo, nunca color de texto: sobre él va [onBrand].
+/// - La marca [brand] es fondo, nunca color de texto: sobre ella va [onBrand]
+///   (y [onBrandMuted] para texto secundario).
 /// - [danger] es el rojo de relleno (texto blanco encima); [dangerText] es el
 ///   rojo legible sobre fondos claros y contenedores.
 /// - Los `*Container` son fondos tenues de estado; su texto es el `*Text`.
@@ -44,14 +45,20 @@ abstract final class ManiColors {
   static const Color borderSubtle = Color(0xFFE5E7EB);
 
   // ── Marca ───────────────────────────────────────────────────────────────
-  /// Amarillo MANI.
-  static const Color brand = Color(0xFFFACC15);
+  /// Color de marca MANI, fijado por producto el 2026-11-10 (antes #FACC15).
+  /// Contra el fondo da 1.3:1: un relleno de marca siempre lleva el borde
+  /// carbón para distinguirse, nunca se apoya solo en el color.
+  static const Color brand = Color(0xFFF8DE7E);
 
-  /// Texto e íconos sobre [brand] (10.9:1).
+  /// Texto e íconos sobre [brand] (12.5:1).
   static const Color onBrand = ink;
 
-  /// Amarillo tenue de selección y resaltado.
-  static const Color brandSoft = Color(0xFFFEF9C3);
+  /// Texto secundario sobre [brand] o [brandSoft], tinta tomada del mismo tono
+  /// (5.3:1 sobre la marca; el gris [inkMuted] solo llega a 4.3:1 ahí).
+  static const Color onBrandMuted = Color(0xFF5F583B);
+
+  /// Tinte tenue de la marca para selección y resaltado (15:1 con tinta).
+  static const Color brandSoft = Color(0xFFFDF3D2);
 
   // ── Estados ─────────────────────────────────────────────────────────────
   static const Color success = Color(0xFF15803D);
@@ -79,7 +86,7 @@ abstract final class ManiColors {
   static const Color accentContainer = Color(0xFFE0E7FF);
 
   // ── Interacción ─────────────────────────────────────────────────────────
-  /// Anillo de foco de teclado: carbón sobre amarillo es visible en todas las
+  /// Anillo de foco de teclado: carbón sobre la marca es visible en todas las
   /// superficies claras de la app.
   static const Color focus = ink;
 

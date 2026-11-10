@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mani/core/theme/app_theme.dart';
 
 /// Tarjeta neo-brutalista MANI: borde negro, esquinas redondeadas y sombra
-/// dura. Si [seleccionada], resalta con fondo amarillo tenue y sombra mayor.
+/// dura. Si [seleccionada], resalta con fondo de marca tenue y sombra mayor.
 ///
 /// Con [onTap] es interactiva: en web se eleva al pasar el mouse (la sombra
 /// crece y la tarjeta sube 1 px, sin mover el layout) y muestra un anillo de

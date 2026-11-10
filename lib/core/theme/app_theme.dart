@@ -65,7 +65,7 @@ class AppTheme {
         scrim: ManiColors.scrim,
       ),
       // Foco de teclado visible: el overlay de foco de Material se oscurece
-      // lo bastante para notarse sobre amarillo, blanco y crema.
+      // lo bastante para notarse sobre la marca, blanco y crema.
       focusColor: ManiColors.ink.withValues(alpha: 0.14),
       hoverColor: ManiColors.ink.withValues(alpha: 0.05),
       splashFactory: InkSparkle.splashFactory,

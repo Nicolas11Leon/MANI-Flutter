@@ -77,7 +77,7 @@ class ManiStatusBadge extends StatelessWidget {
   }
 }
 
-/// Estado vacío: ícono en círculo amarillo, título, explicación y acciones.
+/// Estado vacío: ícono en círculo de marca, título, explicación y acciones.
 class ManiEstadoVacio extends StatelessWidget {
   const ManiEstadoVacio({
     super.key,
