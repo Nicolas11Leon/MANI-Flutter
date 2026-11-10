@@ -335,9 +335,6 @@ Future<void> init() async {
   sl.registerLazySingleton<FuenteAdiciones>(() => GatewayFuenteAdiciones(sl()));
   // Bitácora del servicio (US-04.3.2 / SCRUM-869), en la misma pantalla.
   sl.registerLazySingleton<FuenteEventos>(() => GatewayFuenteEventos(sl()));
-  // Calificación bidireccional, cierre condicionado, penalización e historial
-  // (Módulo C / M-08: SCRUM-1418, 874, 875, 876, 878, 879, 880).
-  sl.registerLazySingleton<FuenteModuloM08>(() => GatewayFuenteModuloM08(sl()));
   // Cola de eventos sin conexión (US-04.3.6 / SCRUM-873), solo en el móvil.
   // Es del usuario de la sesión: se borra al cerrarla, también cuando la
   // cierra el vencimiento del token (decisión del PO).
