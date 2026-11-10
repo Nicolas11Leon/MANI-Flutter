@@ -42,3 +42,23 @@ abstract final class ManiGap {
   static const SizedBox hXxl = SizedBox(width: ManiSpace.xxl);
   static const SizedBox hXxxl = SizedBox(width: ManiSpace.xxxl);
 }
+
+/// Anchos máximos de contenido en escritorio, por tipo de pantalla. En móvil
+/// todo ocupa el ancho disponible; estos topes evitan líneas y campos de
+/// 1400 px en pantallas anchas.
+abstract final class ManiAncho {
+  /// Acceso, diálogos y formularios de un solo campo.
+  static const double estrecho = 480;
+
+  /// Formularios y configuración (una columna de campos).
+  static const double formulario = 720;
+
+  /// Listas y bandejas de tarjetas de una columna.
+  static const double lista = 880;
+
+  /// Paneles con dos columnas o rejillas de tarjetas.
+  static const double panel = 1200;
+
+  /// Tableros y pantallas de varias columnas.
+  static const double pagina = 1400;
+}

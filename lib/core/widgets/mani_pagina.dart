@@ -3,7 +3,7 @@ import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_card.dart';
 
 /// Ancho máximo del contenido de una página con sesión en escritorio.
-const anchoMaximoPagina = 1400.0;
+const anchoMaximoPagina = ManiAncho.pagina;
 
 /// Página con sesión en el estilo de MANI: márgenes de escritorio, contenido
 /// centrado hasta [anchoMaximoPagina] y scroll que construye todo (las
@@ -454,6 +454,30 @@ class ManiAvisoTarjeta extends StatelessWidget {
           ),
           if (accion != null) ...[ManiGap.hMd, accion!],
         ],
+      ),
+    );
+  }
+}
+
+/// Centra el contenido de una pantalla con un ancho máximo de [ManiAncho]
+/// (formulario, lista, panel) y lo alinea arriba. En móvil no cambia nada.
+class ManiAnchoContenido extends StatelessWidget {
+  const ManiAnchoContenido({
+    super.key,
+    required this.ancho,
+    required this.child,
+  });
+
+  final double ancho;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: ancho),
+        child: child,
       ),
     );
   }
