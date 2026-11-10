@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mani/core/theme/mani_transiciones.dart';
 import 'package:mani/core/theme/tokens/mani_tokens.dart';
 
 export 'package:mani/core/theme/tokens/mani_tokens.dart';
@@ -60,6 +61,7 @@ class AppTheme {
       primaryTextTheme: textTheme,
       scaffoldBackgroundColor: ManiColors.background,
       extensions: const [ManiTokens.claro],
+      pageTransitionsTheme: maniPageTransitionsTheme,
       colorScheme: const ColorScheme.light(
         primary: ManiColors.brand,
         onPrimary: ManiColors.onBrand,
