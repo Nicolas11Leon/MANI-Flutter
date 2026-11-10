@@ -29,14 +29,14 @@ abstract final class ManiText {
     fontSize: ManiFontSize.display,
     fontWeight: FontWeight.w900,
     height: 1.05,
-    letterSpacing: -1.2,
+    letterSpacing: -0.8,
     color: ManiColors.ink,
   );
   static const TextStyle _h1 = TextStyle(
     fontSize: ManiFontSize.h1,
     fontWeight: FontWeight.w900,
     height: 1.1,
-    letterSpacing: -0.8,
+    letterSpacing: -0.5,
     color: ManiColors.ink,
   );
   static const TextStyle _h2 = TextStyle(

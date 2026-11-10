@@ -154,7 +154,10 @@ class AuthPanelMarca extends StatelessWidget {
                 ManiGap.vHuge,
                 Text(
                   'Servicios técnicos confiables, de la solicitud al cierre.',
+                  // w800: en w900 a este tamaño el punto de la "i" se funde
+                  // con el asta y se lee como "l".
                   style: ManiText.h1.copyWith(
+                    fontWeight: FontWeight.w800,
                     fontSize: c.maxWidth >= 640
                         ? ManiFontSize.display
                         : ManiFontSize.h1,
