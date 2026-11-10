@@ -169,7 +169,7 @@ class _Bandeja extends StatelessWidget {
           onRefresh: () => cubit.cargar(silencioso: true),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 760),
+              constraints: const BoxConstraints(maxWidth: ManiAncho.formulario),
               child: ListView(
                 key: PageStorageKey('solicitudes-${state.pestana.name}'),
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -466,7 +466,7 @@ class _BarraSuperior extends StatelessWidget {
               builder: (_) => Dialog(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
-                    maxWidth: 720,
+                    maxWidth: ManiAncho.formulario,
                     maxHeight: 620,
                   ),
                   child: BlocProvider(

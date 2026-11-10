@@ -24,9 +24,12 @@ class DetalleAliadoPage extends StatelessWidget {
             titulo: 'Perfil del aliado',
           ),
           Expanded(
-            child: DetalleAliadoPanel(
-              aliadoId: aliadoId,
-              onResuelto: () => Navigator.of(context).maybePop(),
+            child: ManiAnchoContenido(
+              ancho: ManiAncho.panel,
+              child: DetalleAliadoPanel(
+                aliadoId: aliadoId,
+                onResuelto: () => Navigator.of(context).maybePop(),
+              ),
             ),
           ),
         ],

@@ -106,7 +106,12 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
                 icono: Icons.map_outlined,
                 titulo: 'Zona de cobertura',
               ),
-              Expanded(child: _cuerpo(context)),
+              Expanded(
+                child: ManiAnchoContenido(
+                  ancho: ManiAncho.lista,
+                  child: _cuerpo(context),
+                ),
+              ),
             ],
           ),
           bottomNavigationBar: c.carga == EstadoCarga.listo

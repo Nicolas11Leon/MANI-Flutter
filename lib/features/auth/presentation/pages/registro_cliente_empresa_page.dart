@@ -102,7 +102,7 @@ class _RegistroClienteEmpresaViewState
           ),
         ),
         content: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
+          constraints: const BoxConstraints(maxWidth: ManiAncho.estrecho),
           child: Text(
             'Tu empresa ya puede iniciar sesión. Después podrás registrar sus sedes desde tu perfil.',
             style: GoogleFonts.plusJakartaSans(
@@ -183,7 +183,9 @@ class _RegistroClienteEmpresaViewState
               ),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 640),
+                  constraints: const BoxConstraints(
+                    maxWidth: ManiAncho.formulario,
+                  ),
                   child: Form(
                     key: _formKey,
                     child: Column(

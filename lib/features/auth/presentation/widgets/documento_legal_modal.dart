@@ -96,7 +96,10 @@ class _DocumentoLegalModalState extends State<DocumentoLegalModal> {
         side: const BorderSide(color: ManiColors.ink, width: 3),
       ),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 680, maxHeight: 640),
+        constraints: const BoxConstraints(
+          maxWidth: ManiAncho.formulario,
+          maxHeight: 640,
+        ),
         child: Padding(
           padding: const EdgeInsets.all(ManiSpace.xxl),
           child: Column(

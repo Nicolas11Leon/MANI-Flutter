@@ -51,74 +51,84 @@ class _AuditoriaViewState extends State<AuditoriaView> {
             titulo: 'Auditoría de transacciones',
           ),
           Expanded(
-            child: BlocBuilder<AuditoriaCubit, AuditoriaState>(
-              builder: (context, state) {
-                final cubit = context.read<AuditoriaCubit>();
-                return ListView(
-                  padding: const EdgeInsets.all(ManiSpace.lg),
-                  children: [
-                    const Text(
-                      'Registro inmutable: cada pago deja un evento con quién lo '
-                      'hizo y cuándo. Solo ves los eventos de tu empresa.',
-                      key: Key('aviso-inmutable'),
-                    ),
-                    ManiGap.vMd,
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            key: const Key('filtro-pago'),
-                            controller: _filtro,
-                            decoration: const InputDecoration(
-                              labelText: 'Filtrar por id de pago (opcional)',
-                            ),
-                            onSubmitted: (v) => cubit.cargar(pagoId: v),
-                          ),
-                        ),
-                        ManiGap.hSm,
-                        FilledButton(
-                          key: const Key('btn-filtrar'),
-                          onPressed: () => cubit.cargar(pagoId: _filtro.text),
-                          child: const Text('Buscar'),
-                        ),
-                      ],
-                    ),
-                    ManiGap.vLg,
-                    if (state.fase == FaseAuditoria.cargando)
-                      const ManiCargando(),
-                    if (state.fase == FaseAuditoria.error)
-                      Column(
+            child: ManiAnchoContenido(
+              ancho: ManiAncho.lista,
+              child: BlocBuilder<AuditoriaCubit, AuditoriaState>(
+                builder: (context, state) {
+                  final cubit = context.read<AuditoriaCubit>();
+                  return ListView(
+                    padding: const EdgeInsets.all(ManiSpace.lg),
+                    children: [
+                      const Text(
+                        'Registro inmutable: cada pago deja un evento con quién lo '
+                        'hizo y cuándo. Solo ves los eventos de tu empresa.',
+                        key: Key('aviso-inmutable'),
+                      ),
+                      ManiGap.vMd,
+                      Row(
                         children: [
-                          Text(state.error!, key: const Key('error-auditoria')),
-                          ManiGap.vSm,
-                          OutlinedButton(
-                            key: const Key('reintentar-auditoria'),
-                            onPressed: () =>
-                                cubit.cargar(pagoId: state.filtroPago),
-                            child: const Text('Reintentar'),
+                          Expanded(
+                            child: TextField(
+                              key: const Key('filtro-pago'),
+                              controller: _filtro,
+                              decoration: const InputDecoration(
+                                labelText: 'Filtrar por id de pago (opcional)',
+                              ),
+                              onSubmitted: (v) => cubit.cargar(pagoId: v),
+                            ),
+                          ),
+                          ManiGap.hSm,
+                          FilledButton(
+                            key: const Key('btn-filtrar'),
+                            onPressed: () => cubit.cargar(pagoId: _filtro.text),
+                            child: const Text('Buscar'),
                           ),
                         ],
                       ),
-                    if (state.fase == FaseAuditoria.listo &&
-                        state.eventos.isEmpty)
-                      const Text(
-                        'No hay transacciones registradas con ese criterio.',
-                        key: Key('auditoria-vacia'),
-                      ),
-                    for (final e in state.eventos) _TarjetaEvento(evento: e),
-                    if (state.hayMas)
-                      Center(
-                        child: OutlinedButton(
-                          key: const Key('cargar-mas'),
-                          onPressed: state.cargandoMas ? null : cubit.cargarMas,
-                          child: Text(
-                            state.cargandoMas ? 'Cargando…' : 'Cargar más',
+                      ManiGap.vLg,
+                      if (state.fase == FaseAuditoria.cargando)
+                        const ManiCargando(),
+                      if (state.fase == FaseAuditoria.error)
+                        Column(
+                          children: [
+                            Text(
+                              state.error!,
+                              key: const Key('error-auditoria'),
+                            ),
+                            ManiGap.vSm,
+                            OutlinedButton(
+                              key: const Key('reintentar-auditoria'),
+                              onPressed: () =>
+                                  cubit.cargar(pagoId: state.filtroPago),
+                              child: const Text('Reintentar'),
+                            ),
+                          ],
+                        ),
+                      if (state.fase == FaseAuditoria.listo &&
+                          state.eventos.isEmpty)
+                        const ManiEstadoVacio(
+                          key: Key('auditoria-vacia'),
+                          icono: Icons.receipt_long_outlined,
+                          titulo:
+                              'No hay transacciones registradas con ese criterio.',
+                        ),
+                      for (final e in state.eventos) _TarjetaEvento(evento: e),
+                      if (state.hayMas)
+                        Center(
+                          child: OutlinedButton(
+                            key: const Key('cargar-mas'),
+                            onPressed: state.cargandoMas
+                                ? null
+                                : cubit.cargarMas,
+                            child: Text(
+                              state.cargandoMas ? 'Cargando…' : 'Cargar más',
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                );
-              },
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ],

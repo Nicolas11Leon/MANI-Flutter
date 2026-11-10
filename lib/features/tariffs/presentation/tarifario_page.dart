@@ -63,7 +63,7 @@ class TarifarioPage extends StatelessWidget {
             Expanded(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 820),
+                  constraints: const BoxConstraints(maxWidth: ManiAncho.lista),
                   child: RefreshIndicator(
                     onRefresh: cubit.cargar,
                     child: ListView(

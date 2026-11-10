@@ -43,6 +43,7 @@ class QuejasPage extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<QuejasCubit>();
         return ManiPagina(
+          ancho: ManiAncho.panel,
           encabezado: ManiBarraPagina(
             icono: cubit.esAdmin
                 ? Icons.support_agent_outlined
@@ -93,10 +94,10 @@ class QuejasPage extends StatelessWidget {
                 ),
               )
             else if (state.quejas.isEmpty)
-              const ManiAvisoTarjeta(
+              const ManiEstadoVacio(
                 key: Key('quejas-vacio'),
                 icono: Icons.inbox_outlined,
-                texto: 'No hay quejas',
+                titulo: 'No hay quejas',
               )
             else
               ManiRejilla(

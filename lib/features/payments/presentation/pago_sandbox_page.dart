@@ -53,7 +53,9 @@ class PagoSandboxPage extends StatelessWidget {
                 final cubit = context.read<PagoCubit>();
                 return Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 640),
+                    constraints: const BoxConstraints(
+                      maxWidth: ManiAncho.formulario,
+                    ),
                     child: ListView(
                       padding: const EdgeInsets.symmetric(
                         horizontal: ManiSpace.xl,

@@ -30,7 +30,9 @@ class AliadosElegiblesPage extends StatelessWidget {
             Expanded(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 720),
+                  constraints: const BoxConstraints(
+                    maxWidth: ManiAncho.formulario,
+                  ),
                   child: RefreshIndicator(
                     color: ManiColors.ink,
                     backgroundColor: ManiColors.brand,

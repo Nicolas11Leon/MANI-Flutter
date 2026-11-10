@@ -132,7 +132,9 @@ class PoliticaCancelacionPage extends StatelessWidget {
             Expanded(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 640),
+                  constraints: const BoxConstraints(
+                    maxWidth: ManiAncho.formulario,
+                  ),
                   child: ListView(
                     padding: const EdgeInsets.all(ManiSpace.lg),
                     children: [

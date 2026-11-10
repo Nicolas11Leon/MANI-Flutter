@@ -39,56 +39,59 @@ class CobrosAliadoView extends StatelessWidget {
         children: [
           ManiBarraPagina(icono: Icons.payments_rounded, titulo: 'Mis cobros'),
           Expanded(
-            child: BlocBuilder<CobrosAliadoCubit, CobrosAliadoState>(
-              builder: (context, state) {
-                if (state.fase == FaseCobros.cargando) {
-                  return const ManiCargando();
-                }
-                if (state.fase == FaseCobros.error) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(ManiSpace.xxl),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            state.error!.mensajeUsuario,
-                            key: const Key('error-cobros'),
-                            textAlign: TextAlign.center,
-                          ),
-                          ManiGap.vMd,
-                          OutlinedButton(
-                            key: const Key('reintentar-cobros'),
-                            onPressed: context.read<CobrosAliadoCubit>().cargar,
-                            child: const Text('Reintentar'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                return ListView(
-                  padding: const EdgeInsets.all(ManiSpace.lg),
-                  children: [
-                    const Text(
-                      avisoSimulado,
-                      key: Key('aviso-simulado-cobros'),
-                    ),
-                    ManiGap.vMd,
-                    if (state.cobros.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.only(top: ManiSpace.xxxl),
-                        child: Text(
-                          'Aún no tienes cobros. Aparecerán cuando un cliente pague '
-                          'un servicio tuyo.',
-                          key: Key('cobros-vacio'),
-                          textAlign: TextAlign.center,
+            child: ManiAnchoContenido(
+              ancho: ManiAncho.lista,
+              child: BlocBuilder<CobrosAliadoCubit, CobrosAliadoState>(
+                builder: (context, state) {
+                  if (state.fase == FaseCobros.cargando) {
+                    return const ManiCargando();
+                  }
+                  if (state.fase == FaseCobros.error) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(ManiSpace.xxl),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              state.error!.mensajeUsuario,
+                              key: const Key('error-cobros'),
+                              textAlign: TextAlign.center,
+                            ),
+                            ManiGap.vMd,
+                            OutlinedButton(
+                              key: const Key('reintentar-cobros'),
+                              onPressed: context
+                                  .read<CobrosAliadoCubit>()
+                                  .cargar,
+                              child: const Text('Reintentar'),
+                            ),
+                          ],
                         ),
                       ),
-                    for (final c in state.cobros) _TarjetaCobro(cobro: c),
-                  ],
-                );
-              },
+                    );
+                  }
+                  return ListView(
+                    padding: const EdgeInsets.all(ManiSpace.lg),
+                    children: [
+                      const Text(
+                        avisoSimulado,
+                        key: Key('aviso-simulado-cobros'),
+                      ),
+                      ManiGap.vMd,
+                      if (state.cobros.isEmpty)
+                        const ManiEstadoVacio(
+                          key: Key('cobros-vacio'),
+                          icono: Icons.payments_outlined,
+                          titulo: 'Aún no tienes cobros.',
+                          texto:
+                              'Aparecerán cuando un cliente pague un servicio tuyo.',
+                        ),
+                      for (final c in state.cobros) _TarjetaCobro(cobro: c),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ],

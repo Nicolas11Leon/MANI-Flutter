@@ -80,7 +80,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           Expanded(
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 780),
+                constraints: const BoxConstraints(
+                  maxWidth: ManiAncho.formulario,
+                ),
                 child: BlocConsumer<ChatCubit, ChatState>(
                   listenWhen: (a, b) => a.mensajes.length != b.mensajes.length,
                   listener: (context, state) =>

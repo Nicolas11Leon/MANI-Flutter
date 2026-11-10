@@ -3,7 +3,7 @@ import 'package:mani/core/theme/app_theme.dart';
 
 /// Ancho máximo del contenido en escritorio, el mismo de las pantallas de
 /// registro: así todas las pantallas comparten columna y márgenes.
-const anchoMaximoContenido = 1200.0;
+const anchoMaximoContenido = ManiAncho.panel;
 
 /// Ancho a partir del cual las pantallas usan dos columnas, como el registro.
 const anchoEscritorio = 850.0;
@@ -129,9 +129,9 @@ class ManiIconoCaja extends StatelessWidget {
   }
 }
 
-/// Título de una tarjeta de sección ("1. Datos del Cliente" en el registro).
-class ManiTituloSeccion extends StatelessWidget {
-  const ManiTituloSeccion({
+/// Título dentro de una tarjeta de sección ("1. Datos del Cliente" en el registro).
+class ManiTituloTarjeta extends StatelessWidget {
+  const ManiTituloTarjeta({
     super.key,
     required this.icono,
     required this.texto,

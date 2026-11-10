@@ -117,6 +117,7 @@ class TenantsPage extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<TenantsCubit>();
         return ManiPagina(
+          ancho: ManiAncho.lista,
           encabezado: const ManiBarraPagina(
             icono: Icons.domain_outlined,
             titulo: 'Tenants de la plataforma',

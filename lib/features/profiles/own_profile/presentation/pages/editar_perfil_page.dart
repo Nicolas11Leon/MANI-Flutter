@@ -223,7 +223,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ManiTituloSeccion(
+          const ManiTituloTarjeta(
             icono: Icons.badge_outlined,
             texto: '1. Tu cuenta',
           ),
@@ -265,7 +265,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ManiTituloSeccion(
+          const ManiTituloTarjeta(
             icono: Icons.person_outline,
             texto: '2. Datos de contacto',
           ),

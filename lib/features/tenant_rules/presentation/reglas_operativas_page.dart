@@ -48,7 +48,9 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
           Expanded(
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 800),
+                constraints: const BoxConstraints(
+                  maxWidth: ManiAncho.formulario,
+                ),
                 child: BlocConsumer<TenantRulesCubit, TenantRulesState>(
                   listener: (context, state) {
                     if (state is TenantRulesLoaded) {

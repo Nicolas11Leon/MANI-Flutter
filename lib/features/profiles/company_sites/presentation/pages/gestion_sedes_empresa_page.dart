@@ -98,7 +98,9 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                   padding: const EdgeInsets.all(ManiSpace.xxl),
                   child: Center(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 880),
+                      constraints: const BoxConstraints(
+                        maxWidth: ManiAncho.lista,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [

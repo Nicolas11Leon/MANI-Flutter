@@ -147,7 +147,9 @@ class _RegistrarEmpleadoDirectoPageState
                   padding: const EdgeInsets.all(ManiSpace.xxl),
                   child: Center(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 760),
+                      constraints: const BoxConstraints(
+                        maxWidth: ManiAncho.formulario,
+                      ),
                       child: Form(
                         key: _formKey,
                         child: Column(

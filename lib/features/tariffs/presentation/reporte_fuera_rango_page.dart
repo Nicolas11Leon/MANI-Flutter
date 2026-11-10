@@ -10,6 +10,7 @@ import '../data/tarifas_datasource.dart';
 import '../domain/tarifa.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 String fechaIso(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
@@ -110,7 +111,7 @@ class ReporteFueraDeRangoPage extends StatelessWidget {
             Expanded(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 820),
+                  constraints: const BoxConstraints(maxWidth: ManiAncho.lista),
                   child: ListView(
                     padding: const EdgeInsets.all(ManiSpace.lg),
                     children: [
@@ -170,14 +171,11 @@ class ReporteFueraDeRangoPage extends StatelessWidget {
                         ),
                         ManiGap.vSm,
                         if (reporte.cotizaciones.isEmpty)
-                          const Card(
+                          const ManiEstadoVacio(
                             key: Key('reporte-vacio'),
-                            child: ListTile(
-                              leading: Icon(Icons.check_circle_outline),
-                              title: Text(
+                            icono: Icons.check_circle_outline,
+                            titulo:
                                 'No hay cotizaciones fuera de rango en el periodo',
-                              ),
-                            ),
                           )
                         else
                           for (final c in reporte.cotizaciones)

@@ -40,7 +40,7 @@ class RecuperacionLayout extends StatelessWidget {
           padding: const EdgeInsets.all(ManiSpace.xxl),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
+              constraints: const BoxConstraints(maxWidth: ManiAncho.estrecho),
               child: Container(
                 padding: const EdgeInsets.all(ManiSpace.xxl),
                 decoration: BoxDecoration(

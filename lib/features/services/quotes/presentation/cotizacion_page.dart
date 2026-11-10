@@ -185,7 +185,9 @@ class CotizacionPage extends StatelessWidget {
                       ),
                       child: Center(
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 1400),
+                          constraints: const BoxConstraints(
+                            maxWidth: ManiAncho.pagina,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [

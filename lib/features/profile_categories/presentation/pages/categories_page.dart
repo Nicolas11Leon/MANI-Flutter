@@ -83,8 +83,11 @@ class CategoriesView extends StatelessWidget {
                       padding: EdgeInsets.symmetric(
                         horizontal:
                             ManiSpace.xl +
-                            (MediaQuery.sizeOf(context).width > 760
-                                ? (MediaQuery.sizeOf(context).width - 760) / 2
+                            (MediaQuery.sizeOf(context).width >
+                                    ManiAncho.formulario
+                                ? (MediaQuery.sizeOf(context).width -
+                                          ManiAncho.formulario) /
+                                      2
                                 : 0),
                         vertical: ManiSpace.lg,
                       ),

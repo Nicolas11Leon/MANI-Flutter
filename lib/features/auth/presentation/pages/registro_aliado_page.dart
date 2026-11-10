@@ -189,7 +189,7 @@ class _RegistroAliadoViewState extends State<_RegistroAliadoView> {
             ],
           ),
           content: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
+            constraints: const BoxConstraints(maxWidth: ManiAncho.estrecho),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,7 +324,9 @@ class _RegistroAliadoViewState extends State<_RegistroAliadoView> {
                     ),
                     child: Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1200),
+                        constraints: const BoxConstraints(
+                          maxWidth: ManiAncho.panel,
+                        ),
                         child: Form(
                           key: _formKey,
                           child: Column(

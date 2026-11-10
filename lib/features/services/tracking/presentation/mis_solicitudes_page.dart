@@ -55,7 +55,7 @@ class MisSolicitudesPage extends StatelessWidget {
             Expanded(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 920),
+                  constraints: const BoxConstraints(maxWidth: ManiAncho.lista),
                   child: RefreshIndicator(
                     color: ManiColors.ink,
                     backgroundColor: ManiColors.brand,
@@ -281,7 +281,7 @@ class _Encabezado extends StatelessWidget {
                 builder: (_) => Dialog(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(
-                      maxWidth: 720,
+                      maxWidth: ManiAncho.formulario,
                       maxHeight: 620,
                     ),
                     child: BlocProvider(

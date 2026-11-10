@@ -395,7 +395,10 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
       ),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 760, maxHeight: 640),
+          constraints: const BoxConstraints(
+            maxWidth: ManiAncho.formulario,
+            maxHeight: 640,
+          ),
           child: Container(
             decoration: BoxDecoration(
               color: ManiColors.surface,

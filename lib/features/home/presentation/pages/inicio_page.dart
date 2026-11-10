@@ -66,7 +66,7 @@ class _InicioPageState extends State<InicioPage> {
       backgroundColor: ManiColors.background,
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
+          constraints: const BoxConstraints(maxWidth: ManiAncho.panel),
           child: ListView(
             key: const Key('inicio-contenido'),
             padding: const EdgeInsets.symmetric(

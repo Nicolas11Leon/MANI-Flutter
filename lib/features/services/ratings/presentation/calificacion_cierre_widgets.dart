@@ -348,7 +348,7 @@ class HistorialServiciosPage extends StatelessWidget {
 
         return Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
+            constraints: const BoxConstraints(maxWidth: ManiAncho.formulario),
             child: ListView(
               padding: const EdgeInsets.all(ManiSpace.xl),
               children: [

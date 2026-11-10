@@ -71,7 +71,7 @@ class _Catalogo extends StatelessWidget {
             final columnas = ancho >= 1100 ? 3 : (ancho >= 700 ? 2 : 1);
             return Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
+                constraints: const BoxConstraints(maxWidth: ManiAncho.panel),
                 child: CustomScrollView(
                   slivers: [
                     SliverPadding(

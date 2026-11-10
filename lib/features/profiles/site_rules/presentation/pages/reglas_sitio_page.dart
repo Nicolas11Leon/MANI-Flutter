@@ -109,7 +109,9 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
                   padding: const EdgeInsets.all(ManiSpace.xxl),
                   child: Center(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 760),
+                      constraints: const BoxConstraints(
+                        maxWidth: ManiAncho.formulario,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
