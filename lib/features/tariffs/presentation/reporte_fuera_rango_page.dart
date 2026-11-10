@@ -101,7 +101,8 @@ class ReporteFueraDeRangoPage extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ManiBarraPagina(
+            ManiEncabezadoPantalla(
+              ancho: ManiAncho.lista,
               icono: Icons.trending_up_rounded,
               titulo: 'Cotizaciones fuera de rango',
               descripcion:

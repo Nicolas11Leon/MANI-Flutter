@@ -324,7 +324,8 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ManiBarraPagina(
+    return ManiEncabezadoPantalla(
+      ancho: ManiAncho.formulario,
       icono: Icons.home_repair_service_rounded,
       titulo: 'Nueva solicitud',
       descripcion: 'Cuéntanos qué necesitas reparar',

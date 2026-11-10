@@ -53,7 +53,8 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.formulario,
             icono: Icons.forum_rounded,
             titulo: 'Conversación de una queja',
           ),

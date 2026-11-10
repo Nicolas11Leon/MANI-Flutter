@@ -354,7 +354,12 @@ void main() {
         onNavegar: (r) => destino = r,
       );
 
-      await tester.tap(find.byKey(const Key('menu-entrada-/admin/categorias')));
+      // Las entradas comparten la barra con la marca y la sesión: si no
+      // caben, la franja se desplaza hasta la entrada antes de tocarla.
+      final entrada = find.byKey(const Key('menu-entrada-/admin/categorias'));
+      await tester.ensureVisible(entrada);
+      await tester.pumpAndSettle();
+      await tester.tap(entrada);
 
       expect(destino, '/admin/categorias');
     });

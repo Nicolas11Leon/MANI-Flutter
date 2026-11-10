@@ -122,7 +122,8 @@ class PoliticaCancelacionPage extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ManiBarraPagina(
+            ManiEncabezadoPantalla(
+              ancho: ManiAncho.formulario,
               icono: Icons.event_busy_rounded,
               titulo: 'Política de cancelación',
               descripcion:

@@ -102,7 +102,8 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ManiBarraPagina(
+              ManiEncabezadoPantalla(
+                ancho: ManiAncho.lista,
                 icono: Icons.map_outlined,
                 titulo: 'Zona de cobertura',
               ),

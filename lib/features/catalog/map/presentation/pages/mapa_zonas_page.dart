@@ -25,7 +25,10 @@ class MapaZonasPage extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(icono: Icons.map_rounded, titulo: 'Mapa de zonas'),
+          ManiEncabezadoPantalla(
+            icono: Icons.map_rounded,
+            titulo: 'Mapa de zonas',
+          ),
           Expanded(
             child: BlocBuilder<MapaCubit, MapaState>(
               builder: (context, state) {

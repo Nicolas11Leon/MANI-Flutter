@@ -253,7 +253,8 @@ class _Encabezado extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final consultado = state.consultadoEn;
-    return ManiBarraPagina(
+    return ManiEncabezadoPantalla(
+      ancho: ManiAncho.lista,
       icono: Icons.list_alt_rounded,
       titulo: 'Mis solicitudes',
       descripcion: consultado == null

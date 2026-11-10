@@ -124,7 +124,8 @@ class _RegistrarEmpleadoDirectoPageState
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.formulario,
             icono: Icons.badge_rounded,
             titulo: 'Registrar empleado directo del tenant',
           ),

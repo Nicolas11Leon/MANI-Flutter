@@ -91,7 +91,7 @@ class MetricasPage extends StatelessWidget {
         final cubit = context.read<MetricasCubit>();
         final m = state.metricas;
         return ManiPagina(
-          encabezado: ManiBarraPagina(
+          encabezado: ManiEncabezadoPantalla(
             icono: Icons.insights_outlined,
             titulo: 'Métricas operativas',
             descripcion:

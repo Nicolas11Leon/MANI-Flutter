@@ -282,7 +282,8 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ManiBarraPagina(
+    return ManiEncabezadoPantalla(
+      ancho: ManiAncho.panel,
       icono: Icons.category_rounded,
       titulo: 'Categorías de servicio',
       descripcion: 'Panel del administrador',

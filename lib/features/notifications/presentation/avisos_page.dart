@@ -38,7 +38,11 @@ class AvisosView extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(icono: Icons.notifications_rounded, titulo: 'Avisos'),
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.lista,
+            icono: Icons.notifications_rounded,
+            titulo: 'Avisos',
+          ),
           Expanded(
             child: ManiAnchoContenido(
               ancho: ManiAncho.lista,

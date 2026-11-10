@@ -22,8 +22,8 @@ class ManiPagina extends StatelessWidget {
   final Future<void> Function()? alRefrescar;
   final double ancho;
 
-  /// Barra fija sobre el contenido (normalmente una [ManiBarraPagina]); no se
-  /// desplaza con el scroll.
+  /// Encabezado fijo sobre el contenido (normalmente un
+  /// [ManiEncabezadoPantalla]); no se desplaza con el scroll.
   final Widget? encabezado;
 
   @override
@@ -65,20 +65,21 @@ class ManiPagina extends StatelessWidget {
   }
 }
 
-/// Barra de encabezado de las pantallas con sesión: va justo debajo del menú
-/// principal, en todo el ancho, y es la misma en toda la app.
+/// Encabezado de una pantalla con sesión: abre el área de trabajo, debajo de
+/// la barra superior única, alineado con la columna del contenido ([ancho]).
 ///
 /// Ícono en caja de marca, título, descripción opcional y acciones a la
 /// derecha. Por debajo de 600 px las acciones pasan a una segunda fila para
 /// que el título nunca se aplaste. Si la pantalla se abrió encima de otra,
 /// muestra la flecha para volver.
-class ManiBarraPagina extends StatelessWidget {
-  const ManiBarraPagina({
+class ManiEncabezadoPantalla extends StatelessWidget {
+  const ManiEncabezadoPantalla({
     super.key,
     required this.icono,
     required this.titulo,
     this.descripcion,
     this.acciones = const [],
+    this.ancho = ManiAncho.pagina,
     this.tituloKey,
     this.descripcionKey,
   });
@@ -87,18 +88,20 @@ class ManiBarraPagina extends StatelessWidget {
   final String titulo;
   final String? descripcion;
   final List<Widget> acciones;
+
+  /// Ancho de la columna de contenido de la pantalla ([ManiAncho]), para que
+  /// el título quede alineado con lo que encabeza.
+  final double ancho;
   final Key? tituloKey;
   final Key? descripcionKey;
 
   @override
   Widget build(BuildContext context) {
     final puedeVolver = ModalRoute.of(context)?.canPop ?? false;
-    return Material(
-      color: ManiColors.surface,
-      child: Container(
-        decoration: const BoxDecoration(
-          border: Border(bottom: ManiBorder.side),
-        ),
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: ancho),
         child: LayoutBuilder(
           builder: (context, c) {
             final angosta = c.maxWidth < 600;
@@ -142,17 +145,19 @@ class ManiBarraPagina extends StatelessWidget {
                           key: tituloKey,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: ManiText.title,
+                          style: ManiText.h3,
                         ),
                       ),
-                      if (descripcion != null)
+                      if (descripcion != null) ...[
+                        ManiGap.vXxs,
                         Text(
                           descripcion!,
                           key: descripcionKey,
                           maxLines: angosta ? 3 : 2,
                           overflow: TextOverflow.ellipsis,
-                          style: ManiText.caption,
+                          style: ManiText.bodySm,
                         ),
+                      ],
                     ],
                   ),
                 ),
@@ -168,16 +173,18 @@ class ManiBarraPagina extends StatelessWidget {
               ],
             );
             return Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: angosta ? ManiSpace.lg : ManiSpace.xxxl,
-                vertical: ManiSpace.md,
+              padding: EdgeInsets.fromLTRB(
+                angosta ? ManiSpace.lg : ManiSpace.xxl,
+                angosta ? ManiSpace.lg : ManiSpace.xxl,
+                angosta ? ManiSpace.lg : ManiSpace.xxl,
+                ManiSpace.sm,
               ),
               child: angosta && acciones.isNotEmpty
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         identidad,
-                        ManiGap.vSm,
+                        ManiGap.vMd,
                         Wrap(
                           spacing: ManiSpace.sm,
                           runSpacing: ManiSpace.sm,
@@ -190,87 +197,6 @@ class ManiBarraPagina extends StatelessWidget {
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-/// Encabezado de página: tarjeta con el ícono en caja amarilla, título y
-/// descripción, y una acción opcional a la derecha (debajo en móvil). Es el
-/// mismo de la pantalla del servicio.
-class ManiEncabezadoPagina extends StatelessWidget {
-  const ManiEncabezadoPagina({
-    super.key,
-    required this.icono,
-    required this.titulo,
-    this.descripcion,
-    this.accion,
-    this.descripcionKey,
-  });
-
-  final IconData icono;
-  final String titulo;
-  final String? descripcion;
-  final Widget? accion;
-
-  /// Key del texto de [descripcion], para pantallas que lo prueban.
-  final Key? descripcionKey;
-
-  @override
-  Widget build(BuildContext context) {
-    final texto = Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(ManiSpace.sm),
-          decoration: BoxDecoration(
-            color: ManiColors.brand,
-            borderRadius: ManiRadius.brMd,
-            border: Border.all(
-              color: ManiColors.border,
-              width: ManiBorder.regular,
-            ),
-            boxShadow: const [ManiShadow.sm],
-          ),
-          child: Icon(icono, color: ManiColors.ink, size: 24),
-        ),
-        ManiGap.hMd,
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Semantics(header: true, child: Text(titulo, style: ManiText.h3)),
-              if (descripcion != null) ...[
-                ManiGap.vXs,
-                Text(
-                  descripcion!,
-                  key: descripcionKey,
-                  style: ManiText.bodySm.copyWith(fontWeight: FontWeight.w600),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-    return ManiCard(
-      padding: const EdgeInsets.all(ManiSpace.xl),
-      child: LayoutBuilder(
-        builder: (context, c) {
-          if (accion == null) return texto;
-          if (c.maxWidth < 600) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [texto, ManiGap.vMd, accion!],
-            );
-          }
-          return Row(
-            children: [
-              Expanded(child: texto),
-              ManiGap.hLg,
-              accion!,
-            ],
-          );
-        },
       ),
     );
   }

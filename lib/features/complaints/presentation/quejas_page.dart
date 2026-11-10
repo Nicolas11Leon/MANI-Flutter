@@ -44,7 +44,8 @@ class QuejasPage extends StatelessWidget {
         final cubit = context.read<QuejasCubit>();
         return ManiPagina(
           ancho: ManiAncho.panel,
-          encabezado: ManiBarraPagina(
+          encabezado: ManiEncabezadoPantalla(
+            ancho: ManiAncho.panel,
             icono: cubit.esAdmin
                 ? Icons.support_agent_outlined
                 : Icons.feedback_outlined,

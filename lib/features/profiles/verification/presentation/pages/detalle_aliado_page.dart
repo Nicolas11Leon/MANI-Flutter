@@ -19,7 +19,8 @@ class DetalleAliadoPage extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.panel,
             icono: Icons.person_rounded,
             titulo: 'Perfil del aliado',
           ),

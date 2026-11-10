@@ -52,7 +52,8 @@ class TarifarioPage extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ManiBarraPagina(
+            ManiEncabezadoPantalla(
+              ancho: ManiAncho.lista,
               icono: Icons.sell_rounded,
               titulo: 'Tarifario de referencia',
               descripcion:

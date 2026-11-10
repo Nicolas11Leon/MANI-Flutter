@@ -431,7 +431,8 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ManiBarraPagina(
+    return ManiEncabezadoPantalla(
+      ancho: ManiAncho.formulario,
       icono: Icons.handyman_rounded,
       titulo: 'Solicitudes de servicio',
       descripcion: 'Panel del aliado',

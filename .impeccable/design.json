@@ -339,12 +339,12 @@
       "css": ".ds-badge{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid #1E1E1E;border-radius:999px;background:#FEF3C7;color:#92400E;font:900 11px 'Plus Jakarta Sans',sans-serif;letter-spacing:.5px}"
     },
     {
-      "name": "Page Bar",
+      "name": "Screen Heading",
       "kind": "nav",
-      "refersTo": "page-bar",
-      "description": "Shared header under the main menu on every in-app screen.",
+      "refersTo": "screen-heading",
+      "description": "First element of every screen's content, aligned to its column; the app has one top bar only.",
       "html": "<div class=\"ds-bar\"><span class=\"ds-bar-icon\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\"><path d=\"M4 5h16v2H4zm0 6h16v2H4zm0 6h10v2H4z\" fill=\"#1E1E1E\"/></svg></span><div><strong>Mis solicitudes</strong><small>Consultado: 10 nov 2026, 18:00</small></div></div>",
-      "css": ".ds-bar{display:flex;align-items:center;gap:12px;padding:12px 32px;background:#FFFFFF;border-bottom:2px solid #1E1E1E;font-family:'Plus Jakarta Sans',sans-serif}.ds-bar-icon{width:40px;height:40px;display:grid;place-items:center;background:#F8DE7E;border:2px solid #1E1E1E;border-radius:8px;box-shadow:2px 2px 0 #1E1E1E}.ds-bar strong{display:block;font-weight:900;font-size:18px;color:#1E1E1E}.ds-bar small{font-size:12px;font-weight:600;color:#5F6672}"
+      "css": ".ds-bar{display:flex;align-items:center;gap:12px;padding:24px 24px 8px;font-family:'Plus Jakarta Sans',sans-serif}.ds-bar-icon{width:40px;height:40px;display:grid;place-items:center;background:#F8DE7E;border:2px solid #1E1E1E;border-radius:8px;box-shadow:2px 2px 0 #1E1E1E}.ds-bar strong{display:block;font-weight:900;font-size:20px;color:#1E1E1E}.ds-bar small{font-size:12px;font-weight:600;color:#5F6672}"
     }
   ],
   "narrative": {
@@ -355,7 +355,7 @@
       "Hard offset shadows with no blur; they collapse when a control is pressed.",
       "One stamp color (#F8DE7E) used for state and primary action, always with its outline.",
       "Plus Jakarta Sans in heavy weights for titles and labels; medium for reading text.",
-      "A single page bar under the main menu on every in-app screen."
+      "One top bar for the whole app (logo, menu entries, account); each screen opens with its own heading in the content."
     ],
     "rules": [
       {
@@ -386,7 +386,7 @@
     ],
     "dos": [
       "Do give every brand fill its 2px charcoal outline.",
-      "Do start every in-app screen with the shared page bar and take its width from the width tokens.",
+      "Do start every in-app screen with the shared screen heading, aligned to the content width token; never add a second top bar.",
       "Do express state through ManiTono and the status badge, with an icon.",
       "Do keep every value on the token scales."
     ],

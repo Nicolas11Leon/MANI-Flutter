@@ -313,7 +313,7 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ManiBarraPagina(
+    return ManiEncabezadoPantalla(
       icono: Icons.verified_user_rounded,
       titulo: 'Verificación de aliados',
       descripcion: 'Panel del administrador',

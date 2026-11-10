@@ -90,7 +90,8 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.formulario,
             icono: Icons.rule_rounded,
             titulo: widget.esVistaAliado
                 ? 'Reglas de ingreso a la sede'

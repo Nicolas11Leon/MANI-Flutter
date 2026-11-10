@@ -23,7 +23,8 @@ class AliadosElegiblesPage extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ManiBarraPagina(
+            ManiEncabezadoPantalla(
+              ancho: ManiAncho.formulario,
               icono: Icons.engineering_rounded,
               titulo: 'Aliados para tu solicitud',
             ),

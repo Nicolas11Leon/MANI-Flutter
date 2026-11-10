@@ -87,7 +87,8 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.lista,
             icono: Icons.apartment_rounded,
             titulo: 'Mis sedes y sucursales corporativas',
           ),

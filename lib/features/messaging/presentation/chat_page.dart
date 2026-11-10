@@ -73,7 +73,8 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.formulario,
             icono: Icons.chat_rounded,
             titulo: 'Mensajes del servicio',
           ),

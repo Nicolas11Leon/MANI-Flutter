@@ -50,7 +50,8 @@ class CategoriesView extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const ManiBarraPagina(
+                const ManiEncabezadoPantalla(
+                  ancho: ManiAncho.formulario,
                   icono: Icons.handyman_rounded,
                   titulo: 'Mis categorías',
                   descripcion:

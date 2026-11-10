@@ -41,7 +41,8 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.formulario,
             icono: Icons.tune_rounded,
             titulo: 'Reglas operativas del tenant',
           ),

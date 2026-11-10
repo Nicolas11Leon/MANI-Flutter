@@ -46,7 +46,8 @@ class _AuditoriaViewState extends State<AuditoriaView> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.lista,
             icono: Icons.receipt_long_rounded,
             titulo: 'Auditoría de transacciones',
           ),

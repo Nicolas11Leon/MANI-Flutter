@@ -115,11 +115,15 @@ components:
     rounded: "{rounded.pill}"
     typography: "{typography.overline}"
     padding: "5px 10px"
-  page-bar:
+  top-bar:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
-    typography: "{typography.title}"
-    padding: "12px 32px"
+    typography: "{typography.label}"
+    height: "68px"
+  screen-heading:
+    textColor: "{colors.ink}"
+    typography: "{typography.headline}"
+    padding: "24px 24px 8px"
 ---
 
 # Design System: MANI
@@ -137,7 +141,7 @@ The system is neo-brutalist by product decision, taken from the official Figma p
 - Hard offset shadows with no blur; they collapse when a control is pressed.
 - One stamp color (#F8DE7E) used for state and primary action, always with its outline.
 - Plus Jakarta Sans in heavy weights for titles and labels; medium for reading text.
-- A single page bar under the main menu on every in-app screen.
+- One top bar for the whole app (logo, menu entries, account); each screen opens with its own heading in the content.
 
 ## Colors
 
@@ -187,7 +191,7 @@ A warm paper ground, white cards, charcoal ink and a single soft-butter stamp co
 
 ## Layout
 
-A 4-point spacing scale (2 to 48) for padding and gaps. Signed-in screens stack the main menu, the page bar and the content. Content is centered at a width cap chosen by screen type: narrow 480 (access, dialogs), form 720, list 880, panel 1200, dashboard 1400. On phones everything takes the full width with 16px side margins, and page bar actions drop to a second row below 600px. The shell menu becomes a compact menu below its desktop breakpoint; registration and login switch to two columns from 850px.
+A 4-point spacing scale (2 to 48) for padding and gaps. Signed-in screens have exactly one top bar; below it, each screen opens with its heading, aligned to the content column. Content is centered at a width cap chosen by screen type: narrow 480 (access, dialogs), form 720, list 880, panel 1200, dashboard 1400. On phones everything takes the full width with 16px side margins, and heading actions drop to a second row below 600px. Below 900px the menu entries leave the top bar for the ☰ compact menu; registration and login switch to two columns from 850px.
 
 ### Named Rules
 **The Width By Job Rule.** A screen's content width comes from what it is (form, list, panel), never from a literal. Fields never stretch to the full desktop width.
@@ -233,8 +237,8 @@ Gently rounded rectangles throughout: 12px for controls, fields and small panels
 - **Error:** Danger outline with the message in Danger Text below; disabled uses the subtle border.
 
 ### Navigation
-- **Main menu:** a white top bar with the logo and session identity, and a row of outlined pill entries below; the active entry is filled with Stamp Butter. On narrow screens it collapses into a menu button.
-- **Page bar:** directly under the menu on every in-app screen: a 40px Stamp Butter icon box with Stamp Small shadow, the title (18px, 900), an optional description and the screen's actions on the right. A back arrow appears when the screen opened on top of another.
+- **Top bar (one per app):** white, 68px, charcoal bottom outline. Left to right: the logo, the menu entries as outlined pills (the active one filled with Stamp Butter; the strip scrolls horizontally with arrows, wheel or drag when it does not fit), the user and tenant, and the logout button. Below 900px the entries move into the ☰ compact menu at the left.
+- **Screen heading:** the first element of every screen's content, never a second bar: a 40px Stamp Butter icon box with Stamp Small shadow, the title (20px, 900), an optional description and the screen's actions on the right, aligned to the content column width. A back arrow appears when the screen opened on top of another.
 
 ### Empty, error and loading states
 - **Empty:** a Stamp Butter circle with an icon, a title and one explanatory line, plus the action that resolves it.
@@ -245,7 +249,7 @@ Gently rounded rectangles throughout: 12px for controls, fields and small panels
 
 ### Do:
 - **Do** give every brand fill its 2px charcoal outline (The Stamp Needs Ink Rule).
-- **Do** start every in-app screen with the shared page bar and take its width from the width tokens.
+- **Do** start every in-app screen with the shared screen heading, aligned to the content width token; never add a second top bar.
 - **Do** express state through `ManiTono` and the status badge, with an icon.
 - **Do** keep every value on the token scales (color, spacing, radius, type size, width, motion).
 

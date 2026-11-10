@@ -43,7 +43,8 @@ class PagoSandboxPage extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.formulario,
             icono: Icons.credit_card_rounded,
             titulo: 'Pago en sandbox',
           ),

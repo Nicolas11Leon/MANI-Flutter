@@ -105,23 +105,26 @@ class DisponibilidadView extends StatelessWidget {
             children: [
               const _BarraSuperior(),
               Expanded(
-                child: BlocBuilder<DisponibilidadCubit, DisponibilidadState>(
-                  builder: (context, state) => switch (state.carga) {
-                    CargaDisponibilidad.inicial ||
-                    CargaDisponibilidad.cargando => const ManiCargando(),
-                    CargaDisponibilidad.error => _ErrorCarga(
-                      mensaje:
-                          state.falla?.mensajeUsuario ??
-                          'No pudimos cargar tu disponibilidad.',
-                      onReintentar: () =>
-                          context.read<DisponibilidadCubit>().cargar(),
-                    ),
-                    CargaDisponibilidad.listo => _Contenido(
-                      state: state,
-                      onEditar: (a) => _abrirFormulario(context, ausencia: a),
-                      onEliminar: (a) => _confirmarEliminar(context, a),
-                    ),
-                  },
+                child: ManiAnchoContenido(
+                  ancho: ManiAncho.formulario,
+                  child: BlocBuilder<DisponibilidadCubit, DisponibilidadState>(
+                    builder: (context, state) => switch (state.carga) {
+                      CargaDisponibilidad.inicial ||
+                      CargaDisponibilidad.cargando => const ManiCargando(),
+                      CargaDisponibilidad.error => _ErrorCarga(
+                        mensaje:
+                            state.falla?.mensajeUsuario ??
+                            'No pudimos cargar tu disponibilidad.',
+                        onReintentar: () =>
+                            context.read<DisponibilidadCubit>().cargar(),
+                      ),
+                      CargaDisponibilidad.listo => _Contenido(
+                        state: state,
+                        onEditar: (a) => _abrirFormulario(context, ausencia: a),
+                        onEliminar: (a) => _confirmarEliminar(context, a),
+                      ),
+                    },
+                  ),
                 ),
               ),
               BlocBuilder<DisponibilidadCubit, DisponibilidadState>(
@@ -156,7 +159,8 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ManiBarraPagina(
+    return ManiEncabezadoPantalla(
+      ancho: ManiAncho.formulario,
       icono: Icons.event_available_rounded,
       titulo: 'Mi disponibilidad',
       descripcion: 'Vacaciones, enfermedad y otras ausencias',

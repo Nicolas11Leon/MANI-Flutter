@@ -37,7 +37,11 @@ class CobrosAliadoView extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ManiBarraPagina(icono: Icons.payments_rounded, titulo: 'Mis cobros'),
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.lista,
+            icono: Icons.payments_rounded,
+            titulo: 'Mis cobros',
+          ),
           Expanded(
             child: ManiAnchoContenido(
               ancho: ManiAncho.lista,

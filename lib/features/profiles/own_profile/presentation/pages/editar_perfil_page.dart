@@ -9,7 +9,7 @@ import 'package:mani/features/profiles/own_profile/data/datasources/perfil_propi
 import 'package:mani/features/profiles/own_profile/domain/entities/perfil_propio.dart';
 import 'package:mani/features/profiles/own_profile/presentation/widgets/foto_perfil_selector_widget.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
-import 'package:mani/core/widgets/mani_pagina.dart' show ManiBarraPagina;
+import 'package:mani/core/widgets/mani_pagina.dart' show ManiEncabezadoPantalla;
 
 /// US-02.3.1 (SCRUM-854 / SCRUM-1029 / SCRUM-1030):
 /// Formulario donde el usuario (Cliente o Aliado) ve sus datos actuales y puede
@@ -160,7 +160,8 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ManiBarraPagina(
+          const ManiEncabezadoPantalla(
+            ancho: ManiAncho.panel,
             icono: Icons.manage_accounts_outlined,
             titulo: 'Editar mi perfil',
             descripcion:

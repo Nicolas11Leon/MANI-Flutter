@@ -226,7 +226,8 @@ class CotizacionPage extends StatelessWidget {
   }
 
   Widget _encabezado() {
-    return ManiBarraPagina(
+    return ManiEncabezadoPantalla(
+      ancho: ManiAncho.pagina,
       icono: Icons.request_quote_outlined,
       titulo: esAliado ? 'Cotizar el servicio' : 'Cotización del servicio',
       acciones: [?accionEncabezado],
