@@ -95,8 +95,8 @@ class TerminosCondicionesSection extends StatelessWidget {
                     ),
                     ManiGap.vSm,
                     Wrap(
-                      spacing: 10,
-                      runSpacing: 8,
+                      spacing: ManiSpace.sm,
+                      runSpacing: ManiSpace.sm,
                       children: [
                         _buildDocLinkButton(
                           key: const Key('btn_ver_terminos'),

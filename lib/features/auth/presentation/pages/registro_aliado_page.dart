@@ -397,83 +397,7 @@ class _RegistroAliadoViewState extends State<_RegistroAliadoView> {
   }
 
   // ── Top Navigation Bar ───────────────────────────────────────────────────────
-  Widget _buildTopNavBar() {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: ManiBorder.side),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.xxxl,
-        vertical: ManiSpace.md,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: ManiColors.brand,
-                  borderRadius: ManiRadius.brSm,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.regular,
-                  ),
-                  boxShadow: const [ManiShadow.sm],
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'M',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.h3,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-              ),
-              ManiGap.hMd,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'MANI Services',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: ManiFontSize.bodyLg,
-                      fontWeight: FontWeight.w900,
-                      color: ManiColors.ink,
-                    ),
-                  ),
-                  Text(
-                    'Plataforma Digital de Servicios Multi-tenant',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: ManiFontSize.micro,
-                      fontWeight: FontWeight.w600,
-                      color: ManiColors.inkMuted,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          TextButton.icon(
-            onPressed: () => context.go('/login'),
-            icon: const Icon(Icons.arrow_back, color: ManiColors.ink, size: 16),
-            label: Text(
-              'Iniciar Sesión',
-              style: GoogleFonts.plusJakartaSans(
-                color: ManiColors.ink,
-                fontWeight: FontWeight.w800,
-                fontSize: ManiFontSize.bodySm,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildTopNavBar() => const AuthBarraSuperior();
 
   // ── Hero Banner de Aliado ───────────────────────────────────────────────────
   Widget _buildHeroBanner() {
@@ -747,12 +671,14 @@ class _RegistroAliadoViewState extends State<_RegistroAliadoView> {
       children: [
         Icon(icon, color: ManiColors.ink, size: 20),
         ManiGap.hSm,
-        Text(
-          title,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: ManiFontSize.bodyLg,
-            fontWeight: FontWeight.w900,
-            color: ManiColors.ink,
+        Expanded(
+          child: Text(
+            title,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: ManiFontSize.bodyLg,
+              fontWeight: FontWeight.w900,
+              color: ManiColors.ink,
+            ),
           ),
         ),
       ],

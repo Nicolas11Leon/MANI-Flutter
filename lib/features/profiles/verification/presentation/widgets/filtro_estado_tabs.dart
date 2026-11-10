@@ -31,7 +31,11 @@ class FiltroEstadoTabs extends StatelessWidget {
         children: [
           for (final estado in EstadoVerificacion.values) ...[
             if (estado.index > 0)
-              Container(width: 2, height: 48, color: ManiColors.ink),
+              Container(
+                width: ManiBorder.regular,
+                height: 52,
+                color: ManiColors.ink,
+              ),
             Expanded(
               child: _Tab(
                 estado: estado,
@@ -78,25 +82,23 @@ class _Tab extends StatelessWidget {
         onTap: () => onTap(estado),
         child: AnimatedContainer(
           duration: ManiMotion.fast,
-          height: 48,
+          height: 52,
           color: activo ? ManiColors.brand : ManiColors.surface,
           padding: const EdgeInsets.symmetric(horizontal: ManiSpace.sm),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
-                  _etiqueta,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: ManiFontSize.caption,
-                    fontWeight: FontWeight.w800,
-                    color: activo ? ManiColors.ink : ManiColors.inkMuted,
-                  ),
+          // En móvil (pestaña angosta) el conteo pasa debajo de la etiqueta
+          // para que "Aprobados" y "Rechazados" no se recorten.
+          child: LayoutBuilder(
+            builder: (context, c) {
+              final etiqueta = Text(
+                _etiqueta,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: ManiFontSize.caption,
+                  fontWeight: FontWeight.w800,
+                  color: activo ? ManiColors.ink : ManiColors.inkMuted,
                 ),
-              ),
-              ManiGap.hSm,
-              Container(
+              );
+              final conteo = Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
                 decoration: BoxDecoration(
                   color: activo ? ManiColors.ink : estado.fondo,
@@ -110,8 +112,22 @@ class _Tab extends StatelessWidget {
                     color: activo ? ManiColors.brand : estado.acento,
                   ),
                 ),
-              ),
-            ],
+              );
+              if (c.maxWidth < 120) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [etiqueta, ManiGap.vXxs, conteo],
+                );
+              }
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(child: etiqueta),
+                  ManiGap.hSm,
+                  conteo,
+                ],
+              );
+            },
           ),
         ),
       ),

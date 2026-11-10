@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_layout.dart';
@@ -458,6 +459,73 @@ class AuthBarraEnvio extends StatelessWidget {
               ManiGap.hXxl,
               SizedBox(width: 320, child: boton),
             ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Barra superior de los registros: marca a la izquierda y vuelta al inicio
+/// de sesión a la derecha. En móvil la vuelta queda como ícono con tooltip y
+/// la marca se recorta, para que nada se salga de la pantalla.
+class AuthBarraSuperior extends StatelessWidget {
+  const AuthBarraSuperior({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: ManiColors.surface,
+        border: Border(bottom: ManiBorder.side),
+      ),
+      child: LayoutBuilder(
+        builder: (context, c) {
+          final angosta = c.maxWidth < 600;
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: angosta ? ManiSpace.lg : ManiSpace.xxxl,
+              vertical: ManiSpace.md,
+            ),
+            child: Row(
+              children: [
+                const ManiLogo(tamano: 40),
+                ManiGap.hMd,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'MANI Services',
+                        overflow: TextOverflow.ellipsis,
+                        style: ManiText.subtitle.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      if (!angosta)
+                        Text(
+                          'Plataforma Digital de Servicios Multi-tenant',
+                          overflow: TextOverflow.ellipsis,
+                          style: ManiText.caption,
+                        ),
+                    ],
+                  ),
+                ),
+                if (angosta)
+                  IconButton(
+                    tooltip: 'Iniciar sesión',
+                    onPressed: () => context.go('/login'),
+                    icon: const Icon(Icons.login_rounded),
+                  )
+                else
+                  TextButton.icon(
+                    onPressed: () => context.go('/login'),
+                    icon: const Icon(Icons.arrow_back, size: 16),
+                    label: const Text('Iniciar sesión'),
+                  ),
+              ],
+            ),
           );
         },
       ),
