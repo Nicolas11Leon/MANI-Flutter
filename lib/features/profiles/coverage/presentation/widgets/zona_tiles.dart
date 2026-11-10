@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/entities/zona.dart';
 import '../controllers/cobertura_controller.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Fila seleccionable de una zona sin hijas cargables (barrio o resultado de
 /// búsqueda). Si ya está cubierta por un ancestro, se muestra marcada y
@@ -97,7 +98,7 @@ class ZonaGrupoTile extends StatelessWidget {
       children: [
         if (controller.cargandoHijasDe(zona.id))
           const Padding(
-            padding: EdgeInsets.all(12),
+            padding: EdgeInsets.all(ManiSpace.md),
             child: Center(child: CircularProgressIndicator.adaptive()),
           )
         else if (hijas != null && hijas.isEmpty)

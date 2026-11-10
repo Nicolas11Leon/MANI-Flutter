@@ -14,20 +14,20 @@ Future<bool> confirmarAprobacion(
     context: context,
     builder: (ctx) => _DialogoMani(
       icono: Icons.verified_rounded,
-      colorIcono: AppTheme.success,
+      colorIcono: ManiColors.success,
       titulo: '¿Aprobar a ${aliado.nombre}?',
       contenido: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Al aprobarlo:'),
-          const SizedBox(height: 10),
+          ManiGap.vSm,
           const _Punto(
             'Podrá recibir solicitudes de servicio de tus clientes.',
           ),
           const _Punto('Sus documentos quedarán marcados como verificados.'),
           const _Punto('Le notificaremos el resultado automáticamente.'),
-          const SizedBox(height: 10),
+          ManiGap.vSm,
           Text(
             'Confirma que revisaste ${aliado.documentos.length == 1 ? 'su documento' : 'sus ${aliado.documentos.length} documentos'}.',
             style: const TextStyle(fontWeight: FontWeight.w700),
@@ -112,7 +112,7 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
     final mostrarError = _intentado && !_valido;
     return _DialogoMani(
       icono: Icons.block_rounded,
-      colorIcono: AppTheme.error,
+      colorIcono: ManiColors.danger,
       titulo: 'Rechazar a ${widget.aliado.nombre}',
       contenido: Column(
         mainAxisSize: MainAxisSize.min,
@@ -121,7 +121,7 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
           const Text(
             'El aliado recibirá este motivo. Sé claro para que sepa qué corregir.',
           ),
-          const SizedBox(height: 14),
+          ManiGap.vMd,
           Wrap(
             spacing: 6,
             runSpacing: 6,
@@ -131,20 +131,18 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
                   label: Text(
                     m,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: ManiFontSize.caption,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   onPressed: () => _agregarMotivo(m),
-                  backgroundColor: AppTheme.background,
-                  side: const BorderSide(color: AppTheme.dark, width: 1.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  ),
+                  backgroundColor: ManiColors.background,
+                  side: ManiBorder.sideThin,
+                  shape: RoundedRectangleBorder(borderRadius: ManiRadius.brSm),
                 ),
             ],
           ),
-          const SizedBox(height: 14),
+          ManiGap.vMd,
           TextField(
             key: const ValueKey('campo-motivo-rechazo'),
             controller: _motivo,
@@ -157,25 +155,31 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
               hintText:
                   'Ej: La foto de la cédula está borrosa, vuelve a cargarla.',
               filled: true,
-              fillColor: AppTheme.surface,
+              fillColor: ManiColors.surface,
               errorText: mostrarError
                   ? 'Escribe al menos ${DecisionVerificacion.motivoMinimo} caracteres.'
                   : null,
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                borderSide: const BorderSide(color: AppTheme.dark, width: 2),
+                borderRadius: ManiRadius.brMd,
+                borderSide: ManiBorder.side,
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                borderSide: const BorderSide(color: AppTheme.dark, width: 2.5),
+                borderRadius: ManiRadius.brMd,
+                borderSide: ManiBorder.sideThick,
               ),
               errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                borderSide: const BorderSide(color: AppTheme.error, width: 2),
+                borderRadius: ManiRadius.brMd,
+                borderSide: const BorderSide(
+                  color: ManiColors.danger,
+                  width: ManiBorder.regular,
+                ),
               ),
               focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                borderSide: const BorderSide(color: AppTheme.error, width: 2.5),
+                borderRadius: ManiRadius.brMd,
+                borderSide: const BorderSide(
+                  color: ManiColors.danger,
+                  width: ManiBorder.thick,
+                ),
               ),
             ),
           ),
@@ -218,32 +222,45 @@ class _DialogoMani extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppTheme.background,
+      backgroundColor: ManiColors.background,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        side: const BorderSide(color: AppTheme.dark, width: 3),
+        borderRadius: ManiRadius.brLg,
+        side: const BorderSide(color: ManiColors.ink, width: 3),
       ),
-      titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-      actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      titlePadding: const EdgeInsets.fromLTRB(
+        ManiSpace.xxl,
+        ManiSpace.xxl,
+        ManiSpace.xxl,
+        ManiSpace.sm,
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(
+        ManiSpace.xxl,
+        ManiSpace.sm,
+        ManiSpace.xxl,
+        ManiSpace.xxl,
+      ),
       title: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(ManiSpace.sm),
             decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
+              color: ManiColors.surface,
+              borderRadius: ManiRadius.brSm,
+              border: Border.all(
+                color: ManiColors.border,
+                width: ManiBorder.regular,
+              ),
             ),
             child: Icon(icono, color: colorIcono),
           ),
-          const SizedBox(width: 12),
+          ManiGap.hMd,
           Expanded(
             child: Text(
               titulo,
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: ManiFontSize.title,
                 fontWeight: FontWeight.w900,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
           ),
@@ -271,19 +288,19 @@ class _Punto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 6),
+    padding: const EdgeInsets.only(bottom: ManiSpace.sm),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.only(top: 2),
+          padding: EdgeInsets.only(top: ManiSpace.xxs),
           child: Icon(
             Icons.check_circle_rounded,
             size: 16,
-            color: AppTheme.success,
+            color: ManiColors.success,
           ),
         ),
-        const SizedBox(width: 8),
+        ManiGap.hSm,
         Expanded(child: Text(texto)),
       ],
     ),

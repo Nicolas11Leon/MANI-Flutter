@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/cobertura_controller.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Barra inferior fija: resumen de lo seleccionado + Descartar / Guardar.
 class ResumenCoberturaBar extends StatelessWidget {
@@ -22,7 +23,12 @@ class ResumenCoberturaBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          padding: const EdgeInsets.fromLTRB(
+            ManiSpace.lg,
+            ManiSpace.md,
+            ManiSpace.lg,
+            ManiSpace.md,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -35,7 +41,7 @@ class ResumenCoberturaBar extends StatelessWidget {
                 style: tema.textTheme.titleSmall,
               ),
               if (zonas.isNotEmpty) ...[
-                const SizedBox(height: 8),
+                ManiGap.vSm,
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
@@ -54,7 +60,7 @@ class ResumenCoberturaBar extends StatelessWidget {
                   ],
                 ),
               ],
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               Row(
                 children: [
                   if (c.hayCambios && !c.esPrimeraDeclaracion)

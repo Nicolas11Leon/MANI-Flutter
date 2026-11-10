@@ -38,13 +38,13 @@ class SolicitudAliadoCard extends StatelessWidget {
         key: ValueKey('card-aliado-${aliado.id}'),
         seleccionada: seleccionada,
         onTap: onTap,
-        sombra: AppTheme.hardShadowSm,
-        padding: const EdgeInsets.all(14),
+        sombra: ManiShadow.sm,
+        padding: const EdgeInsets.all(ManiSpace.md),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AliadoAvatar(aliado: aliado, tamano: 44),
-            const SizedBox(width: 12),
+            ManiGap.hMd,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,16 +68,14 @@ class SolicitudAliadoCard extends StatelessWidget {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 2),
+                  ManiGap.vXxs,
                   Text(
                     aliado.email,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: tema.bodySmall?.copyWith(
-                      color: AppTheme.textSecondary,
-                    ),
+                    style: tema.bodySmall?.copyWith(color: ManiColors.inkMuted),
                   ),
-                  const SizedBox(height: 10),
+                  ManiGap.vSm,
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
@@ -102,7 +100,7 @@ class SolicitudAliadoCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  ManiGap.vSm,
                   Row(
                     children: [
                       Icon(
@@ -110,9 +108,11 @@ class SolicitudAliadoCard extends StatelessWidget {
                             ? Icons.priority_high_rounded
                             : Icons.schedule_rounded,
                         size: 14,
-                        color: urgente ? AppTheme.error : AppTheme.textTertiary,
+                        color: urgente
+                            ? ManiColors.danger
+                            : ManiColors.inkSubtle,
                       ),
-                      const SizedBox(width: 4),
+                      ManiGap.hXs,
                       Flexible(
                         child: Text(
                           aliado.estaPendiente
@@ -122,8 +122,8 @@ class SolicitudAliadoCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: tema.labelSmall?.copyWith(
                             color: urgente
-                                ? AppTheme.error
-                                : AppTheme.textTertiary,
+                                ? ManiColors.danger
+                                : ManiColors.inkSubtle,
                             fontWeight: urgente
                                 ? FontWeight.w800
                                 : FontWeight.w600,
@@ -135,10 +135,10 @@ class SolicitudAliadoCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 4),
+            ManiGap.hXs,
             const Icon(
               Icons.chevron_right_rounded,
-              color: AppTheme.textTertiary,
+              color: ManiColors.inkSubtle,
             ),
           ],
         ),
@@ -160,25 +160,28 @@ class _Etiqueta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = alerta ? AppTheme.error : AppTheme.textSecondary;
+    final color = alerta ? ManiColors.danger : ManiColors.inkMuted;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.sm,
+        vertical: ManiSpace.xs,
+      ),
       decoration: BoxDecoration(
-        color: alerta ? const Color(0xFFFEE2E2) : AppTheme.background,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        color: alerta ? ManiColors.dangerContainer : ManiColors.background,
+        borderRadius: ManiRadius.brXs,
         border: Border.all(
-          color: alerta ? AppTheme.error : AppTheme.borderLight,
+          color: alerta ? ManiColors.danger : ManiColors.borderSubtle,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icono, size: 12, color: color),
-          const SizedBox(width: 4),
+          ManiGap.hXs,
           Text(
             texto,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: ManiFontSize.micro,
               fontWeight: FontWeight.w700,
               color: color,
             ),

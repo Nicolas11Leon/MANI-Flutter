@@ -8,6 +8,7 @@ import 'package:mani/core/widgets/mani_layout.dart';
 import 'package:mani/features/profiles/own_profile/data/datasources/perfil_propio_remote_datasource.dart';
 import 'package:mani/features/profiles/own_profile/domain/entities/perfil_propio.dart';
 import 'package:mani/features/profiles/own_profile/presentation/widgets/foto_perfil_selector_widget.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// US-02.3.1 (SCRUM-854 / SCRUM-1029 / SCRUM-1030):
 /// Formulario donde el usuario (Cliente o Aliado) ve sus datos actuales y puede
@@ -156,7 +157,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _cargando
-          ? const Center(child: CircularProgressIndicator())
+          ? const ManiCargando()
           : LayoutBuilder(
               builder: (context, c) => SingleChildScrollView(
                 padding: ManiContenido.margenes(c.maxWidth),
@@ -171,7 +172,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
                         descripcion:
                             'Actualiza tus datos de contacto y tu foto. El rol y el estado de la cuenta no se pueden cambiar.',
                       ),
-                      const SizedBox(height: 28),
+                      ManiGap.vXxl,
                       if (_mensajeError != null)
                         _Aviso(
                           texto: _mensajeError!,
@@ -188,18 +189,18 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(flex: 4, child: _tarjetaCuenta()),
-                            const SizedBox(width: 28),
+                            ManiGap.hXxl,
                             Expanded(flex: 6, child: _tarjetaDatos()),
                           ],
                         )
                       else ...[
                         _tarjetaCuenta(),
-                        const SizedBox(height: 24),
+                        ManiGap.vXxl,
                         _tarjetaDatos(),
                       ],
-                      const SizedBox(height: 24),
+                      ManiGap.vXxl,
                       _barraAccion(c.maxWidth),
-                      const SizedBox(height: 40),
+                      ManiGap.vHuge,
                     ],
                   ),
                 ),
@@ -211,7 +212,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
   Widget _tarjetaCuenta() {
     return Container(
       decoration: maniCaja(),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(ManiSpace.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -219,7 +220,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
             icono: Icons.badge_outlined,
             texto: '1. Tu cuenta',
           ),
-          const SizedBox(height: 20),
+          ManiGap.vXl,
           if (_perfil != null) ...[
             FotoPerfilSelectorWidget(
               fullName: _perfil!.fullName,
@@ -228,7 +229,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
               onFotoSeleccionada: _subirFoto,
               selectorImagen: widget.selectorImagen,
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             Wrap(
               alignment: WrapAlignment.center,
               spacing: 8,
@@ -253,7 +254,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
   Widget _tarjetaDatos() {
     return Container(
       decoration: maniCaja(),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(ManiSpace.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -261,7 +262,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
             icono: Icons.person_outline,
             texto: '2. Datos de contacto',
           ),
-          const SizedBox(height: 20),
+          ManiGap.vXl,
           const ManiEtiquetaCampo('Nombre completo o razón social'),
           TextFormField(
             key: const Key('input-nombre-perfil'),
@@ -278,7 +279,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
               return null;
             },
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
           const ManiEtiquetaCampo('Teléfono de contacto'),
           TextFormField(
             key: const Key('input-telefono-perfil'),
@@ -296,7 +297,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
               return null;
             },
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
           const ManiEtiquetaCampo('Dirección principal'),
           TextFormField(
             key: const Key('input-direccion-perfil'),
@@ -331,33 +332,33 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
     );
     final texto = Row(
       children: [
-        const Icon(Icons.lock_outline, color: AppTheme.dark),
-        const SizedBox(width: 12),
+        const Icon(Icons.lock_outline, color: ManiColors.ink),
+        ManiGap.hMd,
         Expanded(
           child: Text(
             'Tus datos solo se comparten con el aliado al confirmar un servicio.',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 12,
-              color: AppTheme.textSecondary,
+              fontSize: ManiFontSize.caption,
+              color: ManiColors.inkMuted,
             ),
           ),
         ),
       ],
     );
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(ManiSpace.xxl),
       decoration: maniCaja(),
       child: ancho >= 600
           ? Row(
               children: [
                 Expanded(child: texto),
-                const SizedBox(width: 24),
+                ManiGap.hXxl,
                 SizedBox(width: 320, child: boton),
               ],
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [texto, const SizedBox(height: 16), boton],
+              children: [texto, ManiGap.vLg, boton],
             ),
     );
   }
@@ -377,14 +378,17 @@ class _Aviso extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = error ? AppTheme.error : AppTheme.success;
+    final color = error ? ManiColors.danger : ManiColors.success;
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.only(bottom: ManiSpace.xl),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.lg,
+        vertical: ManiSpace.md,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: color, width: 2),
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: color, width: ManiBorder.regular),
       ),
       child: Row(
         children: [
@@ -392,15 +396,15 @@ class _Aviso extends StatelessWidget {
             error ? Icons.error_outline : Icons.check_circle_outline,
             color: color,
           ),
-          const SizedBox(width: 10),
+          ManiGap.hSm,
           Expanded(
             child: Text(
               texto,
               key: textoKey,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 13,
+                fontSize: ManiFontSize.bodySm,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
           ),

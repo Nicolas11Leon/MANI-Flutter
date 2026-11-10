@@ -118,16 +118,16 @@ class _RegistrarEmpleadoDirectoPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: ManiColors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
           'Registrar Empleado Directo del Tenant',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
+            fontSize: ManiFontSize.title,
             fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
+            color: ManiColors.ink,
           ),
         ),
       ),
@@ -137,7 +137,7 @@ class _RegistrarEmpleadoDirectoPageState
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 key: const Key('snackbar_error_empleado_directo'),
-                backgroundColor: AppTheme.error,
+                backgroundColor: ManiColors.danger,
                 content: Text(state.message),
               ),
             );
@@ -146,7 +146,7 @@ class _RegistrarEmpleadoDirectoPageState
         builder: (context, state) {
           final cargando = state is EmpleadoDirectoLoading;
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(ManiSpace.xxl),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 760),
@@ -156,10 +156,10 @@ class _RegistrarEmpleadoDirectoPageState
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _buildBannerInfo(),
-                      const SizedBox(height: 20),
+                      ManiGap.vXl,
                       if (state is EmpleadoDirectoRegistrado) ...[
                         _buildConfirmacionCard(state),
-                        const SizedBox(height: 20),
+                        ManiGap.vXl,
                       ],
                       _buildFormularioCard(cargando),
                     ],
@@ -175,21 +175,21 @@ class _RegistrarEmpleadoDirectoPageState
 
   Widget _buildBannerInfo() {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(ManiSpace.lg),
       decoration: BoxDecoration(
-        color: AppTheme.primary,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2.5),
-        boxShadow: const [AppTheme.hardShadowSm],
+        color: ManiColors.brand,
+        borderRadius: ManiRadius.brLg,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.thick),
+        boxShadow: const [ManiShadow.sm],
       ),
       child: Row(
         children: [
           const Icon(
             Icons.verified_user_rounded,
-            color: AppTheme.dark,
+            color: ManiColors.ink,
             size: 28,
           ),
-          const SizedBox(width: 14),
+          ManiGap.hMd,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,17 +197,17 @@ class _RegistrarEmpleadoDirectoPageState
                 Text(
                   'Activación Inmediata (Estado VERIFICADO)',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15,
+                    fontSize: ManiFontSize.body,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
                 Text(
                   'Los empleados directos creados por el administrador del tenant no pasan por la bandeja de verificación: quedan habilitados de inmediato, con la copia de su documento de identidad como único documento.',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
+                    fontSize: ManiFontSize.caption,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ],
@@ -222,11 +222,11 @@ class _RegistrarEmpleadoDirectoPageState
     final emp = state.empleado;
     return Container(
       key: const Key('card_empleado_directo_creado'),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(ManiSpace.lg),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2.5),
+        borderRadius: ManiRadius.brLg,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.thick),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,18 +234,18 @@ class _RegistrarEmpleadoDirectoPageState
           Text(
             'Empleado Directo Registrado: ${emp.nombreCompleto}',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 15,
+              fontSize: ManiFontSize.body,
               fontWeight: FontWeight.w900,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
             ),
           ),
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           Text(
             'Estado: ${emp.estadoVerificacion} · Nómina directa: ${emp.esEmpleadoDirecto ? "SÍ" : "NO"}',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 13,
+              fontSize: ManiFontSize.bodySm,
               fontWeight: FontWeight.w700,
-              color: AppTheme.textSecondary,
+              color: ManiColors.inkMuted,
             ),
           ),
         ],
@@ -255,12 +255,12 @@ class _RegistrarEmpleadoDirectoPageState
 
   Widget _buildFormularioCard(bool cargando) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(ManiSpace.xxl),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowMd],
+        borderRadius: ManiRadius.brLg,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        boxShadow: const [ManiShadow.md],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -275,7 +275,7 @@ class _RegistrarEmpleadoDirectoPageState
                 ? 'El nombre es obligatorio'
                 : null,
           ),
-          const SizedBox(height: 14),
+          ManiGap.vMd,
           TextFormField(
             key: const Key('input_email_empleado_directo'),
             controller: _emailController,
@@ -286,7 +286,7 @@ class _RegistrarEmpleadoDirectoPageState
                 ? 'El correo es obligatorio'
                 : null,
           ),
-          const SizedBox(height: 14),
+          ManiGap.vMd,
           TextFormField(
             key: const Key('input_password_empleado_directo'),
             controller: _passwordController,
@@ -297,7 +297,7 @@ class _RegistrarEmpleadoDirectoPageState
             validator: (v) =>
                 (v == null || v.length < 8) ? 'Mínimo 8 caracteres' : null,
           ),
-          const SizedBox(height: 14),
+          ManiGap.vMd,
           TextFormField(
             key: const Key('input_telefono_empleado_directo'),
             controller: _telefonoController,
@@ -309,7 +309,7 @@ class _RegistrarEmpleadoDirectoPageState
                 ? 'El teléfono es obligatorio'
                 : null,
           ),
-          const SizedBox(height: 14),
+          ManiGap.vMd,
           DropdownButtonFormField<String>(
             key: const Key('input_tipo_documento_empleado_directo'),
             initialValue: _tipoDocumento,
@@ -331,7 +331,7 @@ class _RegistrarEmpleadoDirectoPageState
             validator: (v) =>
                 v == null ? 'Selecciona el tipo de documento' : null,
           ),
-          const SizedBox(height: 14),
+          ManiGap.vMd,
           TextFormField(
             key: const Key('input_numero_documento_empleado_directo'),
             controller: _numeroDocumentoController,
@@ -340,7 +340,7 @@ class _RegistrarEmpleadoDirectoPageState
                 ? 'El número de documento es obligatorio'
                 : null,
           ),
-          const SizedBox(height: 14),
+          ManiGap.vMd,
           OutlinedButton.icon(
             key: const Key('btn_adjuntar_documento_empleado_directo'),
             onPressed: _elegirDocumento,
@@ -353,29 +353,32 @@ class _RegistrarEmpleadoDirectoPageState
           ),
           if (_errorDocumento != null)
             Padding(
-              padding: const EdgeInsets.only(top: 6),
+              padding: const EdgeInsets.only(top: ManiSpace.sm),
               child: Text(
                 _errorDocumento!,
                 key: const Key('error_documento_empleado_directo'),
-                style: const TextStyle(color: AppTheme.error, fontSize: 12),
+                style: const TextStyle(
+                  color: ManiColors.danger,
+                  fontSize: ManiFontSize.caption,
+                ),
               ),
             ),
-          const SizedBox(height: 20),
+          ManiGap.vXl,
           Text(
             'Categorías Operativas Asignadas',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 13,
+              fontSize: ManiFontSize.bodySm,
               fontWeight: FontWeight.w900,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
             ),
           ),
-          const SizedBox(height: 8),
+          ManiGap.vSm,
           FutureBuilder<Map<String, String>>(
             future: _categorias,
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.done) {
                 return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
+                  padding: EdgeInsets.symmetric(vertical: ManiSpace.sm),
                   child: LinearProgressIndicator(
                     key: Key('categorias_empleado_cargando'),
                   ),
@@ -439,7 +442,7 @@ class _RegistrarEmpleadoDirectoPageState
               );
             },
           ),
-          const SizedBox(height: 20),
+          ManiGap.vXl,
           ElevatedButton(
             key: const Key('btn_registrar_empleado_directo'),
             onPressed: cargando ? null : _enviar,

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:mani/features/profiles/own_profile/data/datasources/perfil_propio_remote_datasource.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 typedef SelectorArchivoImagen =
     Future<({String nombre, Uint8List bytes})?> Function();
@@ -64,18 +65,21 @@ class FotoPerfilSelectorWidget extends StatelessWidget {
           radius: 42,
           child: Text(
             _iniciales,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: ManiFontSize.h2,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         if (photoUrl != null && photoUrl!.isNotEmpty) ...[
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           Text(
             photoUrl!,
             key: const Key('texto-foto-actual'),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
-        const SizedBox(height: 8),
+        ManiGap.vSm,
         OutlinedButton.icon(
           key: const Key('btn-cambiar-foto-perfil'),
           onPressed: subiendo ? null : () => _seleccionar(context),

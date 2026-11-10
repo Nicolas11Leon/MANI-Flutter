@@ -10,6 +10,7 @@ import '../widgets/detalle_aliado_panel.dart';
 import '../widgets/filtro_estado_tabs.dart';
 import '../widgets/solicitud_aliado_card.dart';
 import 'detalle_aliado_page.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// US-02.1.3 — Bandeja de verificación de aliados del Administrador del Tenant.
 ///
@@ -27,7 +28,12 @@ class BandejaVerificacionPage extends StatelessWidget {
 
   /// Los avisos flotan por encima de la barra Aprobar/Rechazar para no taparla
   /// mientras el administrador revisa en serie.
-  static const EdgeInsets _margenAvisos = EdgeInsets.fromLTRB(16, 0, 16, 104);
+  static const EdgeInsets _margenAvisos = EdgeInsets.fromLTRB(
+    ManiSpace.lg,
+    0,
+    ManiSpace.lg,
+    104,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +47,7 @@ class BandejaVerificacionPage extends StatelessWidget {
         margin: _margenAvisos,
       ),
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: ManiColors.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -55,11 +61,7 @@ class BandejaVerificacionPage extends StatelessWidget {
                       buildWhen: (a, b) => a.carga != b.carga,
                       builder: (context, state) => switch (state.carga) {
                         EstadoCarga.inicial ||
-                        EstadoCarga.cargando => const Center(
-                          child: CircularProgressIndicator(
-                            color: AppTheme.dark,
-                          ),
-                        ),
+                        EstadoCarga.cargando => const ManiCargando(),
                         EstadoCarga.error => _ErrorCarga(
                           mensaje:
                               state.error?.mensajeUsuario ??
@@ -116,7 +118,7 @@ class _Contenido extends StatelessWidget {
                 onSeleccionar: cubit.seleccionar,
               ),
             ),
-            Container(width: 2, color: AppTheme.dark),
+            Container(width: 2, color: ManiColors.ink),
             Expanded(
               child:
                   BlocBuilder<
@@ -161,7 +163,12 @@ class _Bandeja extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              padding: const EdgeInsets.fromLTRB(
+                ManiSpace.xl,
+                ManiSpace.xl,
+                ManiSpace.xl,
+                0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -172,30 +179,30 @@ class _Bandeja extends StatelessWidget {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  ManiGap.vXs,
                   const Text(
                     'Revisa los documentos de cada candidato y decide quién entra a tu red de técnicos.',
                     style: TextStyle(
-                      color: AppTheme.textSecondary,
+                      color: ManiColors.inkMuted,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  ManiGap.vLg,
                   FiltroEstadoTabs(
                     seleccionado: state.filtro,
                     conteo: state.conteo,
                     onCambiar: cubit.cambiarFiltro,
                   ),
-                  const SizedBox(height: 12),
+                  ManiGap.vMd,
                   _CampoBusqueda(onCambio: cubit.buscar),
-                  const SizedBox(height: 12),
+                  ManiGap.vMd,
                 ],
               ),
             ),
             Expanded(
               child: RefreshIndicator(
-                color: AppTheme.dark,
-                backgroundColor: AppTheme.primary,
+                color: ManiColors.ink,
+                backgroundColor: ManiColors.brand,
                 onRefresh: () => cubit.cargar(silencioso: true),
                 child: visibles.isEmpty
                     ? ListView(
@@ -210,9 +217,14 @@ class _Bandeja extends StatelessWidget {
                     : ListView.separated(
                         key: PageStorageKey('lista-${state.filtro.name}'),
                         physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(20, 4, 24, 24),
+                        padding: const EdgeInsets.fromLTRB(
+                          ManiSpace.xl,
+                          ManiSpace.xs,
+                          ManiSpace.xxl,
+                          ManiSpace.xxl,
+                        ),
                         itemCount: visibles.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 12),
+                        separatorBuilder: (_, _) => ManiGap.vMd,
                         itemBuilder: (_, i) {
                           final aliado = visibles[i];
                           return SolicitudAliadoCard(
@@ -254,8 +266,8 @@ class _CampoBusquedaState extends State<_CampoBusqueda> {
   @override
   Widget build(BuildContext context) {
     final borde = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-      borderSide: const BorderSide(color: AppTheme.dark, width: 2),
+      borderRadius: ManiRadius.brMd,
+      borderSide: ManiBorder.side,
     );
     return TextField(
       key: const ValueKey('buscar-aliado'),
@@ -269,11 +281,11 @@ class _CampoBusquedaState extends State<_CampoBusqueda> {
       decoration: InputDecoration(
         isDense: true,
         filled: true,
-        fillColor: AppTheme.surface,
+        fillColor: ManiColors.surface,
         hintText: 'Buscar por nombre, correo o especialidad',
         prefixIcon: const Icon(
           Icons.search_rounded,
-          color: AppTheme.textSecondary,
+          color: ManiColors.inkMuted,
         ),
         suffixIcon: _controller.text.isEmpty
             ? null
@@ -287,9 +299,7 @@ class _CampoBusquedaState extends State<_CampoBusqueda> {
                 },
               ),
         enabledBorder: borde,
-        focusedBorder: borde.copyWith(
-          borderSide: const BorderSide(color: AppTheme.dark, width: 2.5),
-        ),
+        focusedBorder: borde.copyWith(borderSide: ManiBorder.sideThick),
       ),
     );
   }
@@ -305,37 +315,43 @@ class _BarraSuperior extends StatelessWidget {
     final puedeVolver = Navigator.of(context).canPop();
     return Container(
       decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+        color: ManiColors.surface,
+        border: Border(bottom: ManiBorder.side),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.xl,
+        vertical: ManiSpace.md,
+      ),
       child: Row(
         children: [
           if (puedeVolver) ...[
             IconButton(
               tooltip: 'Volver',
               onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.dark),
+              icon: const Icon(Icons.arrow_back_rounded, color: ManiColors.ink),
             ),
-            const SizedBox(width: 4),
+            ManiGap.hXs,
           ],
           Container(
             width: 40,
             height: 40,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
+              color: ManiColors.brand,
+              borderRadius: ManiRadius.brSm,
+              border: Border.all(
+                color: ManiColors.border,
+                width: ManiBorder.regular,
+              ),
+              boxShadow: const [ManiShadow.sm],
             ),
             child: const Icon(
               Icons.verified_user_rounded,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
               size: 22,
             ),
           ),
-          const SizedBox(width: 12),
+          ManiGap.hMd,
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,18 +361,18 @@ class _BarraSuperior extends StatelessWidget {
                   'Verificación de aliados',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: ManiFontSize.bodyLg,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
                 Text(
                   'Panel del administrador',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: ManiFontSize.micro,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: ManiColors.inkMuted,
                   ),
                 ),
               ],
@@ -367,7 +383,7 @@ class _BarraSuperior extends StatelessWidget {
               key: const ValueKey('btn-ir-categorias'),
               tooltip: 'Categorías de servicio',
               onPressed: onAbrirCategorias,
-              icon: const Icon(Icons.category_outlined, color: AppTheme.dark),
+              icon: const Icon(Icons.category_outlined, color: ManiColors.ink),
             ),
           IconButton(
             key: const ValueKey('btn-actualizar'),
@@ -375,7 +391,7 @@ class _BarraSuperior extends StatelessWidget {
             onPressed: () => context.read<BandejaVerificacionCubit>().cargar(
               silencioso: true,
             ),
-            icon: const Icon(Icons.refresh_rounded, color: AppTheme.dark),
+            icon: const Icon(Icons.refresh_rounded, color: ManiColors.ink),
           ),
         ],
       ),
@@ -417,29 +433,40 @@ class _BandejaVacia extends StatelessWidget {
           };
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 32, 20, 32),
+      padding: const EdgeInsets.fromLTRB(
+        ManiSpace.xl,
+        ManiSpace.xxxl,
+        ManiSpace.xl,
+        ManiSpace.xxxl,
+      ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(ManiSpace.lg),
             decoration: BoxDecoration(
-              color: AppTheme.primary,
+              color: ManiColors.brand,
               shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
+              border: Border.all(
+                color: ManiColors.border,
+                width: ManiBorder.regular,
+              ),
+              boxShadow: const [ManiShadow.sm],
             ),
-            child: Icon(icono, size: 32, color: AppTheme.dark),
+            child: Icon(icono, size: 32, color: ManiColors.ink),
           ),
-          const SizedBox(height: 16),
+          ManiGap.vLg,
           Text(
             titulo,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+            style: const TextStyle(
+              fontSize: ManiFontSize.bodyLg,
+              fontWeight: FontWeight.w900,
+            ),
           ),
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           Text(
             texto,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.textSecondary),
+            style: const TextStyle(color: ManiColors.inkMuted),
           ),
         ],
       ),
@@ -454,25 +481,28 @@ class _SinSeleccion extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: EdgeInsets.all(ManiSpace.xxxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.touch_app_outlined,
               size: 48,
-              color: AppTheme.textTertiary,
+              color: ManiColors.inkSubtle,
             ),
-            SizedBox(height: 12),
+            ManiGap.vMd,
             Text(
               'Selecciona un aliado',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                fontSize: ManiFontSize.bodyLg,
+                fontWeight: FontWeight.w900,
+              ),
             ),
-            SizedBox(height: 6),
+            ManiGap.vSm,
             Text(
               'Verás su perfil, sus documentos y las opciones para aprobarlo o rechazarlo.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textSecondary),
+              style: TextStyle(color: ManiColors.inkMuted),
             ),
           ],
         ),
@@ -491,18 +521,22 @@ class _ErrorCarga extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(ManiSpace.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.dark),
-            const SizedBox(height: 12),
+            const Icon(
+              Icons.cloud_off_rounded,
+              size: 48,
+              color: ManiColors.ink,
+            ),
+            ManiGap.vMd,
             Text(
               mensaje,
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             ManiButton(
               key: const ValueKey('btn-reintentar'),
               etiqueta: 'Reintentar',

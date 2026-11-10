@@ -13,12 +13,12 @@ class DetalleAliadoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: ManiColors.background,
       appBar: AppBar(
-        backgroundColor: AppTheme.surface,
-        surfaceTintColor: AppTheme.surface,
-        foregroundColor: AppTheme.dark,
-        shape: const Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+        backgroundColor: ManiColors.surface,
+        surfaceTintColor: ManiColors.surface,
+        foregroundColor: ManiColors.ink,
+        shape: const Border(bottom: ManiBorder.side),
         title: const Text(
           'Perfil del aliado',
           style: TextStyle(fontWeight: FontWeight.w900),

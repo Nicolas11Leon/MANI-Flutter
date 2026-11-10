@@ -4,6 +4,7 @@ import 'package:mani/core/widgets/mani_pulsable.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/features/profile_categories/presentation/bloc/categories_cubit.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// Pantalla de selección de categorías del aliado (US-03.1.3).
 class CategoriesPage extends StatelessWidget {
@@ -107,9 +108,7 @@ class CategoriesView extends StatelessWidget {
                   ),
                 ),
                 if (state.isLoading)
-                  const Expanded(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+                  const Expanded(child: ManiCargando())
                 else if (state.loadFailure != null)
                   Expanded(
                     child: _Mensaje(
