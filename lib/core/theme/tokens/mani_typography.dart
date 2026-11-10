@@ -8,6 +8,8 @@ import 'package:mani/core/theme/tokens/mani_colors.dart';
 /// [ManiText] los combinan con peso, interlineado y tracking. En pantallas se
 /// prefiere `Theme.of(context).textTheme.*`, que se construye con esta escala.
 abstract final class ManiFontSize {
+  /// Solo para insignias compactas.
+  static const double nano = 10;
   static const double micro = 11;
   static const double caption = 12;
   static const double bodySm = 13;
