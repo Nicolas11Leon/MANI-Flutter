@@ -32,8 +32,8 @@ class CategoriaCard extends StatelessWidget {
     return ManiCard(
       key: ValueKey('card-categoria-${c.id}'),
       seleccionada: recienCreada,
-      sombra: AppTheme.hardShadowSm,
-      padding: const EdgeInsets.all(16),
+      sombra: ManiShadow.sm,
+      padding: const EdgeInsets.all(ManiSpace.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -46,17 +46,20 @@ class CategoriaCard extends StatelessWidget {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: c.flujo?.fondo ?? AppTheme.background,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  border: Border.all(color: AppTheme.dark, width: 2),
+                  color: c.flujo?.fondo ?? ManiColors.background,
+                  borderRadius: ManiRadius.brMd,
+                  border: Border.all(
+                    color: ManiColors.border,
+                    width: ManiBorder.regular,
+                  ),
                 ),
                 child: Icon(
                   Icons.home_repair_service_rounded,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                   size: 22,
                 ),
               ),
-              const SizedBox(width: 12),
+              ManiGap.hMd,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,12 +69,12 @@ class CategoriaCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: ManiFontSize.body,
                         fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
+                        color: ManiColors.ink,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    ManiGap.vXs,
                     _EstadoVisibilidad(activa: c.activa),
                   ],
                 ),
@@ -79,17 +82,17 @@ class CategoriaCard extends StatelessWidget {
               if (recienCreada) const _EtiquetaNueva(),
             ],
           ),
-          const SizedBox(height: 10),
+          ManiGap.vSm,
           FlujoOperativoBadge(flujo: c.flujo),
-          const SizedBox(height: 8),
+          ManiGap.vSm,
           Row(
             children: [
               const Icon(
                 Icons.engineering_outlined,
                 size: 14,
-                color: AppTheme.textTertiary,
+                color: ManiColors.inkSubtle,
               ),
-              const SizedBox(width: 4),
+              ManiGap.hXs,
               Expanded(
                 child: Text(
                   switch (c.aliadosAsociados) {
@@ -99,14 +102,14 @@ class CategoriaCard extends StatelessWidget {
                   },
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: ManiFontSize.caption,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: ManiColors.inkMuted,
                   ),
                 ),
               ),
               if (onCambiarEstado != null) ...[
-                const SizedBox(width: 8),
+                ManiGap.hSm,
                 _BotonVisibilidad(
                   categoriaId: c.id,
                   activa: c.activa,
@@ -142,17 +145,23 @@ class _BotonVisibilidad extends StatelessWidget {
           ? 'Ocultar del catálogo público sin afectar servicios en curso'
           : 'Volver a mostrar en el catálogo público',
       child: Material(
-        color: activa ? AppTheme.background : AppTheme.primary,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        color: activa ? ManiColors.background : ManiColors.brand,
+        borderRadius: ManiRadius.brXs,
         child: InkWell(
           key: ValueKey('toggle-estado-categoria-$categoriaId'),
-          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          borderRadius: ManiRadius.brXs,
           onTap: cargando ? null : onTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(
+              horizontal: ManiSpace.sm,
+              vertical: ManiSpace.xs,
+            ),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-              border: Border.all(color: AppTheme.dark, width: 1.5),
+              borderRadius: ManiRadius.brXs,
+              border: Border.all(
+                color: ManiColors.border,
+                width: ManiBorder.thin,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -163,7 +172,7 @@ class _BotonVisibilidad extends StatelessWidget {
                     height: 12,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppTheme.dark,
+                      color: ManiColors.ink,
                     ),
                   )
                 else
@@ -172,15 +181,15 @@ class _BotonVisibilidad extends StatelessWidget {
                         ? Icons.visibility_off_outlined
                         : Icons.visibility_outlined,
                     size: 13,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
-                const SizedBox(width: 4),
+                ManiGap.hXs,
                 Text(
                   cargando ? 'Guardando...' : (activa ? 'Ocultar' : 'Activar'),
                   style: const TextStyle(
-                    fontSize: 11,
+                    fontSize: ManiFontSize.micro,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ],
@@ -199,7 +208,7 @@ class _EstadoVisibilidad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = activa ? AppTheme.success : AppTheme.textTertiary;
+    final color = activa ? ManiColors.success : ManiColors.inkSubtle;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -208,16 +217,16 @@ class _EstadoVisibilidad extends StatelessWidget {
           size: 14,
           color: color,
         ),
-        const SizedBox(width: 4),
+        ManiGap.hXs,
         Flexible(
           child: Text(
             activa ? 'Visible para clientes' : 'Oculta',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: ManiFontSize.caption,
               fontWeight: FontWeight.w700,
-              color: activa ? const Color(0xFF15803D) : AppTheme.textSecondary,
+              color: activa ? ManiColors.success : ManiColors.inkMuted,
             ),
           ),
         ),
@@ -232,18 +241,21 @@ class _EtiquetaNueva extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.sm,
+        vertical: ManiSpace.xs,
+      ),
       decoration: BoxDecoration(
-        color: AppTheme.dark,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        color: ManiColors.ink,
+        borderRadius: ManiRadius.brXs,
       ),
       child: const Text(
         'NUEVA',
         style: TextStyle(
-          fontSize: 10,
+          fontSize: ManiFontSize.nano,
           fontWeight: FontWeight.w900,
           letterSpacing: 0.6,
-          color: AppTheme.primary,
+          color: ManiColors.brand,
         ),
       ),
     );

@@ -6,6 +6,8 @@ import 'package:mani/core/widgets/mani_button.dart';
 
 import '../data/politica_cancelacion_datasource.dart';
 import '../domain/calificacion_cierre_modelos.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 class PoliticaCancelacionState extends Equatable {
   const PoliticaCancelacionState({
@@ -120,20 +122,20 @@ class PoliticaCancelacionPage extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 640),
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(ManiSpace.lg),
               children: [
                 Text(
                   'Política de cancelación',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                const SizedBox(height: 4),
+                ManiGap.vXs,
                 const Text(
                   'Si está activa, el cliente que cancela un servicio ya asignado después de la ventana gratuita '
                   'paga una penalización. El cliente la ve antes de confirmar la cancelación.',
                 ),
-                const SizedBox(height: 16),
+                ManiGap.vLg,
                 if (state.cargando)
-                  const Center(child: CircularProgressIndicator())
+                  const ManiCargando()
                 else if (state.error != null)
                   Card(
                     key: const Key('politica-error'),
@@ -214,7 +216,7 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
     return Card(
       key: const Key('politica-formulario'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(ManiSpace.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -228,7 +230,7 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
                   ? null
                   : (v) => setState(() => _activa = v),
             ),
-            const SizedBox(height: 8),
+            ManiGap.vSm,
             TextField(
               key: const Key('politica-ventana'),
               controller: _ventana,
@@ -240,7 +242,7 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
                 helperText: 'De 0 a 1440',
               ),
             ),
-            const SizedBox(height: 12),
+            ManiGap.vMd,
             DropdownButtonFormField<TipoCobroPenalizacion>(
               key: const Key('politica-tipo'),
               initialValue: _tipo,
@@ -253,7 +255,7 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
                   ? null
                   : (t) => setState(() => _tipo = t ?? _tipo),
             ),
-            const SizedBox(height: 12),
+            ManiGap.vMd,
             TextField(
               key: const Key('politica-valor'),
               controller: _valor,
@@ -270,7 +272,7 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
                     : 'Monto en pesos',
               ),
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             ManiButton(
               key: const Key('politica-guardar'),
               etiqueta: 'Guardar política',

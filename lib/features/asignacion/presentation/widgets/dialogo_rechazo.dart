@@ -58,16 +58,29 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppTheme.background,
+      backgroundColor: ManiColors.background,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        side: const BorderSide(color: AppTheme.dark, width: 3),
+        borderRadius: ManiRadius.brLg,
+        side: const BorderSide(color: ManiColors.ink, width: 3),
       ),
-      titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-      actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      titlePadding: const EdgeInsets.fromLTRB(
+        ManiSpace.xxl,
+        ManiSpace.xxl,
+        ManiSpace.xxl,
+        ManiSpace.sm,
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(
+        ManiSpace.xxl,
+        ManiSpace.sm,
+        ManiSpace.xxl,
+        ManiSpace.xxl,
+      ),
       title: Text(
         '¿Rechazar ${widget.solicitud.categoria}?',
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+        style: const TextStyle(
+          fontSize: ManiFontSize.title,
+          fontWeight: FontWeight.w900,
+        ),
       ),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420),
@@ -79,12 +92,15 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
               'No volverás a verla. Seguirá disponible para otros aliados, '
               'así el cliente no se queda sin servicio.',
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             const Text(
               '¿Por qué la rechazas?',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+              style: TextStyle(
+                fontSize: ManiFontSize.caption,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-            const SizedBox(height: 8),
+            ManiGap.vSm,
             Wrap(
               spacing: 6,
               runSpacing: 6,
@@ -95,24 +111,24 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
                     label: Text(
                       m.etiqueta,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: ManiFontSize.caption,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     selected: _motivo == m,
                     onSelected: (sel) =>
                         setState(() => _motivo = sel ? m : null),
-                    selectedColor: AppTheme.primary,
-                    backgroundColor: AppTheme.surface,
-                    side: const BorderSide(color: AppTheme.dark, width: 1.5),
+                    selectedColor: ManiColors.brand,
+                    backgroundColor: ManiColors.surface,
+                    side: ManiBorder.sideThin,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                      borderRadius: ManiRadius.brSm,
                     ),
                   ),
               ],
             ),
             if (_motivo?.requiereDetalle ?? false) ...[
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               TextField(
                 key: const ValueKey('detalle-rechazo'),
                 controller: _detalle,
@@ -130,11 +146,14 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
                 ),
               ),
             ] else if (_motivo == null) ...[
-              const SizedBox(height: 10),
+              ManiGap.vSm,
               const Text(
                 'Elige un motivo para continuar.',
                 key: ValueKey('rechazo-sin-motivo'),
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                style: TextStyle(
+                  fontSize: ManiFontSize.caption,
+                  color: ManiColors.inkMuted,
+                ),
               ),
             ],
           ],

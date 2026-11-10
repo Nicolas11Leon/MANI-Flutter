@@ -15,6 +15,7 @@ import '../widgets/paso_detalle.dart';
 import '../widgets/paso_revision.dart';
 import '../widgets/paso_ubicacion.dart';
 import '../widgets/solicitud_publicada_vista.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// US-04.1.1 — El cliente publica su problema locativo (descripción + fotos)
 /// para que los aliados le envíen sus cotizaciones. Asistente de 4 pasos.
@@ -23,7 +24,7 @@ class CrearSolicitudPage extends StatefulWidget {
   const CrearSolicitudPage({
     super.key,
     required this.selectorFotos,
-    this.esperaBusqueda = const Duration(milliseconds: 300),
+    this.esperaBusqueda = ManiMotion.slow,
   });
 
   final SelectorFotos selectorFotos;
@@ -82,7 +83,12 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
             context,
             state.aviso!.mensaje,
             esError: state.aviso!.esError,
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+            margin: const EdgeInsets.fromLTRB(
+              ManiSpace.lg,
+              0,
+              ManiSpace.lg,
+              96,
+            ),
           ),
         ),
         // Al publicar, ningún aviso viejo debe tapar la confirmación.
@@ -94,7 +100,7 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: ManiColors.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -117,9 +123,7 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
                     }
                     return switch (state.carga) {
                       CargaFormulario.inicial ||
-                      CargaFormulario.cargando => const Center(
-                        child: CircularProgressIndicator(color: AppTheme.dark),
-                      ),
+                      CargaFormulario.cargando => const ManiCargando(),
                       CargaFormulario.error => _ErrorCarga(
                         mensaje:
                             state.error?.mensajeUsuario ??
@@ -167,7 +171,12 @@ class _Asistente extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             key: PageStorageKey('paso-${paso.name}'),
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            padding: const EdgeInsets.fromLTRB(
+              ManiSpace.xl,
+              ManiSpace.xl,
+              ManiSpace.xl,
+              ManiSpace.xxl,
+            ),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 720),
@@ -175,9 +184,9 @@ class _Asistente extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     IndicadorPasos(actual: paso),
-                    const SizedBox(height: 24),
+                    ManiGap.vXxl,
                     ManiCard(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(ManiSpace.xxl),
                       child: pasoActual,
                     ),
                   ],
@@ -216,10 +225,15 @@ class _BarraAcciones extends StatelessWidget {
     };
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+      padding: const EdgeInsets.fromLTRB(
+        ManiSpace.xl,
+        ManiSpace.md,
+        ManiSpace.xl,
+        ManiSpace.lg,
+      ),
       decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(top: BorderSide(color: AppTheme.dark, width: 2)),
+        color: ManiColors.surface,
+        border: Border(top: ManiBorder.side),
       ),
       child: SafeArea(
         top: false,
@@ -236,12 +250,12 @@ class _BarraAcciones extends StatelessWidget {
                     key: const ValueKey('pista-paso'),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: ManiFontSize.bodySm,
                       fontWeight: FontWeight.w700,
-                      color: AppTheme.textSecondary,
+                      color: ManiColors.inkMuted,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  ManiGap.vSm,
                 ],
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -262,7 +276,7 @@ class _BarraAcciones extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    ManiGap.hLg,
                     Flexible(
                       flex: 3,
                       child: ConstrainedBox(
@@ -310,37 +324,43 @@ class _BarraSuperior extends StatelessWidget {
     final puedeVolver = Navigator.of(context).canPop();
     return Container(
       decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+        color: ManiColors.surface,
+        border: Border(bottom: ManiBorder.side),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.xl,
+        vertical: ManiSpace.md,
+      ),
       child: Row(
         children: [
           if (puedeVolver) ...[
             IconButton(
               tooltip: 'Volver',
               onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.dark),
+              icon: const Icon(Icons.arrow_back_rounded, color: ManiColors.ink),
             ),
-            const SizedBox(width: 4),
+            ManiGap.hXs,
           ],
           Container(
             width: 40,
             height: 40,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
+              color: ManiColors.brand,
+              borderRadius: ManiRadius.brSm,
+              border: Border.all(
+                color: ManiColors.border,
+                width: ManiBorder.regular,
+              ),
+              boxShadow: const [ManiShadow.sm],
             ),
             child: const Icon(
               Icons.home_repair_service_rounded,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
               size: 22,
             ),
           ),
-          const SizedBox(width: 12),
+          ManiGap.hMd,
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,18 +370,18 @@ class _BarraSuperior extends StatelessWidget {
                   'Nueva solicitud',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: ManiFontSize.bodyLg,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
                 Text(
                   'Cuéntanos qué necesitas reparar',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: ManiFontSize.micro,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: ManiColors.inkMuted,
                   ),
                 ),
               ],
@@ -383,18 +403,22 @@ class _ErrorCarga extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(ManiSpace.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.dark),
-            const SizedBox(height: 12),
+            const Icon(
+              Icons.cloud_off_rounded,
+              size: 48,
+              color: ManiColors.ink,
+            ),
+            ManiGap.vMd,
             Text(
               mensaje,
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             ManiButton(
               key: const ValueKey('btn-reintentar-formulario'),
               etiqueta: 'Reintentar',

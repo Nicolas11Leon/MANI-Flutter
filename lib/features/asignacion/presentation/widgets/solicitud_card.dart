@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
 
@@ -54,8 +55,8 @@ class SolicitudCard extends StatelessWidget {
     return ManiCard(
       key: ValueKey('card-solicitud-${s.id}'),
       seleccionada: recienAsignada,
-      sombra: AppTheme.hardShadowSm,
-      padding: const EdgeInsets.all(18),
+      sombra: ManiShadow.sm,
+      padding: const EdgeInsets.all(ManiSpace.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -67,18 +68,23 @@ class SolicitudCard extends StatelessWidget {
                 height: 48,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: s.esMia ? const Color(0xFFDCFCE7) : AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  border: Border.all(color: AppTheme.dark, width: 2),
+                  color: s.esMia
+                      ? ManiColors.successContainer
+                      : ManiColors.brand,
+                  borderRadius: ManiRadius.brMd,
+                  border: Border.all(
+                    color: ManiColors.border,
+                    width: ManiBorder.regular,
+                  ),
                 ),
                 child: Icon(
                   s.esMia
                       ? Icons.assignment_turned_in_outlined
                       : Icons.home_repair_service_rounded,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
               ),
-              const SizedBox(width: 12),
+              ManiGap.hMd,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,19 +94,19 @@ class SolicitudCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: ManiFontSize.bodyLg,
                         fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
+                        color: ManiColors.ink,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    ManiGap.vXs,
                     _Dato(
                       icono: Icons.place_outlined,
                       texto: s.ubicacion.isEmpty
                           ? 'Zona sin nombre'
                           : s.ubicacion,
                     ),
-                    const SizedBox(height: 2),
+                    ManiGap.vXxs,
                     _Dato(
                       icono: urgente
                           ? Icons.priority_high_rounded
@@ -108,7 +114,7 @@ class SolicitudCard extends StatelessWidget {
                       texto: s.esMia
                           ? 'Asignada ${haceCuanto(s.fechaAsignacion ?? s.fechaCreacion, hoy).toLowerCase()}'
                           : 'Solicitada ${haceCuanto(s.fechaCreacion, hoy).toLowerCase()}',
-                      color: urgente ? AppTheme.error : null,
+                      color: urgente ? ManiColors.danger : null,
                       negrita: urgente,
                     ),
                   ],
@@ -124,7 +130,7 @@ class SolicitudCard extends StatelessWidget {
             ],
           ),
           if ((s.descripcion ?? '').trim().isNotEmpty) ...[
-            const SizedBox(height: 12),
+            ManiGap.vMd,
             _Problema(
               texto: s.descripcion!.trim(),
               fotos: s.cantidadFotos,
@@ -132,27 +138,27 @@ class SolicitudCard extends StatelessWidget {
               solicitudId: s.id,
             ),
           ],
-          const SizedBox(height: 12),
+          ManiGap.vMd,
           _ModalidadBadge(modalidad: s.modalidad),
-          const SizedBox(height: 12),
+          ManiGap.vMd,
           _ReglasSitio(
             reglas: reglasParaMostrar(s.reglasSitio, asignado: s.esMia),
           ),
           if (s.esMia) ...[
-            const SizedBox(height: 12),
+            ManiGap.vMd,
             _Direccion(direccion: s.direccion),
             if (s.cancelada) ...[
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               const Text(
                 'El cliente canceló esta solicitud antes de la ejecución.',
                 key: ValueKey('aviso-cancelada'),
                 style: TextStyle(
-                  color: AppTheme.error,
+                  color: ManiColors.danger,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ] else if (onCotizar != null) ...[
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               ManiButton(
                 key: ValueKey('btn-cotizar-${s.id}'),
                 etiqueta: 'Cotización',
@@ -164,7 +170,7 @@ class SolicitudCard extends StatelessWidget {
             ],
           ],
           if (s.estaDisponible) ...[
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             _Acciones(
               solicitudId: s.id,
               accionEnCurso: accionEnCurso,
@@ -194,18 +200,18 @@ class _Dato extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? AppTheme.textSecondary;
+    final c = color ?? ManiColors.inkMuted;
     return Row(
       children: [
         Icon(icono, size: 15, color: c),
-        const SizedBox(width: 4),
+        ManiGap.hXs,
         Flexible(
           child: Text(
             texto,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: ManiFontSize.bodySm,
               color: c,
               fontWeight: negrita ? FontWeight.w800 : FontWeight.w600,
             ),
@@ -234,11 +240,14 @@ class _Problema extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       key: const ValueKey('problema-solicitud'),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: AppTheme.background,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        border: Border.all(color: AppTheme.borderLight, width: 1.5),
+        color: ManiColors.background,
+        borderRadius: ManiRadius.brSm,
+        border: Border.all(
+          color: ManiColors.borderSubtle,
+          width: ManiBorder.thin,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,7 +256,7 @@ class _Problema extends StatelessWidget {
             texto,
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 13, height: 1.35),
+            style: const TextStyle(fontSize: ManiFontSize.bodySm, height: 1.35),
           ),
           if (fotosRutas.isNotEmpty)
             FotosAdjuntasPreview(
@@ -255,7 +264,7 @@ class _Problema extends StatelessWidget {
               solicitudId: solicitudId,
             )
           else if (fotos > 0) ...[
-            const SizedBox(height: 8),
+            ManiGap.vSm,
             _Dato(
               icono: Icons.photo_library_outlined,
               texto: fotos == 1 ? '1 foto adjunta' : '$fotos fotos adjuntas',
@@ -274,50 +283,30 @@ class _ModalidadBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (icono, texto, fondo) = switch (modalidad) {
+    final (icono, texto, tono) = switch (modalidad) {
       ModalidadServicio.cotizacionPrevia => (
         Icons.request_quote_outlined,
         'Requiere cotización antes de empezar',
-        const Color(0xFFE0E7FF),
+        ManiTono.acento,
       ),
       ModalidadServicio.tarifaEstandar => (
         Icons.sell_outlined,
         'Tarifa estándar del tenant',
-        const Color(0xFFDCFCE7),
+        ManiTono.exito,
       ),
       ModalidadServicio.desconocida => (
         Icons.help_outline,
         'Modalidad de cobro por confirmar',
-        AppTheme.borderLight,
+        ManiTono.neutro,
       ),
     };
     return Align(
       alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: fondo,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: AppTheme.dark, width: 1.5),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icono, size: 14, color: AppTheme.dark),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                texto,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.dark,
-                ),
-              ),
-            ),
-          ],
-        ),
+      child: ManiStatusBadge(
+        etiqueta: texto,
+        tono: tono,
+        icono: icono,
+        mayusculas: false,
       ),
     );
   }
@@ -344,13 +333,13 @@ class _ReglasSitio extends StatelessWidget {
         const Text(
           'REGLAS DEL SITIO',
           style: TextStyle(
-            fontSize: 10,
+            fontSize: ManiFontSize.nano,
             fontWeight: FontWeight.w900,
             letterSpacing: 0.6,
-            color: AppTheme.textTertiary,
+            color: ManiColors.inkSubtle,
           ),
         ),
-        const SizedBox(height: 6),
+        ManiGap.vSm,
         Wrap(
           spacing: 6,
           runSpacing: 6,
@@ -362,32 +351,32 @@ class _ReglasSitio extends StatelessWidget {
                   return Container(
                     key: ValueKey('regla-${r.clave}'),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: ManiSpace.sm,
+                      vertical: ManiSpace.xs,
                     ),
                     decoration: BoxDecoration(
                       color: d.advertencia
-                          ? const Color(0xFFFEF3C7)
-                          : AppTheme.background,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                          ? ManiColors.warningContainer
+                          : ManiColors.background,
+                      borderRadius: ManiRadius.brXs,
                       border: Border.all(
                         color: d.advertencia
-                            ? const Color(0xFFB45309)
-                            : AppTheme.borderLight,
+                            ? ManiColors.warning
+                            : ManiColors.borderSubtle,
                       ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(d.icono, size: 13, color: AppTheme.dark),
-                        const SizedBox(width: 4),
+                        Icon(d.icono, size: 13, color: ManiColors.ink),
+                        ManiGap.hXs,
                         // Flexible: los textos largos (horario, contacto,
                         // instrucciones) saltan de línea en vez de desbordar.
                         Flexible(
                           child: Text(
                             d.texto,
                             style: const TextStyle(
-                              fontSize: 11,
+                              fontSize: ManiFontSize.micro,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -413,16 +402,16 @@ class _Direccion extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       key: const ValueKey('direccion-solicitud'),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: const Color(0xFFDCFCE7),
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        border: Border.all(color: AppTheme.dark, width: 1.5),
+        color: ManiColors.successContainer,
+        borderRadius: ManiRadius.brSm,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
       ),
       child: Row(
         children: [
-          const Icon(Icons.location_on_rounded, color: AppTheme.dark),
-          const SizedBox(width: 8),
+          const Icon(Icons.location_on_rounded, color: ManiColors.ink),
+          ManiGap.hSm,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -430,13 +419,13 @@ class _Direccion extends StatelessWidget {
                 const Text(
                   'DIRECCIÓN DEL SERVICIO',
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: ManiFontSize.nano,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.6,
-                    color: Color(0xFF15803D),
+                    color: ManiColors.success,
                   ),
                 ),
-                const SizedBox(height: 2),
+                ManiGap.vXxs,
                 Text(
                   direccion ?? 'El cliente aún no registró la dirección.',
                   style: const TextStyle(fontWeight: FontWeight.w800),
@@ -483,7 +472,7 @@ class _Acciones extends StatelessWidget {
             onPressed: habilitada ? onRechazar : null,
           ),
         ),
-        const SizedBox(width: 12),
+        ManiGap.hMd,
         Expanded(
           flex: 2,
           child: ManiButton(
@@ -510,18 +499,21 @@ class _Etiqueta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.sm,
+        vertical: ManiSpace.xs,
+      ),
       decoration: BoxDecoration(
-        color: AppTheme.dark,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        color: ManiColors.ink,
+        borderRadius: ManiRadius.brXs,
       ),
       child: Text(
         texto,
         style: const TextStyle(
-          fontSize: 10,
+          fontSize: ManiFontSize.nano,
           fontWeight: FontWeight.w900,
           letterSpacing: 0.6,
-          color: AppTheme.primary,
+          color: ManiColors.brand,
         ),
       ),
     );

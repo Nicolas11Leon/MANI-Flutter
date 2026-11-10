@@ -10,6 +10,7 @@ import 'package:mani/features/services/ratings/presentation/calificacion_cierre_
 
 import '../domain/solicitud_seguimiento.dart';
 import 'mis_solicitudes_cubit.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// Mis solicitudes (HU-M07-04 / SCRUM-871): estado vigente y zona declarada
 /// de cada solicitud del cliente. No muestra la ubicación del aliado ni se
@@ -50,27 +51,25 @@ class MisSolicitudesPage extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 920),
             child: RefreshIndicator(
-              color: AppTheme.dark,
-              backgroundColor: AppTheme.primary,
+              color: ManiColors.ink,
+              backgroundColor: ManiColors.brand,
               onRefresh: cubit.cargar,
               child: ListView(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 24,
+                  horizontal: ManiSpace.xxl,
+                  vertical: ManiSpace.xxl,
                 ),
                 children: [
                   _Encabezado(state: state, onActualizar: cubit.cargar),
-                  const SizedBox(height: 14),
+                  ManiGap.vMd,
                   const _AvisoZona(),
-                  const SizedBox(height: 16),
+                  ManiGap.vLg,
                   if (state.error != null)
                     _Error(mensaje: state.error!, onReintentar: cubit.cargar),
                   if (state.cargando && state.solicitudes.isEmpty)
                     const Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Center(
-                        child: CircularProgressIndicator(color: AppTheme.dark),
-                      ),
+                      padding: EdgeInsets.all(ManiSpace.xxxl),
+                      child: ManiCargando(),
                     )
                   else if (state.solicitudes.isEmpty && state.error == null)
                     _Vacio(onNuevaSolicitud: onNuevaSolicitud)
@@ -104,7 +103,7 @@ class MisSolicitudesPage extends StatelessWidget {
                                 previsualizarCancelacion,
                               ),
                       ),
-                      const SizedBox(height: 14),
+                      ManiGap.vMd,
                     ],
                 ],
               ),
@@ -180,7 +179,7 @@ class _DialogoCancelarState extends State<_DialogoCancelar> {
             '${asignada ? ' Le avisaremos al aliado asignado.' : ''}',
           ),
           if (widget.vistaPrevia != null) ...[
-            const SizedBox(height: 12),
+            ManiGap.vMd,
             FutureBuilder<VistaPreviaPenalizacion>(
               future: widget.vistaPrevia,
               builder: (context, snap) {
@@ -202,7 +201,7 @@ class _DialogoCancelarState extends State<_DialogoCancelar> {
               },
             ),
           ],
-          const SizedBox(height: 12),
+          ManiGap.vMd,
           TextField(
             key: const Key('cancelar-motivo'),
             controller: _motivo,
@@ -244,24 +243,30 @@ class _Encabezado extends StatelessWidget {
   Widget build(BuildContext context) {
     final consultado = state.consultadoEn;
     return ManiCard(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.xl,
+        vertical: ManiSpace.lg,
+      ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(ManiSpace.sm),
             decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
+              color: ManiColors.brand,
+              borderRadius: ManiRadius.brMd,
+              border: Border.all(
+                color: ManiColors.border,
+                width: ManiBorder.regular,
+              ),
+              boxShadow: const [ManiShadow.sm],
             ),
             child: const Icon(
               Icons.list_alt_rounded,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
               size: 24,
             ),
           ),
-          const SizedBox(width: 14),
+          ManiGap.hMd,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,9 +274,9 @@ class _Encabezado extends StatelessWidget {
                 const Text(
                   'Mis solicitudes',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: ManiFontSize.h3,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
                 if (consultado != null)
@@ -279,9 +284,9 @@ class _Encabezado extends StatelessWidget {
                     'Consultado: ${formatearFecha(consultado)}',
                     key: const Key('seguimiento-consultado'),
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: ManiFontSize.caption,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.textSecondary,
+                      color: ManiColors.inkMuted,
                     ),
                   ),
               ],
@@ -289,13 +294,16 @@ class _Encabezado extends StatelessWidget {
           ),
           if (sl.isRegistered<FuenteModuloM08>())
             Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.only(right: ManiSpace.sm),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: AppTheme.surface,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  border: Border.all(color: AppTheme.dark, width: 2),
-                  boxShadow: const [AppTheme.hardShadowSm],
+                  color: ManiColors.surface,
+                  borderRadius: ManiRadius.brMd,
+                  border: Border.all(
+                    color: ManiColors.border,
+                    width: ManiBorder.regular,
+                  ),
+                  boxShadow: const [ManiShadow.sm],
                 ),
                 child: TextButton.icon(
                   key: const Key('seguimiento-ver-historial'),
@@ -324,10 +332,13 @@ class _Encabezado extends StatelessWidget {
             ),
           DecoratedBox(
             decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
+              color: ManiColors.brand,
+              borderRadius: ManiRadius.brMd,
+              border: Border.all(
+                color: ManiColors.border,
+                width: ManiBorder.regular,
+              ),
+              boxShadow: const [ManiShadow.sm],
             ),
             child: TextButton.icon(
               key: const Key('seguimiento-actualizar'),
@@ -348,26 +359,26 @@ class _AvisoZona extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF9C3),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
+        color: ManiColors.brandSoft,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 20, color: AppTheme.dark),
-          SizedBox(width: 10),
+          Icon(Icons.info_outline, size: 20, color: ManiColors.ink),
+          ManiGap.hSm,
           Expanded(
             child: Text(
               'La zona es la que indicaste al publicar la solicitud. '
               'No es la ubicación del aliado: MANI no rastrea su posición.',
               key: Key('seguimiento-aviso-zona'),
               style: TextStyle(
-                fontSize: 13,
+                fontSize: ManiFontSize.bodySm,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
           ),
@@ -405,7 +416,7 @@ class _TarjetaSolicitud extends StatelessWidget {
     final zona = solicitud.zonaCompleta;
     return ManiCard(
       key: Key('seguimiento-${solicitud.id}'),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(ManiSpace.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -415,33 +426,33 @@ class _TarjetaSolicitud extends StatelessWidget {
                 child: Text(
                   solicitud.categoria,
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: ManiFontSize.bodyLg,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ),
               Chip(label: Text(solicitud.etiquetaEstado)),
             ],
           ),
-          const SizedBox(height: 10),
+          ManiGap.vSm,
           Text(
             zona.isEmpty
                 ? 'Zona declarada: sin información'
                 : 'Zona declarada: $zona',
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: ManiFontSize.body,
               fontWeight: FontWeight.w600,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
             ),
           ),
-          const SizedBox(height: 4),
+          ManiGap.vXs,
           Text(
             'Estado actualizado: ${formatearFecha(solicitud.actualizadaEn)}',
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: ManiFontSize.caption,
               fontWeight: FontWeight.w600,
-              color: AppTheme.textSecondary,
+              color: ManiColors.inkMuted,
             ),
           ),
           if (onVerCotizacion != null ||
@@ -449,7 +460,7 @@ class _TarjetaSolicitud extends StatelessWidget {
               onPresentarQueja != null ||
               onCancelar != null ||
               cancelando) ...[
-            const SizedBox(height: 14),
+            ManiGap.vMd,
             Wrap(
               alignment: WrapAlignment.end,
               spacing: 10,
@@ -457,27 +468,30 @@ class _TarjetaSolicitud extends StatelessWidget {
               children: [
                 if (cancelando)
                   const Padding(
-                    padding: EdgeInsets.all(12),
+                    padding: EdgeInsets.all(ManiSpace.md),
                     child: SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: AppTheme.dark,
+                        color: ManiColors.ink,
                       ),
                     ),
                   )
                 else if (onCancelar != null)
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      border: Border.all(color: AppTheme.error, width: 2),
+                      color: ManiColors.surface,
+                      borderRadius: ManiRadius.brMd,
+                      border: Border.all(
+                        color: ManiColors.danger,
+                        width: ManiBorder.regular,
+                      ),
                     ),
                     child: TextButton.icon(
                       key: Key('cancelar-solicitud-${solicitud.id}'),
                       style: TextButton.styleFrom(
-                        foregroundColor: AppTheme.error,
+                        foregroundColor: ManiColors.danger,
                       ),
                       icon: const Icon(Icons.cancel_outlined, size: 18),
                       label: const Text('Cancelar solicitud'),
@@ -487,10 +501,13 @@ class _TarjetaSolicitud extends StatelessWidget {
                 if (onVerAliados != null)
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      border: Border.all(color: AppTheme.dark, width: 2),
-                      boxShadow: const [AppTheme.hardShadowSm],
+                      color: ManiColors.surface,
+                      borderRadius: ManiRadius.brMd,
+                      border: Border.all(
+                        color: ManiColors.border,
+                        width: ManiBorder.regular,
+                      ),
+                      boxShadow: const [ManiShadow.sm],
                     ),
                     child: TextButton.icon(
                       key: Key('ver-aliados-${solicitud.id}'),
@@ -503,10 +520,13 @@ class _TarjetaSolicitud extends StatelessWidget {
                 if (onPresentarQueja != null)
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      border: Border.all(color: AppTheme.dark, width: 2),
-                      boxShadow: const [AppTheme.hardShadowSm],
+                      color: ManiColors.surface,
+                      borderRadius: ManiRadius.brMd,
+                      border: Border.all(
+                        color: ManiColors.border,
+                        width: ManiBorder.regular,
+                      ),
+                      boxShadow: const [ManiShadow.sm],
                     ),
                     child: TextButton.icon(
                       key: Key('presentar-queja-${solicitud.id}'),
@@ -518,10 +538,13 @@ class _TarjetaSolicitud extends StatelessWidget {
                 if (onVerCotizacion != null)
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      border: Border.all(color: AppTheme.dark, width: 2),
-                      boxShadow: const [AppTheme.hardShadowSm],
+                      color: ManiColors.brand,
+                      borderRadius: ManiRadius.brMd,
+                      border: Border.all(
+                        color: ManiColors.border,
+                        width: ManiBorder.regular,
+                      ),
+                      boxShadow: const [ManiShadow.sm],
                     ),
                     child: TextButton.icon(
                       key: Key('ver-cotizacion-${solicitud.id}'),
@@ -545,24 +568,20 @@ class _Vacio extends StatelessWidget {
   final VoidCallback? onNuevaSolicitud;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          const Text('Aún no has publicado solicitudes.'),
-          if (onNuevaSolicitud != null) ...[
-            const SizedBox(height: 12),
-            FilledButton(
-              key: const Key('seguimiento-nueva'),
-              onPressed: onNuevaSolicitud,
-              child: const Text('Publicar una solicitud'),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => ManiEstadoVacio(
+    icono: Icons.assignment_outlined,
+    titulo: 'Aún no has publicado solicitudes.',
+    texto: 'Cuando publiques una, aquí verás su estado y cotizaciones.',
+    acciones: [
+      if (onNuevaSolicitud != null)
+        FilledButton.icon(
+          key: const Key('seguimiento-nueva'),
+          onPressed: onNuevaSolicitud,
+          icon: const Icon(Icons.add_rounded, size: 18),
+          label: const Text('Publicar una solicitud'),
+        ),
+    ],
+  );
 }
 
 class _Error extends StatelessWidget {
@@ -572,21 +591,11 @@ class _Error extends StatelessWidget {
   final Future<void> Function() onReintentar;
 
   @override
-  Widget build(BuildContext context) {
-    final colores = Theme.of(context).colorScheme;
-    return Card(
-      color: colores.errorContainer,
-      child: ListTile(
-        key: const Key('seguimiento-error'),
-        leading: Icon(Icons.error_outline, color: colores.onErrorContainer),
-        title: Text(mensaje),
-        trailing: TextButton(
-          onPressed: onReintentar,
-          child: const Text('Reintentar'),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => ManiEstadoError(
+    key: const Key('seguimiento-error'),
+    mensaje: mensaje,
+    onReintentar: onReintentar,
+  );
 }
 
 const _meses = [

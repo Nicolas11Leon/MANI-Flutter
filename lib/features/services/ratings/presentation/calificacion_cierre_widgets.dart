@@ -5,6 +5,7 @@ import 'package:mani/core/widgets/mani_card.dart';
 
 import '../domain/calificacion_cierre_modelos.dart';
 import 'calificacion_cierre_cubit.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// Estados en los que el servicio ya se puede calificar (Core responde
 /// MANI-CAL-409E en los demás).
@@ -72,48 +73,51 @@ class _CalificacionCierreSeccionState extends State<CalificacionCierreSeccion> {
 
         return ManiCard(
           key: const Key('m08-calificacion-cierre-card'),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(ManiSpace.xl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(ManiSpace.sm),
                     decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      border: Border.all(color: AppTheme.dark, width: 2),
-                      boxShadow: const [AppTheme.hardShadowSm],
+                      color: ManiColors.brand,
+                      borderRadius: ManiRadius.brSm,
+                      border: Border.all(
+                        color: ManiColors.border,
+                        width: ManiBorder.regular,
+                      ),
+                      boxShadow: const [ManiShadow.sm],
                     ),
                     child: const Icon(
                       Icons.star_rounded,
-                      color: AppTheme.dark,
+                      color: ManiColors.ink,
                       size: 20,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  ManiGap.hMd,
                   Expanded(
                     child: Text(
                       widget.esAliado
                           ? 'Calificar al cliente y estado de cierre'
                           : 'Calificar al aliado y estado de cierre',
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: ManiFontSize.bodyLg,
                         fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
+                        color: ManiColors.ink,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               if (resumen != null) _BannerEstadoCierre(cierre: resumen.cierre),
               _MensajesFeedback(
                 error: state.error,
                 mensajeExito: state.mensajeExito,
               ),
-              const SizedBox(height: 14),
+              ManiGap.vMd,
               _CuerpoCalificacionPropia(
                 miCalificacion: miCalificacion,
                 puntajeSeleccionado: _puntaje,
@@ -132,11 +136,11 @@ class _CalificacionCierreSeccionState extends State<CalificacionCierreSeccion> {
                   key: const Key('m08-otra-calificacion-registrada'),
                   style: const TextStyle(
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ],
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               OutlinedButton(
                 key: const Key('m08-cerrar-solicitud-btn'),
                 onPressed: state.enviando ? null : cubit.cerrarSolicitud,
@@ -160,11 +164,11 @@ class _BannerEstadoCierre extends StatelessWidget {
     final completo = cierre.cierreCompleto;
     return Container(
       key: const Key('m08-estado-cierre-banner'),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: completo ? const Color(0xFFDCFCE7) : const Color(0xFFFEF9C3),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
+        color: completo ? ManiColors.successContainer : ManiColors.brandSoft,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
       ),
       child: Row(
         children: [
@@ -172,16 +176,16 @@ class _BannerEstadoCierre extends StatelessWidget {
             completo
                 ? Icons.verified_outlined
                 : Icons.hourglass_bottom_outlined,
-            color: AppTheme.dark,
+            color: ManiColors.ink,
           ),
-          const SizedBox(width: 10),
+          ManiGap.hSm,
           Expanded(
             child: Text(
               cierre.etiquetaEstadoCierre,
               key: const Key('m08-estado-cierre-texto'),
               style: const TextStyle(
                 fontWeight: FontWeight.w800,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
           ),
@@ -203,7 +207,7 @@ class _MensajesFeedback extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (error != null) ...[
-          const SizedBox(height: 8),
+          ManiGap.vSm,
           Text(
             error!,
             key: const Key('m08-calificacion-error'),
@@ -214,12 +218,12 @@ class _MensajesFeedback extends StatelessWidget {
           ),
         ],
         if (mensajeExito != null) ...[
-          const SizedBox(height: 8),
+          ManiGap.vSm,
           Text(
             mensajeExito!,
             key: const Key('m08-calificacion-exito'),
             style: const TextStyle(
-              color: AppTheme.dark,
+              color: ManiColors.ink,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -252,11 +256,11 @@ class _CuerpoCalificacionPropia extends StatelessWidget {
     if (calif != null) {
       final comentario = calif.comentario ?? '';
       return Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(ManiSpace.md),
         decoration: BoxDecoration(
-          color: AppTheme.background,
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          border: Border.all(color: AppTheme.dark, width: 1.5),
+          color: ManiColors.background,
+          borderRadius: ManiRadius.brMd,
+          border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,11 +270,11 @@ class _CuerpoCalificacionPropia extends StatelessWidget {
               key: const Key('m08-mi-calificacion-registrada'),
               style: const TextStyle(
                 fontWeight: FontWeight.w900,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
             if (comentario.isNotEmpty) ...[
-              const SizedBox(height: 4),
+              ManiGap.vXs,
               Text('Comentario: $comentario'),
             ],
           ],
@@ -283,9 +287,9 @@ class _CuerpoCalificacionPropia extends StatelessWidget {
       children: [
         const Text(
           'Selecciona un puntaje de 1 a 5 estrellas:',
-          style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.dark),
+          style: TextStyle(fontWeight: FontWeight.w700, color: ManiColors.ink),
         ),
-        const SizedBox(height: 6),
+        ManiGap.vSm,
         Row(
           children: [
             for (var i = 1; i <= 5; i++)
@@ -293,14 +297,14 @@ class _CuerpoCalificacionPropia extends StatelessWidget {
                 key: Key('m08-estrella-$i'),
                 icon: Icon(
                   i <= puntajeSeleccionado ? Icons.star : Icons.star_border,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                   size: 28,
                 ),
                 onPressed: enviando ? null : () => onSeleccionarPuntaje(i),
               ),
           ],
         ),
-        const SizedBox(height: 8),
+        ManiGap.vSm,
         TextField(
           key: const Key('m08-comentario-input'),
           controller: comentarioCtrl,
@@ -311,7 +315,7 @@ class _CuerpoCalificacionPropia extends StatelessWidget {
             border: OutlineInputBorder(),
           ),
         ),
-        const SizedBox(height: 8),
+        ManiGap.vSm,
         FilledButton(
           key: const Key('m08-enviar-calificacion-btn'),
           onPressed: enviando ? null : onEnviar,
@@ -346,39 +350,42 @@ class HistorialServiciosPage extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 720),
             child: ListView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(ManiSpace.xl),
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(ManiSpace.sm),
                       decoration: BoxDecoration(
-                        color: AppTheme.primary,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                        border: Border.all(color: AppTheme.dark, width: 2),
-                        boxShadow: const [AppTheme.hardShadowSm],
+                        color: ManiColors.brand,
+                        borderRadius: ManiRadius.brSm,
+                        border: Border.all(
+                          color: ManiColors.border,
+                          width: ManiBorder.regular,
+                        ),
+                        boxShadow: const [ManiShadow.sm],
                       ),
                       child: const Icon(
                         Icons.history_rounded,
-                        color: AppTheme.dark,
+                        color: ManiColors.ink,
                         size: 20,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    ManiGap.hMd,
                     Expanded(
                       child: Text(
                         titulo,
                         key: const Key('m08-historial-titulo'),
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: ManiFontSize.h3,
                           fontWeight: FontWeight.w900,
-                          color: AppTheme.dark,
+                          color: ManiColors.ink,
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                ManiGap.vLg,
                 if (state.error != null)
                   Text(
                     state.error!,
@@ -389,12 +396,10 @@ class HistorialServiciosPage extends StatelessWidget {
                     ),
                   ),
                 if (state.cargando && state.registros.isEmpty)
-                  const Center(
-                    child: CircularProgressIndicator(color: AppTheme.dark),
-                  )
+                  const ManiCargando()
                 else if (state.registros.isEmpty)
                   Padding(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(ManiSpace.xxl),
                     child: Text(
                       textoVacio,
                       key: const Key('m08-historial-vacio'),
@@ -436,7 +441,7 @@ class _TarjetaHistorialItem extends StatelessWidget {
     return Card(
       key: Key('m08-historial-item-${item.id}'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(ManiSpace.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -454,7 +459,7 @@ class _TarjetaHistorialItem extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            ManiGap.vXs,
             Text(item.descripcion),
             Text('Zona: ${item.zona} · Dirección: ${item.direccion}'),
             if (item.nombreContraparte != null)
@@ -508,21 +513,21 @@ class ResumenPenalizacionCancelacionBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       key: const Key('m08-penalizacion-preview-banner'),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
         color: preview.aplicaPenalizacion
-            ? const Color(0xFFFEF9C3)
-            : AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowSm],
+            ? ManiColors.brandSoft
+            : ManiColors.surface,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        boxShadow: const [ManiShadow.sm],
       ),
       child: Text(
         preview.resumenUsuario,
         key: const Key('m08-penalizacion-preview-texto'),
         style: const TextStyle(
           fontWeight: FontWeight.w800,
-          color: AppTheme.dark,
+          color: ManiColors.ink,
         ),
       ),
     );

@@ -23,10 +23,10 @@ class IndicadorPasos extends StatelessWidget {
               Expanded(
                 child: Container(
                   height: 2,
-                  margin: const EdgeInsets.only(bottom: 20),
+                  margin: const EdgeInsets.only(bottom: ManiSpace.xl),
                   color: p.index <= actual.index
-                      ? AppTheme.dark
-                      : AppTheme.borderLight,
+                      ? ManiColors.ink
+                      : ManiColors.borderSubtle,
                 ),
               ),
             _Punto(paso: p, actual: actual),
@@ -51,42 +51,42 @@ class _Punto extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: ManiMotion.base,
           width: 30,
           height: 30,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: activo
-                ? AppTheme.primary
-                : (hecho ? AppTheme.dark : AppTheme.surface),
+                ? ManiColors.brand
+                : (hecho ? ManiColors.ink : ManiColors.surface),
             shape: BoxShape.circle,
             border: Border.all(
-              color: hecho || activo ? AppTheme.dark : AppTheme.borderLight,
-              width: 2,
+              color: hecho || activo ? ManiColors.ink : ManiColors.borderSubtle,
+              width: ManiBorder.regular,
             ),
           ),
           child: hecho
               ? const Icon(
                   Icons.check_rounded,
                   size: 16,
-                  color: AppTheme.primary,
+                  color: ManiColors.brand,
                 )
               : Text(
                   '${paso.index + 1}',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: ManiFontSize.bodySm,
                     fontWeight: FontWeight.w900,
-                    color: activo ? AppTheme.dark : AppTheme.textTertiary,
+                    color: activo ? ManiColors.ink : ManiColors.inkSubtle,
                   ),
                 ),
         ),
-        const SizedBox(height: 4),
+        ManiGap.vXs,
         Text(
           paso.etiqueta,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: ManiFontSize.micro,
             fontWeight: activo ? FontWeight.w900 : FontWeight.w600,
-            color: activo || hecho ? AppTheme.dark : AppTheme.textTertiary,
+            color: activo || hecho ? ManiColors.ink : ManiColors.inkSubtle,
           ),
         ),
       ],
