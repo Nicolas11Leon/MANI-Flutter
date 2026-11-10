@@ -53,7 +53,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(state.mensajeExito!),
-                      backgroundColor: Colors.green[800],
+                      backgroundColor: ManiColors.success,
                     ),
                   );
                 }
@@ -61,7 +61,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(state.mensajeError!),
-                      backgroundColor: Colors.red[800],
+                      backgroundColor: ManiColors.dangerText,
                     ),
                   );
                 }
@@ -81,7 +81,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                         Text(
                           state.mensaje,
                           style: const TextStyle(
-                            color: Colors.red,
+                            color: ManiColors.dangerText,
                             fontWeight: FontWeight.bold,
                           ),
                           textAlign: TextAlign.center,
@@ -123,7 +123,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                           padding: const EdgeInsets.symmetric(
                             vertical: ManiSpace.lg,
                           ),
-                          backgroundColor: Colors.amber,
+                          backgroundColor: ManiColors.brand,
                           foregroundColor: ManiColors.ink,
                           side: ManiBorder.side,
                           elevation: 4,
@@ -180,7 +180,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
     return Container(
       padding: const EdgeInsets.all(ManiSpace.lg),
       decoration: BoxDecoration(
-        color: esPorOmision ? Colors.yellow[100] : Colors.blue[50],
+        color: esPorOmision ? ManiColors.brandSoft : ManiColors.infoContainer,
         border: Border.all(width: ManiBorder.regular, color: ManiColors.border),
         boxShadow: const [
           BoxShadow(color: ManiColors.ink, offset: Offset(4, 4)),
@@ -424,7 +424,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
     return Container(
       padding: const EdgeInsets.all(ManiSpace.xl),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: ManiColors.surfaceMuted,
         border: Border.all(width: ManiBorder.regular, color: ManiColors.border),
         boxShadow: const [
           BoxShadow(color: ManiColors.ink, offset: Offset(4, 4)),
@@ -464,7 +464,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                 return Container(
                   padding: const EdgeInsets.all(ManiSpace.md),
                   decoration: BoxDecoration(
-                    color: esVigente ? Colors.lightGreen[100] : Colors.white,
+                    color: esVigente ? ManiColors.successContainer : ManiColors.surface,
                     border: Border.all(
                       width: ManiBorder.thin,
                       color: ManiColors.border,

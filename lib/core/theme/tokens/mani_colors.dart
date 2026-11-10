@@ -29,9 +29,9 @@ abstract final class ManiColors {
   /// Texto secundario (5.6:1 sobre crema).
   static const Color inkMuted = Color(0xFF5F6672);
 
-  /// Texto terciario y marcadores (4.7:1 sobre crema; el antiguo `#9CA3AF`
-  /// no llegaba a AA).
-  static const Color inkSubtle = Color(0xFF6B7280);
+  /// Texto terciario y marcadores: 4.7:1 sobre la superficie hundida y 5:1
+  /// sobre crema (el antiguo `#9CA3AF` daba 2.5:1).
+  static const Color inkSubtle = Color(0xFF666D79);
 
   /// Texto e íconos sobre fondos oscuros ([ink], [danger]).
   static const Color onInk = Color(0xFFFFFFFF);
