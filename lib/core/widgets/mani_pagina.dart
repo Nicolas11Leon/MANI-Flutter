@@ -28,7 +28,7 @@ class ManiPagina extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(
           horizontal: c.maxWidth >= 600 ? 32 : 16,
-          vertical: 24,
+          vertical: ManiSpace.xxl,
         ),
         child: Center(
           child: ConstrainedBox(
@@ -43,8 +43,8 @@ class ManiPagina extends StatelessWidget {
     );
     if (alRefrescar == null) return contenido;
     return RefreshIndicator(
-      color: AppTheme.dark,
-      backgroundColor: AppTheme.primary,
+      color: ManiColors.ink,
+      backgroundColor: ManiColors.brand,
       onRefresh: alRefrescar!,
       child: contenido,
     );
@@ -73,16 +73,19 @@ class ManiEncabezadoPagina extends StatelessWidget {
     final texto = Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(ManiSpace.sm),
           decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-            border: Border.all(color: AppTheme.dark, width: 2),
-            boxShadow: const [AppTheme.hardShadowSm],
+            color: ManiColors.brand,
+            borderRadius: ManiRadius.brMd,
+            border: Border.all(
+              color: ManiColors.border,
+              width: ManiBorder.regular,
+            ),
+            boxShadow: const [ManiShadow.sm],
           ),
-          child: Icon(icono, color: AppTheme.dark, size: 24),
+          child: Icon(icono, color: ManiColors.ink, size: 24),
         ),
-        const SizedBox(width: 14),
+        ManiGap.hMd,
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,19 +93,19 @@ class ManiEncabezadoPagina extends StatelessWidget {
               Text(
                 titulo,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: ManiFontSize.h3,
                   fontWeight: FontWeight.w900,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
               ),
               if (descripcion != null) ...[
-                const SizedBox(height: 4),
+                ManiGap.vXs,
                 Text(
                   descripcion!,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: ManiFontSize.bodySm,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: ManiColors.inkMuted,
                   ),
                 ),
               ],
@@ -112,20 +115,20 @@ class ManiEncabezadoPagina extends StatelessWidget {
       ],
     );
     return ManiCard(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(ManiSpace.xl),
       child: LayoutBuilder(
         builder: (context, c) {
           if (accion == null) return texto;
           if (c.maxWidth < 600) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [texto, const SizedBox(height: 14), accion!],
+              children: [texto, ManiGap.vMd, accion!],
             );
           }
           return Row(
             children: [
               Expanded(child: texto),
-              const SizedBox(width: 16),
+              ManiGap.hLg,
               accion!,
             ],
           );
@@ -152,30 +155,31 @@ class ManiTituloSeccion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(bottom: 10),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
-      ),
+      padding: const EdgeInsets.only(bottom: ManiSpace.sm),
+      decoration: const BoxDecoration(border: Border(bottom: ManiBorder.side)),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(ManiSpace.sm),
             decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
+              color: ManiColors.brand,
+              borderRadius: ManiRadius.brSm,
+              border: Border.all(
+                color: ManiColors.border,
+                width: ManiBorder.regular,
+              ),
             ),
-            child: Icon(icono, color: AppTheme.dark, size: 18),
+            child: Icon(icono, color: ManiColors.ink, size: 18),
           ),
-          const SizedBox(width: 10),
+          ManiGap.hSm,
           Expanded(
             child: Text(
               titulo.toUpperCase(),
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: ManiFontSize.bodySm,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.6,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
           ),
@@ -243,16 +247,22 @@ class ManiBotonPildora extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final estilo = TextButton.styleFrom(
-      foregroundColor: AppTheme.dark,
-      textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      foregroundColor: ManiColors.ink,
+      textStyle: const TextStyle(
+        fontSize: ManiFontSize.bodySm,
+        fontWeight: FontWeight.w800,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.md,
+        vertical: ManiSpace.sm,
+      ),
     );
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: principal ? AppTheme.primary : AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowSm],
+        color: principal ? ManiColors.brand : ManiColors.surface,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        boxShadow: const [ManiShadow.sm],
       ),
       child: icono == null
           ? TextButton(
@@ -289,22 +299,22 @@ class ManiAvisoTarjeta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ManiCard(
-      color: esError ? const Color(0xFFFEE2E2) : AppTheme.surface,
-      sombra: AppTheme.hardShadowSm,
+      color: esError ? ManiColors.dangerContainer : ManiColors.surface,
+      sombra: ManiShadow.sm,
       child: Row(
         children: [
-          Icon(icono, color: esError ? const Color(0xFFB91C1C) : AppTheme.dark),
-          const SizedBox(width: 12),
+          Icon(icono, color: esError ? ManiColors.dangerText : ManiColors.ink),
+          ManiGap.hMd,
           Expanded(
             child: Text(
               texto,
               style: const TextStyle(
                 fontWeight: FontWeight.w700,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
           ),
-          if (accion != null) ...[const SizedBox(width: 12), accion!],
+          if (accion != null) ...[ManiGap.hMd, accion!],
         ],
       ),
     );

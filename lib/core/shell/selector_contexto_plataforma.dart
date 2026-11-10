@@ -82,10 +82,13 @@ class _SelectorContextoPlataformaState
     return Container(
       key: const Key('selector-contexto-plataforma'),
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.xxl,
+        vertical: ManiSpace.sm,
+      ),
       decoration: const BoxDecoration(
-        color: Color(0xFFFEF9C3),
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+        color: ManiColors.brandSoft,
+        border: Border(bottom: ManiBorder.side),
       ),
       child: Wrap(
         spacing: 12,
@@ -95,15 +98,15 @@ class _SelectorContextoPlataformaState
           const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.admin_panel_settings_outlined, color: AppTheme.dark),
-              SizedBox(width: 8),
+              Icon(Icons.admin_panel_settings_outlined, color: ManiColors.ink),
+              ManiGap.hSm,
               Text(
                 'ADMINISTRACIÓN DE PLATAFORMA',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: ManiFontSize.caption,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.6,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
               ),
             ],
@@ -167,9 +170,9 @@ class _SelectorContextoPlataformaState
             Text(
               _error!,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: ManiFontSize.caption,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFFB91C1C),
+                color: ManiColors.dangerText,
               ),
             ),
         ],
@@ -223,29 +226,35 @@ class _Pildora extends StatelessWidget {
     return Builder(
       builder: (context) => DecoratedBox(
         decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          border: Border.all(color: AppTheme.dark, width: 2),
-          boxShadow: const [AppTheme.hardShadowSm],
+          color: ManiColors.surface,
+          borderRadius: ManiRadius.brMd,
+          border: Border.all(
+            color: ManiColors.border,
+            width: ManiBorder.regular,
+          ),
+          boxShadow: const [ManiShadow.sm],
         ),
         child: TextButton(
           key: clave,
           onPressed: () => _abrir(context),
           style: TextButton.styleFrom(
-            foregroundColor: AppTheme.dark,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            foregroundColor: ManiColors.ink,
+            padding: const EdgeInsets.symmetric(
+              horizontal: ManiSpace.md,
+              vertical: ManiSpace.sm,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icono, size: 18),
-              const SizedBox(width: 8),
+              ManiGap.hSm,
               Text(
                 '$titulo: ',
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: ManiFontSize.caption,
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.textSecondary,
+                  color: ManiColors.inkMuted,
                 ),
               ),
               ConstrainedBox(
@@ -254,12 +263,12 @@ class _Pildora extends StatelessWidget {
                   valor,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: ManiFontSize.bodySm,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
-              const SizedBox(width: 4),
+              ManiGap.hXs,
               const Icon(Icons.expand_more, size: 18),
             ],
           ),

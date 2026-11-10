@@ -82,8 +82,8 @@ class _AppShellState extends State<AppShell> {
     );
     _menuScrollController.animateTo(
       target,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOutCubic,
+      duration: ManiMotion.base,
+      curve: ManiMotion.entrada,
     );
   }
 
@@ -151,20 +151,18 @@ class _AppShellState extends State<AppShell> {
         final expandido = constraints.maxWidth >= anchoMenuExpandido;
         return Scaffold(
           key: const Key('app-shell'),
-          backgroundColor: AppTheme.background,
+          backgroundColor: ManiColors.background,
           appBar: AppBar(
             key: const Key('menu-superior'),
             automaticallyImplyLeading: false,
-            backgroundColor: AppTheme.surface,
+            backgroundColor: ManiColors.surface,
             surfaceTintColor: Colors.transparent,
             elevation: 0,
             scrolledUnderElevation: 0,
             toolbarHeight: 68,
-            shape: const Border(
-              bottom: BorderSide(color: AppTheme.dark, width: 2),
-            ),
+            shape: const Border(bottom: ManiBorder.side),
             leading: expandido ? null : _menuCompacto(entradas),
-            titleSpacing: expandido ? 32 : 0,
+            titleSpacing: expandido ? ManiSpace.xxxl : 0,
             title: Align(
               alignment: Alignment.centerLeft,
               child: Row(
@@ -174,21 +172,24 @@ class _AppShellState extends State<AppShell> {
                     height: 40,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      border: Border.all(color: AppTheme.dark, width: 2),
-                      boxShadow: const [AppTheme.hardShadowSm],
+                      color: ManiColors.brand,
+                      borderRadius: ManiRadius.brSm,
+                      border: Border.all(
+                        color: ManiColors.border,
+                        width: ManiBorder.regular,
+                      ),
+                      boxShadow: const [ManiShadow.sm],
                     ),
                     child: const Text(
                       'M',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: ManiFontSize.h3,
                         fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
+                        color: ManiColors.ink,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  ManiGap.hMd,
                   Expanded(
                     child: _CabeceraSesion(datos: _datos, rol: widget.rol),
                   ),
@@ -197,7 +198,9 @@ class _AppShellState extends State<AppShell> {
             ),
             actions: [
               Padding(
-                padding: EdgeInsets.only(right: expandido ? 32 : 16),
+                padding: EdgeInsets.only(
+                  right: expandido ? ManiSpace.xxxl : ManiSpace.lg,
+                ),
                 child: Center(
                   child: expandido
                       ? OutlinedButton.icon(
@@ -206,38 +209,34 @@ class _AppShellState extends State<AppShell> {
                           icon: const Icon(Icons.logout_rounded, size: 18),
                           label: const Text('Cerrar sesión'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.dark,
-                            backgroundColor: AppTheme.surface,
-                            side: const BorderSide(
-                              color: AppTheme.dark,
-                              width: 2,
-                            ),
+                            foregroundColor: ManiColors.ink,
+                            backgroundColor: ManiColors.surface,
+                            side: ManiBorder.side,
                             textStyle: const TextStyle(
-                              fontSize: 13,
+                              fontSize: ManiFontSize.bodySm,
                               fontWeight: FontWeight.w800,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppTheme.radiusXl,
-                              ),
+                              borderRadius: ManiRadius.brMd,
                             ),
                           ),
                         )
                       : Container(
                           decoration: BoxDecoration(
-                            color: AppTheme.surface,
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusMd,
+                            color: ManiColors.surface,
+                            borderRadius: ManiRadius.brSm,
+                            border: Border.all(
+                              color: ManiColors.border,
+                              width: ManiBorder.regular,
                             ),
-                            border: Border.all(color: AppTheme.dark, width: 2),
-                            boxShadow: const [AppTheme.hardShadowSm],
+                            boxShadow: const [ManiShadow.sm],
                           ),
                           child: IconButton(
                             key: const Key('menu-cerrar-sesion'),
                             tooltip: 'Cerrar sesión',
                             icon: const Icon(
                               Icons.logout_rounded,
-                              color: AppTheme.dark,
+                              color: ManiColors.ink,
                               size: 20,
                             ),
                             onPressed: _cerrarSesion,
@@ -258,7 +257,7 @@ class _AppShellState extends State<AppShell> {
     return PopupMenuButton<String>(
       key: const Key('menu-compacto'),
       tooltip: 'Menú',
-      icon: const Icon(Icons.menu_rounded, color: AppTheme.dark),
+      icon: const Icon(Icons.menu_rounded, color: ManiColors.ink),
       onSelected: (val) {
         if (val == '__logout__') {
           _cerrarSesion();
@@ -272,12 +271,12 @@ class _AppShellState extends State<AppShell> {
             key: Key('menu-entrada-${e.ruta}'),
             value: e.ruta,
             child: ListTile(
-              leading: Icon(e.icono, color: AppTheme.dark),
+              leading: Icon(e.icono, color: ManiColors.ink),
               title: Text(
                 e.etiqueta,
                 style: TextStyle(
                   fontWeight: _esActiva(e) ? FontWeight.w900 : FontWeight.w600,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
               ),
               selected: _esActiva(e),
@@ -289,11 +288,11 @@ class _AppShellState extends State<AppShell> {
           key: Key('menu-compacto-cerrar-sesion'),
           value: '__logout__',
           child: ListTile(
-            leading: Icon(Icons.logout, color: AppTheme.error),
+            leading: Icon(Icons.logout, color: ManiColors.danger),
             title: Text(
               'Cerrar sesión',
               style: TextStyle(
-                color: AppTheme.error,
+                color: ManiColors.danger,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -313,18 +312,18 @@ class _AppShellState extends State<AppShell> {
       child: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
-          color: AppTheme.background,
-          border: Border(top: BorderSide(color: AppTheme.dark, width: 1.5)),
+          color: ManiColors.background,
+          border: Border(top: ManiBorder.sideThin),
         ),
         child: Row(
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 6),
+              padding: const EdgeInsets.only(left: ManiSpace.sm),
               child: IconButton(
                 key: const Key('menu-scroll-izq'),
                 icon: const Icon(
                   Icons.chevron_left_rounded,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
                 tooltip: 'Desplazar a la izquierda',
                 onPressed: () => _scrollBarra(-280),
@@ -358,14 +357,14 @@ class _AppShellState extends State<AppShell> {
                     thumbVisibility: true,
                     thickness: 4,
                     radius: const Radius.circular(2),
-                    thumbColor: AppTheme.dark.withValues(alpha: 0.35),
-                    padding: const EdgeInsets.only(bottom: 2),
+                    thumbColor: ManiColors.ink.withValues(alpha: 0.35),
+                    padding: const EdgeInsets.only(bottom: ManiSpace.xxs),
                     child: SingleChildScrollView(
                       controller: _menuScrollController,
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 8,
+                        horizontal: ManiSpace.sm,
+                        vertical: ManiSpace.sm,
                       ),
                       child: Row(
                         children: [
@@ -377,17 +376,15 @@ class _AppShellState extends State<AppShell> {
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   color: _esActiva(e)
-                                      ? AppTheme.primary
-                                      : AppTheme.surface,
-                                  borderRadius: BorderRadius.circular(
-                                    AppTheme.radiusXl,
-                                  ),
+                                      ? ManiColors.brand
+                                      : ManiColors.surface,
+                                  borderRadius: ManiRadius.brMd,
                                   border: Border.all(
-                                    color: AppTheme.dark,
-                                    width: 2,
+                                    color: ManiColors.border,
+                                    width: ManiBorder.regular,
                                   ),
                                   boxShadow: _esActiva(e)
-                                      ? const [AppTheme.hardShadowSm]
+                                      ? const [ManiShadow.sm]
                                       : const [],
                                 ),
                                 child: TextButton.icon(
@@ -396,31 +393,29 @@ class _AppShellState extends State<AppShell> {
                                   icon: Icon(
                                     e.icono,
                                     size: 18,
-                                    color: AppTheme.dark,
+                                    color: ManiColors.ink,
                                   ),
                                   label: Text(
                                     e.etiqueta,
                                     style: TextStyle(
-                                      fontSize: 13,
+                                      fontSize: ManiFontSize.bodySm,
                                       fontWeight: _esActiva(e)
                                           ? FontWeight.w900
                                           : FontWeight.w700,
-                                      color: AppTheme.dark,
+                                      color: ManiColors.ink,
                                     ),
                                   ),
                                   style: TextButton.styleFrom(
-                                    foregroundColor: AppTheme.dark,
+                                    foregroundColor: ManiColors.ink,
                                     backgroundColor: _esActiva(e)
-                                        ? AppTheme.primary
+                                        ? ManiColors.brand
                                         : null,
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 10,
+                                      horizontal: ManiSpace.lg,
+                                      vertical: ManiSpace.sm,
                                     ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        AppTheme.radiusXl,
-                                      ),
+                                      borderRadius: ManiRadius.brMd,
                                     ),
                                   ),
                                 ),
@@ -434,12 +429,12 @@ class _AppShellState extends State<AppShell> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(right: 6),
+              padding: const EdgeInsets.only(right: ManiSpace.sm),
               child: IconButton(
                 key: const Key('menu-scroll-der'),
                 icon: const Icon(
                   Icons.chevron_right_rounded,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
                 tooltip: 'Desplazar a la derecha',
                 onPressed: () => _scrollBarra(280),
@@ -479,21 +474,21 @@ class _CabeceraSesion extends StatelessWidget {
               usuario ?? 'MANI',
               key: const Key('menu-usuario'),
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: ManiFontSize.bodyLg,
                 fontWeight: FontWeight.w900,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
                 letterSpacing: -0.3,
               ),
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 2),
+            ManiGap.vXxs,
             Text(
               linea2,
               key: const Key('menu-tenant'),
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: ManiFontSize.caption,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.textSecondary,
+                color: ManiColors.inkMuted,
               ),
               overflow: TextOverflow.ellipsis,
             ),
