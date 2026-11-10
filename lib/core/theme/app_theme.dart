@@ -10,27 +10,6 @@ export 'package:mani/core/theme/tokens/mani_tokens.dart';
 class AppTheme {
   AppTheme._();
 
-  // ── Alias heredados ───────────────────────────────────────────────────────
-  // Nombres anteriores a los tokens, mantenidos mientras termina la migración.
-  // Código nuevo: usar `ManiColors`, `ManiShadow` y `ManiRadius`.
-  static const Color background = ManiColors.background;
-  static const Color surface = ManiColors.surface;
-  static const Color primary = ManiColors.brand;
-  static const Color dark = ManiColors.ink;
-  static const Color textPrimary = ManiColors.ink;
-  static const Color textSecondary = ManiColors.inkMuted;
-  static const Color textTertiary = ManiColors.inkSubtle;
-  static const Color borderLight = ManiColors.borderSubtle;
-  static const Color success = ManiColors.success;
-  static const Color error = ManiColors.danger;
-  static const BoxShadow hardShadowSm = ManiShadow.sm;
-  static const BoxShadow hardShadowMd = ManiShadow.md;
-  static const BoxShadow hardShadowLg = ManiShadow.lg;
-  static const double radiusSm = ManiRadius.xs;
-  static const double radiusMd = ManiRadius.sm;
-  static const double radiusXl = ManiRadius.md;
-  static const double radius2xl = ManiRadius.lg;
-
   static ThemeData get light {
     // Sin `fontFamily` global a propósito: ThemeData la aplicaría sobre todo
     // el textTheme y cada peso volvería al archivo regular (negrita sintética).
