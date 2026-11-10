@@ -5,6 +5,7 @@ import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/features/profile_categories/presentation/bloc/categories_cubit.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Pantalla de selección de categorías del aliado (US-03.1.3).
 class CategoriesPage extends StatelessWidget {
@@ -26,7 +27,7 @@ class CategoriesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ManiColors.surfaceWarm,
+      backgroundColor: ManiColors.background,
       body: SafeArea(
         child: BlocConsumer<CategoriesCubit, CategoriesState>(
           listenWhen: (prev, curr) =>
@@ -47,65 +48,13 @@ class CategoriesView extends StatelessWidget {
           builder: (context, state) {
             final cubit = context.read<CategoriesCubit>();
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    ManiSpace.xl,
-                    ManiSpace.sm,
-                    ManiSpace.xl,
-                    ManiSpace.md,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: ManiRadius.brMd,
-                          border: Border.all(
-                            color: ManiColors.border,
-                            width: ManiBorder.regular,
-                          ),
-                        ),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            size: 18,
-                            color: ManiColors.ink,
-                          ),
-                          onPressed: () => Navigator.of(context).maybePop(),
-                        ),
-                      ),
-                      ManiGap.hMd,
-                      const Text(
-                        'Mis categorías',
-                        style: TextStyle(
-                          fontSize: ManiFontSize.h3,
-                          fontWeight: FontWeight.w600,
-                          color: ManiColors.ink,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    ManiSpace.xl,
-                    0,
-                    ManiSpace.xl,
-                    ManiSpace.lg,
-                  ),
-                  child: Text(
-                    'Selecciona lo que sabes hacer. Solo verás avisos de trabajos en estas áreas.',
-                    style: TextStyle(
-                      fontSize: ManiFontSize.body,
-                      height: 1.4,
-                      fontWeight: FontWeight.w600,
-                      color: ManiColors.inkMuted,
-                    ),
-                  ),
+                const ManiBarraPagina(
+                  icono: Icons.handyman_rounded,
+                  titulo: 'Mis categorías',
+                  descripcion:
+                      'Selecciona lo que sabes hacer. Solo verás avisos de trabajos en estas áreas.',
                 ),
                 if (state.isLoading)
                   const Expanded(child: ManiCargando())
@@ -131,11 +80,13 @@ class CategoriesView extends StatelessWidget {
                 else
                   Expanded(
                     child: ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(
-                        ManiSpace.xl,
-                        0,
-                        ManiSpace.xl,
-                        ManiSpace.md,
+                      padding: EdgeInsets.symmetric(
+                        horizontal:
+                            ManiSpace.xl +
+                            (MediaQuery.sizeOf(context).width > 760
+                                ? (MediaQuery.sizeOf(context).width - 760) / 2
+                                : 0),
+                        vertical: ManiSpace.lg,
                       ),
                       itemCount: state.categories.length,
                       separatorBuilder: (_, _) => ManiGap.vSm,
@@ -155,20 +106,14 @@ class CategoriesView extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? ManiColors.brand
-                                  : Colors.white,
+                                  : ManiColors.surface,
                               borderRadius: ManiRadius.brMd,
                               border: Border.all(
                                 color: ManiColors.border,
                                 width: ManiBorder.regular,
                               ),
                               boxShadow: isSelected
-                                  ? [
-                                      const BoxShadow(
-                                        color: ManiColors.ink,
-                                        offset: Offset(2, 2),
-                                        blurRadius: 0,
-                                      ),
-                                    ]
+                                  ? const [ManiShadow.sm]
                                   : null,
                             ),
                             child: Row(
@@ -181,8 +126,8 @@ class CategoriesView extends StatelessWidget {
                                       height: 36,
                                       decoration: BoxDecoration(
                                         color: isSelected
-                                            ? Colors.white
-                                            : ManiColors.surfaceWarm,
+                                            ? ManiColors.surface
+                                            : ManiColors.surfaceMuted,
                                         borderRadius: ManiRadius.brMd,
                                         border: Border.all(
                                           color: ManiColors.border,
@@ -213,7 +158,7 @@ class CategoriesView extends StatelessWidget {
                                   height: 24,
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? Colors.white
+                                        ? ManiColors.surface
                                         : Colors.transparent,
                                     borderRadius: ManiRadius.brSm,
                                     border: Border.all(
@@ -245,30 +190,23 @@ class CategoriesView extends StatelessWidget {
                       ManiSpace.sm,
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 13,
-                      vertical: 11,
+                      horizontal: ManiSpace.md,
+                      vertical: ManiSpace.md,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: ManiColors.dangerContainer,
                       borderRadius: ManiRadius.brMd,
                       border: Border.all(
-                        color: ManiColors.danger,
+                        color: ManiColors.border,
                         width: ManiBorder.regular,
                       ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: ManiColors.danger,
-                          offset: Offset(2, 2),
-                          blurRadius: 0,
-                        ),
-                      ],
                     ),
                     child: const Row(
                       children: [
                         Icon(
                           Icons.error_outline,
                           size: 16,
-                          color: ManiColors.danger,
+                          color: ManiColors.dangerText,
                         ),
                         ManiGap.hSm,
                         Expanded(
@@ -277,7 +215,7 @@ class CategoriesView extends StatelessWidget {
                             style: TextStyle(
                               fontSize: ManiFontSize.bodySm,
                               fontWeight: FontWeight.w700,
-                              color: ManiColors.danger,
+                              color: ManiColors.dangerText,
                             ),
                           ),
                         ),
@@ -289,10 +227,10 @@ class CategoriesView extends StatelessWidget {
                     ManiSpace.xl,
                     ManiSpace.md,
                     ManiSpace.xl,
-                    26,
+                    ManiSpace.xxl,
                   ),
                   decoration: const BoxDecoration(
-                    color: ManiColors.surfaceWarm,
+                    color: ManiColors.surface,
                     border: Border(top: ManiBorder.side),
                   ),
                   child: Column(
@@ -318,16 +256,9 @@ class CategoriesView extends StatelessWidget {
                               ? null
                               : cubit.save,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: ManiColors.danger,
-                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(
                               vertical: ManiSpace.lg,
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: ManiRadius.brMd,
-                              side: ManiBorder.side,
-                            ),
-                            elevation: 0,
                           ),
                           child: state.isSaving
                               ? const SizedBox(
@@ -335,17 +266,10 @@ class CategoriesView extends StatelessWidget {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Colors.white,
+                                    color: ManiColors.onBrand,
                                   ),
                                 )
-                              : const Text(
-                                  'GUARDAR',
-                                  style: TextStyle(
-                                    fontSize: ManiFontSize.bodyLg,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
+                              : const Text('GUARDAR'),
                         ),
                       ),
                     ],
