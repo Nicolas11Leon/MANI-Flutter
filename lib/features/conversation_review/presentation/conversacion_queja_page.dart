@@ -4,6 +4,7 @@ import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/utils/formato_fecha.dart';
 
 import 'conversacion_queja_cubit.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Conversación de una queja (SCRUM-883): el administrador abre el hilo de un
 /// servicio indicando el motivo. La consulta queda registrada en la auditoría.
@@ -53,14 +54,14 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
         builder: (context, state) {
           final consultando = state.fase == FaseConversacion.consultando;
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(ManiSpace.lg),
             children: [
               const Text(
                 'Cada consulta queda registrada con quién la hizo, el motivo y '
                 'cuántos mensajes se vieron.',
                 key: Key('aviso-auditoria'),
               ),
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               TextField(
                 key: const Key('campo-solicitud'),
                 controller: _solicitud,
@@ -84,7 +85,7 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
                   labelText: 'Motivo de la consulta',
                 ),
               ),
-              const SizedBox(height: 8),
+              ManiGap.vSm,
               FilledButton(
                 key: const Key('btn-consultar'),
                 onPressed: consultando
@@ -96,7 +97,7 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
                       ),
                 child: Text(consultando ? 'Consultando…' : 'Ver conversación'),
               ),
-              const SizedBox(height: 16),
+              ManiGap.vLg,
               if (state.fase == FaseConversacion.error)
                 Text(state.error!, key: const Key('error-conversacion')),
               if (state.fase == FaseConversacion.listo) ...[
@@ -104,7 +105,7 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
                   'Mensajes vistos: ${state.resultado!.consulta.mensajesVistos}',
                   key: const Key('mensajes-vistos'),
                 ),
-                const SizedBox(height: 8),
+                ManiGap.vSm,
                 if (state.resultado!.mensajes.isEmpty)
                   const Text(
                     'Este servicio no tiene mensajes.',
@@ -113,7 +114,7 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
                 for (final m in state.resultado!.mensajes)
                   Card(
                     key: Key('mensaje-${m.id}'),
-                    margin: const EdgeInsets.only(bottom: 8),
+                    margin: const EdgeInsets.only(bottom: ManiSpace.sm),
                     child: ListTile(
                       title: Text(m.contenido),
                       subtitle: Text(

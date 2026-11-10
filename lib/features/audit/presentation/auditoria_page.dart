@@ -7,6 +7,8 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 
 import '../domain/evento_transaccion.dart';
 import 'auditoria_cubit.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// Auditoría de transacciones (SCRUM-889, HU-M11-03): el registro inmutable de
 /// pagos del tenant, solo para el administrador. Cada evento dice quién, cuándo
@@ -45,14 +47,14 @@ class _AuditoriaViewState extends State<AuditoriaView> {
         builder: (context, state) {
           final cubit = context.read<AuditoriaCubit>();
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(ManiSpace.lg),
             children: [
               const Text(
                 'Registro inmutable: cada pago deja un evento con quién lo '
                 'hizo y cuándo. Solo ves los eventos de tu empresa.',
                 key: Key('aviso-inmutable'),
               ),
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               Row(
                 children: [
                   Expanded(
@@ -65,7 +67,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
                       onSubmitted: (v) => cubit.cargar(pagoId: v),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  ManiGap.hSm,
                   FilledButton(
                     key: const Key('btn-filtrar'),
                     onPressed: () => cubit.cargar(pagoId: _filtro.text),
@@ -73,14 +75,13 @@ class _AuditoriaViewState extends State<AuditoriaView> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              if (state.fase == FaseAuditoria.cargando)
-                const Center(child: CircularProgressIndicator()),
+              ManiGap.vLg,
+              if (state.fase == FaseAuditoria.cargando) const ManiCargando(),
               if (state.fase == FaseAuditoria.error)
                 Column(
                   children: [
                     Text(state.error!, key: const Key('error-auditoria')),
-                    const SizedBox(height: 8),
+                    ManiGap.vSm,
                     OutlinedButton(
                       key: const Key('reintentar-auditoria'),
                       onPressed: () => cubit.cargar(pagoId: state.filtroPago),
@@ -119,9 +120,9 @@ class _TarjetaEvento extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       key: Key('evento-${evento.id}'),
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: ManiSpace.md),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(ManiSpace.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -129,7 +130,7 @@ class _TarjetaEvento extends StatelessWidget {
               '${evento.etiquetaTipo} · ${evento.estado}',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 4),
+            ManiGap.vXs,
             Text('${formatearPesos(evento.monto)} ${evento.moneda}'),
             Text('Hizo: ${evento.etiquetaActor}'),
             Text('Cuándo: ${formatearFechaHora(evento.creadoEn)}'),

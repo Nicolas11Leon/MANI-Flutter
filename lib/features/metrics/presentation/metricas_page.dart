@@ -133,7 +133,7 @@ class MetricasPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            ManiGap.vXxl,
             if (state.error != null)
               ManiAvisoTarjeta(
                 key: const Key('metricas-error'),
@@ -153,13 +153,13 @@ class MetricasPage extends StatelessWidget {
                   icono: Icons.info_outline,
                   texto: 'No hubo actividad en el periodo',
                 ),
-                const SizedBox(height: 20),
+                ManiGap.vXl,
               ],
               const ManiTituloSeccion(
                 icono: Icons.dashboard_outlined,
                 titulo: 'Indicadores del periodo',
               ),
-              const SizedBox(height: 16),
+              ManiGap.vLg,
               ManiRejilla(
                 anchoMinimo: 260,
                 maxColumnas: 4,
@@ -223,12 +223,12 @@ class MetricasPage extends StatelessWidget {
                 ],
               ),
               if (m.porEstado.isNotEmpty) ...[
-                const SizedBox(height: 28),
+                ManiGap.vXxl,
                 const ManiTituloSeccion(
                   icono: Icons.donut_small_outlined,
                   titulo: 'Solicitudes por estado',
                 ),
-                const SizedBox(height: 16),
+                ManiGap.vLg,
                 ManiRejilla(
                   anchoMinimo: 220,
                   maxColumnas: 5,
@@ -237,10 +237,10 @@ class MetricasPage extends StatelessWidget {
                     for (final e in m.porEstado.entries)
                       ManiCard(
                         key: Key('metrica-estado-${e.key}'),
-                        sombra: AppTheme.hardShadowSm,
+                        sombra: ManiShadow.sm,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                          horizontal: ManiSpace.lg,
+                          vertical: ManiSpace.md,
                         ),
                         child: Row(
                           children: [
@@ -248,18 +248,18 @@ class MetricasPage extends StatelessWidget {
                               child: Text(
                                 e.key,
                                 style: const TextStyle(
-                                  fontSize: 13,
+                                  fontSize: ManiFontSize.bodySm,
                                   fontWeight: FontWeight.w700,
-                                  color: AppTheme.dark,
+                                  color: ManiColors.ink,
                                 ),
                               ),
                             ),
                             Text(
                               '${e.value}',
                               style: const TextStyle(
-                                fontSize: 18,
+                                fontSize: ManiFontSize.title,
                                 fontWeight: FontWeight.w900,
-                                color: AppTheme.dark,
+                                color: ManiColors.ink,
                               ),
                             ),
                           ],
@@ -288,43 +288,46 @@ class _Indicador extends StatelessWidget {
   Widget build(BuildContext context) {
     return ManiCard(
       key: Key(clave),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(ManiSpace.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(ManiSpace.sm),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  border: Border.all(color: AppTheme.dark, width: 1.5),
+                  color: ManiColors.brand,
+                  borderRadius: ManiRadius.brSm,
+                  border: Border.all(
+                    color: ManiColors.border,
+                    width: ManiBorder.thin,
+                  ),
                 ),
-                child: Icon(icono, size: 16, color: AppTheme.dark),
+                child: Icon(icono, size: 16, color: ManiColors.ink),
               ),
-              const SizedBox(width: 10),
+              ManiGap.hSm,
               Expanded(
                 child: Text(
                   etiqueta.toUpperCase(),
                   style: const TextStyle(
-                    fontSize: 11,
+                    fontSize: ManiFontSize.micro,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.5,
-                    color: AppTheme.textSecondary,
+                    color: ManiColors.inkMuted,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          ManiGap.vMd,
           Text(
             valor,
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: ManiFontSize.h2,
               fontWeight: FontWeight.w900,
               letterSpacing: -0.5,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
             ),
           ),
         ],
