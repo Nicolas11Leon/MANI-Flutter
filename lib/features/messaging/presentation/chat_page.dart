@@ -130,7 +130,7 @@ class _Hilo extends StatelessWidget {
     if (state.mensajes.isEmpty) {
       return const Center(
         child: Padding(
-          padding: EdgeInsets.all(24),
+          padding: EdgeInsets.all(ManiSpace.xxl),
           child: Text(
             'Aún no hay mensajes. Escribe el primero.',
             key: Key('chat-vacio'),
@@ -142,7 +142,7 @@ class _Hilo extends StatelessWidget {
     return ListView.builder(
       key: const Key('lista-mensajes'),
       controller: scroll,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(ManiSpace.md),
       itemCount: state.mensajes.length,
       itemBuilder: (_, i) => _Burbuja(mensaje: state.mensajes[i]),
     );
@@ -168,14 +168,14 @@ class _Burbuja extends StatelessWidget {
       alignment: mio ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         key: Key('mensaje-${mensaje.id}'),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.symmetric(vertical: ManiSpace.xs),
+        padding: const EdgeInsets.all(ManiSpace.sm),
         constraints: BoxConstraints(
           maxWidth: MediaQuery.sizeOf(context).width * 0.78,
         ),
         decoration: BoxDecoration(
           color: mio ? colores.primaryContainer : colores.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: ManiRadius.brMd,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +211,7 @@ class _Aviso extends StatelessWidget {
     final colores = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(ManiSpace.sm),
       color: colores.tertiaryContainer,
       child: Text(texto, style: TextStyle(color: colores.onTertiaryContainer)),
     );
@@ -234,7 +234,12 @@ class _Redactor extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        padding: const EdgeInsets.fromLTRB(
+          ManiSpace.lg,
+          ManiSpace.sm,
+          ManiSpace.lg,
+          ManiSpace.lg,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -257,38 +262,29 @@ class _Redactor extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: 'Escribe un mensaje…',
                   filled: true,
-                  fillColor: AppTheme.surface,
+                  fillColor: ManiColors.surface,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
+                    horizontal: ManiSpace.lg,
+                    vertical: ManiSpace.md,
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    borderSide: const BorderSide(
-                      color: AppTheme.dark,
-                      width: 2,
-                    ),
+                    borderRadius: ManiRadius.brSm,
+                    borderSide: ManiBorder.side,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    borderSide: const BorderSide(
-                      color: AppTheme.dark,
-                      width: 2,
-                    ),
+                    borderRadius: ManiRadius.brSm,
+                    borderSide: ManiBorder.side,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    borderSide: const BorderSide(
-                      color: AppTheme.dark,
-                      width: 2,
-                    ),
+                    borderRadius: ManiRadius.brSm,
+                    borderSide: ManiBorder.side,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            ManiGap.hSm,
             Padding(
-              padding: const EdgeInsets.only(bottom: 2),
+              padding: const EdgeInsets.only(bottom: ManiSpace.xxs),
               child: ManiButton(
                 key: const Key('btn-enviar-mensaje'),
                 etiqueta: 'Enviar',

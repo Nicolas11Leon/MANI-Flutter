@@ -6,6 +6,7 @@ import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_card.dart';
 import 'package:mani/features/home/data/resumen_inicio.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// Pantalla de inicio neo-brutalista por tipo de usuario (US-11.2.3 / SCRUM-1446).
 ///
@@ -62,34 +63,40 @@ class _InicioPageState extends State<InicioPage> {
     ).where((e) => e.ruta != '/inicio').toList();
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: ManiColors.background,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1100),
           child: ListView(
             key: const Key('inicio-contenido'),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+            padding: const EdgeInsets.symmetric(
+              horizontal: ManiSpace.xxl,
+              vertical: ManiSpace.xxl,
+            ),
             children: [
               // ── Banner Hero Neo-Brutalista ──────────────────────────────
               ManiCard(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(ManiSpace.xxl),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(ManiSpace.md),
                       decoration: BoxDecoration(
-                        color: AppTheme.primary,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                        border: Border.all(color: AppTheme.dark, width: 2),
-                        boxShadow: const [AppTheme.hardShadowSm],
+                        color: ManiColors.brand,
+                        borderRadius: ManiRadius.brMd,
+                        border: Border.all(
+                          color: ManiColors.border,
+                          width: ManiBorder.regular,
+                        ),
+                        boxShadow: const [ManiShadow.sm],
                       ),
                       child: const Icon(
                         Icons.bolt_rounded,
-                        color: AppTheme.dark,
+                        color: ManiColors.ink,
                         size: 28,
                       ),
                     ),
-                    const SizedBox(width: 18),
+                    ManiGap.hLg,
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,20 +109,20 @@ class _InicioPageState extends State<InicioPage> {
                                   : 'Hola',
                               key: const Key('inicio-saludo'),
                               style: const TextStyle(
-                                fontSize: 24,
+                                fontSize: ManiFontSize.h2,
                                 fontWeight: FontWeight.w900,
-                                color: AppTheme.dark,
+                                color: ManiColors.ink,
                                 letterSpacing: -0.5,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          ManiGap.vSm,
                           Text(
                             _subtitulo(widget.rol),
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: ManiFontSize.body,
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.textSecondary,
+                              color: ManiColors.inkMuted,
                             ),
                           ),
                         ],
@@ -126,12 +133,12 @@ class _InicioPageState extends State<InicioPage> {
               ),
 
               if (widget.rol == RolUsuario.desconocido) ...[
-                const SizedBox(height: 18),
+                ManiGap.vLg,
                 const Card(
                   key: Key('inicio-sin-rol'),
-                  color: Color(0xFFFEF9C3),
+                  color: ManiColors.brandSoft,
                   child: ListTile(
-                    leading: Icon(Icons.info_outline, color: AppTheme.dark),
+                    leading: Icon(Icons.info_outline, color: ManiColors.ink),
                     title: Text(
                       'Tu cuenta no tiene un rol asignado',
                       style: TextStyle(fontWeight: FontWeight.w800),
@@ -143,16 +150,14 @@ class _InicioPageState extends State<InicioPage> {
                 ),
               ],
 
-              const SizedBox(height: 24),
+              ManiGap.vXxl,
               FutureBuilder<List<IndicadorResumen>>(
                 future: _resumen,
                 builder: (context, snap) {
                   if (snap.connectionState != ConnectionState.done) {
                     return const Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Center(
-                        child: CircularProgressIndicator(color: AppTheme.dark),
-                      ),
+                      padding: EdgeInsets.all(ManiSpace.xxl),
+                      child: ManiCargando(),
                     );
                   }
                   final indicadores = snap.data ?? const <IndicadorResumen>[];
@@ -170,30 +175,33 @@ class _InicioPageState extends State<InicioPage> {
                   );
                 },
               ),
-              const SizedBox(height: 28),
+              ManiGap.vXxl,
               Row(
                 children: [
                   Container(
                     width: 10,
                     height: 22,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(3),
-                      border: Border.all(color: AppTheme.dark, width: 1.5),
+                      color: ManiColors.brand,
+                      borderRadius: ManiRadius.brXs,
+                      border: Border.all(
+                        color: ManiColors.border,
+                        width: ManiBorder.thin,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  ManiGap.hSm,
                   const Text(
                     'Accesos Rápidos',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: ManiFontSize.title,
                       fontWeight: FontWeight.w900,
-                      color: AppTheme.dark,
+                      color: ManiColors.ink,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              ManiGap.vMd,
               // Accesos en columnas: tres en escritorio, dos en tableta y una
               // en móvil. Cada tarjeta conserva el borde negro, la caja del
               // ícono y la flecha enmarcada (contraste alto sobre blanco).
@@ -202,10 +210,10 @@ class _InicioPageState extends State<InicioPage> {
                   for (final e in accesos)
                     ManiCard(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 6,
+                        horizontal: ManiSpace.lg,
+                        vertical: ManiSpace.sm,
                       ),
-                      sombra: AppTheme.hardShadowSm,
+                      sombra: ManiShadow.sm,
                       child: ListTile(
                         key: Key('inicio-acceso-${e.ruta}'),
                         contentPadding: EdgeInsets.zero,
@@ -213,37 +221,36 @@ class _InicioPageState extends State<InicioPage> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: AppTheme.primary,
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusMd,
+                            color: ManiColors.brand,
+                            borderRadius: ManiRadius.brSm,
+                            border: Border.all(
+                              color: ManiColors.border,
+                              width: ManiBorder.regular,
                             ),
-                            border: Border.all(color: AppTheme.dark, width: 2),
                           ),
-                          child: Icon(e.icono, color: AppTheme.dark, size: 20),
+                          child: Icon(e.icono, color: ManiColors.ink, size: 20),
                         ),
                         title: Text(
                           e.etiqueta,
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: ManiFontSize.body,
                             fontWeight: FontWeight.w800,
-                            color: AppTheme.dark,
+                            color: ManiColors.ink,
                           ),
                         ),
                         trailing: Container(
-                          padding: const EdgeInsets.all(6),
+                          padding: const EdgeInsets.all(ManiSpace.sm),
                           decoration: BoxDecoration(
-                            color: AppTheme.background,
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusMd,
-                            ),
+                            color: ManiColors.background,
+                            borderRadius: ManiRadius.brSm,
                             border: Border.all(
-                              color: AppTheme.dark,
-                              width: 1.5,
+                              color: ManiColors.border,
+                              width: ManiBorder.thin,
                             ),
                           ),
                           child: const Icon(
                             Icons.arrow_forward_rounded,
-                            color: AppTheme.dark,
+                            color: ManiColors.ink,
                             size: 18,
                           ),
                         ),
@@ -253,14 +260,14 @@ class _InicioPageState extends State<InicioPage> {
                 ],
               ),
               if (widget.onCerrarSesion != null) ...[
-                const SizedBox(height: 20),
+                ManiGap.vXl,
                 ManiCard(
                   key: const Key('inicio-card-sesion'),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
+                    horizontal: ManiSpace.lg,
+                    vertical: ManiSpace.sm,
                   ),
-                  sombra: AppTheme.hardShadowSm,
+                  sombra: ManiShadow.sm,
                   child: ListTile(
                     key: const Key('inicio-cerrar-sesion'),
                     leading: const Icon(Icons.logout, color: _rojoSesion),
@@ -309,7 +316,7 @@ class _InicioPageState extends State<InicioPage> {
 
 /// Rojo de "Cerrar sesión": #B91C1C da 6.5:1 sobre blanco (WCAG AA), a
 /// diferencia de `Colors.redAccent`, que no llega a 4.5:1 para texto.
-const _rojoSesion = Color(0xFFB91C1C);
+const _rojoSesion = ManiColors.dangerText;
 
 /// Reparte las tarjetas de acceso en columnas de igual ancho según el espacio:
 /// tres desde 900 px, dos desde 560 px y una en móvil.
@@ -354,42 +361,45 @@ class _TarjetaIndicador extends StatelessWidget {
       width: 240,
       child: ManiCard(
         padding: EdgeInsets.zero,
-        sombra: AppTheme.hardShadowSm,
+        sombra: ManiShadow.sm,
         child: InkWell(
           key: Key('inicio-indicador-${indicador.etiqueta}'),
-          borderRadius: BorderRadius.circular(AppTheme.radius2xl),
+          borderRadius: ManiRadius.brLg,
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(ManiSpace.xl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+                    horizontal: ManiSpace.sm,
+                    vertical: ManiSpace.xs,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    border: Border.all(color: AppTheme.dark, width: 1.5),
+                    color: ManiColors.brand,
+                    borderRadius: ManiRadius.brSm,
+                    border: Border.all(
+                      color: ManiColors.border,
+                      width: ManiBorder.thin,
+                    ),
                   ),
                   child: Text(
                     indicador.valor ?? '—',
                     style: const TextStyle(
-                      fontSize: 22,
+                      fontSize: ManiFontSize.h3,
                       fontWeight: FontWeight.w900,
-                      color: AppTheme.dark,
+                      color: ManiColors.ink,
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                ManiGap.vSm,
                 Text(
                   indicador.etiqueta,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: ManiFontSize.bodySm,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ],

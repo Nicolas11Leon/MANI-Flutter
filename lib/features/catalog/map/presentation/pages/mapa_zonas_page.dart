@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mani/features/catalog/map/presentation/bloc/mapa_cubit.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// Mapa de zonas, barrios y sitios (HU-M04-07 / SCRUM-1396).
 ///
@@ -23,7 +25,7 @@ class MapaZonasPage extends StatelessWidget {
       body: BlocBuilder<MapaCubit, MapaState>(
         builder: (context, state) {
           if (state.estado == MapaEstado.cargando && state.geometrias.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const ManiCargando();
           }
           if (state.estado == MapaEstado.error) {
             return _Aviso(
@@ -52,7 +54,7 @@ class MapaZonasPage extends StatelessWidget {
               ),
               if (state.sinGeometria.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(ManiSpace.md),
                   child: Text(
                     '${state.sinGeometria.length} zona(s) sin límite cargado: no se dibujan.',
                     key: const Key('mapa_sin_geometria'),
@@ -61,7 +63,11 @@ class MapaZonasPage extends StatelessWidget {
                 ),
               if (state.coberturaPropia.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.only(left: 12, right: 12, top: 8),
+                  padding: const EdgeInsets.only(
+                    left: ManiSpace.md,
+                    right: ManiSpace.md,
+                    top: ManiSpace.sm,
+                  ),
                   child: Text(
                     'En verde, las zonas que ya declaraste como cobertura. '
                     'Para cambiarlas, usa Cobertura en el menú.',
@@ -72,9 +78,9 @@ class MapaZonasPage extends StatelessWidget {
               if (state.sitiosSinUbicacion > 0)
                 Padding(
                   padding: const EdgeInsets.only(
-                    left: 12,
-                    right: 12,
-                    bottom: 12,
+                    left: ManiSpace.md,
+                    right: ManiSpace.md,
+                    bottom: ManiSpace.md,
                   ),
                   child: Text(
                     '${state.sitiosSinUbicacion} sede(s) sin ubicación capturada: '
@@ -99,7 +105,10 @@ class _SelectorLocalidad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.lg,
+        vertical: ManiSpace.sm,
+      ),
       child: DropdownButtonFormField<String>(
         key: const Key('mapa_selector_localidad'),
         initialValue: state.localidadId,
@@ -180,7 +189,7 @@ class _Mapa extends StatelessWidget {
             ? null
             : CameraFit.bounds(
                 bounds: bounds,
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(ManiSpace.xxl),
               ),
       ),
       children: [
@@ -240,17 +249,17 @@ class _Aviso extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(ManiSpace.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icono, size: 48),
-            const SizedBox(height: 12),
+            ManiGap.vMd,
             Text(titulo, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 6),
+            ManiGap.vSm,
             Text(detalle, textAlign: TextAlign.center),
             if (accion != null) ...[
-              const SizedBox(height: 16),
+              ManiGap.vLg,
               FilledButton(onPressed: accion, child: const Text('Reintentar')),
             ],
           ],

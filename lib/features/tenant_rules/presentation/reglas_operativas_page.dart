@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../domain/regla_tenant.dart';
 import 'tenant_rules_cubit.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 class ReglasOperativasPage extends StatefulWidget {
   const ReglasOperativasPage({super.key});
@@ -67,12 +69,12 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
             },
             builder: (context, state) {
               if (state is TenantRulesLoading || state is TenantRulesInitial) {
-                return const Center(child: CircularProgressIndicator());
+                return const ManiCargando();
               }
               if (state is TenantRulesError) {
                 return Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: const EdgeInsets.all(ManiSpace.xxl),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -84,7 +86,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 16),
+                        ManiGap.vLg,
                         ElevatedButton(
                           onPressed: () =>
                               context.read<TenantRulesCubit>().cargar(),
@@ -100,7 +102,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
               _sincronizarConVigente(loaded.vigente.reglas);
 
               return SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(ManiSpace.xxl),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -108,23 +110,25 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                     children: [
                       // Encabezado de estado vigente
                       _buildHeaderCard(loaded.vigente),
-                      const SizedBox(height: 24),
+                      ManiGap.vXxl,
 
                       // Formulario de reglas
                       _buildFormCard(loaded.guardando),
-                      const SizedBox(height: 32),
+                      ManiGap.vXxxl,
 
                       // Botón guardar
                       ElevatedButton(
                         key: const Key('btn_guardar_reglas'),
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: ManiSpace.lg,
+                          ),
                           backgroundColor: Colors.amber,
-                          foregroundColor: Colors.black,
-                          side: const BorderSide(width: 2, color: Colors.black),
+                          foregroundColor: ManiColors.ink,
+                          side: ManiBorder.side,
                           elevation: 4,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: ManiRadius.brXs,
                           ),
                         ),
                         onPressed: loaded.guardando
@@ -146,17 +150,17 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                               },
                         child: loaded.guardando
                             ? const CircularProgressIndicator(
-                                color: Colors.black,
+                                color: ManiColors.ink,
                               )
                             : const Text(
                                 'GUARDAR NUEVA VERSIÓN',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w900,
-                                  fontSize: 16,
+                                  fontSize: ManiFontSize.bodyLg,
                                 ),
                               ),
                       ),
-                      const SizedBox(height: 40),
+                      ManiGap.vHuge,
 
                       // Historial
                       _buildHistorialCard(loaded.historial),
@@ -174,11 +178,13 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
   Widget _buildHeaderCard(ReglaTenantVigente vigente) {
     final esPorOmision = vigente.origen == 'POR_OMISION';
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(ManiSpace.lg),
       decoration: BoxDecoration(
         color: esPorOmision ? Colors.yellow[100] : Colors.blue[50],
-        border: Border.all(width: 2, color: Colors.black),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
+        border: Border.all(width: ManiBorder.regular, color: ManiColors.border),
+        boxShadow: const [
+          BoxShadow(color: ManiColors.ink, offset: Offset(4, 4)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,26 +193,26 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
             children: [
               Icon(
                 esPorOmision ? Icons.info_outline : Icons.check_circle_outline,
-                color: Colors.black,
+                color: ManiColors.ink,
               ),
-              const SizedBox(width: 8),
+              ManiGap.hSm,
               Text(
                 esPorOmision
                     ? 'VERSIÓN 0 (POR OMISIÓN)'
                     : 'VERSIÓN VIGENTE ${vigente.version}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
-                  fontSize: 16,
+                  fontSize: ManiFontSize.bodyLg,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          ManiGap.vSm,
           Text(
             esPorOmision
                 ? 'El tenant aún no ha configurado reglas propias. Al guardar se creará la versión 1.'
                 : 'Configuración personalizada activa para el tenant.',
-            style: const TextStyle(fontSize: 13),
+            style: const TextStyle(fontSize: ManiFontSize.bodySm),
           ),
         ],
       ),
@@ -215,33 +221,43 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
 
   Widget _buildFormCard(bool guardando) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(ManiSpace.xl),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(width: 2, color: Colors.black),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
+        border: Border.all(width: ManiBorder.regular, color: ManiColors.border),
+        boxShadow: const [
+          BoxShadow(color: ManiColors.ink, offset: Offset(4, 4)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'PARÁMETROS OPERATIVOS',
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: ManiFontSize.title,
+            ),
           ),
-          const Divider(thickness: 2, color: Colors.black, height: 24),
+          const Divider(thickness: 2, color: ManiColors.ink, height: 24),
 
           // 1. Criterio de orden
           const Text(
             '1. Criterio para ordenar aliados (RF-13):',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
+          ManiGap.vSm,
           DropdownButtonFormField<String>(
             key: const Key('dropdown_criterio_orden'),
             initialValue: _criterioOrden,
             decoration: const InputDecoration(
-              border: OutlineInputBorder(borderSide: BorderSide(width: 2)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(width: ManiBorder.regular),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: ManiSpace.md,
+                vertical: ManiSpace.sm,
+              ),
             ),
             items: const [
               DropdownMenuItem(
@@ -257,7 +273,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                 ? null
                 : (v) => setState(() => _criterioOrden = v ?? 'CALIFICACION'),
           ),
-          const SizedBox(height: 20),
+          ManiGap.vXl,
 
           // 2. Tolerancia de tarifa
           Row(
@@ -280,12 +296,12 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
             min: 0,
             max: 50,
             divisions: 50,
-            activeColor: Colors.black,
+            activeColor: ManiColors.ink,
             onChanged: guardando
                 ? null
                 : (v) => setState(() => _toleranciaTarifa = v),
           ),
-          const SizedBox(height: 12),
+          ManiGap.vMd,
 
           // 3. Comisión del tenant
           Row(
@@ -308,17 +324,17 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
             min: 0,
             max: 30,
             divisions: 30,
-            activeColor: Colors.black,
+            activeColor: ManiColors.ink,
             onChanged: guardando ? null : (v) => setState(() => _comision = v),
           ),
-          const SizedBox(height: 12),
+          ManiGap.vMd,
 
           // 4. Cancelación
           const Text(
             '4. Política de cancelación y penalización (RNF-10):',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
+          ManiGap.vSm,
           Row(
             children: [
               Expanded(
@@ -329,7 +345,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                   decoration: const InputDecoration(
                     labelText: 'Ventana (horas, 0-72)',
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(width: 2),
+                      borderSide: BorderSide(width: ManiBorder.regular),
                     ),
                   ),
                   onChanged: (v) {
@@ -343,7 +359,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                   },
                 ),
               ),
-              const SizedBox(width: 16),
+              ManiGap.hLg,
               Expanded(
                 child: TextFormField(
                   key: const Key('input_penalizacion_cancelacion'),
@@ -352,7 +368,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                   decoration: const InputDecoration(
                     labelText: 'Penalización (%)',
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(width: 2),
+                      borderSide: BorderSide(width: ManiBorder.regular),
                     ),
                   ),
                   onChanged: (v) {
@@ -371,21 +387,23 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          ManiGap.vXl,
 
           // 5. Oferta
           const Text(
             '5. Tiempo límite para aceptar oferta (RNF-10):',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
+          ManiGap.vSm,
           TextFormField(
             key: const Key('input_minutos_oferta'),
             initialValue: _minutosOferta.toString(),
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               labelText: 'Minutos para aceptar (1-1440)',
-              border: OutlineInputBorder(borderSide: BorderSide(width: 2)),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(width: ManiBorder.regular),
+              ),
             ),
             onChanged: (v) {
               final n = int.tryParse(v);
@@ -404,11 +422,13 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
 
   Widget _buildHistorialCard(List<ReglaTenantHistorialItem> historial) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(ManiSpace.xl),
       decoration: BoxDecoration(
         color: Colors.grey[100],
-        border: Border.all(width: 2, color: Colors.black),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
+        border: Border.all(width: ManiBorder.regular, color: ManiColors.border),
+        boxShadow: const [
+          BoxShadow(color: ManiColors.ink, offset: Offset(4, 4)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,7 +438,10 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
             children: [
               const Text(
                 'HISTORIAL DE VERSIONES',
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: ManiFontSize.bodyLg,
+                ),
               ),
               Text(
                 '${historial.length} versión(es)',
@@ -426,7 +449,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
               ),
             ],
           ),
-          const Divider(thickness: 2, color: Colors.black, height: 24),
+          const Divider(thickness: 2, color: ManiColors.ink, height: 24),
           if (historial.isEmpty)
             const Text('No hay versiones históricas registradas todavía.')
           else
@@ -434,15 +457,18 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: historial.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              separatorBuilder: (_, _) => ManiGap.vMd,
               itemBuilder: (context, index) {
                 final item = historial[index];
                 final esVigente = item.estado == 'VIGENTE';
                 return Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(ManiSpace.md),
                   decoration: BoxDecoration(
                     color: esVigente ? Colors.lightGreen[100] : Colors.white,
-                    border: Border.all(width: 1.5, color: Colors.black),
+                    border: Border.all(
+                      width: ManiBorder.thin,
+                      color: ManiColors.border,
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -460,14 +486,16 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                                       .toString()
                                       .substring(0, 10)
                                 : '',
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(
+                              fontSize: ManiFontSize.caption,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      ManiGap.vSm,
                       Text(
                         'Criterio: ${item.reglas.criterioOrden} | Tolerancia: ${item.reglas.toleranciaTarifa.round()}% | Comisión: ${item.reglas.comisionPorcentaje.round()}% | Oferta: ${item.reglas.minutosParaAceptarOferta} min',
-                        style: const TextStyle(fontSize: 12),
+                        style: const TextStyle(fontSize: ManiFontSize.caption),
                       ),
                     ],
                   ),

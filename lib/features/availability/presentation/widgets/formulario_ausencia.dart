@@ -165,17 +165,20 @@ class _FormularioAusenciaState extends State<FormularioAusencia> {
             Text(
               widget.titulo,
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: ManiFontSize.title,
                 fontWeight: FontWeight.w900,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
-            const SizedBox(height: 4),
+            ManiGap.vXs,
             const Text(
               'Durante este intervalo no recibirás solicitudes nuevas.',
-              style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+              style: TextStyle(
+                fontSize: ManiFontSize.bodySm,
+                color: ManiColors.inkMuted,
+              ),
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             const _Etiqueta('Motivo'),
             Wrap(
               spacing: 8,
@@ -185,13 +188,13 @@ class _FormularioAusenciaState extends State<FormularioAusencia> {
                     key: ValueKey('motivo-${m.codigo}'),
                     label: Text(m.etiqueta),
                     selected: _motivo == m,
-                    selectedColor: AppTheme.primary,
-                    side: const BorderSide(color: AppTheme.dark, width: 1.5),
+                    selectedColor: ManiColors.brand,
+                    side: ManiBorder.sideThin,
                     onSelected: (_) => setState(() => _motivo = m),
                   ),
               ],
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             const _Etiqueta('Desde'),
             _SelectorFechaHora(
               prefijo: 'inicio',
@@ -199,7 +202,7 @@ class _FormularioAusenciaState extends State<FormularioAusencia> {
               onFecha: () => _elegirFecha(esInicio: true),
               onHora: () => _elegirHora(esInicio: true),
             ),
-            const SizedBox(height: 12),
+            ManiGap.vMd,
             const _Etiqueta('Hasta'),
             _SelectorFechaHora(
               prefijo: 'fin',
@@ -207,7 +210,7 @@ class _FormularioAusenciaState extends State<FormularioAusencia> {
               onFecha: () => _elegirFecha(esInicio: false),
               onHora: () => _elegirHora(esInicio: false),
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             const _Etiqueta('Nota (opcional)'),
             TextField(
               key: const ValueKey('nota-ausencia'),
@@ -224,11 +227,11 @@ class _FormularioAusenciaState extends State<FormularioAusencia> {
                 _error!,
                 key: const ValueKey('error-formulario'),
                 style: const TextStyle(
-                  color: AppTheme.error,
+                  color: ManiColors.danger,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 12),
+              ManiGap.vMd,
             ],
             ManiButton(
               key: const ValueKey('btn-guardar-ausencia'),
@@ -252,13 +255,13 @@ class _Etiqueta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 6),
+    padding: const EdgeInsets.only(bottom: ManiSpace.sm),
     child: Text(
       texto,
       style: const TextStyle(
-        fontSize: 13,
+        fontSize: ManiFontSize.bodySm,
         fontWeight: FontWeight.w800,
-        color: AppTheme.dark,
+        color: ManiColors.ink,
       ),
     ),
   );
@@ -287,26 +290,26 @@ class _SelectorFechaHora extends StatelessWidget {
           icon: const Icon(
             Icons.calendar_today_rounded,
             size: 18,
-            color: AppTheme.dark,
+            color: ManiColors.ink,
           ),
           label: Text(
             formatearFecha(valor),
-            style: const TextStyle(color: AppTheme.dark),
+            style: const TextStyle(color: ManiColors.ink),
           ),
         ),
       ),
-      const SizedBox(width: 8),
+      ManiGap.hSm,
       OutlinedButton.icon(
         key: ValueKey('$prefijo-hora'),
         onPressed: onHora,
         icon: const Icon(
           Icons.schedule_rounded,
           size: 18,
-          color: AppTheme.dark,
+          color: ManiColors.ink,
         ),
         label: Text(
           formatearHora(valor),
-          style: const TextStyle(color: AppTheme.dark),
+          style: const TextStyle(color: ManiColors.ink),
         ),
       ),
     ],
