@@ -5,6 +5,7 @@ import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/features/auth/presentation/bloc/recuperacion_contrasena_cubit.dart';
 import 'package:mani/features/auth/presentation/validators/credenciales_validators.dart';
 import 'package:mani/features/auth/presentation/widgets/recuperacion_layout.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Paso 1 de la recuperación (HU-M02-10): la persona escribe su correo y
 /// recibe el enlace. La respuesta es la misma exista o no la cuenta.
@@ -92,7 +93,7 @@ class _OlvideContrasenaViewState extends State<OlvideContrasenaView> {
                         ),
                         validator: CredencialesValidators.email,
                       ),
-                      const SizedBox(height: 20),
+                      ManiGap.vXl,
                       BotonRecuperacion(
                         key: const Key('enviarEnlace'),
                         texto: 'ENVIAR ENLACE',

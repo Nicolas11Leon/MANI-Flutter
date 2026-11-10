@@ -6,9 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mani/core/widgets/mani_pulsable.dart';
 import 'package:mani/core/config/tenant_config.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/di/injection_container.dart';
+import 'package:mani/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:mani/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mani/features/auth/presentation/widgets/selector_categoria_catalogo.dart';
 import 'package:mani/features/auth/presentation/widgets/terminos_condiciones_section.dart';
@@ -173,33 +175,36 @@ class _RegistroAliadoEmpresaViewState
       barrierDismissible: false,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: AppTheme.background,
+          backgroundColor: ManiColors.background,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-            side: const BorderSide(color: AppTheme.dark, width: 3),
+            borderRadius: ManiRadius.brLg,
+            side: const BorderSide(color: ManiColors.ink, width: 3),
           ),
           title: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(ManiSpace.sm),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  border: Border.all(color: AppTheme.dark, width: 2),
+                  color: ManiColors.brand,
+                  borderRadius: ManiRadius.brSm,
+                  border: Border.all(
+                    color: ManiColors.border,
+                    width: ManiBorder.regular,
+                  ),
                 ),
                 child: const Icon(
                   Icons.apartment_rounded,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
               ),
-              const SizedBox(width: 12),
+              ManiGap.hMd,
               Expanded(
                 child: Text(
                   '¡Registro Empresarial Enviado!',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 20,
+                    fontSize: ManiFontSize.h3,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ),
@@ -214,18 +219,21 @@ class _RegistroAliadoEmpresaViewState
                 Text(
                   'Tu solicitud para operar como Empresa Aliada ha sido enviada a validación de Backoffice.',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
+                    fontSize: ManiFontSize.body,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
-                const SizedBox(height: 14),
+                ManiGap.vMd,
                 Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(ManiSpace.md),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                    border: Border.all(color: AppTheme.dark, width: 1.5),
+                    borderRadius: ManiRadius.brMd,
+                    border: Border.all(
+                      color: ManiColors.border,
+                      width: ManiBorder.thin,
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,17 +241,17 @@ class _RegistroAliadoEmpresaViewState
                       Text(
                         '📋 Estado: PENDIENTE DE REVISIÓN',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
+                          fontSize: ManiFontSize.bodySm,
                           fontWeight: FontWeight.w800,
-                          color: AppTheme.dark,
+                          color: ManiColors.ink,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      ManiGap.vSm,
                       Text(
                         'El Backoffice revisará la Cámara de Comercio y el RUT. Recibirás una notificación en el correo corporativo cuando tu empresa esté habilitada para recibir solicitudes empresariales.',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
-                          color: AppTheme.textSecondary,
+                          fontSize: ManiFontSize.caption,
+                          color: ManiColors.inkMuted,
                         ),
                       ),
                     ],
@@ -253,28 +261,31 @@ class _RegistroAliadoEmpresaViewState
             ),
           ),
           actions: [
-            GestureDetector(
+            ManiPulsable(
               onTap: () {
                 Navigator.of(ctx).pop();
                 context.go('/login');
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+                  horizontal: ManiSpace.xxl,
+                  vertical: ManiSpace.md,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  border: Border.all(color: AppTheme.dark, width: 2),
-                  boxShadow: const [AppTheme.hardShadowSm],
+                  color: ManiColors.brand,
+                  borderRadius: ManiRadius.brMd,
+                  border: Border.all(
+                    color: ManiColors.border,
+                    width: ManiBorder.regular,
+                  ),
+                  boxShadow: const [ManiShadow.sm],
                 ),
                 child: Text(
                   'IR AL INICIO DE SESIÓN',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
+                    fontSize: ManiFontSize.bodySm,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ),
@@ -291,17 +302,17 @@ class _RegistroAliadoEmpresaViewState
         content: Text(
           message,
           style: GoogleFonts.plusJakartaSans(
-            color: isError ? Colors.white : AppTheme.dark,
+            color: isError ? Colors.white : ManiColors.ink,
             fontWeight: FontWeight.w700,
           ),
         ),
-        backgroundColor: isError ? AppTheme.error : AppTheme.primary,
+        backgroundColor: isError ? ManiColors.danger : ManiColors.brand,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          side: const BorderSide(color: AppTheme.dark, width: 2),
+          borderRadius: ManiRadius.brMd,
+          side: ManiBorder.side,
         ),
-        margin: const EdgeInsets.all(16),
+        margin: const EdgeInsets.all(ManiSpace.lg),
       ),
     );
   }
@@ -319,7 +330,7 @@ class _RegistroAliadoEmpresaViewState
       builder: (context, state) {
         final isLoading = state is AuthLoading;
         return Scaffold(
-          backgroundColor: AppTheme.background,
+          backgroundColor: ManiColors.background,
           body: SafeArea(
             child: Column(
               children: [
@@ -331,7 +342,7 @@ class _RegistroAliadoEmpresaViewState
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 36,
-                      vertical: 24,
+                      vertical: ManiSpace.xxl,
                     ),
                     child: Center(
                       child: ConstrainedBox(
@@ -343,7 +354,7 @@ class _RegistroAliadoEmpresaViewState
                             children: [
                               // Banner Hero de Empresa
                               _buildHeroBanner(),
-                              const SizedBox(height: 28),
+                              ManiGap.vXxl,
 
                               // Layout en 2 columnas Web
                               LayoutBuilder(
@@ -358,7 +369,7 @@ class _RegistroAliadoEmpresaViewState
                                           flex: 5,
                                           child: _buildLeftColumn(),
                                         ),
-                                        const SizedBox(width: 28),
+                                        ManiGap.hXxl,
                                         Expanded(
                                           flex: 5,
                                           child: _buildRightColumn(),
@@ -369,14 +380,14 @@ class _RegistroAliadoEmpresaViewState
                                     return Column(
                                       children: [
                                         _buildLeftColumn(),
-                                        const SizedBox(height: 24),
+                                        ManiGap.vXxl,
                                         _buildRightColumn(),
                                       ],
                                     );
                                   }
                                 },
                               ),
-                              const SizedBox(height: 24),
+                              ManiGap.vXxl,
 
                               // Sección obligatoria de Términos y Condiciones (SCRUM-856)
                               TerminosCondicionesSection(
@@ -387,11 +398,11 @@ class _RegistroAliadoEmpresaViewState
                                   if (val) _mostrarErrorTerminos = false;
                                 }),
                               ),
-                              const SizedBox(height: 24),
+                              ManiGap.vXxl,
 
                               // Barra de acción inferior
                               _buildBottomAction(isLoading),
-                              const SizedBox(height: 40),
+                              ManiGap.vHuge,
                             ],
                           ),
                         ),
@@ -412,9 +423,12 @@ class _RegistroAliadoEmpresaViewState
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+        border: Border(bottom: ManiBorder.side),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.xxxl,
+        vertical: ManiSpace.md,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -424,39 +438,42 @@ class _RegistroAliadoEmpresaViewState
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  border: Border.all(color: AppTheme.dark, width: 2),
-                  boxShadow: const [AppTheme.hardShadowSm],
+                  color: ManiColors.brand,
+                  borderRadius: ManiRadius.brSm,
+                  border: Border.all(
+                    color: ManiColors.border,
+                    width: ManiBorder.regular,
+                  ),
+                  boxShadow: const [ManiShadow.sm],
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   'M',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 20,
+                    fontSize: ManiFontSize.h3,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              ManiGap.hMd,
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'MANI Services',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
+                      fontSize: ManiFontSize.bodyLg,
                       fontWeight: FontWeight.w900,
-                      color: AppTheme.dark,
+                      color: ManiColors.ink,
                     ),
                   ),
                   Text(
                     'Plataforma Digital de Servicios Multi-tenant',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
+                      fontSize: ManiFontSize.micro,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.textSecondary,
+                      color: ManiColors.inkMuted,
                     ),
                   ),
                 ],
@@ -465,13 +482,13 @@ class _RegistroAliadoEmpresaViewState
           ),
           TextButton.icon(
             onPressed: () => context.go('/login'),
-            icon: const Icon(Icons.arrow_back, color: AppTheme.dark, size: 16),
+            icon: const Icon(Icons.arrow_back, color: ManiColors.ink, size: 16),
             label: Text(
               'Iniciar Sesión',
               style: GoogleFonts.plusJakartaSans(
-                color: AppTheme.dark,
+                color: ManiColors.ink,
                 fontWeight: FontWeight.w800,
-                fontSize: 13,
+                fontSize: ManiFontSize.bodySm,
               ),
             ),
           ),
@@ -483,29 +500,35 @@ class _RegistroAliadoEmpresaViewState
   // ── Hero Banner de Empresa ──────────────────────────────────────────────────
   Widget _buildHeroBanner() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.xxl,
+        vertical: ManiSpace.lg,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowMd],
+        borderRadius: ManiRadius.brLg,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        boxShadow: const [ManiShadow.md],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(ManiSpace.md),
             decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              border: Border.all(color: AppTheme.dark, width: 2),
+              color: ManiColors.brand,
+              borderRadius: ManiRadius.brMd,
+              border: Border.all(
+                color: ManiColors.border,
+                width: ManiBorder.regular,
+              ),
             ),
             child: const Icon(
               Icons.domain_rounded,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
               size: 26,
             ),
           ),
-          const SizedBox(width: 16),
+          ManiGap.hLg,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -513,18 +536,18 @@ class _RegistroAliadoEmpresaViewState
                 Text(
                   'Registro de Empresa de Servicios',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 20,
+                    fontSize: ManiFontSize.h3,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                     letterSpacing: -0.4,
                   ),
                 ),
-                const SizedBox(height: 4),
+                ManiGap.vXs,
                 Text(
                   'Registra tu empresa para operar formalmente en la plataforma y recibir solicitudes de mantenimiento corporativo.',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    color: AppTheme.textSecondary,
+                    fontSize: ManiFontSize.bodySm,
+                    color: ManiColors.inkMuted,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -541,11 +564,11 @@ class _RegistroAliadoEmpresaViewState
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowMd],
+        borderRadius: ManiRadius.brLg,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        boxShadow: const [ManiShadow.md],
       ),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(ManiSpace.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -553,17 +576,17 @@ class _RegistroAliadoEmpresaViewState
             Icons.business_rounded,
             '1. Datos de la Empresa y Representante',
           ),
-          const SizedBox(height: 20),
+          ManiGap.vXl,
 
           // Razón Social
           _buildFieldLabel('RAZÓN SOCIAL DE LA EMPRESA'),
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           TextFormField(
             controller: _razonSocialController,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
+              fontSize: ManiFontSize.body,
               fontWeight: FontWeight.w600,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
             ),
             decoration: _inputDecoration(
               hint: 'Ej: Redes y Mantenimientos Industriales S.A.S.',
@@ -573,17 +596,17 @@ class _RegistroAliadoEmpresaViewState
                 ? 'La razón social es obligatoria'
                 : null,
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
 
           // NIT
           _buildFieldLabel('NIT DE LA EMPRESA (CON DÍGITO DE VERIFICACIÓN)'),
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           TextFormField(
             controller: _nitController,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
+              fontSize: ManiFontSize.body,
               fontWeight: FontWeight.w600,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
             ),
             decoration: _inputDecoration(
               hint: 'Ej: 900.123.456-7',
@@ -593,17 +616,17 @@ class _RegistroAliadoEmpresaViewState
                 ? 'El NIT es obligatorio'
                 : null,
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
 
           // Nombre del Representante Legal
           _buildFieldLabel('NOMBRE DEL REPRESENTANTE LEGAL'),
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           TextFormField(
             controller: _nombreRepController,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
+              fontSize: ManiFontSize.body,
               fontWeight: FontWeight.w600,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
             ),
             decoration: _inputDecoration(
               hint: 'Ej: Claudia Marcela Restrepo López',
@@ -613,46 +636,46 @@ class _RegistroAliadoEmpresaViewState
                 ? 'El nombre del representante es obligatorio'
                 : null,
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
 
           // Documento de Identidad del Representante Legal
           _buildFieldLabel('DOCUMENTO DE IDENTIDAD DEL REPRESENTANTE LEGAL'),
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           TextFormField(
             controller: _docRepController,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
+              fontSize: ManiFontSize.body,
               fontWeight: FontWeight.w600,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
             ),
             decoration: _inputDecoration(
               hint: 'Ej: C.C. 52.345.678',
               prefixIcon: Icons.credit_card_outlined,
             ),
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
 
           // Teléfono / PBX
           _buildFieldLabel('TELÉFONO O PBX DE CONTACTO'),
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           TextFormField(
             controller: _telefonoController,
             keyboardType: TextInputType.phone,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
+              fontSize: ManiFontSize.body,
               fontWeight: FontWeight.w600,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
             ),
             decoration: _inputDecoration(
               hint: '+57 (601) 745 0000 / +57 310 987 6543',
               prefixIcon: Icons.phone_outlined,
             ),
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
 
           // Especialidad Técnica Principal
           _buildFieldLabel('ESPECIALIDAD TÉCNICA PRINCIPAL'),
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           _buildCategoriaDropdown(),
         ],
       ),
@@ -668,11 +691,14 @@ class _RegistroAliadoEmpresaViewState
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-            border: Border.all(color: AppTheme.dark, width: 2),
-            boxShadow: const [AppTheme.hardShadowMd],
+            borderRadius: ManiRadius.brLg,
+            border: Border.all(
+              color: ManiColors.border,
+              width: ManiBorder.regular,
+            ),
+            boxShadow: const [ManiShadow.md],
           ),
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(ManiSpace.xxl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -680,18 +706,18 @@ class _RegistroAliadoEmpresaViewState
                 Icons.lock_rounded,
                 '2. Credenciales de Acceso Corporativo',
               ),
-              const SizedBox(height: 18),
+              ManiGap.vLg,
 
               // Correo
               _buildFieldLabel('CORREO ELECTRÓNICO CORPORATIVO'),
-              const SizedBox(height: 6),
+              ManiGap.vSm,
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
+                  fontSize: ManiFontSize.body,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
                 decoration: _inputDecoration(
                   hint: 'contacto@empresa.com',
@@ -707,18 +733,18 @@ class _RegistroAliadoEmpresaViewState
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              ManiGap.vLg,
 
               // Contraseña
               _buildFieldLabel('CONTRASEÑA'),
-              const SizedBox(height: 6),
+              ManiGap.vSm,
               TextFormField(
                 controller: _passwordController,
                 obscureText: !_showPassword,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
+                  fontSize: ManiFontSize.body,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
                 decoration: _inputDecoration(
                   hint: '••••••••',
@@ -729,9 +755,9 @@ class _RegistroAliadoEmpresaViewState
                     child: Text(
                       _showPassword ? 'OCULTAR' : 'VER',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
+                        fontSize: ManiFontSize.micro,
                         fontWeight: FontWeight.w800,
-                        color: AppTheme.textSecondary,
+                        color: ManiColors.inkMuted,
                       ),
                     ),
                   ),
@@ -749,17 +775,20 @@ class _RegistroAliadoEmpresaViewState
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        ManiGap.vXxl,
 
         // Documentos KYC Corporativos
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-            border: Border.all(color: AppTheme.dark, width: 2),
-            boxShadow: const [AppTheme.hardShadowMd],
+            borderRadius: ManiRadius.brLg,
+            border: Border.all(
+              color: ManiColors.border,
+              width: ManiBorder.regular,
+            ),
+            boxShadow: const [ManiShadow.md],
           ),
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(ManiSpace.xxl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -767,15 +796,15 @@ class _RegistroAliadoEmpresaViewState
                 Icons.file_copy_rounded,
                 '3. Documentación Corporativa (KYC)',
               ),
-              const SizedBox(height: 6),
+              ManiGap.vSm,
               Text(
                 'El Backoffice valida estos certificados legales para habilitar tu empresa en proyectos corporativos.',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
-                  color: AppTheme.textSecondary,
+                  fontSize: ManiFontSize.caption,
+                  color: ManiColors.inkMuted,
                 ),
               ),
-              const SizedBox(height: 18),
+              ManiGap.vLg,
 
               // Uploader 1: Cámara de Comercio
               _buildWebFileUploader(
@@ -785,7 +814,7 @@ class _RegistroAliadoEmpresaViewState
                 file: _camaraComercioFile,
                 onTap: () => _pickDocument(docType: 'camara'),
               ),
-              const SizedBox(height: 14),
+              ManiGap.vMd,
 
               // Uploader 2: RUT Empresarial
               _buildWebFileUploader(
@@ -795,7 +824,7 @@ class _RegistroAliadoEmpresaViewState
                 file: _rutEmpresaFile,
                 onTap: () => _pickDocument(docType: 'rut'),
               ),
-              const SizedBox(height: 14),
+              ManiGap.vMd,
 
               // Uploader 3: Cédula Representante Legal
               _buildWebFileUploader(
@@ -814,83 +843,13 @@ class _RegistroAliadoEmpresaViewState
 
   // ── Botón Inferior ─────────────────────────────────────────────────────────
   Widget _buildBottomAction(bool isLoading) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowMd],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.verified_user_rounded,
-                color: AppTheme.dark,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Registro con Respaldo Legal Empresarial',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.dark,
-                    ),
-                  ),
-                  Text(
-                    'Los certificados quedan resguardados y auditados para contrataciones formales.',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(
-            width: 350,
-            height: 52,
-            child: GestureDetector(
-              onTap: isLoading ? null : _handleRegistro,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isLoading ? AppTheme.textTertiary : AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  border: Border.all(color: AppTheme.dark, width: 2),
-                  boxShadow: isLoading ? [] : const [AppTheme.hardShadowSm],
-                ),
-                alignment: Alignment.center,
-                child: isLoading
-                    ? const SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: AppTheme.dark,
-                        ),
-                      )
-                    : Text(
-                        'ENVIAR REGISTRO DE EMPRESA A REVISIÓN',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.6,
-                          color: AppTheme.dark,
-                        ),
-                      ),
-              ),
-            ),
-          ),
-        ],
-      ),
+    return AuthBarraEnvio(
+      titulo: 'Registro con Respaldo Legal Empresarial',
+      descripcion:
+          'Los certificados quedan resguardados y auditados para contrataciones formales.',
+      etiquetaBoton: 'ENVIAR REGISTRO DE EMPRESA A REVISIÓN',
+      cargando: isLoading,
+      onPressed: _handleRegistro,
     );
   }
 
@@ -898,14 +857,14 @@ class _RegistroAliadoEmpresaViewState
   Widget _buildCardTitle(IconData icon, String title) {
     return Row(
       children: [
-        Icon(icon, color: AppTheme.dark, size: 20),
-        const SizedBox(width: 8),
+        Icon(icon, color: ManiColors.ink, size: 20),
+        ManiGap.hSm,
         Text(
           title,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 15,
+            fontSize: ManiFontSize.bodyLg,
             fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
+            color: ManiColors.ink,
           ),
         ),
       ],
@@ -916,9 +875,9 @@ class _RegistroAliadoEmpresaViewState
     return Text(
       text,
       style: GoogleFonts.plusJakartaSans(
-        fontSize: 11,
+        fontSize: ManiFontSize.micro,
         fontWeight: FontWeight.w800,
-        color: AppTheme.dark,
+        color: ManiColors.ink,
         letterSpacing: 0.5,
       ),
     );
@@ -941,39 +900,41 @@ class _RegistroAliadoEmpresaViewState
   }) {
     final isSelected = file != null;
 
-    return GestureDetector(
+    return ManiPulsable(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(ManiSpace.md),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF0FDF4) : AppTheme.background,
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+          color: isSelected
+              ? ManiColors.successContainer
+              : ManiColors.background,
+          borderRadius: ManiRadius.brMd,
           border: Border.all(
-            color: isSelected ? AppTheme.success : AppTheme.dark,
+            color: isSelected ? ManiColors.success : ManiColors.ink,
             width: isSelected ? 2 : 1.5,
           ),
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(ManiSpace.sm),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFDCFCE7) : Colors.white,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                color: isSelected ? ManiColors.successContainer : Colors.white,
+                borderRadius: ManiRadius.brSm,
                 border: Border.all(
-                  color: isSelected ? AppTheme.success : AppTheme.dark,
-                  width: 1.5,
+                  color: isSelected ? ManiColors.success : ManiColors.ink,
+                  width: ManiBorder.thin,
                 ),
               ),
               child: Icon(
                 isSelected
                     ? Icons.check_circle_rounded
                     : Icons.upload_file_rounded,
-                color: isSelected ? AppTheme.success : AppTheme.dark,
+                color: isSelected ? ManiColors.success : ManiColors.ink,
                 size: 22,
               ),
             ),
-            const SizedBox(width: 14),
+            ManiGap.hMd,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -981,24 +942,24 @@ class _RegistroAliadoEmpresaViewState
                   Text(
                     title,
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
+                      fontSize: ManiFontSize.bodySm,
                       fontWeight: FontWeight.w800,
-                      color: AppTheme.dark,
+                      color: ManiColors.ink,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  ManiGap.vXxs,
                   Text(
                     isSelected
                         ? '${file.name}${file.lengthSync() != null ? " · ${(file.lengthSync()! / 1024).toStringAsFixed(1)} KB" : ""}'
                         : subtitle,
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
+                      fontSize: ManiFontSize.micro,
                       fontWeight: isSelected
                           ? FontWeight.w700
                           : FontWeight.w500,
                       color: isSelected
-                          ? AppTheme.success
-                          : AppTheme.textSecondary,
+                          ? ManiColors.success
+                          : ManiColors.inkMuted,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1006,18 +967,24 @@ class _RegistroAliadoEmpresaViewState
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: ManiSpace.md,
+                vertical: ManiSpace.sm,
+              ),
               decoration: BoxDecoration(
-                color: isSelected ? AppTheme.success : AppTheme.primary,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppTheme.dark, width: 1.5),
+                color: isSelected ? ManiColors.success : ManiColors.brand,
+                borderRadius: ManiRadius.brSm,
+                border: Border.all(
+                  color: ManiColors.border,
+                  width: ManiBorder.thin,
+                ),
               ),
               child: Text(
                 isSelected ? 'CAMBIAR' : 'SELECCIONAR',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
+                  fontSize: ManiFontSize.micro,
                   fontWeight: FontWeight.w900,
-                  color: isSelected ? Colors.white : AppTheme.dark,
+                  color: isSelected ? Colors.white : ManiColors.ink,
                 ),
               ),
             ),
@@ -1035,36 +1002,45 @@ class _RegistroAliadoEmpresaViewState
     return InputDecoration(
       hintText: hint,
       hintStyle: GoogleFonts.plusJakartaSans(
-        color: AppTheme.textTertiary,
-        fontSize: 14,
+        color: ManiColors.inkSubtle,
+        fontSize: ManiFontSize.body,
         fontWeight: FontWeight.w500,
       ),
       prefixIcon: prefixIcon != null
-          ? Icon(prefixIcon, color: AppTheme.dark, size: 18)
+          ? Icon(prefixIcon, color: ManiColors.ink, size: 18)
           : null,
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.lg,
+        vertical: ManiSpace.md,
+      ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        borderSide: const BorderSide(color: AppTheme.dark, width: 2),
+        borderRadius: ManiRadius.brMd,
+        borderSide: ManiBorder.side,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        borderSide: const BorderSide(color: AppTheme.dark, width: 2),
+        borderRadius: ManiRadius.brMd,
+        borderSide: ManiBorder.side,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        borderSide: const BorderSide(color: AppTheme.dark, width: 2.5),
+        borderRadius: ManiRadius.brMd,
+        borderSide: ManiBorder.sideThick,
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        borderSide: const BorderSide(color: AppTheme.error, width: 2),
+        borderRadius: ManiRadius.brMd,
+        borderSide: const BorderSide(
+          color: ManiColors.danger,
+          width: ManiBorder.regular,
+        ),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        borderSide: const BorderSide(color: AppTheme.error, width: 2.5),
+        borderRadius: ManiRadius.brMd,
+        borderSide: const BorderSide(
+          color: ManiColors.danger,
+          width: ManiBorder.thick,
+        ),
       ),
     );
   }

@@ -88,17 +88,17 @@ class _RegistroClienteEmpresaViewState
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.background,
+        backgroundColor: ManiColors.background,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-          side: const BorderSide(color: AppTheme.dark, width: 3),
+          borderRadius: ManiRadius.brLg,
+          side: const BorderSide(color: ManiColors.ink, width: 3),
         ),
         title: Text(
           '¡Cuenta de Empresa Creada!',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 20,
+            fontSize: ManiFontSize.h3,
             fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
+            color: ManiColors.ink,
           ),
         ),
         content: ConstrainedBox(
@@ -106,9 +106,9 @@ class _RegistroClienteEmpresaViewState
           child: Text(
             'Tu empresa ya puede iniciar sesión. Después podrás registrar sus sedes desde tu perfil.',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
+              fontSize: ManiFontSize.body,
               fontWeight: FontWeight.w600,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
             ),
           ),
         ),
@@ -122,7 +122,7 @@ class _RegistroClienteEmpresaViewState
               'IR AL INICIO DE SESIÓN',
               style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w900,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
           ),
@@ -141,9 +141,9 @@ class _RegistroClienteEmpresaViewState
             fontWeight: FontWeight.w700,
           ),
         ),
-        backgroundColor: AppTheme.error,
+        backgroundColor: ManiColors.danger,
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
+        margin: const EdgeInsets.all(ManiSpace.lg),
       ),
     );
   }
@@ -161,10 +161,10 @@ class _RegistroClienteEmpresaViewState
       builder: (context, state) {
         final isLoading = state is AuthLoading;
         return Scaffold(
-          backgroundColor: AppTheme.background,
+          backgroundColor: ManiColors.background,
           appBar: AppBar(
             backgroundColor: Colors.white,
-            foregroundColor: AppTheme.dark,
+            foregroundColor: ManiColors.ink,
             title: Text(
               'Registro de Cliente Empresa',
               style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900),
@@ -177,7 +177,10 @@ class _RegistroClienteEmpresaViewState
           ),
           body: SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              padding: const EdgeInsets.symmetric(
+                horizontal: ManiSpace.xxl,
+                vertical: ManiSpace.xxl,
+              ),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 640),
@@ -232,7 +235,7 @@ class _RegistroClienteEmpresaViewState
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        ManiGap.vXl,
                         _seccion(
                           Icons.lock_rounded,
                           '2. Credenciales de acceso',
@@ -263,7 +266,7 @@ class _RegistroClienteEmpresaViewState
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        ManiGap.vXl,
                         TerminosCondicionesSection(
                           aceptaTerminos: _aceptaTerminos,
                           mostrarError: _mostrarErrorTerminos,
@@ -272,22 +275,17 @@ class _RegistroClienteEmpresaViewState
                             if (val) _mostrarErrorTerminos = false;
                           }),
                         ),
-                        const SizedBox(height: 20),
+                        ManiGap.vXl,
                         SizedBox(
                           height: 52,
                           child: ElevatedButton(
                             key: const Key('crearCuentaEmpresa'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primary,
-                              foregroundColor: AppTheme.dark,
+                              backgroundColor: ManiColors.brand,
+                              foregroundColor: ManiColors.ink,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppTheme.radiusXl,
-                                ),
-                                side: const BorderSide(
-                                  color: AppTheme.dark,
-                                  width: 2,
-                                ),
+                                borderRadius: ManiRadius.brMd,
+                                side: ManiBorder.side,
                               ),
                             ),
                             onPressed: isLoading ? null : _handleRegistro,
@@ -297,7 +295,7 @@ class _RegistroClienteEmpresaViewState
                                     width: 22,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.5,
-                                      color: AppTheme.dark,
+                                      color: ManiColors.ink,
                                     ),
                                   )
                                 : Text(
@@ -323,31 +321,31 @@ class _RegistroClienteEmpresaViewState
 
   Widget _seccion(IconData icon, String titulo, List<Widget> campos) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(ManiSpace.xxl),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowMd],
+        borderRadius: ManiRadius.brLg,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        boxShadow: const [ManiShadow.md],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: AppTheme.dark, size: 20),
-              const SizedBox(width: 8),
+              Icon(icon, color: ManiColors.ink, size: 20),
+              ManiGap.hSm,
               Text(
                 titulo,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15,
+                  fontSize: ManiFontSize.bodyLg,
                   fontWeight: FontWeight.w900,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          ManiGap.vLg,
           ...campos,
         ],
       ),
@@ -366,20 +364,20 @@ class _RegistroClienteEmpresaViewState
     Widget? suffix,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: ManiSpace.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 11,
+              fontSize: ManiFontSize.micro,
               fontWeight: FontWeight.w800,
-              color: AppTheme.dark,
+              color: ManiColors.ink,
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           TextFormField(
             key: key,
             controller: controller,
@@ -388,13 +386,13 @@ class _RegistroClienteEmpresaViewState
             validator: validator,
             decoration: InputDecoration(
               hintText: hint,
-              prefixIcon: Icon(icon, color: AppTheme.dark, size: 18),
+              prefixIcon: Icon(icon, color: ManiColors.ink, size: 18),
               suffixIcon: suffix,
               filled: true,
               fillColor: Colors.white,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                borderSide: const BorderSide(color: AppTheme.dark, width: 2),
+                borderRadius: ManiRadius.brMd,
+                borderSide: ManiBorder.side,
               ),
             ),
           ),

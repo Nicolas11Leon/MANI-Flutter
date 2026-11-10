@@ -20,10 +20,10 @@ class RecuperacionLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: ManiColors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        foregroundColor: AppTheme.dark,
+        foregroundColor: ManiColors.ink,
         leading: IconButton(
           key: const Key('volverAlLogin'),
           tooltip: 'Iniciar sesión',
@@ -37,17 +37,20 @@ class RecuperacionLayout extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(ManiSpace.xxl),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
               child: Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(ManiSpace.xxl),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-                  border: Border.all(color: AppTheme.dark, width: 2),
-                  boxShadow: const [AppTheme.hardShadowMd],
+                  borderRadius: ManiRadius.brLg,
+                  border: Border.all(
+                    color: ManiColors.border,
+                    width: ManiBorder.regular,
+                  ),
+                  boxShadow: const [ManiShadow.md],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -55,20 +58,20 @@ class RecuperacionLayout extends StatelessWidget {
                     Text(
                       titulo,
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 20,
+                        fontSize: ManiFontSize.h3,
                         fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
+                        color: ManiColors.ink,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    ManiGap.vSm,
                     Text(
                       descripcion,
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        color: AppTheme.textSecondary,
+                        fontSize: ManiFontSize.bodySm,
+                        color: ManiColors.inkMuted,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    ManiGap.vXl,
                     child,
                   ],
                 ),
@@ -85,12 +88,12 @@ class RecuperacionLayout extends StatelessWidget {
 InputDecoration decoracionRecuperacion(String etiqueta, IconData icono) {
   return InputDecoration(
     labelText: etiqueta,
-    prefixIcon: Icon(icono, color: AppTheme.dark, size: 18),
+    prefixIcon: Icon(icono, color: ManiColors.ink, size: 18),
     filled: true,
     fillColor: Colors.white,
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-      borderSide: const BorderSide(color: AppTheme.dark, width: 2),
+      borderRadius: ManiRadius.brMd,
+      borderSide: ManiBorder.side,
     ),
   );
 }
@@ -114,11 +117,11 @@ class BotonRecuperacion extends StatelessWidget {
       height: 52,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.primary,
-          foregroundColor: AppTheme.dark,
+          backgroundColor: ManiColors.brand,
+          foregroundColor: ManiColors.ink,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-            side: const BorderSide(color: AppTheme.dark, width: 2),
+            borderRadius: ManiRadius.brMd,
+            side: ManiBorder.side,
           ),
         ),
         onPressed: cargando ? null : onPressed,
@@ -128,7 +131,7 @@ class BotonRecuperacion extends StatelessWidget {
                 width: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
               )
             : Text(
