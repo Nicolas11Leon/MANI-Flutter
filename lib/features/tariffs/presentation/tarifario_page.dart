@@ -9,6 +9,8 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 
 import '../domain/tarifa.dart';
 import 'tarifario_cubit.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 final _importeRe = RegExp(r'^\d{1,10}([.,]\d{1,2})?$');
 final _fechaRe = RegExp(r'^\d{4}-\d{2}-\d{2}$');
@@ -52,21 +54,21 @@ class TarifarioPage extends StatelessWidget {
             child: RefreshIndicator(
               onRefresh: cubit.cargar,
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(ManiSpace.lg),
                 children: [
                   Text(
                     'Tarifario de referencia',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                  const SizedBox(height: 4),
+                  ManiGap.vXs,
                   const Text(
                     'Rango de precios por categoría que el motor de reglas usa '
                     'para contrastar las cotizaciones. Editar crea una versión '
                     'nueva y conserva la anterior.',
                   ),
-                  const SizedBox(height: 16),
+                  ManiGap.vLg,
                   if (state.cargando && state.categorias.isEmpty)
-                    const Center(child: CircularProgressIndicator())
+                    const ManiCargando()
                   else if (state.error != null)
                     _Error(mensaje: state.error!, onReintentar: cubit.cargar)
                   else if (state.categorias.isEmpty)
@@ -115,7 +117,7 @@ class _TarjetaCategoria extends StatelessWidget {
     return Card(
       key: Key('tarifa-categoria-${categoria.id}'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(ManiSpace.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -127,7 +129,7 @@ class _TarjetaCategoria extends StatelessWidget {
                 if (!categoria.activa) const Chip(label: Text('Inactiva')),
               ],
             ),
-            const SizedBox(height: 8),
+            ManiGap.vSm,
             if (tarifas.isEmpty)
               const Text('Sin tarifa de referencia.')
             else
@@ -217,10 +219,7 @@ Future<void> _verHistorial(
         future: cubit.historial(categoria.id),
         builder: (context, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const SizedBox(
-              height: 80,
-              child: Center(child: CircularProgressIndicator()),
-            );
+            return const SizedBox(height: 80, child: ManiCargando());
           }
           if (snap.hasError) return Text(mensajeErrorGateway(snap.error!));
           final versiones = snap.data!;
@@ -343,7 +342,7 @@ class _DialogoTarifaState extends State<DialogoTarifa> {
     String? ayuda,
     int? maxLength,
   }) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
+    padding: const EdgeInsets.only(bottom: ManiSpace.sm),
     child: TextField(
       key: Key(clave),
       controller: c,

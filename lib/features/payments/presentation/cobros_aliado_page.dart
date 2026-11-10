@@ -6,6 +6,8 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 
 import '../domain/cobros.dart';
 import 'cobros_aliado_cubit.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// Cobros del aliado: la retención de cada pago y, cuando el servicio finaliza,
 /// su liquidación con el desglose de la comisión (SCRUM-894, US-07.2.2).
@@ -35,12 +37,12 @@ class CobrosAliadoView extends StatelessWidget {
       body: BlocBuilder<CobrosAliadoCubit, CobrosAliadoState>(
         builder: (context, state) {
           if (state.fase == FaseCobros.cargando) {
-            return const Center(child: CircularProgressIndicator());
+            return const ManiCargando();
           }
           if (state.fase == FaseCobros.error) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(ManiSpace.xxl),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -49,7 +51,7 @@ class CobrosAliadoView extends StatelessWidget {
                       key: const Key('error-cobros'),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 12),
+                    ManiGap.vMd,
                     OutlinedButton(
                       key: const Key('reintentar-cobros'),
                       onPressed: context.read<CobrosAliadoCubit>().cargar,
@@ -61,13 +63,13 @@ class CobrosAliadoView extends StatelessWidget {
             );
           }
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(ManiSpace.lg),
             children: [
               const Text(avisoSimulado, key: Key('aviso-simulado-cobros')),
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               if (state.cobros.isEmpty)
                 const Padding(
-                  padding: EdgeInsets.only(top: 32),
+                  padding: EdgeInsets.only(top: ManiSpace.xxxl),
                   child: Text(
                     'Aún no tienes cobros. Aparecerán cuando un cliente pague '
                     'un servicio tuyo.',
@@ -95,9 +97,9 @@ class _TarjetaCobro extends StatelessWidget {
     final l = cobro.liquidacion;
     return Card(
       key: Key('cobro-${r.pagoId}'),
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: ManiSpace.md),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(ManiSpace.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -105,7 +107,7 @@ class _TarjetaCobro extends StatelessWidget {
               '${formatearPesos(r.monto)} ${r.moneda}',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 4),
+            ManiGap.vXs,
             Text(r.estado.etiqueta, key: Key('estado-${r.pagoId}')),
             if (l != null) ...[
               const Divider(),

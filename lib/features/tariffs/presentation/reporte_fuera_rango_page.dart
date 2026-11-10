@@ -8,6 +8,7 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 
 import '../data/tarifas_datasource.dart';
 import '../domain/tarifa.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 String fechaIso(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
@@ -100,15 +101,15 @@ class ReporteFueraDeRangoPage extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 820),
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(ManiSpace.lg),
               children: [
                 Text('Cotizaciones fuera de rango', style: tema.headlineSmall),
-                const SizedBox(height: 4),
+                ManiGap.vXs,
                 const Text(
                   'Cotizaciones del periodo que el motor de reglas evaluó por '
                   'debajo o por encima de la tarifa de referencia que regía.',
                 ),
-                const SizedBox(height: 12),
+                ManiGap.vMd,
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -144,7 +145,7 @@ class ReporteFueraDeRangoPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                ManiGap.vLg,
                 if (state.error != null)
                   Card(
                     key: const Key('reporte-error'),
@@ -161,7 +162,7 @@ class ReporteFueraDeRangoPage extends StatelessWidget {
                     '${reporte.cotizaciones.length} fuera de rango',
                     key: const Key('reporte-totales'),
                   ),
-                  const SizedBox(height: 8),
+                  ManiGap.vSm,
                   if (reporte.cotizaciones.isEmpty)
                     const Card(
                       key: Key('reporte-vacio'),

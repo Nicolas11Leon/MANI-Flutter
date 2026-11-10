@@ -12,6 +12,7 @@ import '../data/cobros_datasource.dart';
 import '../domain/pago.dart';
 import 'pago_cubit.dart';
 import 'retencion_pago_card.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Pago de una cotización aceptada en el sandbox (SCRUM-1432, HU-M11-01).
 ///
@@ -47,19 +48,19 @@ class PagoSandboxPage extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 640),
               child: ListView(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 24,
+                  horizontal: ManiSpace.xl,
+                  vertical: ManiSpace.xxl,
                 ),
                 children: [
                   const _AvisoSandbox(),
-                  const SizedBox(height: 16),
+                  ManiGap.vLg,
                   if (total != null)
                     Text(
                       'Total de tu cotización: ${formatearPesos(total!)}',
                       key: const Key('total-cotizacion'),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  const SizedBox(height: 16),
+                  ManiGap.vLg,
                   DropdownButtonFormField<EscenarioPago>(
                     key: const Key('escenario-pago'),
                     isExpanded: true,
@@ -78,7 +79,7 @@ class PagoSandboxPage extends StatelessWidget {
                             if (e != null) cubit.elegirEscenario(e);
                           },
                   ),
-                  const SizedBox(height: 16),
+                  ManiGap.vLg,
                   ManiButton(
                     key: const Key('btn-pagar-sandbox'),
                     etiqueta: 'Pagar (simulado)',
@@ -88,11 +89,11 @@ class PagoSandboxPage extends StatelessWidget {
                     onPressed: state.pagando ? null : cubit.pagar,
                   ),
                   if (state.error != null) ...[
-                    const SizedBox(height: 16),
+                    ManiGap.vLg,
                     _ErrorPago(error: state.error!),
                   ],
                   if (state.pago != null) ...[
-                    const SizedBox(height: 16),
+                    ManiGap.vLg,
                     _ResultadoPago(pago: state.pago!),
                     if (state.comprobante != null)
                       _Comprobante(
@@ -106,7 +107,7 @@ class PagoSandboxPage extends StatelessWidget {
                       ),
                     if (state.falloComprobante)
                       const Padding(
-                        padding: EdgeInsets.only(top: 8),
+                        padding: EdgeInsets.only(top: ManiSpace.sm),
                         child: Text(
                           'El pago se aprobó, pero no pudimos traer el comprobante. '
                           'Vuelve a abrir esta pantalla en unos minutos.',
@@ -132,15 +133,15 @@ class _AvisoSandbox extends StatelessWidget {
     final colores = Theme.of(context).colorScheme;
     return Container(
       key: const Key('aviso-sandbox'),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
         color: colores.tertiaryContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: ManiRadius.brSm,
       ),
       child: Row(
         children: [
           Icon(Icons.science_outlined, color: colores.onTertiaryContainer),
-          const SizedBox(width: 8),
+          ManiGap.hSm,
           Expanded(
             child: Text(
               PagoSandboxPage.avisoSandbox,
@@ -163,10 +164,10 @@ class _ErrorPago extends StatelessWidget {
     final colores = Theme.of(context).colorScheme;
     return Container(
       key: const Key('error-pago'),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
         color: colores.errorContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: ManiRadius.brSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +177,7 @@ class _ErrorPago extends StatelessWidget {
             style: TextStyle(color: colores.onErrorContainer),
           ),
           if (error.correlationId != null) ...[
-            const SizedBox(height: 4),
+            ManiGap.vXs,
             Text(
               'Código de seguimiento: ${error.correlationId}',
               key: const Key('correlacion-pago'),
@@ -200,7 +201,7 @@ class _ResultadoPago extends StatelessWidget {
     return Card(
       key: const Key('resultado-pago'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(ManiSpace.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -208,7 +209,7 @@ class _ResultadoPago extends StatelessWidget {
               'Pago ${pago.etiquetaEstado.toLowerCase()}',
               style: texto.titleMedium,
             ),
-            const SizedBox(height: 8),
+            ManiGap.vSm,
             Text('Monto: ${formatearPesos(pago.monto)} ${pago.moneda}'),
             Text('Referencia: ${pago.referenciaProveedor}'),
             if (pago.simulado)
@@ -262,7 +263,7 @@ class _Comprobante extends StatelessWidget {
     return Card(
       key: const Key('comprobante-pago'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(ManiSpace.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -270,13 +271,13 @@ class _Comprobante extends StatelessWidget {
               'Comprobante ${comprobante.numero}',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            ManiGap.vSm,
             Text(
               'Monto: ${formatearPesos(comprobante.monto)} ${comprobante.moneda}',
             ),
             if (comprobante.fecha != null) Text('Fecha: ${comprobante.fecha}'),
             if (comprobante.leyenda != null) ...[
-              const SizedBox(height: 8),
+              ManiGap.vSm,
               Text(
                 comprobante.leyenda!,
                 key: const Key('leyenda-comprobante'),
@@ -284,7 +285,7 @@ class _Comprobante extends StatelessWidget {
               ),
             ],
             if (guardador != null) ...[
-              const SizedBox(height: 8),
+              ManiGap.vSm,
               OutlinedButton.icon(
                 key: const Key('btn-descargar-comprobante'),
                 onPressed: () => _descargar(context),
