@@ -1,46 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
+    Ruta base: Flutter reemplaza $FLUTTER_BASE_HREF con el valor de `--base-href` al compilar.
+    Más información: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
   -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>MANI | Servicios a domicilio para tu hogar</title>
+  <meta name="description" content="Pide plomería, electricidad, carpintería y reparaciones con expertos verificados. Cotiza, paga seguro y sigue tu servicio en un solo lugar.">
+  <meta name="theme-color" content="#FDFBF7">
+
+  <!-- Vista previa al compartir el enlace (WhatsApp, Slack, redes) -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:site_name" content="MANI">
+  <meta property="og:title" content="MANI | Servicios a domicilio para tu hogar">
+  <meta property="og:description" content="Pide plomería, electricidad, carpintería y reparaciones con expertos verificados. Cotiza, paga seguro y sigue tu servicio en un solo lugar.">
+  <meta property="og:image" content="og/mani_og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MANI, al servicio de tu hogar">
+  <meta name="twitter:card" content="summary_large_image">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="mani">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="MANI">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>mani</title>
   <link rel="manifest" href="manifest.json">
+
+  <!--
+    Pantalla de arranque (SCRUM-1645): se pinta con HTML y CSS puros, sin esperar a Flutter.
+    El logo y la barra salen al instante; el video de MANI caminando entra encima cuando termina de bajar.
+    El fondo es el mismo crema de AppTheme.background (#FDFBF7), para que el paso a la app no parpadee.
+  -->
+  <style>
+    html, body { margin: 0; height: 100%; background: #FDFBF7; }
+    #mani-arranque {
+      position: fixed; inset: 0; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+      background: #FDFBF7;
+      transition: opacity .25s ease-out;
+    }
+    #mani-arranque.mani-oculto { opacity: 0; pointer-events: none; }
+    #mani-arranque .mani-logo { width: 96px; height: 96px; border-radius: 50%; display: block; }
+    /* Se reserva el espacio del video desde el inicio para que nada se mueva cuando entre. */
+    #mani-arranque .mani-escena { width: 260px; aspect-ratio: 840 / 908; position: relative; }
+    #mani-arranque video {
+      width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .3s ease-out;
+      /* El video trae las puntas de los dedos cortadas por arriba: un degradado las disuelve en lugar de dejar un tajo,
+         y el difuminado de los lados evita un recuadro si el color del video difiere un poco del fondo. */
+      -webkit-mask-image:
+        linear-gradient(to bottom, transparent 5%, #000 21%, #000 95%, transparent 100%),
+        linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask-image:
+        linear-gradient(to bottom, transparent 5%, #000 21%, #000 95%, transparent 100%),
+        linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+      mask-composite: intersect;
+    }
+    #mani-arranque video.mani-listo { opacity: 1; }
+    #mani-arranque .mani-barra {
+      width: 160px; height: 6px; border-radius: 3px; overflow: hidden;
+      background: #E5E7EB; border: 1.5px solid #1E1E1E; box-sizing: content-box;
+    }
+    #mani-arranque .mani-barra > span {
+      display: block; height: 100%; width: 40%; border-radius: 3px; background: #FACC15;
+      animation: mani-barra 1.1s ease-in-out infinite;
+    }
+    @keyframes mani-barra { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+    @media (prefers-reduced-motion: reduce) {
+      #mani-arranque { transition: none; }
+      #mani-arranque .mani-barra > span { animation: none; width: 100%; }
+      #mani-arranque .mani-escena { display: none; }
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <div id="mani-arranque" role="status" aria-live="polite" aria-label="Cargando MANI">
+    <img class="mani-logo" src="splash/mani_logo.png" width="96" height="96" alt="MANI">
+    <div class="mani-escena" aria-hidden="true">
+      <video muted loop playsinline preload="auto" disablepictureinpicture tabindex="-1">
+        <source src="splash/mani_walk.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="mani-barra" aria-hidden="true"><span></span></div>
+    <noscript>MANI necesita JavaScript para funcionar.</noscript>
+  </div>
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <script>
+    (function () {
+      var arranque = document.getElementById('mani-arranque');
+      var video = arranque.querySelector('video');
+      var sinMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // El video entra solo cuando puede reproducirse sin cortes; si falla, quedan el logo y la barra.
+      if (!sinMovimiento) {
+        video.addEventListener('canplaythrough', function () {
+          var p = video.play();
+          if (p && p.catch) p.catch(function () {});
+          video.classList.add('mani-listo');
+        }, { once: true });
+      }
+
+      // Se retira con el primer cuadro de Flutter. Si Flutter no arranca, queda la pantalla de carga y no una página en blanco.
+      var retirada = false;
+      function retirar() {
+        if (retirada) return;
+        retirada = true;
+        arranque.classList.add('mani-oculto');
+        setTimeout(function () { arranque.remove(); }, 400);
+      }
+      window.addEventListener('flutter-first-frame', retirar);
+    })();
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
