@@ -16,6 +16,7 @@ import 'package:mani/core/session/guardas_ruta.dart';
 import 'package:mani/core/session/rol_usuario.dart';
 import 'package:mani/core/shell/app_shell.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/refresco_periodico.dart';
 import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/features/asignacion/presentation/bloc/solicitudes_aliado_cubit.dart';
 import 'package:mani/features/asignacion/presentation/pages/solicitudes_aliado_page.dart';
@@ -183,102 +184,112 @@ Widget _pantallaServicio(
       ),
   ],
   child: Builder(
-    builder: (context) => CotizacionPage(
-      esAliado: esAliado,
-      // Tarifa de referencia vigente de la categoría (HU-M10-02 / SCRUM-886).
-      encabezado: ReferenciaTarifaSeccion(
-        fuente: sl<FuenteTarifas>(),
-        solicitudId: solicitudId,
-      ),
-      // Alerta de tarifa bidireccional de la versión vigente (HU-M06-02 /
-      // SCRUM-866): la ven el aliado y el cliente con el resultado de Rules.
-      alertaTarifa: (cotizacionId) => AlertaTarifaCotizacion(
-        key: ValueKey('alerta-tarifa-$cotizacionId'),
-        fuente: sl<FuenteTarifas>(),
-        cotizacionId: cotizacionId,
+    // Sondeo de estado (SCRUM-1636 / SCRUM-1644): el cliente ve que el aliado
+    // cotizó, inició, pidió una adición o finalizó sin recargar, y el aliado ve
+    // la respuesta del cliente. Solo mientras la pantalla está a la vista.
+    builder: (context) => RefrescoPeriodico(
+      onRefrescar: () => Future.wait([
+        context.read<CotizacionCubit>().cargar(silencioso: true),
+        context.read<EjecucionCubit>().cargar(silencioso: true),
+        context.read<AdicionesCubit>().cargar(silencioso: true),
+      ]),
+      child: CotizacionPage(
         esAliado: esAliado,
-      ),
-      // El pago cobra el total vigente: cotización aceptada + adiciones
-      // aceptadas (SCRUM-872). Sin resumen, el total de la cotización.
-      alPagar: esAliado
-          ? null
-          : (cotizacionId, total) => context.push(
-              '/cliente/pagos/$cotizacionId',
-              extra:
-                  context
-                      .read<AdicionesCubit>()
-                      .state
-                      .datos
-                      ?.resumen
-                      ?.totalVigente ??
-                  total,
-            ),
-      // Chat del servicio (HU-M09-02 / SCRUM-881): solo participan el cliente
-      // y el aliado asignado; lo valida Core.
-      accionEncabezado: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 270),
-        child: ManiButton(
-          key: const Key('btn-abrir-chat'),
-          etiqueta: esAliado
-              ? 'Mensajes con el cliente'
-              : 'Mensajes con el aliado',
-          icono: Icons.chat_bubble_outline,
-          variante: ManiButtonVariante.secundario,
-          onPressed: () => context.push(
-            '/${esAliado ? 'aliado' : 'cliente'}/solicitudes/$solicitudId/chat',
-          ),
+        // Tarifa de referencia vigente de la categoría (HU-M10-02 / SCRUM-886).
+        encabezado: ReferenciaTarifaSeccion(
+          fuente: sl<FuenteTarifas>(),
+          solicitudId: solicitudId,
         ),
-      ),
-      // Adiciones por imprevisto (SCRUM-872): cambian el total a pagar, por eso
-      // van con los pagos. El aliado las pide con el servicio en ejecución; el
-      // cliente decide. Core aplica el tope.
-      pagosExtra: BlocBuilder<EjecucionCubit, EjecucionState>(
-        buildWhen: (a, b) =>
-            a.ejecucion?.enEjecucion != b.ejecucion?.enEjecucion,
-        builder: (context, state) => AdicionesSeccion(
+        // Alerta de tarifa bidireccional de la versión vigente (HU-M06-02 /
+        // SCRUM-866): la ven el aliado y el cliente con el resultado de Rules.
+        alertaTarifa: (cotizacionId) => AlertaTarifaCotizacion(
+          key: ValueKey('alerta-tarifa-$cotizacionId'),
+          fuente: sl<FuenteTarifas>(),
+          cotizacionId: cotizacionId,
           esAliado: esAliado,
-          puedePedir: esAliado && (state.ejecucion?.enEjecucion ?? false),
         ),
-      ),
-      // Ejecución (SCRUM-868) y bitácora. El aliado registra eventos solo con
-      // el servicio en ejecución (la regla definitiva la aplica Core,
-      // MANI-EVT-409E); el cliente la consulta en solo lectura (SCRUM-870).
-      bitacora: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          EjecucionSeccion(esAliado: esAliado),
-          BlocBuilder<EjecucionCubit, EjecucionState>(
-            buildWhen: (a, b) =>
-                a.ejecucion?.enEjecucion != b.ejecucion?.enEjecucion,
-            builder: (context, state) => EventosSeccion(
-              puedeRegistrar:
-                  esAliado && (state.ejecucion?.enEjecucion ?? false),
-              urlOpener: sl(),
-              selectorFotos: esAliado ? sl() : null,
+        // El pago cobra el total vigente: cotización aceptada + adiciones
+        // aceptadas (SCRUM-872). Sin resumen, el total de la cotización.
+        alPagar: esAliado
+            ? null
+            : (cotizacionId, total) => context.push(
+                '/cliente/pagos/$cotizacionId',
+                extra:
+                    context
+                        .read<AdicionesCubit>()
+                        .state
+                        .datos
+                        ?.resumen
+                        ?.totalVigente ??
+                    total,
+              ),
+        // Chat del servicio (HU-M09-02 / SCRUM-881): solo participan el cliente
+        // y el aliado asignado; lo valida Core.
+        accionEncabezado: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 270),
+          child: ManiButton(
+            key: const Key('btn-abrir-chat'),
+            etiqueta: esAliado
+                ? 'Mensajes con el cliente'
+                : 'Mensajes con el aliado',
+            icono: Icons.chat_bubble_outline,
+            variante: ManiButtonVariante.secundario,
+            onPressed: () => context.push(
+              '/${esAliado ? 'aliado' : 'cliente'}/solicitudes/$solicitudId/chat',
             ),
           ),
-        ],
+        ),
+        // Adiciones por imprevisto (SCRUM-872): cambian el total a pagar, por eso
+        // van con los pagos. El aliado las pide con el servicio en ejecución; el
+        // cliente decide. Core aplica el tope.
+        pagosExtra: BlocBuilder<EjecucionCubit, EjecucionState>(
+          buildWhen: (a, b) =>
+              a.ejecucion?.enEjecucion != b.ejecucion?.enEjecucion,
+          builder: (context, state) => AdicionesSeccion(
+            esAliado: esAliado,
+            puedePedir: esAliado && (state.ejecucion?.enEjecucion ?? false),
+          ),
+        ),
+        // Ejecución (SCRUM-868) y bitácora. El aliado registra eventos solo con
+        // el servicio en ejecución (la regla definitiva la aplica Core,
+        // MANI-EVT-409E); el cliente la consulta en solo lectura (SCRUM-870).
+        bitacora: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            EjecucionSeccion(esAliado: esAliado),
+            BlocBuilder<EjecucionCubit, EjecucionState>(
+              buildWhen: (a, b) =>
+                  a.ejecucion?.enEjecucion != b.ejecucion?.enEjecucion,
+              builder: (context, state) => EventosSeccion(
+                puedeRegistrar:
+                    esAliado && (state.ejecucion?.enEjecucion ?? false),
+                urlOpener: sl(),
+                selectorFotos: esAliado ? sl() : null,
+              ),
+            ),
+          ],
+        ),
+        // Calificación y cierre (SCRUM-874, 875 y 1418).
+        calificacion: sl.isRegistered<FuenteModuloM08>()
+            ? BlocListener<EjecucionCubit, EjecucionState>(
+                listenWhen: (a, b) =>
+                    a.ejecucion?.finalizada != b.ejecucion?.finalizada &&
+                    (b.ejecucion?.finalizada ?? false),
+                listener: (context, _) =>
+                    context.read<CalificacionCierreCubit>().cargar(),
+                child: CalificacionServicioFinalizado(esAliado: esAliado),
+              )
+            : null,
+        alRefrescar: () async {
+          await Future.wait([
+            context.read<EjecucionCubit>().cargar(),
+            context.read<AdicionesCubit>().cargar(),
+            context.read<EventosCubit>().cargar(),
+            if (sl.isRegistered<FuenteModuloM08>())
+              context.read<CalificacionCierreCubit>().cargar(),
+          ]);
+        },
       ),
-      // Calificación y cierre (SCRUM-874, 875 y 1418).
-      calificacion: sl.isRegistered<FuenteModuloM08>()
-          ? BlocListener<EjecucionCubit, EjecucionState>(
-              listenWhen: (a, b) =>
-                  a.ejecucion?.finalizada != b.ejecucion?.finalizada &&
-                  (b.ejecucion?.finalizada ?? false),
-              listener: (context, _) =>
-                  context.read<CalificacionCierreCubit>().cargar(),
-              child: CalificacionServicioFinalizado(esAliado: esAliado),
-            )
-          : null,
-      alRefrescar: () async {
-        await Future.wait([
-          context.read<EjecucionCubit>().cargar(),
-          context.read<AdicionesCubit>().cargar(),
-          context.read<EventosCubit>().cargar(),
-          if (sl.isRegistered<FuenteModuloM08>())
-            context.read<CalificacionCierreCubit>().cargar(),
-        ]);
-      },
     ),
   ),
 );
