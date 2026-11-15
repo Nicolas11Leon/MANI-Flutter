@@ -81,5 +81,28 @@ jobs:
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
 
+      # QAS-45 (SCRUM-1681): el gate "Sonar way" solo mide el rating de
+      # mantenibilidad, y un issue Critical nuevo no lo baja de A. La organización
+      # no permite gates propios, así que este paso falla el job si el PR trae
+      # issues Blocker o Critical abiertos. Corre después de la espera del gate,
+      # cuando el análisis ya está procesado. Si la API no responde o la respuesta
+      # no trae el total, el paso también falla.
+      - name: Sin issues Blocker o Critical nuevos (QAS-45)
+        if: github.event_name == 'pull_request'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          numero_pr: ${{ github.event.pull_request.number }}
+        run: |
+          respuesta=$(curl -sfS -u "${SONAR_TOKEN}:" --get "https://sonarcloud.io/api/issues/search" \
+            --data-urlencode "componentKeys=Trama-AS_MANI-Flutter" \
+            --data-urlencode "pullRequest=${numero_pr}" \
+            --data-urlencode "severities=BLOCKER,CRITICAL" \
+            --data-urlencode "issueStatuses=OPEN,CONFIRMED" \
+            --data-urlencode "ps=100")
+          total=$(echo "$respuesta" | jq -r '.total')
+          echo "Issues Blocker o Critical nuevos en el PR #${numero_pr}: ${total}"
+          echo "$respuesta" | jq -r '.issues[] | "::error file=\(.component | sub("^[^:]*:"; "")),line=\(.line // 1)::\(.severity) \(.rule): \(.message)"'
+          test "$total" = "0"
+
       - name: Verify Web Build
         run: flutter build web --release
