@@ -192,6 +192,11 @@ Widget _pantallaServicio(
         context.read<CotizacionCubit>().cargar(silencioso: true),
         context.read<EjecucionCubit>().cargar(silencioso: true),
         context.read<AdicionesCubit>().cargar(silencioso: true),
+        // Calificación y cierre (SCRUM-1710): el cliente ve que el aliado
+        // calificó o cerró. Solo si la feature está registrada, igual que su
+        // sección.
+        if (sl.isRegistered<FuenteModuloM08>())
+          context.read<CalificacionCierreCubit>().cargar(silencioso: true),
       ]),
       child: CotizacionPage(
         esAliado: esAliado,
