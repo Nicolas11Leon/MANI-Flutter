@@ -32,7 +32,16 @@ class CalificacionCierreCubit extends Cubit<CalificacionCierreState> {
   final FuenteModuloM08 _fuente;
   final String solicitudId;
 
-  Future<void> cargar() async {
+  /// Sube con cada acción o carga normal. Un sondeo cuya respuesta llega
+  /// después la descarta: lo que leyó ya puede ser viejo (SCRUM-1710).
+  int _generacion = 0;
+
+  /// Con [silencioso] (sondeo, SCRUM-1710) no muestra cargando, no consulta
+  /// mientras se envía una calificación o el cierre y, si falla, conserva lo
+  /// que ya se ve sin avisar. Tampoco borra un error o un éxito visibles.
+  Future<void> cargar({bool silencioso = false}) async {
+    if (silencioso) return _cargarSilencioso();
+    _generacion++;
     emit(CalificacionCierreState(cargando: true, resumen: state.resumen));
     try {
       final resumen = await _fuente.obtenerCalificaciones(solicitudId);
@@ -56,6 +65,24 @@ class CalificacionCierreCubit extends Cubit<CalificacionCierreState> {
           ).mensajeUsuario,
         ),
       );
+    }
+  }
+
+  Future<void> _cargarSilencioso() async {
+    if (state.cargando || state.enviando) return;
+    final generacion = _generacion;
+    try {
+      final resumen = await _fuente.obtenerCalificaciones(solicitudId);
+      if (isClosed || generacion != _generacion) return;
+      emit(
+        CalificacionCierreState(
+          resumen: resumen,
+          error: state.error,
+          mensajeExito: state.mensajeExito,
+        ),
+      );
+    } catch (_) {
+      // El siguiente sondeo lo reintenta; lo visible no cambia.
     }
   }
 
@@ -83,6 +110,7 @@ class CalificacionCierreCubit extends Cubit<CalificacionCierreState> {
       return false;
     }
 
+    _generacion++;
     emit(CalificacionCierreState(enviando: true, resumen: state.resumen));
     try {
       await _fuente.registrarCalificacion(
@@ -125,6 +153,7 @@ class CalificacionCierreCubit extends Cubit<CalificacionCierreState> {
   }
 
   Future<bool> cerrarSolicitud() async {
+    _generacion++;
     emit(CalificacionCierreState(enviando: true, resumen: state.resumen));
     try {
       await _fuente.cerrarSolicitud(solicitudId);
