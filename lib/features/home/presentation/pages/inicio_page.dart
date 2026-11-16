@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mani/core/session/contexto_plataforma.dart';
 import 'package:mani/core/session/rol_usuario.dart';
+import 'package:mani/core/shell/app_shell.dart';
 import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_card.dart';
 import 'package:mani/features/home/data/resumen_inicio.dart';
+import 'package:mani/features/home/presentation/widgets/inicio_movil.dart';
+import 'package:mani/features/home/presentation/widgets/saludo_inicio.dart';
 
 /// Pantalla de inicio neo-brutalista por tipo de usuario (US-11.2.3 / SCRUM-1446).
 ///
@@ -56,73 +59,43 @@ class _InicioPageState extends State<InicioPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accesos = entradasMenuPara(
-      widget.rol,
-      actuandoComo: widget._rolDePantallas,
-    ).where((e) => e.ruta != '/inicio').toList();
+    // En celular el inicio muestra solo los atajos a lo más usado; el resto vive en Servicios y Perfil (SCRUM-1647).
+    final compacto = MediaQuery.sizeOf(context).width < anchoMenuExpandido;
+    final accesos = compacto
+        ? atajosPara(widget.rol, actuandoComo: widget._rolDePantallas)
+        : entradasMenuPara(
+            widget.rol,
+            actuandoComo: widget._rolDePantallas,
+          ).where((e) => e.ruta != '/inicio').toList();
+
+    if (compacto) {
+      return Scaffold(
+        backgroundColor: AppTheme.background,
+        body: InicioMovil(
+          sesion: _sesion,
+          resumen: _resumen,
+          atajos: accesos,
+          subtitulo: _subtitulo(widget.rol),
+          accionSaludo: accionSaludoPara(widget.rol),
+          onNavegar: widget.onNavegar,
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
+          constraints: const BoxConstraints(maxWidth: 1200),
           child: ListView(
             key: const Key('inicio-contenido'),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
             children: [
-              // ── Banner Hero Neo-Brutalista ──────────────────────────────
-              ManiCard(
-                padding: const EdgeInsets.all(24),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primary,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                        border: Border.all(color: AppTheme.dark, width: 2),
-                        boxShadow: const [AppTheme.hardShadowSm],
-                      ),
-                      child: const Icon(
-                        Icons.bolt_rounded,
-                        color: AppTheme.dark,
-                        size: 28,
-                      ),
-                    ),
-                    const SizedBox(width: 18),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          FutureBuilder<DatosSesion>(
-                            future: _sesion,
-                            builder: (context, snap) => Text(
-                              snap.hasData
-                                  ? 'Hola, ${snap.data!.nombreUsuario}'
-                                  : 'Hola',
-                              key: const Key('inicio-saludo'),
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w900,
-                                color: AppTheme.dark,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _subtitulo(widget.rol),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              SaludoInicio(
+                sesion: _sesion,
+                subtitulo: _subtitulo(widget.rol),
+                accion: accionSaludoPara(widget.rol),
+                onNavegar: widget.onNavegar,
               ),
 
               if (widget.rol == RolUsuario.desconocido) ...[
@@ -183,8 +156,8 @@ class _InicioPageState extends State<InicioPage> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
-                    'Accesos Rápidos',
+                  Text(
+                    compacto ? 'Atajos' : 'Accesos Rápidos',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -252,7 +225,7 @@ class _InicioPageState extends State<InicioPage> {
                     ),
                 ],
               ),
-              if (widget.onCerrarSesion != null) ...[
+              if (widget.onCerrarSesion != null && !compacto) ...[
                 const SizedBox(height: 20),
                 ManiCard(
                   key: const Key('inicio-card-sesion'),
@@ -294,13 +267,13 @@ class _InicioPageState extends State<InicioPage> {
   static String _subtitulo(RolUsuario rol) {
     switch (rol) {
       case RolUsuario.cliente:
-        return 'Publica solicitudes y administra tus sedes.';
+        return '¿Qué arreglamos hoy?';
       case RolUsuario.aliado:
-        return 'Revisa las solicitudes y mantén al día tu cobertura.';
+        return 'Revisa tus solicitudes y mantén al día tu cobertura.';
       case RolUsuario.adminTenant:
-        return 'Verifica aliados y administra el catálogo de tu empresa.';
+        return 'Así va tu operación hoy.';
       case RolUsuario.adminPlataforma:
-        return 'Administra los tenants y accede a todas las funciones de la plataforma.';
+        return 'Así va la plataforma hoy.';
       case RolUsuario.desconocido:
         return 'Solo puedes consultar tu perfil por ahora.';
     }

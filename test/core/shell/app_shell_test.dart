@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +11,9 @@ import 'package:mani/core/session/rol_usuario.dart';
 import 'package:mani/core/shell/app_shell.dart';
 import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
+import 'package:mani/core/shell/navegacion_movil.dart';
+import 'package:mani/features/notifications/data/avisos_datasource.dart';
+import 'package:mani/features/notifications/domain/aviso.dart';
 
 /// Arma un JWT sin firma válida: el shell solo lee el payload para pintar.
 String _token(Map<String, dynamic> payload) {
@@ -30,6 +34,22 @@ class _FuenteQueFalla implements FuenteDatosSesion {
   Future<DatosSesion> cargar() => Future.error(Exception('Core no responde'));
 }
 
+class _AvisosFijos implements FuenteAvisos {
+  _AvisosFijos(this.items);
+  final List<Aviso> items;
+  @override
+  Future<BandejaAvisos> listar({int limite = 50}) async =>
+      BandejaAvisos(items: items, simulada: true, proveedor: 'mock');
+}
+
+Aviso _avisoDePrueba(String id, {bool leido = false}) => Aviso(
+  id: id,
+  tipo: 'SOLICITUD_ASIGNADA',
+  canal: 'PUSH',
+  payload: const {},
+  leidoEn: leido ? DateTime(2026, 11, 14) : null,
+);
+
 Future<void> _montar(
   WidgetTester tester, {
   required double ancho,
@@ -38,6 +58,9 @@ Future<void> _montar(
   String ubicacion = '/',
   ValueChanged<String>? onNavegar,
   Future<void> Function()? onCerrarSesion,
+  bool Function()? puedeVolver,
+  VoidCallback? onVolver,
+  FuenteAvisos? fuenteAvisos,
 }) async {
   tester.view.physicalSize = Size(ancho, 800);
   tester.view.devicePixelRatio = 1;
@@ -57,6 +80,9 @@ Future<void> _montar(
             ),
         onNavegar: onNavegar ?? (_) {},
         onCerrarSesion: onCerrarSesion ?? () async {},
+        puedeVolver: puedeVolver,
+        onVolver: onVolver,
+        fuenteAvisos: fuenteAvisos,
         child: const Text('contenido de la pantalla'),
       ),
     ),
@@ -325,7 +351,7 @@ void main() {
       expect(find.text('Ana Pérez'), findsOneWidget);
       expect(find.text('Aliado · Plomería Express'), findsOneWidget);
       expect(find.text('Solicitudes'), findsOneWidget);
-      expect(find.text('Cobertura'), findsOneWidget);
+      expect(find.text('Mis zonas'), findsOneWidget);
       expect(find.text('Verificación de aliados'), findsNothing);
       expect(find.byKey(const Key('menu-compacto')), findsNothing);
       expect(find.text('contenido de la pantalla'), findsOneWidget);
@@ -376,49 +402,108 @@ void main() {
       expect(cerro, isTrue);
     });
 
-    testWidgets('en móvil las entradas van en un menú desplegable', (
-      tester,
-    ) async {
-      String? destino;
-      await _montar(
-        tester,
-        ancho: 390,
-        rol: RolUsuario.cliente,
-        onNavegar: (r) => destino = r,
-      );
+    testWidgets(
+      'cliente en móvil: cinco destinos con Inicio en el centro, sin menú desplegable',
+      (tester) async {
+        String? destino;
+        await _montar(
+          tester,
+          ancho: 390,
+          rol: RolUsuario.cliente,
+          onNavegar: (r) => destino = r,
+        );
 
-      expect(find.byKey(const Key('menu-compacto')), findsOneWidget);
-      expect(find.text('Mis sedes'), findsNothing);
-      expect(find.byKey(const Key('menu-cerrar-sesion')), findsOneWidget);
+        expect(find.byKey(const Key('menu-compacto')), findsNothing);
+        for (final ruta in const [
+          '/cliente/solicitudes/nueva',
+          '/servicios',
+          '/inicio',
+          '/cliente/solicitudes',
+          '/cuenta',
+        ]) {
+          expect(
+            find.byKey(Key('menu-entrada-$ruta')),
+            findsOneWidget,
+            reason: ruta,
+          );
+        }
 
-      await tester.tap(find.byKey(const Key('menu-compacto')));
-      await tester.pumpAndSettle();
-      expect(find.text('Mis sedes'), findsOneWidget);
+        // Orden de izquierda a derecha: Nueva, Servicios, Inicio (centro), Mis pedidos, Perfil.
+        double x(String ruta) =>
+            tester.getCenter(find.byKey(Key('menu-entrada-$ruta'))).dx;
+        final orden = [
+          x('/cliente/solicitudes/nueva'),
+          x('/servicios'),
+          x('/inicio'),
+          x('/cliente/solicitudes'),
+          x('/cuenta'),
+        ];
+        expect([...orden]..sort(), orden);
+        expect(x('/inicio'), closeTo(390 / 2, 1));
 
-      await tester.tap(find.text('Mis sedes'));
-      await tester.pumpAndSettle();
-      expect(destino, '/cliente/sedes');
-    });
+        await tester.tap(
+          find.byKey(const Key('menu-entrada-/cliente/solicitudes')),
+        );
+        await tester.pumpAndSettle();
+        expect(destino, '/cliente/solicitudes');
+      },
+    );
 
     testWidgets(
-      'en móvil el menú desplegable incluye cerrar sesión y ejecuta onCerrarSesion',
+      'el cliente no tiene Avisos en la barra: los abre con la campana de arriba',
+      (tester) async {
+        String? destino;
+        await _montar(
+          tester,
+          ancho: 390,
+          rol: RolUsuario.cliente,
+          onNavegar: (r) => destino = r,
+        );
+
+        expect(
+          find.byKey(const Key('menu-entrada-/perfil/avisos')),
+          findsNothing,
+        );
+        await tester.tap(find.byKey(const Key('menu-avisos')));
+        await tester.pumpAndSettle();
+        expect(destino, '/perfil/avisos');
+      },
+    );
+
+    testWidgets(
+      'el administrador de plataforma conserva la barra de cuatro destinos con Avisos',
+      (tester) async {
+        await _montar(tester, ancho: 390, rol: RolUsuario.adminPlataforma);
+
+        for (final ruta in const [
+          '/inicio',
+          '/servicios',
+          '/perfil/avisos',
+          '/cuenta',
+        ]) {
+          expect(
+            find.byKey(Key('menu-entrada-$ruta')),
+            findsOneWidget,
+            reason: ruta,
+          );
+        }
+        expect(find.byKey(const Key('menu-avisos')), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'en móvil cerrar sesión sigue en la barra superior del administrador de plataforma',
       (tester) async {
         var cerro = false;
         await _montar(
           tester,
           ancho: 390,
-          rol: RolUsuario.cliente,
+          rol: RolUsuario.adminPlataforma,
           onCerrarSesion: () async => cerro = true,
         );
 
-        await tester.tap(find.byKey(const Key('menu-compacto')));
-        await tester.pumpAndSettle();
-        expect(
-          find.byKey(const Key('menu-compacto-cerrar-sesion')),
-          findsOneWidget,
-        );
-
-        await tester.tap(find.byKey(const Key('menu-compacto-cerrar-sesion')));
+        expect(find.byKey(const Key('menu-cerrar-sesion')), findsOneWidget);
+        await tester.tap(find.byKey(const Key('menu-cerrar-sesion')));
         await tester.pumpAndSettle();
         expect(cerro, isTrue);
       },
@@ -478,6 +563,385 @@ void main() {
       expect(fondo('/cliente/solicitudes/nueva'), isNotNull);
       // "Mis solicitudes" es prefijo de la ruta pero no debe resaltarse.
       expect(fondo('/cliente/solicitudes'), isNull);
+    });
+  });
+
+  group('SCRUM-1647 — navegación para celular (solo ancho compacto)', () {
+    testWidgets(
+      'el escritorio no tiene barra inferior, campana, volver ni deslizado',
+      (tester) async {
+        await _montar(
+          tester,
+          ancho: 1200,
+          rol: RolUsuario.cliente,
+          ubicacion: '/inicio',
+        );
+        expect(find.byKey(const Key('barra-inferior')), findsNothing);
+        expect(find.byKey(const Key('menu-atras')), findsNothing);
+        expect(find.byKey(const Key('menu-avisos')), findsNothing);
+        expect(find.byKey(const Key('deslizar-menus')), findsNothing);
+      },
+    );
+
+    testWidgets('en los cuatro menús del cliente no se muestra volver', (
+      tester,
+    ) async {
+      for (final ruta in const [
+        '/inicio',
+        '/servicios',
+        '/cuenta',
+        '/cliente/solicitudes',
+      ]) {
+        await _montar(
+          tester,
+          ancho: 390,
+          rol: RolUsuario.cliente,
+          ubicacion: ruta,
+        );
+        expect(find.byKey(const Key('menu-atras')), findsNothing, reason: ruta);
+        expect(
+          find.byKey(const Key('menu-titulo-seccion')),
+          findsNothing,
+          reason: ruta,
+        );
+      }
+    });
+
+    testWidgets('los avisos del cliente muestran volver al inicio', (
+      tester,
+    ) async {
+      String? destino;
+      await _montar(
+        tester,
+        ancho: 390,
+        rol: RolUsuario.cliente,
+        ubicacion: '/perfil/avisos',
+        onNavegar: (r) => destino = r,
+      );
+      expect(find.byKey(const Key('menu-atras')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('menu-atras')));
+      await tester.pumpAndSettle();
+      expect(destino, '/inicio');
+    });
+
+    testWidgets(
+      'una pantalla de Servicios muestra volver y su título, y vuelve a Servicios',
+      (tester) async {
+        String? destino;
+        await _montar(
+          tester,
+          ancho: 390,
+          rol: RolUsuario.cliente,
+          ubicacion: '/cliente/historial',
+          onNavegar: (r) => destino = r,
+        );
+
+        expect(find.byKey(const Key('menu-atras')), findsOneWidget);
+        expect(find.byKey(const Key('menu-titulo-seccion')), findsOneWidget);
+        await tester.tap(find.byKey(const Key('menu-atras')));
+        await tester.pumpAndSettle();
+        expect(destino, '/servicios');
+      },
+    );
+
+    testWidgets('una pantalla de Perfil vuelve a Perfil', (tester) async {
+      String? destino;
+      await _montar(
+        tester,
+        ancho: 390,
+        rol: RolUsuario.cliente,
+        ubicacion: '/perfil/editar',
+        onNavegar: (r) => destino = r,
+      );
+
+      await tester.tap(find.byKey(const Key('menu-atras')));
+      await tester.pumpAndSettle();
+      expect(destino, '/cuenta');
+    });
+
+    testWidgets('el detalle de un pedido vuelve a Mis pedidos', (tester) async {
+      String? destino;
+      await _montar(
+        tester,
+        ancho: 390,
+        rol: RolUsuario.cliente,
+        ubicacion: '/cliente/solicitudes/123',
+        onNavegar: (r) => destino = r,
+      );
+
+      await tester.tap(find.byKey(const Key('menu-atras')));
+      await tester.pumpAndSettle();
+      expect(destino, '/cliente/solicitudes');
+    });
+
+    testWidgets(
+      'si hay una pantalla anterior en la pila, volver regresa a ella',
+      (tester) async {
+        String? destino;
+        var volvio = false;
+        await _montar(
+          tester,
+          ancho: 390,
+          rol: RolUsuario.cliente,
+          ubicacion: '/cliente/historial',
+          onNavegar: (r) => destino = r,
+          puedeVolver: () => true,
+          onVolver: () => volvio = true,
+        );
+
+        await tester.tap(find.byKey(const Key('menu-atras')));
+        await tester.pumpAndSettle();
+        expect(volvio, isTrue);
+        expect(destino, isNull);
+      },
+    );
+
+    testWidgets(
+      'el atrás del sistema sube un nivel en celular y solo sale desde el inicio',
+      (tester) async {
+        final destinos = <String>[];
+        Future<bool> atras(String ubicacion) async {
+          destinos.clear();
+          await _montar(
+            tester,
+            ancho: 390,
+            rol: RolUsuario.cliente,
+            ubicacion: ubicacion,
+            onNavegar: destinos.add,
+          );
+          final manejado = await tester.binding.handlePopRoute();
+          await tester.pumpAndSettle();
+          return manejado;
+        }
+
+        expect(await atras('/cliente/historial'), isTrue);
+        expect(destinos, ['/servicios']);
+        expect(await atras('/perfil/editar'), isTrue);
+        expect(destinos, ['/cuenta']);
+        expect(await atras('/servicios'), isTrue);
+        expect(destinos, ['/inicio']);
+        expect(await atras('/cliente/solicitudes'), isTrue);
+        expect(destinos, ['/inicio']);
+
+        // En el inicio el sistema no lo intercepta: la app se cierra, como en cualquier app.
+        expect(await atras('/inicio'), isFalse);
+        expect(destinos, isEmpty);
+      },
+    );
+
+    testWidgets('en escritorio el atrás del sistema no se intercepta', (
+      tester,
+    ) async {
+      final destinos = <String>[];
+      await _montar(
+        tester,
+        ancho: 1200,
+        rol: RolUsuario.cliente,
+        ubicacion: '/cliente/solicitudes',
+        onNavegar: destinos.add,
+      );
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(destinos, isEmpty);
+    });
+
+    testWidgets(
+      'el destino activo de la barra del cliente sigue a la pantalla',
+      (tester) async {
+        Future<List<bool>> marcas(String ubicacion) async {
+          await _montar(
+            tester,
+            ancho: 390,
+            rol: RolUsuario.cliente,
+            ubicacion: ubicacion,
+          );
+          bool sel(String ruta) =>
+              tester
+                  .getSemantics(find.byKey(Key('menu-entrada-$ruta')))
+                  .flagsCollection
+                  .isSelected ==
+              Tristate.isTrue;
+          return [
+            sel('/servicios'),
+            sel('/inicio'),
+            sel('/cliente/solicitudes'),
+            sel('/cuenta'),
+          ];
+        }
+
+        // Servicios, Inicio, Mis pedidos, Perfil
+        expect(await marcas('/inicio'), [false, true, false, false]);
+        expect(await marcas('/servicios'), [true, false, false, false]);
+        expect(await marcas('/cliente/historial'), [true, false, false, false]);
+        expect(await marcas('/cliente/solicitudes'), [
+          false,
+          false,
+          true,
+          false,
+        ]);
+        expect(await marcas('/cliente/solicitudes/123'), [
+          false,
+          false,
+          true,
+          false,
+        ]);
+        expect(await marcas('/perfil/editar'), [false, false, false, true]);
+        expect(await marcas('/cliente/sedes'), [false, false, false, true]);
+      },
+    );
+
+    testWidgets(
+      'en un flujo de varios pasos no hay barra inferior ni deslizado y la flecha sale al inicio',
+      (tester) async {
+        String? destino;
+        await _montar(
+          tester,
+          ancho: 390,
+          rol: RolUsuario.cliente,
+          ubicacion: '/cliente/solicitudes/nueva',
+          onNavegar: (r) => destino = r,
+        );
+
+        expect(find.byKey(const Key('barra-inferior')), findsNothing);
+        expect(find.byKey(const Key('deslizar-menus')), findsNothing);
+        await tester.tap(find.byKey(const Key('menu-atras')));
+        await tester.pumpAndSettle();
+        expect(destino, '/inicio');
+      },
+    );
+
+    testWidgets('la campana muestra cuántos avisos sin leer hay', (
+      tester,
+    ) async {
+      await _montar(
+        tester,
+        ancho: 390,
+        rol: RolUsuario.cliente,
+        ubicacion: '/inicio',
+        fuenteAvisos: _AvisosFijos([
+          _avisoDePrueba('a'),
+          _avisoDePrueba('b'),
+          _avisoDePrueba('c', leido: true),
+        ]),
+      );
+      expect(find.byKey(const Key('menu-avisos-contador')), findsOneWidget);
+      expect(find.text('2'), findsOneWidget);
+    });
+
+    testWidgets('sin avisos sin leer la campana no muestra número', (
+      tester,
+    ) async {
+      await _montar(
+        tester,
+        ancho: 390,
+        rol: RolUsuario.cliente,
+        ubicacion: '/inicio',
+        fuenteAvisos: _AvisosFijos([_avisoDePrueba('a', leido: true)]),
+      );
+      expect(find.byKey(const Key('menu-avisos')), findsOneWidget);
+      expect(find.byKey(const Key('menu-avisos-contador')), findsNothing);
+    });
+  });
+
+  group('SCRUM-1647 — deslizar entre los menús del cliente', () {
+    test('el orden es Servicios, Inicio, Mis pedidos y Perfil', () {
+      expect(menusDeslizablesCliente, [
+        '/servicios',
+        '/inicio',
+        '/cliente/solicitudes',
+        '/cuenta',
+      ]);
+    });
+
+    test('cada menú tiene su vecino y los extremos no dan la vuelta', () {
+      expect(
+        menuVecinoAlDeslizar('/inicio', haciaAdelante: true),
+        '/cliente/solicitudes',
+      );
+      expect(
+        menuVecinoAlDeslizar('/inicio', haciaAdelante: false),
+        '/servicios',
+      );
+      expect(
+        menuVecinoAlDeslizar('/cliente/solicitudes', haciaAdelante: true),
+        '/cuenta',
+      );
+      expect(menuVecinoAlDeslizar('/servicios', haciaAdelante: false), isNull);
+      expect(menuVecinoAlDeslizar('/cuenta', haciaAdelante: true), isNull);
+    });
+
+    test('fuera de los cuatro menús no se desliza', () {
+      expect(
+        menuVecinoAlDeslizar('/cliente/solicitudes/nueva', haciaAdelante: true),
+        isNull,
+      );
+      expect(
+        menuVecinoAlDeslizar('/perfil/avisos', haciaAdelante: false),
+        isNull,
+      );
+      expect(
+        menuVecinoAlDeslizar('/cliente/solicitudes/123', haciaAdelante: true),
+        isNull,
+      );
+    });
+
+    testWidgets(
+      'deslizar el dedo a la izquierda lleva al menú de la derecha, y viceversa',
+      (tester) async {
+        final destinos = <String>[];
+        await _montar(
+          tester,
+          ancho: 390,
+          rol: RolUsuario.cliente,
+          ubicacion: '/inicio',
+          onNavegar: destinos.add,
+        );
+
+        await tester.fling(
+          find.byKey(const Key('deslizar-menus')),
+          const Offset(-300, 0),
+          1500,
+        );
+        await tester.pumpAndSettle();
+        await tester.fling(
+          find.byKey(const Key('deslizar-menus')),
+          const Offset(300, 0),
+          1500,
+        );
+        await tester.pumpAndSettle();
+        expect(destinos, ['/cliente/solicitudes', '/servicios']);
+      },
+    );
+
+    testWidgets('un gesto lento o corto no cambia de menú', (tester) async {
+      final destinos = <String>[];
+      await _montar(
+        tester,
+        ancho: 390,
+        rol: RolUsuario.cliente,
+        ubicacion: '/inicio',
+        onNavegar: destinos.add,
+      );
+
+      await tester.fling(
+        find.byKey(const Key('deslizar-menus')),
+        const Offset(-300, 0),
+        100,
+      );
+      await tester.pumpAndSettle();
+      expect(destinos, isEmpty);
+    });
+
+    testWidgets('el administrador de plataforma no desliza entre menús', (
+      tester,
+    ) async {
+      await _montar(
+        tester,
+        ancho: 390,
+        rol: RolUsuario.adminPlataforma,
+        ubicacion: '/inicio',
+      );
+      expect(find.byKey(const Key('deslizar-menus')), findsNothing);
     });
   });
 }

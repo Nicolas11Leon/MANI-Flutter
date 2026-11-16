@@ -138,6 +138,43 @@ void main() {
         expect(rolPuedeAbrir(rol, rutaInicioPara(rol)), isTrue, reason: '$rol');
       }
     });
+
+    test(
+      'cada destino de la barra inferior del celular se abre sin redirección, para todo rol',
+      () {
+        // SCRUM-1647: sin estas entradas en la tabla, «Servicios» y «Perfil» llevaban al inicio y parecían rotos.
+        const destinos = [
+          '/inicio',
+          rutaServicios,
+          '/perfil/avisos',
+          rutaCuenta,
+        ];
+        for (final rol in RolUsuario.values) {
+          for (final ruta in destinos) {
+            expect(rolPuedeAbrir(rol, ruta), isTrue, reason: '$rol $ruta');
+            expect(_redirigir(ruta, rol: rol), isNull, reason: '$rol $ruta');
+          }
+        }
+      },
+    );
+
+    test('las pantallas de Servicios y Perfil siguen exigiendo sesión', () {
+      for (final ruta in const [rutaServicios, rutaCuenta]) {
+        expect(_redirigir(ruta, haySesion: false), rutaLogin, reason: ruta);
+      }
+    });
+
+    test('lo que lista cada sección es abrible por el rol que la ve', () {
+      for (final rol in RolUsuario.values) {
+        for (final e in [
+          ...entradasServiciosPara(rol),
+          ...entradasCuentaPara(rol),
+          ...atajosPara(rol),
+        ]) {
+          expect(rolPuedeAbrir(rol, e.ruta), isTrue, reason: '$rol ${e.ruta}');
+        }
+      }
+    });
   });
 
   group('US-11.2.2 (SCRUM-1445) — sesión expirada (401)', () {

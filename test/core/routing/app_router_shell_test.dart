@@ -120,8 +120,14 @@ String _sesionJson(String rol) {
 }
 
 /// Rutas con sesión que deben quedar dentro del menú superior.
+/// Flujos de varios pasos que se abren por encima del armazón (SCRUM-1647): sin barra de menú.
+const _rutasDeFlujoFueraDelMenu = {'/cliente/pagos/:cotizacionId'};
+
 const _rutasConSesion = {
   '/inicio',
+  // Servicios y Perfil: pantallas de agrupación de la barra inferior del celular (SCRUM-1647).
+  '/servicios',
+  '/cuenta',
   '/categories',
   '/aliado/cobertura',
   '/sitios/:id/reglas',
@@ -135,7 +141,6 @@ const _rutasConSesion = {
   '/cliente/solicitudes',
   '/cliente/solicitudes/:id/aliados',
   '/cliente/solicitudes/:id/cotizacion',
-  '/cliente/pagos/:cotizacionId',
   '/cliente/solicitudes/:id/chat',
   '/aliado/solicitudes/:id/chat',
   '/aliado/solicitudes/:id/cotizacion',
@@ -209,16 +214,45 @@ void main() {
 
   tearDownAll(sl.reset);
 
-  ShellRoute shell() =>
-      appRouter.configuration.routes.whereType<ShellRoute>().single;
+  StatefulShellRoute shell() =>
+      appRouter.configuration.routes.whereType<StatefulShellRoute>().single;
+
+  /// Las rutas de todas las pestañas del armazón (cada pestaña conserva su estado, SCRUM-1647).
+  List<GoRoute> rutasDelShell() => [
+    for (final b in shell().branches) ...b.routes.whereType<GoRoute>(),
+  ];
 
   group('US-11.2.1 (SCRUM-1444) — rutas dentro del shell', () {
     test('todas las pantallas con sesión cuelgan del menú superior', () {
-      final dentro = shell().routes
+      final dentro = rutasDelShell().map((r) => r.path).toSet();
+      expect(dentro, _rutasConSesion);
+    });
+
+    test('los flujos se abren por encima del armazón, no dentro de él', () {
+      final dentro = rutasDelShell().map((r) => r.path).toSet();
+      final primerNivel = appRouter.configuration.routes
           .whereType<GoRoute>()
           .map((r) => r.path)
           .toSet();
-      expect(dentro, _rutasConSesion);
+      expect(primerNivel, containsAll(_rutasDeFlujoFueraDelMenu));
+      expect(dentro.intersection(_rutasDeFlujoFueraDelMenu), isEmpty);
+      // Siguen exigiendo sesión y rol: no son rutas públicas.
+      for (final ruta in _rutasDeFlujoFueraDelMenu) {
+        expect(
+          rolPuedeAbrir(
+            RolUsuario.cliente,
+            ruta.replaceAll(':cotizacionId', 'c-1'),
+          ),
+          isTrue,
+        );
+        expect(
+          rolPuedeAbrir(
+            RolUsuario.aliado,
+            ruta.replaceAll(':cotizacionId', 'c-1'),
+          ),
+          isFalse,
+        );
+      }
     });
 
     test('login y registro quedan fuera del menú', () {
@@ -261,7 +295,7 @@ void main() {
       ),
     );
 
-    for (final ruta in shell().routes.whereType<GoRoute>()) {
+    for (final ruta in rutasDelShell()) {
       final ubicacion = ruta.path.replaceAll(':id', 'sitio-1');
       final estado = GoRouterState(
         appRouter.configuration,
@@ -317,6 +351,149 @@ void main() {
         );
       },
     );
+  });
+
+  group('SCRUM-1647 — navegación del celular sobre el router real', () {
+    Future<void> entrarComoCliente(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.runAsync(
+        () => Supabase.instance.client.auth.recoverSession(
+          _sesionJson('cliente'),
+        ),
+      );
+      appRouter.go('/inicio');
+      await tester.pumpWidget(MaterialApp.router(routerConfig: appRouter));
+      await tester.pumpAndSettle();
+    }
+
+    // Ruta de la pantalla visible, incluidas las apiladas con `push`.
+    String ruta() => appRouter.routerDelegate.currentConfiguration.uri.path;
+
+    testWidgets(
+      '«Servicios» y «Perfil» de la barra abren su pantalla, no el inicio',
+      (tester) async {
+        await entrarComoCliente(tester);
+        expect(find.byKey(const Key('barra-inferior')), findsOneWidget);
+
+        await tester.tap(find.byKey(const Key('menu-entrada-/servicios')));
+        await tester.pumpAndSettle();
+        expect(ruta(), '/servicios');
+        expect(find.byKey(const Key('seccion-servicios')), findsOneWidget);
+
+        await tester.tap(find.byKey(const Key('menu-entrada-/cuenta')));
+        await tester.pumpAndSettle();
+        expect(ruta(), '/cuenta');
+        expect(find.byKey(const Key('seccion-cuenta')), findsOneWidget);
+
+        await tester.tap(find.byKey(const Key('menu-entrada-/inicio')));
+        await tester.pumpAndSettle();
+        expect(ruta(), '/inicio');
+      },
+    );
+
+    testWidgets('desde Perfil, entrar a una opción y volver regresa a Perfil', (
+      tester,
+    ) async {
+      await entrarComoCliente(tester);
+      await tester.tap(find.byKey(const Key('menu-entrada-/cuenta')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('seccion-acceso-/perfil/editar')));
+      await tester.pumpAndSettle();
+      expect(ruta(), '/perfil/editar');
+      // La flecha de arriba vuelve a Perfil, y no al inicio ni fuera de la app.
+      expect(find.byKey(const Key('menu-atras')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('menu-atras')));
+      await tester.pumpAndSettle();
+      expect(ruta(), '/cuenta');
+      expect(find.byKey(const Key('seccion-cuenta')), findsOneWidget);
+    });
+
+    testWidgets(
+      'cambiar de pestaña conserva la pantalla: al volver no se reconstruye',
+      (tester) async {
+        await entrarComoCliente(tester);
+        final antes = tester.element(find.byType(InicioPage));
+
+        await tester.tap(find.byKey(const Key('menu-entrada-/servicios')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('menu-entrada-/cuenta')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('menu-entrada-/inicio')));
+        await tester.pumpAndSettle();
+
+        // Es el mismo elemento y el mismo estado: no se pidió todo otra vez ni se perdió lo que había en pantalla.
+        final despues = tester.element(find.byType(InicioPage));
+        expect(identical(despues, antes), isTrue);
+        expect(
+          identical(
+            (despues as StatefulElement).state,
+            (antes as StatefulElement).state,
+          ),
+          isTrue,
+        );
+      },
+    );
+
+    test(
+      'cada pestaña principal tiene su propia rama, y el resto va junto',
+      () {
+        final ramas = [
+          for (final b in shell().branches)
+            [for (final r in b.routes.whereType<GoRoute>()) r.path],
+        ];
+        int rama(String ruta) => ramas.indexWhere((r) => r.contains(ruta));
+        final principales = [
+          '/inicio',
+          '/servicios',
+          '/cuenta',
+          '/cliente/solicitudes',
+          '/aliado/solicitudes',
+          '/aliado/cobros',
+          '/admin/verificacion-aliados',
+          '/admin/quejas',
+        ];
+        final indices = [for (final r in principales) rama(r)];
+        expect(indices.every((i) => i >= 0), isTrue, reason: '$indices');
+        expect(
+          indices.toSet(),
+          hasLength(principales.length),
+          reason: 'ramas distintas',
+        );
+        // Ninguna ruta quedó fuera ni repetida.
+        final todas = ramas.expand((r) => r).toList();
+        expect(todas.toSet(), hasLength(todas.length));
+        expect(
+          todas.toSet(),
+          _rutasConSesion.difference(_rutasDeFlujoFueraDelMenu),
+        );
+      },
+    );
+
+    testWidgets('el atrás del sistema también vuelve a la pantalla anterior', (
+      tester,
+    ) async {
+      await entrarComoCliente(tester);
+      // «Mi perfil» cuelga de Perfil, no de Servicios: se entra por Perfil y se vuelve con el atrás del sistema.
+      await tester.tap(find.byKey(const Key('menu-entrada-/cuenta')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('seccion-acceso-/perfil/editar')));
+      await tester.pumpAndSettle();
+      expect(ruta(), '/perfil/editar');
+
+      // Equivale al botón atrás del teléfono: sube un nivel y no saca de la app.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(ruta(), '/cuenta');
+
+      // Desde Perfil, otro atrás vuelve al inicio.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(ruta(), '/inicio');
+    });
   });
 
   group('US-11.2.2 (SCRUM-1445) — guardas sobre el router real', () {
