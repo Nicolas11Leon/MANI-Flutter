@@ -165,8 +165,8 @@ void main() {
 
           // Verifica carga inicial y que rol/estado se muestran en solo lectura
           expect(find.text('Carlos Mendoza'), findsOneWidget);
-          expect(find.text('Rol: ALLY'), findsOneWidget);
-          expect(find.text('Estado: VERIFIED'), findsOneWidget);
+          expect(find.text('Aliado'), findsOneWidget);
+          expect(find.text('Verificado'), findsOneWidget);
 
           // SCRUM-1028 / SCRUM-1031: Rechaza dirección vacía y teléfono inválido en el formulario
           await tester.enterText(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mani/core/theme/app_theme.dart';
 
-enum ManiButtonVariante { primario, peligro, secundario }
+/// `primario` es el nivel 1 (amarillo con sombra); `secundario`, `peligro` y `oscuro` son planos; `texto` no lleva
+/// fondo ni borde. `oscuro` es el que va sobre amarillo, donde un botón amarillo no se vería.
+enum ManiButtonVariante { primario, peligro, secundario, oscuro, texto }
 
 /// Botón neo-brutalista MANI. Al presionarlo "se hunde": la sombra dura
 /// desaparece y el botón se desplaza a su posición, como un botón físico.
@@ -14,6 +16,7 @@ class ManiButton extends StatefulWidget {
     this.variante = ManiButtonVariante.primario,
     this.cargando = false,
     this.expandir = false,
+    this.colorTexto,
   });
 
   final String etiqueta;
@@ -23,20 +26,38 @@ class ManiButton extends StatefulWidget {
   final bool cargando;
   final bool expandir;
 
+  /// Cambia el color del texto y el icono (p. ej. `errorStrong` en una variante `texto` destructiva).
+  final Color? colorTexto;
+
   @override
   State<ManiButton> createState() => _ManiButtonState();
 }
 
 class _ManiButtonState extends State<ManiButton> {
   bool _presionado = false;
+  bool _sobre = false;
 
   bool get _habilitado => widget.onPressed != null && !widget.cargando;
 
   (Color fondo, Color texto) get _colores => switch (widget.variante) {
     ManiButtonVariante.primario => (AppTheme.primary, AppTheme.dark),
-    ManiButtonVariante.peligro => (AppTheme.error, Colors.white),
+    ManiButtonVariante.peligro => (AppTheme.errorStrong, Colors.white),
     ManiButtonVariante.secundario => (AppTheme.surface, AppTheme.dark),
+    ManiButtonVariante.oscuro => (AppTheme.dark, Colors.white),
+    ManiButtonVariante.texto => (Colors.transparent, AppTheme.dark),
   };
+
+  bool get _conRelieve => widget.variante == ManiButtonVariante.primario;
+
+  /// El secundario y el de texto se marcan al presionar con el crema suave.
+  Color _sobreFondo(Color fondo) {
+    if (!_presionado || !_habilitado) return fondo;
+    return switch (widget.variante) {
+      ManiButtonVariante.secundario ||
+      ManiButtonVariante.texto => AppTheme.backgroundSoft,
+      _ => fondo,
+    };
+  }
 
   void _presionar(bool valor) {
     if (_habilitado && _presionado != valor) {
@@ -46,12 +67,17 @@ class _ManiButtonState extends State<ManiButton> {
 
   @override
   Widget build(BuildContext context) {
-    final (fondo, texto) = _colores;
-    final hundido = _presionado || !_habilitado;
+    final (fondo, textoBase) = _colores;
+    final texto = widget.colorTexto ?? textoBase;
+    final hundido = _conRelieve && (_presionado || !_habilitado);
     final estilo = Theme.of(context).textTheme.labelLarge?.copyWith(
       color: texto,
-      fontWeight: FontWeight.w900,
-      letterSpacing: 0.3,
+      fontSize: 14,
+      fontWeight: FontWeight.w800,
+      decoration: widget.variante == ManiButtonVariante.texto && _sobre
+          ? TextDecoration.underline
+          : null,
+      decorationColor: texto,
     );
 
     final contenido = Row(
@@ -88,6 +114,8 @@ class _ManiButtonState extends State<ManiButton> {
         onTapCancel: () => _presionar(false),
         onTap: _habilitado ? widget.onPressed : null,
         child: MouseRegion(
+          onEnter: (_) => setState(() => _sobre = true),
+          onExit: (_) => setState(() => _sobre = false),
           cursor: _habilitado
               ? SystemMouseCursors.click
               : SystemMouseCursors.forbidden,
@@ -101,14 +129,33 @@ class _ManiButtonState extends State<ManiButton> {
                 hundido ? 3 : 0,
                 0,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
-              decoration: BoxDecoration(
-                color: fondo,
-                borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                border: Border.all(color: AppTheme.dark, width: 2),
-                boxShadow: [if (!hundido) AppTheme.hardShadowSm],
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.variante == ManiButtonVariante.texto
+                    ? 8
+                    : 20,
+                vertical: 12,
               ),
-              child: contenido,
+              decoration: BoxDecoration(
+                color: _sobreFondo(fondo),
+                borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                border: switch (widget.variante) {
+                  ManiButtonVariante.primario => Border.all(
+                    color: AppTheme.dark,
+                    width: 2,
+                  ),
+                  ManiButtonVariante.secundario => Border.all(
+                    color: AppTheme.dark,
+                    width: AppTheme.borderThin,
+                  ),
+                  _ => null,
+                },
+                boxShadow: [if (_conRelieve && !hundido) AppTheme.hardShadowSm],
+              ),
+              // 24 de contenido + 12 + 12 de relleno = 48 px de alto mínimo.
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 24),
+                child: contenido,
+              ),
             ),
           ),
         ),

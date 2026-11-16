@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_layout.dart';
 
 /// Ancho máximo del contenido de una página con sesión en escritorio.
 const anchoMaximoPagina = 1400.0;
@@ -51,9 +53,8 @@ class ManiPagina extends StatelessWidget {
   }
 }
 
-/// Encabezado de página: tarjeta con el ícono en caja amarilla, título y
-/// descripción, y una acción opcional a la derecha (debajo en móvil). Es el
-/// mismo de la pantalla del servicio.
+/// Encabezado de página. En celular el título ya está en la barra, así que solo lleva la descripción y la acción;
+/// desde 600 px de ancho es una tarjeta con el icono, el título y la acción a la derecha.
 class ManiEncabezadoPagina extends StatelessWidget {
   const ManiEncabezadoPagina({
     super.key,
@@ -70,18 +71,39 @@ class ManiEncabezadoPagina extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, c) {
+        if (c.maxWidth < 600) return _celular();
+        return _ancho();
+      },
+    );
+  }
+
+  Widget _celular() {
+    if (descripcion == null && accion == null) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (descripcion != null)
+          Text(
+            descripcion!,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              height: 1.4,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        if (descripcion != null && accion != null) const SizedBox(height: 12),
+        ?accion,
+      ],
+    );
+  }
+
+  Widget _ancho() {
     final texto = Row(
       children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-            border: Border.all(color: AppTheme.dark, width: 2),
-            boxShadow: const [AppTheme.hardShadowSm],
-          ),
-          child: Icon(icono, color: AppTheme.dark, size: 24),
-        ),
+        ManiIconoCaja(icono: icono, forma: ManiIconoForma.fuerte),
         const SizedBox(width: 14),
         Expanded(
           child: Column(
@@ -90,8 +112,8 @@ class ManiEncabezadoPagina extends StatelessWidget {
               Text(
                 titulo,
                 style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
                   color: AppTheme.dark,
                 ),
               ),
@@ -100,7 +122,7 @@ class ManiEncabezadoPagina extends StatelessWidget {
                 Text(
                   descripcion!,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.textSecondary,
                   ),
@@ -113,75 +135,56 @@ class ManiEncabezadoPagina extends StatelessWidget {
     );
     return ManiCard(
       padding: const EdgeInsets.all(20),
-      child: LayoutBuilder(
-        builder: (context, c) {
-          if (accion == null) return texto;
-          if (c.maxWidth < 600) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [texto, const SizedBox(height: 14), accion!],
-            );
-          }
-          return Row(
-            children: [
-              Expanded(child: texto),
-              const SizedBox(width: 16),
-              accion!,
-            ],
-          );
-        },
-      ),
+      child: accion == null
+          ? texto
+          : Row(
+              children: [
+                Expanded(child: texto),
+                const SizedBox(width: 16),
+                accion!,
+              ],
+            ),
     );
   }
 }
 
-/// Título de sección: ícono en caja amarilla, texto en mayúsculas y subrayado
-/// negro. Separa los bloques de una página (y las columnas del servicio).
+/// Título de sección: texto de 18 px en tipo oración, sin caja ni subrayado; icono opcional y acción a la derecha
+/// (p. ej. «Ver todos»). Separa los bloques de una página.
 class ManiTituloSeccion extends StatelessWidget {
   const ManiTituloSeccion({
     super.key,
-    required this.icono,
     required this.titulo,
+    this.icono,
     this.accion,
   });
 
-  final IconData icono;
   final String titulo;
+  final IconData? icono;
   final Widget? accion;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(bottom: 10),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
-            ),
-            child: Icon(icono, color: AppTheme.dark, size: 18),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
+    return Row(
+      children: [
+        if (icono != null) ...[
+          Icon(icono, size: 20, color: AppTheme.textSecondary),
+          const SizedBox(width: 8),
+        ],
+        Expanded(
+          child: Semantics(
+            header: true,
             child: Text(
-              titulo.toUpperCase(),
+              titulo,
               style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.6,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
                 color: AppTheme.dark,
               ),
             ),
           ),
-          ?accion,
-        ],
-      ),
+        ),
+        ?accion,
+      ],
     );
   }
 }
@@ -223,9 +226,7 @@ class ManiRejilla extends StatelessWidget {
   }
 }
 
-/// Botón en píldora con borde negro: amarillo con sombra si es [principal],
-/// blanco si no. Es el de las acciones de Mis solicitudes; el texto oscuro
-/// sobre amarillo o blanco cumple el contraste AA.
+/// Envoltura de [ManiButton] con el nombre antiguo; se retira cuando todas las pantallas usen `ManiButton`.
 class ManiBotonPildora extends StatelessWidget {
   const ManiBotonPildora({
     super.key,
@@ -242,30 +243,13 @@ class ManiBotonPildora extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final estilo = TextButton.styleFrom(
-      foregroundColor: AppTheme.dark,
-      textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-    );
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: principal ? AppTheme.primary : AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowSm],
-      ),
-      child: icono == null
-          ? TextButton(
-              onPressed: onPressed,
-              style: estilo,
-              child: Text(etiqueta),
-            )
-          : TextButton.icon(
-              onPressed: onPressed,
-              style: estilo,
-              icon: Icon(icono, size: 18),
-              label: Text(etiqueta),
-            ),
+    return ManiButton(
+      etiqueta: etiqueta,
+      onPressed: onPressed,
+      icono: icono,
+      variante: principal
+          ? ManiButtonVariante.primario
+          : ManiButtonVariante.secundario,
     );
   }
 }
@@ -289,11 +273,10 @@ class ManiAvisoTarjeta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ManiCard(
-      color: esError ? const Color(0xFFFEE2E2) : AppTheme.surface,
-      sombra: AppTheme.hardShadowSm,
+      color: esError ? AppTheme.errorLight : AppTheme.surface,
       child: Row(
         children: [
-          Icon(icono, color: esError ? const Color(0xFFB91C1C) : AppTheme.dark),
+          Icon(icono, color: esError ? AppTheme.errorStrong : AppTheme.dark),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

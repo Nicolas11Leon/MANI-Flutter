@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_layout.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/features/profiles/own_profile/data/datasources/perfil_propio_remote_datasource.dart';
 import 'package:mani/features/profiles/own_profile/domain/entities/perfil_propio.dart';
 import 'package:mani/features/profiles/own_profile/presentation/widgets/foto_perfil_selector_widget.dart';
@@ -217,7 +219,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
         children: [
           const ManiTituloSeccion(
             icono: Icons.badge_outlined,
-            texto: '1. Tu cuenta',
+            titulo: '1. Tu cuenta',
           ),
           const SizedBox(height: 20),
           if (_perfil != null) ...[
@@ -234,13 +236,14 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                Chip(
+                ManiEstado(
                   key: const Key('chip-rol-solo-lectura'),
-                  label: Text('Rol: ${_perfil!.role}'),
+                  texto: _textoRol(_perfil!.role),
                 ),
-                Chip(
+                ManiEstado(
                   key: const Key('chip-estado-solo-lectura'),
-                  label: Text('Estado: ${_perfil!.status}'),
+                  texto: _estado(_perfil!.status).$1,
+                  tono: _estado(_perfil!.status).$2,
                 ),
               ],
             ),
@@ -259,7 +262,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
         children: [
           const ManiTituloSeccion(
             icono: Icons.person_outline,
-            texto: '2. Datos de contacto',
+            titulo: '2. Datos de contacto',
           ),
           const SizedBox(height: 20),
           const ManiEtiquetaCampo('Nombre completo o razón social'),
@@ -409,3 +412,22 @@ class _Aviso extends StatelessWidget {
     );
   }
 }
+
+/// El rol en palabras de persona; un valor desconocido se muestra tal cual.
+String _textoRol(String rol) => switch (rol.toUpperCase()) {
+  'ALLY' || 'ALIADO' => 'Aliado',
+  'CLIENT' || 'CLIENTE' => 'Cliente',
+  'ADMIN_TENANT' || 'ADMIN_PLATAFORMA' || 'ADMIN' => 'Administrador',
+  _ => rol,
+};
+
+/// El estado de la cuenta como texto de persona y su tono; un valor desconocido se muestra tal cual.
+(String, ManiTono) _estado(String estado) => switch (estado.toUpperCase()) {
+  'VERIFIED' || 'VERIFICADO' => ('Verificado', ManiTono.listo),
+  'ACTIVE' || 'ACTIVO' => ('Cuenta activa', ManiTono.listo),
+  'PENDING' ||
+  'PENDING_VERIFICATION' ||
+  'IN_REVIEW' => ('En verificación', ManiTono.atencion),
+  'SUSPENDED' || 'REJECTED' || 'SUSPENDIDO' => ('Suspendida', ManiTono.mal),
+  _ => (estado, ManiTono.neutro),
+};

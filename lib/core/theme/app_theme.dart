@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mani/core/theme/transicion_de_pantalla.dart';
 
 /// Sistema de diseño oficial de MANI — Neo-Brutalismo.
 /// Los valores son los mismos que los de la landing (`MANI-Landing/src/index.css`), para que una marca no tenga dos
@@ -25,6 +26,7 @@ class AppTheme {
   static const Color darkLight = Color(0xFF2C4372);
   static const Color textPrimary = Color(0xFF1B2A4A);
   static const Color textSecondary = Color(0xFF536485); // Azul marino atenuado
+  /// Solo para texto de ejemplo en campos: sobre blanco no llega al contraste AA.
   static const Color textTertiary = Color(0xFF9CA3AF);
   static const Color borderLight = Color(0xFFF3E5CD);
 
@@ -34,6 +36,30 @@ class AppTheme {
   static const Color error = Color(0xFFE4572E);
   static const Color errorHover = Color(0xFFCC441C);
   static const Color errorLight = Color(0xFFFDE5DE);
+
+  // ── Sobriedad ─────────────────────────────────────────────────────────────
+  static const Color divisor = Color(0xFFF3E5CD); // Divisor entre filas
+  static const Color errorStrong = Color(
+    0xFFB8401D,
+  ); // Texto de error y botón de peligro
+  static const Color successStrong = Color(
+    0xFF047857,
+  ); // Texto sobre successLight
+  static const Color avisoFondo = Color(0xFFFEF3C7);
+  static const Color avisoTexto = Color(0xFF92600A); // Texto sobre avisoFondo
+  static const double borderHair = 1.0;
+
+  // ── Espaciado ─────────────────────────────────────────────────────────────
+  static const double esp1 = 4;
+  static const double esp2 = 8;
+  static const double esp3 = 12;
+  static const double esp4 = 16;
+  static const double esp5 = 24;
+  static const double esp6 = 32;
+  static const double esp7 = 48;
+
+  /// Radio intermedio para cajas de icono y miniaturas.
+  static const double radiusIcon = 12.0;
 
   // ── Sombras neo-brutalistas ───────────────────────────────────────────────
   static const BoxShadow hardShadowSm = BoxShadow(
@@ -81,11 +107,62 @@ class AppTheme {
   static const Duration motionSlow = Duration(milliseconds: 250);
   static const Curve motionBounce = Cubic(0.34, 1.56, 0.64, 1);
 
+  /// Fuente de títulos (la de la landing): Fredoka a 600.
+  static TextStyle titulo({
+    double size = 18,
+    double height = 24 / 18,
+    Color color = textPrimary,
+  }) => GoogleFonts.fredoka(
+    fontSize: size,
+    height: height,
+    fontWeight: FontWeight.w600,
+    color: color,
+  );
+
+  /// Escala tipográfica: títulos en Fredoka, el resto en Plus Jakarta Sans. Mínimo absoluto 12 px.
+  static TextTheme _escala() {
+    final base = GoogleFonts.plusJakartaSansTextTheme();
+    return base.copyWith(
+      displaySmall: titulo(size: 28, height: 32 / 28),
+      headlineSmall: titulo(size: 24, height: 30 / 24),
+      titleLarge: titulo(size: 20, height: 26 / 20),
+      titleMedium: titulo(),
+      titleSmall: base.titleSmall?.copyWith(
+        fontSize: 16,
+        height: 22 / 16,
+        fontWeight: FontWeight.w700,
+      ),
+      bodyMedium: base.bodyMedium?.copyWith(
+        fontSize: 14,
+        height: 21 / 14,
+        fontWeight: FontWeight.w500,
+      ),
+      bodySmall: base.bodySmall?.copyWith(
+        fontSize: 13,
+        height: 19 / 13,
+        fontWeight: FontWeight.w500,
+        color: textSecondary,
+      ),
+      labelLarge: base.labelLarge?.copyWith(
+        fontSize: 14,
+        height: 20 / 14,
+        fontWeight: FontWeight.w800,
+      ),
+      labelSmall: base.labelSmall?.copyWith(
+        fontSize: 12,
+        height: 16 / 12,
+        fontWeight: FontWeight.w700,
+      ),
+    );
+  }
+
   static ThemeData get light {
-    final textTheme = GoogleFonts.plusJakartaSansTextTheme();
+    final textTheme = _escala();
 
     return ThemeData(
       useMaterial3: true,
+      // Cambio de pantalla en desvanecimiento, sin zoom ni superposición (ver `TransicionDePantalla`).
+      pageTransitionsTheme: pageTransitionsDeMani,
       // Familia de toda la app, no solo de `textTheme`: así `primaryTextTheme`,
       // tooltips y cualquier texto sin estilo propio usan Plus Jakarta Sans y
       // no caen en Roboto.
@@ -112,11 +189,7 @@ class AppTheme {
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 18,
-          fontWeight: FontWeight.w900,
-          color: dark,
-        ),
+        titleTextStyle: titulo(size: 20, height: 26 / 20, color: dark),
         shape: const Border(
           bottom: BorderSide(color: dark, width: borderThick),
         ),
@@ -203,6 +276,27 @@ class AppTheme {
           shape: const StadiumBorder(),
         ),
       ),
+      switchTheme: SwitchThemeData(
+        thumbColor: const WidgetStatePropertyAll(surface),
+        trackColor: WidgetStateProperty.resolveWith(
+          (e) => e.contains(WidgetState.selected) ? primary : backgroundDark,
+        ),
+        trackOutlineColor: const WidgetStatePropertyAll(dark),
+        trackOutlineWidth: const WidgetStatePropertyAll(borderThin),
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (e) => e.contains(WidgetState.selected) ? primary : surface,
+        ),
+        checkColor: const WidgetStatePropertyAll(dark),
+        side: const BorderSide(color: dark, width: borderThin),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      ),
+      radioTheme: RadioThemeData(fillColor: const WidgetStatePropertyAll(dark)),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: dark,
+        linearTrackColor: backgroundDark,
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surface,
@@ -220,25 +314,30 @@ class AppTheme {
           fontWeight: FontWeight.w500,
           color: textSecondary,
         ),
+        errorStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: errorStrong,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusXl),
-          borderSide: const BorderSide(color: dark, width: borderMedium),
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: const BorderSide(color: dark, width: borderThin),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusXl),
-          borderSide: const BorderSide(color: dark, width: borderMedium),
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: const BorderSide(color: dark, width: borderThin),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusXl),
-          borderSide: const BorderSide(color: dark, width: borderThick),
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: const BorderSide(color: dark, width: borderMedium),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusXl),
-          borderSide: const BorderSide(color: error, width: borderMedium),
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: const BorderSide(color: errorStrong, width: 2),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusXl),
-          borderSide: const BorderSide(color: error, width: borderThick),
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: const BorderSide(color: errorStrong, width: borderMedium),
         ),
       ),
       dialogTheme: DialogThemeData(

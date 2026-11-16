@@ -113,61 +113,33 @@ class ManiEncabezado extends StatelessWidget {
   }
 }
 
-/// Ícono sobre caja amarilla con borde, como en las tarjetas del registro.
+/// Forma de la caja de icono: `suave` es la de uso general; `fuerte`, la del encabezado de una página en web.
+enum ManiIconoForma { suave, fuerte }
+
+/// Ícono dentro de una caja. Es la única caja de icono de la app.
 class ManiIconoCaja extends StatelessWidget {
   const ManiIconoCaja({
     super.key,
     required this.icono,
-    this.tamano = 26,
-    this.color = AppTheme.primary,
+    this.forma = ManiIconoForma.suave,
   });
 
   final IconData icono;
-  final double tamano;
-  final Color color;
+  final ManiIconoForma forma;
 
   @override
   Widget build(BuildContext context) {
+    final fuerte = forma == ManiIconoForma.fuerte;
     return Container(
-      padding: EdgeInsets.all(tamano >= 24 ? 12 : 8),
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
+        color: fuerte ? AppTheme.primary : AppTheme.primaryLight,
+        borderRadius: BorderRadius.circular(AppTheme.radiusIcon),
+        border: fuerte ? Border.all(color: AppTheme.dark, width: 2) : null,
+        boxShadow: [if (fuerte) AppTheme.hardShadowSm],
       ),
-      child: Icon(icono, color: AppTheme.dark, size: tamano),
-    );
-  }
-}
-
-/// Título de una tarjeta de sección ("1. Datos del Cliente" en el registro).
-class ManiTituloSeccion extends StatelessWidget {
-  const ManiTituloSeccion({
-    super.key,
-    required this.icono,
-    required this.texto,
-  });
-
-  final IconData icono;
-  final String texto;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icono, color: AppTheme.dark, size: 20),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            texto,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 15,
-              fontWeight: FontWeight.w900,
-              color: AppTheme.dark,
-            ),
-          ),
-        ),
-      ],
+      child: Icon(icono, color: AppTheme.dark, size: 22),
     );
   }
 }

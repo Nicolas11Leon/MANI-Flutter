@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_mano.dart';
 
-import '../theme/app_theme.dart';
-
-/// Logo de MANI (el mismo sello circular de la landing), en círculo y con la sombra dura del sistema de diseño.
+/// Marca pequeña de MANI para menús y encabezados: la manita dentro de un círculo con el borde y la sombra dura del
+/// sistema de diseño.
 ///
-/// Reemplaza al cuadro amarillo con la letra «M» que se repetía en el login, el menú y los registros.
+/// Reemplaza al cuadro amarillo con la letra «M» que se repetía en el menú y en los registros. El aro se dibuja aquí con
+/// los tokens de `AppTheme`, no viene en la imagen, así que sigue al tema si este cambia. Para la imagen grande de las
+/// pantallas de entrada se usa `ManiMano` directamente.
 class ManiLogo extends StatelessWidget {
   const ManiLogo({
     super.key,
@@ -20,40 +23,21 @@ class ManiLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      label: 'MANI',
-      image: true,
+    return SizedBox.square(
+      dimension: size,
       child: DecoratedBox(
         decoration: BoxDecoration(
+          color: AppTheme.backgroundDark,
           shape: BoxShape.circle,
+          border: Border.all(
+            color: AppTheme.dark,
+            width: size >= 80 ? AppTheme.borderThick : AppTheme.borderMedium,
+          ),
           boxShadow: sombra == null ? null : [sombra!],
         ),
-        child: ClipOval(
-          child: Image.asset(
-            'assets/images/mani_logo.webp',
-            width: size,
-            height: size,
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.high,
-            excludeFromSemantics: true,
-            // Si la imagen no carga queda un círculo amarillo con la «M», nunca un hueco vacío.
-            errorBuilder: (context, error, stack) => ColoredBox(
-              color: AppTheme.primary,
-              child: SizedBox.square(
-                dimension: size,
-                child: Center(
-                  child: Text(
-                    'M',
-                    style: TextStyle(
-                      fontSize: size * 0.45,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.dark,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+        child: Padding(
+          padding: EdgeInsets.all(size * 0.1),
+          child: ManiMano(mini: size < 80),
         ),
       ),
     );
