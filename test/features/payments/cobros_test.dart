@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mani/core/network/gateway_client.dart';
+import 'package:mani/core/widgets/refresco_periodico.dart';
 import 'package:mani/features/payments/data/cobros_datasource.dart';
 import 'package:mani/features/payments/domain/cobros.dart';
 import 'package:mani/features/payments/domain/pago.dart';
@@ -312,6 +313,78 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('No pudimos consultar la retención.'), findsOneWidget);
+    });
+  });
+
+  group('SCRUM-1710 · sondeo de Mis cobros', () {
+    test('la retención pasa a liquidación sin volver a cargando', () async {
+      final f = _FuenteFalsa(cobros: [CobroAliado.fromJson(_cobro())]);
+      final cubit = CobrosAliadoCubit(f);
+      await cubit.cargar();
+      final estados = <CobrosAliadoState>[];
+      final sub = cubit.stream.listen(estados.add);
+
+      f.cobros = [
+        CobroAliado.fromJson(_cobro(estado: 'LIBERADA', liquidacion: _liq)),
+      ];
+      await cubit.cargar(silencioso: true);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.cobros.single, f.cobros.single);
+      expect(estados.any((e) => e.fase == FaseCobros.cargando), isFalse);
+      await sub.cancel();
+      await cubit.close();
+    });
+
+    test('un fallo conserva los cobros y no muestra error', () async {
+      final f = _FuenteFalsa(cobros: [CobroAliado.fromJson(_cobro())]);
+      final cubit = CobrosAliadoCubit(f);
+      await cubit.cargar();
+      f.falla = const PagoFailure(PagoErrorTipo.servicioNoDisponible);
+
+      await cubit.cargar(silencioso: true);
+
+      expect(cubit.state.fase, FaseCobros.listo);
+      expect(cubit.state.cobros, hasLength(1));
+      await cubit.close();
+    });
+
+    test('no consulta mientras la primera carga sigue en curso', () async {
+      final f = _FuenteFalsa();
+      final cubit = CobrosAliadoCubit(f);
+
+      await cubit.cargar(silencioso: true);
+
+      expect(f.llamadas, 0);
+      await cubit.close();
+    });
+  });
+
+  group('SCRUM-1710 · pantalla de Mis cobros con sondeo', () {
+    testWidgets('a los 20 s la retención aparece liberada sin recargar', (
+      tester,
+    ) async {
+      final f = _FuenteFalsa(cobros: [CobroAliado.fromJson(_cobro())]);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider(
+            create: (_) => CobrosAliadoCubit(f)..cargar(),
+            child: const CobrosAliadoView(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Retenido en garantía'), findsOneWidget);
+
+      f.cobros = [
+        CobroAliado.fromJson(_cobro(estado: 'LIBERADA', liquidacion: _liq)),
+      ];
+      await tester.pump(RefrescoPeriodico.intervaloPorDefecto);
+      await tester.pumpAndSettle();
+
+      expect(f.llamadas, 2);
+      expect(find.text('Retenido en garantía'), findsNothing);
+      expect(find.text('Liberado'), findsOneWidget);
     });
   });
 }
