@@ -359,7 +359,9 @@ void main() {
         <SolicitudSeguimiento>[],
       ], onNueva: () => abrio = true);
 
-      expect(find.text('Aún no has publicado solicitudes.'), findsOneWidget);
+      expect(find.text('Aún no tienes pedidos'), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const Key('seguimiento-nueva')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('seguimiento-nueva')));
       expect(abrio, isTrue);
     });
@@ -371,7 +373,7 @@ void main() {
       ]);
 
       expect(find.byKey(const Key('seguimiento-error')), findsOneWidget);
-      expect(find.text('Aún no has publicado solicitudes.'), findsNothing);
+      expect(find.text('Aún no tienes pedidos'), findsNothing);
 
       await tester.tap(find.text('Reintentar'));
       await tester.pumpAndSettle();

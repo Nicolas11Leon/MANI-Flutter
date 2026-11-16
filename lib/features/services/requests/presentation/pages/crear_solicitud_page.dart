@@ -4,8 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/platform/selector_fotos.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/barra_acciones_flujo.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_esqueleto.dart';
+import 'package:mani/core/widgets/mani_estados.dart';
+import 'package:mani/core/widgets/mani_layout.dart';
+import 'package:mani/core/widgets/mani_personaje.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 
 import '../bloc/crear_solicitud_cubit.dart';
@@ -117,8 +122,9 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
                     }
                     return switch (state.carga) {
                       CargaFormulario.inicial ||
-                      CargaFormulario.cargando => const Center(
-                        child: CircularProgressIndicator(color: AppTheme.dark),
+                      CargaFormulario.cargando => Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: ManiEsqueleto.detalle(),
                       ),
                       CargaFormulario.error => _ErrorCarga(
                         mensaje:
@@ -192,7 +198,7 @@ class _Asistente extends StatelessWidget {
   }
 }
 
-/// Atrás / Continuar / Publicar, siempre visible.
+/// Atrás / Continuar / Publicar, siempre visible: la barra estándar de los flujos (`BarraAccionesFlujo`).
 class _BarraAcciones extends StatelessWidget {
   const _BarraAcciones();
 
@@ -215,89 +221,22 @@ class _BarraAcciones extends StatelessWidget {
       _ => null,
     };
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(top: BorderSide(color: AppTheme.dark, width: 2)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (pista != null) ...[
-                  Text(
-                    pista,
-                    key: const ValueKey('pista-paso'),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Flexible: en un teléfono los dos botones comparten el
-                    // ancho sin desbordar; en escritorio llegan a su máximo.
-                    Flexible(
-                      flex: 2,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 160),
-                        child: ManiButton(
-                          key: const ValueKey('btn-atras'),
-                          etiqueta: 'Atrás',
-                          icono: Icons.arrow_back_rounded,
-                          variante: ManiButtonVariante.secundario,
-                          expandir: true,
-                          onPressed: state.publicando ? null : cubit.anterior,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Flexible(
-                      flex: 3,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 260),
-                        child: esRevision
-                            ? ManiButton(
-                                key: const ValueKey('btn-publicar'),
-                                etiqueta: state.publicando
-                                    ? 'Publicando…'
-                                    : 'Publicar solicitud',
-                                icono: Icons.campaign_rounded,
-                                expandir: true,
-                                cargando: state.publicando,
-                                onPressed: state.puedeAvanzar
-                                    ? cubit.publicar
-                                    : null,
-                              )
-                            : ManiButton(
-                                key: const ValueKey('btn-continuar'),
-                                etiqueta: 'Continuar',
-                                icono: Icons.arrow_forward_rounded,
-                                expandir: true,
-                                onPressed: state.puedeAvanzar
-                                    ? cubit.siguiente
-                                    : null,
-                              ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return BarraAccionesFlujo(
+      pista: pista,
+      clavePista: const ValueKey('pista-paso'),
+      claveAtras: const ValueKey('btn-atras'),
+      onAtras: state.publicando ? null : cubit.anterior,
+      clavePrincipal: ValueKey(esRevision ? 'btn-publicar' : 'btn-continuar'),
+      etiquetaPrincipal: esRevision
+          ? (state.publicando ? 'Publicando…' : 'Publicar solicitud')
+          : 'Continuar',
+      iconoPrincipal: esRevision
+          ? Icons.campaign_rounded
+          : Icons.arrow_forward_rounded,
+      cargando: esRevision && state.publicando,
+      onPrincipal: state.puedeAvanzar
+          ? (esRevision ? cubit.publicar : cubit.siguiente)
+          : null,
     );
   }
 }
@@ -311,7 +250,9 @@ class _BarraSuperior extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: AppTheme.surface,
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+        border: Border(
+          bottom: BorderSide(color: AppTheme.dark, width: AppTheme.borderThin),
+        ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
@@ -324,22 +265,7 @@ class _BarraSuperior extends StatelessWidget {
             ),
             const SizedBox(width: 4),
           ],
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
-            ),
-            child: const Icon(
-              Icons.home_repair_service_rounded,
-              color: AppTheme.dark,
-              size: 22,
-            ),
-          ),
+          const ManiIconoCaja(icono: Icons.home_repair_service_rounded),
           const SizedBox(width: 12),
           const Expanded(
             child: Column(
@@ -351,7 +277,7 @@ class _BarraSuperior extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                     color: AppTheme.dark,
                   ),
                 ),
@@ -381,28 +307,15 @@ class _ErrorCarga extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.dark),
-            const SizedBox(height: 12),
-            Text(
-              mensaje,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
-            ManiButton(
-              key: const ValueKey('btn-reintentar-formulario'),
-              etiqueta: 'Reintentar',
-              icono: Icons.refresh_rounded,
-              onPressed: onReintentar,
-            ),
-          ],
-        ),
+    return ManiEstadoVacio(
+      pose: PoseMani.ups,
+      titulo: 'Algo no salió bien',
+      texto: mensaje,
+      accion: ManiButton(
+        key: const ValueKey('btn-reintentar-formulario'),
+        etiqueta: 'Reintentar',
+        icono: Icons.refresh_rounded,
+        onPressed: onReintentar,
       ),
     );
   }

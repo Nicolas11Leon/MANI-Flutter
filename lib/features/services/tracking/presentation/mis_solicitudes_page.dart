@@ -2,7 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/shell/app_shell.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_esqueleto.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_estados.dart';
+import 'package:mani/core/widgets/mani_layout.dart';
+import 'package:mani/core/widgets/mani_personaje.dart';
 import 'package:mani/features/services/ratings/data/calificacion_cierre_datasource.dart';
 import 'package:mani/features/services/ratings/domain/calificacion_cierre_modelos.dart';
 import 'package:mani/features/services/ratings/presentation/calificacion_cierre_cubit.dart';
@@ -59,19 +67,31 @@ class MisSolicitudesPage extends StatelessWidget {
                   vertical: 24,
                 ),
                 children: [
+                  if (MediaQuery.sizeOf(context).width < anchoMenuExpandido &&
+                      sl.isRegistered<FuenteModuloM08>())
+                    TituloDePantalla(
+                      titulo: 'Mis pedidos',
+                      acciones: [
+                        AccionDePantalla(
+                          clave: const Key('seguimiento-ver-historial'),
+                          icono: Icons.history,
+                          etiqueta: 'Historial',
+                          alTocar: () => _abrirHistorial(context),
+                        ),
+                      ],
+                    ),
                   _Encabezado(state: state, onActualizar: cubit.cargar),
                   const SizedBox(height: 14),
                   const _AvisoZona(),
                   const SizedBox(height: 16),
                   if (state.error != null)
-                    _Error(mensaje: state.error!, onReintentar: cubit.cargar),
+                    _Error(
+                      mensaje: state.error!,
+                      onReintentar: cubit.cargar,
+                      conLista: state.solicitudes.isNotEmpty,
+                    ),
                   if (state.cargando && state.solicitudes.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Center(
-                        child: CircularProgressIndicator(color: AppTheme.dark),
-                      ),
-                    )
+                    ManiEsqueleto.lista()
                   else if (state.solicitudes.isEmpty && state.error == null)
                     _Vacio(onNuevaSolicitud: onNuevaSolicitud)
                   else
@@ -216,22 +236,39 @@ class _DialogoCancelarState extends State<_DialogoCancelar> {
         ],
       ),
       actions: [
-        TextButton(
+        ManiButton(
           key: const Key('cancelar-volver'),
+          etiqueta: 'Volver',
+          variante: ManiButtonVariante.secundario,
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Volver'),
         ),
-        FilledButton(
+        ManiButton(
           key: const Key('cancelar-confirmar'),
-          style: FilledButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
+          etiqueta: 'Sí, cancelar',
+          variante: ManiButtonVariante.peligro,
           onPressed: () => Navigator.of(context).pop(_motivo.text.trim()),
-          child: const Text('Sí, cancelar'),
         ),
       ],
     );
   }
+}
+
+/// El historial de servicios del cliente, en un diálogo.
+void _abrirHistorial(BuildContext context) {
+  showDialog<void>(
+    context: context,
+    builder: (_) => Dialog(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720, maxHeight: 620),
+        child: BlocProvider(
+          create: (_) =>
+              HistorialServiciosCubit(sl<FuenteModuloM08>(), esAliado: false)
+                ..cargar(),
+          child: const HistorialServiciosPage(),
+        ),
+      ),
+    ),
+  );
 }
 
 class _Encabezado extends StatelessWidget {
@@ -243,23 +280,27 @@ class _Encabezado extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final consultado = state.consultadoEn;
+    // En celular el título y «Historial» viven en la barra del armazón; «Actualizar» sobra (se desliza para
+    // actualizar). Solo queda el dato de cuándo se consultó.
+    if (MediaQuery.sizeOf(context).width < anchoMenuExpandido) {
+      if (consultado == null) return const SizedBox.shrink();
+      return Text(
+        'Consultado: ${formatearFecha(consultado)}',
+        key: const Key('seguimiento-consultado'),
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.textSecondary,
+        ),
+      );
+    }
     return ManiCard(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
-            ),
-            child: const Icon(
-              Icons.list_alt_rounded,
-              color: AppTheme.dark,
-              size: 24,
-            ),
+          const ManiIconoCaja(
+            icono: Icons.list_alt_rounded,
+            forma: ManiIconoForma.fuerte,
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -267,10 +308,10 @@ class _Encabezado extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Mis solicitudes',
+                  'Mis pedidos',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
                     color: AppTheme.dark,
                   ),
                 ),
@@ -299,24 +340,7 @@ class _Encabezado extends StatelessWidget {
                 ),
                 child: TextButton.icon(
                   key: const Key('seguimiento-ver-historial'),
-                  onPressed: () => showDialog<void>(
-                    context: context,
-                    builder: (_) => Dialog(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: 720,
-                          maxHeight: 620,
-                        ),
-                        child: BlocProvider(
-                          create: (_) => HistorialServiciosCubit(
-                            sl<FuenteModuloM08>(),
-                            esAliado: false,
-                          )..cargar(),
-                          child: const HistorialServiciosPage(),
-                        ),
-                      ),
-                    ),
-                  ),
+                  onPressed: () => _abrirHistorial(context),
                   icon: const Icon(Icons.history, size: 18),
                   label: const Text('Historial'),
                 ),
@@ -342,34 +366,50 @@ class _Encabezado extends StatelessWidget {
   }
 }
 
-class _AvisoZona extends StatelessWidget {
+/// Aviso de que la zona es la que declaró el cliente. Es una franja plana que se puede cerrar y no vuelve mientras dure
+/// la sesión.
+class _AvisoZona extends StatefulWidget {
   const _AvisoZona();
 
   @override
+  State<_AvisoZona> createState() => _AvisoZonaState();
+}
+
+class _AvisoZonaState extends State<_AvisoZona> {
+  static bool _cerrado = false;
+
+  @override
   Widget build(BuildContext context) {
+    if (_cerrado) return const SizedBox.shrink();
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF9C3),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
+        color: AppTheme.avisoFondo,
+        borderRadius: BorderRadius.circular(AppTheme.radiusIcon),
       ),
-      child: const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(Icons.info_outline, size: 20, color: AppTheme.dark),
-          SizedBox(width: 10),
-          Expanded(
+          const Icon(Icons.info_outline, size: 20, color: AppTheme.avisoTexto),
+          const SizedBox(width: 10),
+          const Expanded(
             child: Text(
               'La zona es la que indicaste al publicar la solicitud. '
               'No es la ubicación del aliado: MANI no rastrea su posición.',
               key: Key('seguimiento-aviso-zona'),
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.dark,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.avisoTexto,
               ),
             ),
+          ),
+          IconButton(
+            key: const Key('seguimiento-aviso-zona-cerrar'),
+            tooltip: 'Cerrar aviso',
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+            onPressed: () => setState(() => _cerrado = true),
+            icon: const Icon(Icons.close, size: 20, color: AppTheme.avisoTexto),
           ),
         ],
       ),
@@ -411,17 +451,23 @@ class _TarjetaSolicitud extends StatelessWidget {
         children: [
           Row(
             children: [
+              const ManiIconoCaja(icono: Icons.handyman_outlined),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   solicitud.categoria,
                   style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                     color: AppTheme.dark,
                   ),
                 ),
               ),
-              Chip(label: Text(solicitud.etiquetaEstado)),
+              const SizedBox(width: 8),
+              ManiEstado(
+                texto: solicitud.etiquetaEstado,
+                tono: _tonoDe(solicitud.estado),
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -450,10 +496,8 @@ class _TarjetaSolicitud extends StatelessWidget {
               onCancelar != null ||
               cancelando) ...[
             const SizedBox(height: 14),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 10,
-              runSpacing: 8,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (cancelando)
                   const Padding(
@@ -466,69 +510,50 @@ class _TarjetaSolicitud extends StatelessWidget {
                         color: AppTheme.dark,
                       ),
                     ),
-                  )
-                else if (onCancelar != null)
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      border: Border.all(color: AppTheme.error, width: 2),
-                    ),
-                    child: TextButton.icon(
-                      key: Key('cancelar-solicitud-${solicitud.id}'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppTheme.error,
-                      ),
-                      icon: const Icon(Icons.cancel_outlined, size: 18),
-                      label: const Text('Cancelar solicitud'),
-                      onPressed: onCancelar,
-                    ),
                   ),
-                if (onVerAliados != null)
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      border: Border.all(color: AppTheme.dark, width: 2),
-                      boxShadow: const [AppTheme.hardShadowSm],
-                    ),
-                    child: TextButton.icon(
-                      key: Key('ver-aliados-${solicitud.id}'),
-                      icon: const Icon(Icons.groups_outlined, size: 18),
-                      label: const Text('Ver aliados'),
-                      onPressed: onVerAliados,
-                    ),
-                  ),
-                // Queja sobre un servicio con aliado (SCRUM-895).
-                if (onPresentarQueja != null)
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      border: Border.all(color: AppTheme.dark, width: 2),
-                      boxShadow: const [AppTheme.hardShadowSm],
-                    ),
-                    child: TextButton.icon(
-                      key: Key('presentar-queja-${solicitud.id}'),
-                      icon: const Icon(Icons.feedback_outlined, size: 18),
-                      label: const Text('Presentar queja'),
-                      onPressed: onPresentarQueja,
-                    ),
-                  ),
+                // Una sola acción principal según el estado.
                 if (onVerCotizacion != null)
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      border: Border.all(color: AppTheme.dark, width: 2),
-                      boxShadow: const [AppTheme.hardShadowSm],
-                    ),
-                    child: TextButton.icon(
-                      key: Key('ver-cotizacion-${solicitud.id}'),
-                      icon: const Icon(Icons.request_quote_outlined, size: 18),
-                      label: const Text('Ver cotización'),
-                      onPressed: onVerCotizacion,
-                    ),
+                  ManiButton(
+                    key: Key('ver-cotizacion-${solicitud.id}'),
+                    etiqueta: 'Ver cotización',
+                    icono: Icons.request_quote_outlined,
+                    onPressed: onVerCotizacion,
+                  )
+                else if (onVerAliados != null)
+                  ManiButton(
+                    key: Key('ver-aliados-${solicitud.id}'),
+                    etiqueta: 'Ver aliados',
+                    icono: Icons.groups_outlined,
+                    variante: ManiButtonVariante.secundario,
+                    onPressed: onVerAliados,
+                  ),
+                if (!cancelando &&
+                    (onCancelar != null || onPresentarQueja != null))
+                  PopupMenuButton<VoidCallback>(
+                    key: Key('menu-solicitud-${solicitud.id}'),
+                    tooltip: 'Más opciones',
+                    icon: const Icon(Icons.more_vert),
+                    onSelected: (accion) => accion(),
+                    itemBuilder: (_) => [
+                      if (onPresentarQueja != null)
+                        PopupMenuItem(
+                          key: Key('presentar-queja-${solicitud.id}'),
+                          value: onPresentarQueja!,
+                          child: const Text('Presentar queja'),
+                        ),
+                      if (onCancelar != null)
+                        PopupMenuItem(
+                          key: Key('cancelar-solicitud-${solicitud.id}'),
+                          value: onCancelar!,
+                          child: const Text(
+                            'Cancelar solicitud',
+                            style: TextStyle(
+                              color: AppTheme.errorStrong,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
               ],
             ),
@@ -539,6 +564,17 @@ class _TarjetaSolicitud extends StatelessWidget {
   }
 }
 
+ManiTono _tonoDe(EstadoSeguimiento estado) => switch (estado) {
+  EstadoSeguimiento.pendiente => ManiTono.atencion,
+  EstadoSeguimiento.asignada ||
+  EstadoSeguimiento.cotizando ||
+  EstadoSeguimiento.aceptada ||
+  EstadoSeguimiento.enEjecucion => ManiTono.enCurso,
+  EstadoSeguimiento.finalizada => ManiTono.listo,
+  EstadoSeguimiento.rechazada || EstadoSeguimiento.cancelada => ManiTono.mal,
+  EstadoSeguimiento.otro => ManiTono.neutro,
+};
+
 class _Vacio extends StatelessWidget {
   const _Vacio({this.onNuevaSolicitud});
 
@@ -546,44 +582,74 @@ class _Vacio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          const Text('Aún no has publicado solicitudes.'),
-          if (onNuevaSolicitud != null) ...[
-            const SizedBox(height: 12),
-            FilledButton(
+    return ManiEstadoVacio(
+      pose: PoseMani.buscando,
+      titulo: 'Aún no tienes pedidos',
+      texto: 'Cuéntanos qué necesitas y te conectamos con un aliado.',
+      accion: onNuevaSolicitud == null
+          ? null
+          : ManiButton(
               key: const Key('seguimiento-nueva'),
+              etiqueta: 'Pedir un servicio',
               onPressed: onNuevaSolicitud,
-              child: const Text('Publicar una solicitud'),
             ),
-          ],
-        ],
-      ),
     );
   }
 }
 
 class _Error extends StatelessWidget {
-  const _Error({required this.mensaje, required this.onReintentar});
+  const _Error({
+    required this.mensaje,
+    required this.onReintentar,
+    required this.conLista,
+  });
 
   final String mensaje;
   final Future<void> Function() onReintentar;
 
+  /// Si ya hay pedidos en pantalla, el error es una franja y no una pantalla de error: no los empuja fuera de la vista.
+  final bool conLista;
+
   @override
   Widget build(BuildContext context) {
-    final colores = Theme.of(context).colorScheme;
-    return Card(
-      color: colores.errorContainer,
-      child: ListTile(
+    if (!conLista) {
+      return KeyedSubtree(
         key: const Key('seguimiento-error'),
-        leading: Icon(Icons.error_outline, color: colores.onErrorContainer),
-        title: Text(mensaje),
-        trailing: TextButton(
-          onPressed: onReintentar,
-          child: const Text('Reintentar'),
-        ),
+        child: ManiEstadoError(texto: mensaje, alReintentar: onReintentar),
+      );
+    }
+    return Container(
+      key: const Key('seguimiento-error'),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+      decoration: BoxDecoration(
+        color: AppTheme.errorLight,
+        borderRadius: BorderRadius.circular(AppTheme.radiusIcon),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            size: 20,
+            color: AppTheme.errorStrong,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              mensaje,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.errorStrong,
+              ),
+            ),
+          ),
+          ManiButton(
+            etiqueta: 'Reintentar',
+            variante: ManiButtonVariante.texto,
+            onPressed: onReintentar,
+          ),
+        ],
       ),
     );
   }
