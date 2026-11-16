@@ -47,6 +47,15 @@ class GatewayPerfilPropioDataSource implements PerfilPropioRemoteDataSource {
     return _formatosSoportados.any(lower.endsWith);
   }
 
+  /// MIME de la parte `photo`. Core valida el tipo declarado de la parte
+  /// (`UpdateOwnProfileUseCase`); sin él, `http` envía
+  /// `application/octet-stream` y Core rechaza un PNG válido con 400
+  /// (SCRUM-1634).
+  static String tipoContenidoFoto(String nombreArchivo) =>
+      nombreArchivo.trim().toLowerCase().endsWith('.png')
+      ? 'image/png'
+      : 'image/jpeg';
+
   /// `true` si la foto puede enviarse: formato admitido y a lo sumo 5 MB.
   static bool esFotoValida(String nombreArchivo, Uint8List bytes) =>
       esFormatoImagenSoportado(nombreArchivo) &&
@@ -86,7 +95,12 @@ class GatewayPerfilPropioDataSource implements PerfilPropioRemoteDataSource {
         '/api/v1/core/profiles/me/photo',
         campos: const {},
         archivos: [
-          ArchivoMultipart(campo: 'photo', nombre: nombreArchivo, bytes: bytes),
+          ArchivoMultipart(
+            campo: 'photo',
+            nombre: nombreArchivo,
+            bytes: bytes,
+            tipoContenido: tipoContenidoFoto(nombreArchivo),
+          ),
         ],
       );
       return PerfilPropio.fromJson(res);
