@@ -9,6 +9,7 @@ import 'package:mani/core/widgets/mani_franja_simulado.dart';
 import 'package:mani/core/widgets/mani_personaje.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
+import 'package:mani/core/widgets/refresco_periodico.dart';
 import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
     show formatearPesos;
 
@@ -31,13 +32,29 @@ class CobrosAliadoPage extends StatelessWidget {
 }
 
 /// Vista de la pantalla; recibe el cubit del árbol (así la prueban los tests).
+///
+/// Se actualiza sola mientras está a la vista (SCRUM-1710): la retención pasa
+/// a liquidación sin recargar cuando el cliente paga o el servicio finaliza.
 class CobrosAliadoView extends StatelessWidget {
-  const CobrosAliadoView({super.key});
+  const CobrosAliadoView({
+    super.key,
+    this.intervaloRefresco = RefrescoPeriodico.intervaloPorDefecto,
+  });
+
+  /// `null` desactiva el sondeo (tests).
+  final Duration? intervaloRefresco;
 
   static const avisoSimulado = 'Simulación: no mueve dinero real';
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RefrescoPeriodico(
+    intervalo: intervaloRefresco,
+    onRefrescar: () =>
+        context.read<CobrosAliadoCubit>().cargar(silencioso: true),
+    child: _contenido(context),
+  );
+
+  Widget _contenido(BuildContext context) {
     return Scaffold(
       appBar: barraDePantalla(context, titulo: 'Mis cobros'),
       body: BlocBuilder<CobrosAliadoCubit, CobrosAliadoState>(
