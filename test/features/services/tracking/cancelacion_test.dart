@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mani/core/network/gateway_client.dart';
+import 'package:mani/core/widgets/refresco_periodico.dart';
 import 'package:mani/features/services/tracking/data/seguimiento_datasource.dart';
 import 'package:mani/features/services/tracking/domain/solicitud_seguimiento.dart';
 import 'package:mani/features/services/tracking/presentation/mis_solicitudes_cubit.dart';
@@ -53,6 +55,41 @@ class _Fuente implements FuenteSeguimiento {
     final r = cancelacion;
     if (r is Exception) throw r;
     return r as SolicitudSeguimiento;
+  }
+}
+
+/// Fuente cuya consulta falla mientras [falla] devuelva true.
+class _FuenteConFalla implements FuenteSeguimiento {
+  _FuenteConFalla(this.falla, this.lista);
+
+  final bool Function() falla;
+  final List<SolicitudSeguimiento> lista;
+
+  @override
+  Future<List<SolicitudSeguimiento>> listar() async {
+    if (falla()) {
+      throw const SeguimientoFailure(SeguimientoErrorTipo.sinConexion);
+    }
+    return lista;
+  }
+
+  @override
+  Future<SolicitudSeguimiento> cancelar(String solicitudId, {String? motivo}) =>
+      throw UnimplementedError();
+}
+
+/// Devuelve lo que había al consultar, pero tarda hasta que se abra [compuerta].
+class _FuenteLenta extends _Fuente {
+  _FuenteLenta(super.listas, {super.cancelacion});
+
+  Completer<void>? compuerta;
+
+  @override
+  Future<List<SolicitudSeguimiento>> listar() async {
+    final c = compuerta;
+    final foto = await super.listar();
+    if (c != null) await c.future;
+    return foto;
   }
 }
 
@@ -342,5 +379,168 @@ void main() {
       expect(find.text('En ejecución'), findsOneWidget);
       expect(find.byKey(const Key('cancelacion-ok')), findsNothing);
     });
+  });
+
+  group('SCRUM-1710 · sondeo de Mis solicitudes', () {
+    test('trae el estado nuevo sin pasar por cargando y actualiza la hora '
+        'de consulta', () async {
+      var ahora = DateTime(2026, 11, 13, 10);
+      final f = _Fuente([
+        [_solicitud()],
+        [_solicitud(estado: 'ASIGNADA')],
+      ]);
+      final cubit = MisSolicitudesCubit(f, reloj: () => ahora);
+      await cubit.cargar();
+      final estados = <MisSolicitudesState>[];
+      final sub = cubit.stream.listen(estados.add);
+
+      ahora = DateTime(2026, 11, 13, 10, 0, 20);
+      await cubit.cargar(silencioso: true);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.solicitudes.single.estadoCrudo, 'ASIGNADA');
+      expect(cubit.state.consultadoEn, ahora);
+      expect(estados.any((e) => e.cargando), isFalse);
+      await sub.cancel();
+      await cubit.close();
+    });
+
+    test('un fallo conserva la lista y no muestra error', () async {
+      var falla = false;
+      final f = _FuenteConFalla(() => falla, [_solicitud()]);
+      final cubit = MisSolicitudesCubit(f);
+      await cubit.cargar();
+      falla = true;
+
+      await cubit.cargar(silencioso: true);
+
+      expect(cubit.state.solicitudes, hasLength(1));
+      expect(cubit.state.error, isNull);
+      await cubit.close();
+    });
+
+    test('un sondeo exitoso borra el error de una carga fallida', () async {
+      var falla = false;
+      final f = _FuenteConFalla(() => falla, [_solicitud()]);
+      final cubit = MisSolicitudesCubit(f);
+      await cubit.cargar();
+      falla = true;
+      await cubit.cargar();
+      expect(cubit.state.error, isNotNull);
+
+      falla = false;
+      await cubit.cargar(silencioso: true);
+
+      expect(cubit.state.error, isNull);
+      await cubit.close();
+    });
+
+    test('no borra el motivo de una cancelación rechazada', () async {
+      final f = _Fuente(
+        [
+          [_solicitud(estado: 'ASIGNADA')],
+          [_solicitud(estado: 'EN_EJECUCION')],
+        ],
+        cancelacion: const SeguimientoFailure(
+          SeguimientoErrorTipo.noCancelable,
+        ),
+      );
+      final cubit = MisSolicitudesCubit(f);
+      await cubit.cargar();
+      await cubit.cancelar('sol-1');
+      final motivo = cubit.state.error;
+      expect(motivo, isNotNull);
+
+      await cubit.cargar(silencioso: true);
+
+      expect(cubit.state.error, motivo);
+      await cubit.close();
+    });
+
+    test('no consulta mientras hay una cancelación en curso', () async {
+      final f = _Fuente([
+        [_solicitud()],
+      ], cancelacion: _solicitud(estado: 'CANCELADA'));
+      final cubit = MisSolicitudesCubit(f);
+      await cubit.cargar();
+
+      final cancelacion = cubit.cancelar('sol-1');
+      await cubit.cargar(silencioso: true);
+      await cancelacion;
+
+      expect(f.consultas, 1);
+      expect(cubit.state.solicitudes.single.estadoCrudo, 'CANCELADA');
+      await cubit.close();
+    });
+  });
+
+  group('SCRUM-1710 · pantalla de Mis solicitudes con sondeo', () {
+    testWidgets('a los 20 s muestra el estado nuevo sin recargar', (
+      tester,
+    ) async {
+      final f = _Fuente([
+        [_solicitud(estado: 'ASIGNADA')],
+        [_solicitud(estado: 'EN_EJECUCION')],
+      ]);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BlocProvider(
+              create: (_) => MisSolicitudesCubit(f)..cargar(),
+              child: const MisSolicitudesPage(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('En ejecución'), findsNothing);
+
+      await tester.pump(RefrescoPeriodico.intervaloPorDefecto);
+      await tester.pumpAndSettle();
+
+      expect(f.consultas, 2);
+      expect(find.text('En ejecución'), findsOneWidget);
+    });
+
+    testWidgets('sin intervalo no vuelve a consultar', (tester) async {
+      final f = _Fuente([
+        [_solicitud()],
+      ]);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BlocProvider(
+              create: (_) => MisSolicitudesCubit(f)..cargar(),
+              child: const MisSolicitudesPage(intervaloRefresco: null),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.pump(RefrescoPeriodico.intervaloPorDefecto * 3);
+
+      expect(f.consultas, 1);
+    });
+  });
+
+  test('SCRUM-1710: una respuesta vieja del sondeo no deshace una '
+      'cancelación posterior', () async {
+    final f = _FuenteLenta([
+      [_solicitud()],
+    ], cancelacion: _solicitud(estado: 'CANCELADA'));
+    final cubit = MisSolicitudesCubit(f);
+    await cubit.cargar();
+
+    f.compuerta = Completer<void>();
+    final sondeo = cubit.cargar(silencioso: true);
+    final compuerta = f.compuerta!;
+    f.compuerta = null;
+    expect(await cubit.cancelar('sol-1'), isTrue);
+
+    compuerta.complete();
+    await sondeo;
+
+    expect(cubit.state.solicitudes.single.estadoCrudo, 'CANCELADA');
+    await cubit.close();
   });
 }

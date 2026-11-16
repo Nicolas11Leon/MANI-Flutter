@@ -1,11 +1,11 @@
 {
-    "name": "mani",
-    "short_name": "mani",
+    "name": "MANI",
+    "short_name": "MANI",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FDFBF7",
+    "theme_color": "#FDFBF7",
+    "description": "Pide plomería, electricidad, carpintería y reparaciones con expertos verificados. Cotiza, paga seguro y sigue tu servicio en un solo lugar.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

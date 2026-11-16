@@ -1,3 +1,4 @@
+import 'dart:async';
 // Prueba maestra frontend de la conexión del módulo M-08 que QA devolvió (SCRUM-874, 875, 1418, 878, 879 y 880): cada
 // historia se recorre en la pantalla real, con una fuente en memoria que responde como Core (cierre automático cuando
 // califican los dos, MANI-CAL-409D al repetir). Lo que se prueba es que la app ofrece cada flujo y muestra lo que
@@ -105,6 +106,30 @@ class _CoreM08 implements FuenteModuloM08 {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
+/// Cuenta las lecturas de calificaciones y puede fallar a pedido.
+class _CoreContado extends _CoreM08 {
+  int lecturas = 0;
+  bool falla = false;
+
+  /// Si está puesta, la lectura devuelve lo que había al consultar pero tarda
+  /// hasta que se abra.
+  Completer<void>? compuerta;
+
+  @override
+  Future<ResumenCalificacionesSolicitud> obtenerCalificaciones(
+    String solicitudId,
+  ) async {
+    final c = compuerta;
+    lecturas++;
+    if (falla) {
+      throw const ModuloM08Failure(ModuloM08ErrorTipo.desconocido);
+    }
+    final foto = await super.obtenerCalificaciones(solicitudId);
+    if (c != null) await c.future;
+    return foto;
+  }
 }
 
 class _Politicas implements FuentePoliticaCancelacion {
@@ -567,5 +592,87 @@ void main() {
         isFalse,
       );
     });
+  });
+
+  group('SCRUM-1710 · sondeo de la calificación', () {
+    test('el cliente ve que el aliado calificó y la solicitud se cerró, sin '
+        'pasar por cargando', () async {
+      final core = _CoreM08();
+      final cliente = CalificacionCierreCubit(core, solicitudId: _sol);
+      await cliente.cargar();
+      await core.registrarCalificacion(solicitudId: _sol, puntaje: 5);
+      core.rolSesion = 'ALLY';
+      await core.registrarCalificacion(solicitudId: _sol, puntaje: 4);
+      final estados = <CalificacionCierreState>[];
+      final sub = cliente.stream.listen(estados.add);
+
+      await cliente.cargar(silencioso: true);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cliente.state.resumen!.estado, 'CERRADA');
+      expect(cliente.state.resumen!.aliadoACliente!.puntaje, 4);
+      expect(estados.any((e) => e.cargando), isFalse);
+      await sub.cancel();
+      await cliente.close();
+    });
+
+    test('no borra el aviso visible ni consulta durante un envío', () async {
+      final core = _CoreContado();
+      final cubit = CalificacionCierreCubit(core, solicitudId: _sol);
+      await cubit.cargar();
+      await cubit.calificar(puntaje: 0);
+      final error = cubit.state.error;
+      expect(error, isNotNull);
+
+      await cubit.cargar(silencioso: true);
+      expect(cubit.state.error, error, reason: 'el aviso sigue a la vista');
+
+      final lecturas = core.lecturas;
+      final envio = cubit.calificar(puntaje: 5);
+      await cubit.cargar(silencioso: true);
+      await envio;
+      // El envío lee 2 veces: dentro de registrarCalificacion (este Core en
+      // memoria) y en la relectura de calificar. El sondeo no suma ninguna.
+      expect(
+        core.lecturas - lecturas,
+        2,
+        reason: 'el sondeo no consulta mientras se envía',
+      );
+      await cubit.close();
+    });
+
+    test('un fallo conserva lo que se ve sin mostrar error', () async {
+      final core = _CoreContado();
+      final cubit = CalificacionCierreCubit(core, solicitudId: _sol);
+      await cubit.cargar();
+      core.falla = true;
+
+      await cubit.cargar(silencioso: true);
+
+      expect(cubit.state.resumen, isNotNull);
+      expect(cubit.state.error, isNull);
+      await cubit.close();
+    });
+  });
+
+  test('SCRUM-1710: una respuesta vieja del sondeo no deshace una '
+      'calificación posterior', () async {
+    final core = _CoreContado();
+    final cubit = CalificacionCierreCubit(core, solicitudId: _sol);
+    await cubit.cargar();
+
+    core.compuerta = Completer<void>();
+    final sondeo = cubit.cargar(silencioso: true);
+    final compuerta = core.compuerta!;
+    core.compuerta = null;
+    expect(await cubit.calificar(puntaje: 5), isTrue);
+    expect(cubit.state.resumen!.clienteAAliado, isNotNull);
+
+    compuerta.complete();
+    await sondeo;
+
+    expect(cubit.state.resumen!.clienteAAliado, isNotNull);
+    expect(cubit.state.mensajeExito, isNotNull);
+    await cubit.close();
   });
 }

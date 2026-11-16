@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -79,6 +80,19 @@ class _FuenteFake implements FuenteCotizaciones {
     final c = _cot(version: lista.first.version, estado: estado);
     lista = [c, ...lista.skip(1)];
     return c;
+  }
+}
+
+/// Devuelve lo que había al consultar, pero tarda hasta que se abra [compuerta].
+class _FuenteLenta extends _FuenteFake {
+  Completer<void>? compuerta;
+
+  @override
+  Future<List<Cotizacion>> listar(String solicitudId) async {
+    final c = compuerta;
+    final foto = await super.listar(solicitudId);
+    if (c != null) await c.future;
+    return foto;
   }
 }
 
@@ -337,6 +351,61 @@ void main() {
       expect(cubit.state.aviso, startsWith('Aceptaste la cotización.'));
       expect(cubit.state.vigente?.estado, EstadoCotizacion.aceptada);
     });
+
+    test('SCRUM-1644: el sondeo silencioso trae la versión nueva sin pasar '
+        'por cargando', () async {
+      final f = _FuenteFake()..lista = [_cot()];
+      final cubit = CotizacionCubit(f, 'sol-1');
+      await cubit.cargar();
+      final estados = <CotizacionState>[];
+      final sub = cubit.stream.listen(estados.add);
+
+      f.lista = [_cot(version: 2), _cot()];
+      await cubit.cargar(silencioso: true);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.vigente?.version, 2);
+      expect(estados.any((e) => e.cargando), isFalse);
+      await sub.cancel();
+      await cubit.close();
+    });
+
+    test(
+      'SCRUM-1644: un sondeo fallido conserva la lista y no avisa',
+      () async {
+        final f = _FuenteFake()..lista = [_cot()];
+        final cubit = CotizacionCubit(f, 'sol-1');
+        await cubit.cargar();
+        f.falloListar = const CotizacionFailure(
+          CotizacionErrorTipo.sinConexion,
+        );
+
+        await cubit.cargar(silencioso: true);
+
+        expect(cubit.state.cotizaciones, hasLength(1));
+        expect(cubit.state.aviso, isNull);
+        expect(cubit.state.error, isNull);
+        await cubit.close();
+      },
+    );
+
+    test(
+      'SCRUM-1644: el sondeo no consulta ni pisa una acción en curso',
+      () async {
+        final f = _FuenteFake()..lista = [_cot()];
+        final cubit = CotizacionCubit(f, 'sol-1');
+        await cubit.cargar();
+        f.llamadas.clear();
+
+        final accion = cubit.responder(DecisionCotizacion.aceptar);
+        await cubit.cargar(silencioso: true);
+        await accion;
+
+        expect(f.llamadas.where((l) => l.startsWith('listar')), hasLength(1));
+        expect(cubit.state.aviso, startsWith('Aceptaste la cotización.'));
+        await cubit.close();
+      },
+    );
   });
 
   group('Cotización · pantalla', () {
@@ -517,5 +586,25 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('cotizacion-v1')), findsOneWidget);
     });
+  });
+
+  test('SCRUM-1644: una respuesta vieja del sondeo no pisa lo que dejó una '
+      'acción posterior', () async {
+    final f = _FuenteLenta()..lista = [_cot()];
+    final cubit = CotizacionCubit(f, 'sol-1');
+    await cubit.cargar();
+
+    f.compuerta = Completer<void>();
+    final sondeo = cubit.cargar(silencioso: true);
+    final compuerta = f.compuerta!;
+    f.compuerta = null;
+    await cubit.responder(DecisionCotizacion.aceptar);
+    expect(cubit.state.vigente?.estado, EstadoCotizacion.aceptada);
+
+    compuerta.complete();
+    await sondeo;
+
+    expect(cubit.state.vigente?.estado, EstadoCotizacion.aceptada);
+    await cubit.close();
   });
 }
