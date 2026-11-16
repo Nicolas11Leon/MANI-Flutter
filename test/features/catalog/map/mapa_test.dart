@@ -390,11 +390,9 @@ void main() {
 
         await cubit.cargar();
 
-        expect(
-          cubit.state.sitios.map((s) => s.id),
-          ['s1'],
-          reason: 'solo la ubicada y de la zona pedida',
-        );
+        expect(cubit.state.sitios.map((s) => s.id), [
+          's1',
+        ], reason: 'solo la ubicada y de la zona pedida');
         expect(cubit.state.sitiosSinUbicacion, 1);
       },
     );
