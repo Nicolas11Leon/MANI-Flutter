@@ -14,6 +14,7 @@ import 'package:mani/features/auth/domain/usecases/register_cliente_empresa_usec
 import 'package:mani/features/auth/domain/usecases/register_cliente_usecase.dart';
 import 'package:mani/features/auth/domain/usecases/register_empresa_usecase.dart';
 import 'package:mani/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:mani/core/widgets/mani_personaje.dart';
 import 'package:mani/features/auth/presentation/pages/login_page.dart';
 
 class _RepoFalso implements IAuthRepository {
@@ -85,7 +86,7 @@ void main() {
     final campos = find.byType(TextFormField);
     await tester.enterText(campos.at(0), 'ana@mani.app');
     await tester.enterText(campos.at(1), 'Password123');
-    await tester.tap(find.text('INGRESAR A MANI'));
+    await tester.tap(find.text('Ingresar'));
     await tester.pumpAndSettle();
   }
 
@@ -93,9 +94,9 @@ void main() {
     'C1: el login RBAC presenta formulario directo de credenciales sin selectores de rol redundantes',
     (tester) async {
       await montar(tester, rolDelToken: RolUsuario.cliente);
-      expect(find.text('CORREO ELECTRÓNICO'), findsOneWidget);
-      expect(find.text('CONTRASEÑA'), findsOneWidget);
-      expect(find.text('INGRESAR A MANI'), findsOneWidget);
+      expect(find.text('Correo electrónico'), findsOneWidget);
+      expect(find.text('Contraseña'), findsOneWidget);
+      expect(find.text('Ingresar'), findsOneWidget);
       // Sin pestañas ni selectores confusos
       expect(find.text('Soy Cliente'), findsNothing);
       expect(find.text('Soy Aliado'), findsNothing);
@@ -151,7 +152,7 @@ void main() {
       expect(find.text('Correo o contraseña incorrectos.'), findsOneWidget);
       expect(find.text('pantalla-de-inicio'), findsNothing);
       expect(
-        find.text('INGRESAR A MANI'),
+        find.text('Ingresar'),
         findsOneWidget,
         reason: 'sigue en el formulario',
       );
@@ -162,10 +163,52 @@ void main() {
     tester,
   ) async {
     await montar(tester, rolDelToken: RolUsuario.cliente);
-    await tester.tap(find.text('INGRESAR A MANI'));
+    await tester.tap(find.text('Ingresar'));
     await tester.pumpAndSettle();
     expect(repo.intentos, isEmpty);
   });
+
+  testWidgets(
+    'el muñequito aparece una sola vez y el error de credenciales sale dentro de la tarjeta',
+    (tester) async {
+      repo.falla = const AuthFailure('Correo o contraseña incorrectos.');
+      await montar(tester, rolDelToken: RolUsuario.desconocido);
+      expect(find.byType(ManiPersonaje), findsOneWidget);
+
+      await ingresar(tester);
+      expect(find.byType(SnackBar), findsNothing);
+      expect(find.text('Correo o contraseña incorrectos.'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'en celular con el teclado abierto el muñequito se reduce y el botón se alcanza',
+    (tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      addTearDown(tester.view.reset);
+      final router = GoRouter(
+        initialLocation: rutaLogin,
+        routes: [
+          GoRoute(path: rutaLogin, builder: (_, _) => const LoginPage()),
+        ],
+      );
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getSize(find.byType(ManiPersonaje)).height,
+        lessThanOrEqualTo(72),
+      );
+      await tester.ensureVisible(find.text('Ingresar'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.text('Ingresar')).bottom,
+        lessThanOrEqualTo(340),
+      );
+    },
+  );
 
   group('C3: el rol del token manda sobre cualquier selección (router)', () {
     test(

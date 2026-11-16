@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mani/core/config/tenant_config.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/di/injection_container.dart';
-import 'package:mani/core/widgets/mani_logo.dart';
+import 'package:mani/core/widgets/mani_mano.dart';
 import 'package:mani/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mani/features/auth/presentation/widgets/terminos_condiciones_section.dart';
 
@@ -330,13 +330,13 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
         children: [
           Row(
             children: [
-              ManiLogo(size: 40, sombra: AppTheme.hardShadowSm),
+              const ManiMano(alto: 36, mini: true),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'MANI Services',
+                    'MANI',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
@@ -344,7 +344,7 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
                     ),
                   ),
                   Text(
-                    'Plataforma Digital de Servicios',
+                    'Al servicio',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
