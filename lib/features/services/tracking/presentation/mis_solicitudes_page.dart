@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/refresco_periodico.dart';
 import 'package:mani/features/services/ratings/data/calificacion_cierre_datasource.dart';
 import 'package:mani/features/services/ratings/domain/calificacion_cierre_modelos.dart';
 import 'package:mani/features/services/ratings/presentation/calificacion_cierre_cubit.dart';
@@ -12,8 +13,9 @@ import '../domain/solicitud_seguimiento.dart';
 import 'mis_solicitudes_cubit.dart';
 
 /// Mis solicitudes (HU-M07-04 / SCRUM-871): estado vigente y zona declarada
-/// de cada solicitud del cliente. No muestra la ubicación del aliado ni se
-/// actualiza sola: el cliente consulta de nuevo con «Actualizar».
+/// de cada solicitud del cliente. No muestra la ubicación del aliado. Se
+/// actualiza sola mientras está a la vista (SCRUM-1710) y el cliente también
+/// puede consultar con «Actualizar».
 class MisSolicitudesPage extends StatelessWidget {
   const MisSolicitudesPage({
     super.key,
@@ -22,7 +24,12 @@ class MisSolicitudesPage extends StatelessWidget {
     this.onVerAliados,
     this.onPresentarQueja,
     this.previsualizarCancelacion,
+    this.intervaloRefresco = RefrescoPeriodico.intervaloPorDefecto,
   });
+
+  /// Cada cuánto se vuelve a consultar el estado (SCRUM-1710). `null`
+  /// desactiva el sondeo (tests).
+  final Duration? intervaloRefresco;
 
   final VoidCallback? onNuevaSolicitud;
 
@@ -42,7 +49,14 @@ class MisSolicitudesPage extends StatelessWidget {
   final void Function(String solicitudId)? onVerAliados;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RefrescoPeriodico(
+    intervalo: intervaloRefresco,
+    onRefrescar: () =>
+        context.read<MisSolicitudesCubit>().cargar(silencioso: true),
+    child: _contenido(context),
+  );
+
+  Widget _contenido(BuildContext context) {
     return BlocBuilder<MisSolicitudesCubit, MisSolicitudesState>(
       builder: (context, state) {
         final cubit = context.read<MisSolicitudesCubit>();

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -58,6 +59,21 @@ class _FuenteFake implements FuenteEjecucion {
     llamadas.add('marcar:${hito.ruta}');
     if (falloMarcar != null) throw falloMarcar!;
     estado = hito == HitoEjecucion.inicio ? 'EN_EJECUCION' : 'FINALIZADA';
+  }
+}
+
+/// Devuelve lo que había al consultar, pero tarda hasta que se abra [compuerta].
+class _FuenteLenta extends _FuenteFake {
+  _FuenteLenta(super.estado);
+
+  Completer<void>? compuerta;
+
+  @override
+  Future<Ejecucion> consultar(String solicitudId) async {
+    final c = compuerta;
+    final foto = await super.consultar(solicitudId);
+    if (c != null) await c.future;
+    return foto;
   }
 }
 
@@ -239,4 +255,73 @@ void main() {
       );
     },
   );
+
+  group('SCRUM-1644 · sondeo silencioso', () {
+    test('trae el estado nuevo sin pasar por cargando', () async {
+      final f = _FuenteFake('ACEPTADA');
+      final cubit = EjecucionCubit(f, 'sol-1');
+      await cubit.cargar();
+      final estados = <EjecucionState>[];
+      final sub = cubit.stream.listen(estados.add);
+
+      f.estado = 'EN_EJECUCION';
+      await cubit.cargar(silencioso: true);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.ejecucion?.enEjecucion, isTrue);
+      expect(estados.any((e) => e.cargando), isFalse);
+      await sub.cancel();
+      await cubit.close();
+    });
+
+    test('un fallo conserva lo que se ve y no muestra error', () async {
+      final f = _FuenteFake('ACEPTADA');
+      final cubit = EjecucionCubit(f, 'sol-1');
+      await cubit.cargar();
+      f.falloConsultar = const CotizacionFailure(
+        CotizacionErrorTipo.sinConexion,
+      );
+
+      await cubit.cargar(silencioso: true);
+
+      expect(cubit.state.ejecucion, isNotNull);
+      expect(cubit.state.error, isNull);
+      expect(cubit.state.aviso, isNull);
+      await cubit.close();
+    });
+
+    test('no consulta mientras se registra una marca', () async {
+      final f = _FuenteFake('ACEPTADA');
+      final cubit = EjecucionCubit(f, 'sol-1');
+      await cubit.cargar();
+      f.llamadas.clear();
+
+      final marca = cubit.marcar(HitoEjecucion.inicio);
+      await cubit.cargar(silencioso: true);
+      await marca;
+
+      expect(f.llamadas, ['marcar:${HitoEjecucion.inicio.ruta}', 'consultar']);
+      await cubit.close();
+    });
+  });
+
+  test('SCRUM-1644: una respuesta vieja del sondeo no pisa la marca '
+      'posterior', () async {
+    final f = _FuenteLenta('ACEPTADA');
+    final cubit = EjecucionCubit(f, 'sol-1');
+    await cubit.cargar();
+
+    f.compuerta = Completer<void>();
+    final sondeo = cubit.cargar(silencioso: true);
+    final compuerta = f.compuerta!;
+    f.compuerta = null;
+    await cubit.marcar(HitoEjecucion.inicio);
+    expect(cubit.state.ejecucion?.enEjecucion, isTrue);
+
+    compuerta.complete();
+    await sondeo;
+
+    expect(cubit.state.ejecucion?.enEjecucion, isTrue);
+    await cubit.close();
+  });
 }
