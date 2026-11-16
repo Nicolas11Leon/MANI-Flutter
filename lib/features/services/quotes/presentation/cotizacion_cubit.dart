@@ -66,14 +66,22 @@ class CotizacionCubit extends Cubit<CotizacionState> {
   final FuenteCotizaciones _fuente;
   final String solicitudId;
 
-  Future<void> cargar() async {
-    emit(state.copiar(cargando: true));
+  /// Sube con cada acción o carga normal. Un sondeo cuya respuesta llega
+  /// después la descarta: lo que leyó ya puede ser viejo (SCRUM-1644).
+  int _generacion = 0;
+
+  /// Con [silencioso] (sondeo, SCRUM-1644) no muestra cargando, no pisa una
+  /// acción en curso y, si falla, conserva lo que ya se ve sin avisar.
+  Future<void> cargar({bool silencioso = false}) async {
+    if (silencioso && (state.enviando || state.cargando)) return;
+    final generacion = silencioso ? _generacion : ++_generacion;
+    if (!silencioso) emit(state.copiar(cargando: true));
     try {
       final lista = await _fuente.listar(solicitudId);
-      if (isClosed) return;
+      if (isClosed || (silencioso && generacion != _generacion)) return;
       emit(CotizacionState(cotizaciones: lista));
     } on CotizacionFailure catch (f) {
-      if (isClosed) return;
+      if (isClosed || silencioso) return;
       // Si ya había datos se conservan y se avisa; si no, se muestra el error.
       emit(
         state.cotizaciones.isEmpty
@@ -118,6 +126,7 @@ class CotizacionCubit extends Cubit<CotizacionState> {
     String Function(Cotizacion) exito,
   ) async {
     if (state.enviando) return;
+    _generacion++;
     emit(state.copiar(enviando: true));
     final Cotizacion c;
     try {
