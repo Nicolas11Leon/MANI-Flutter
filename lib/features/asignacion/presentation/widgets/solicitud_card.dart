@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_layout.dart';
 
 import '../../domain/entities/modalidad_servicio.dart';
 import '../../domain/entities/regla_sitio.dart';
@@ -54,7 +55,6 @@ class SolicitudCard extends StatelessWidget {
     return ManiCard(
       key: ValueKey('card-solicitud-${s.id}'),
       seleccionada: recienAsignada,
-      sombra: AppTheme.hardShadowSm,
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -62,21 +62,10 @@ class SolicitudCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: s.esMia ? const Color(0xFFDCFCE7) : AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  border: Border.all(color: AppTheme.dark, width: 2),
-                ),
-                child: Icon(
-                  s.esMia
-                      ? Icons.assignment_turned_in_outlined
-                      : Icons.home_repair_service_rounded,
-                  color: AppTheme.dark,
-                ),
+              ManiIconoCaja(
+                icono: s.esMia
+                    ? Icons.assignment_turned_in_outlined
+                    : Icons.home_repair_service_rounded,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -89,7 +78,7 @@ class SolicitudCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w700,
                         color: AppTheme.dark,
                       ),
                     ),
@@ -108,7 +97,7 @@ class SolicitudCard extends StatelessWidget {
                       texto: s.esMia
                           ? 'Asignada ${haceCuanto(s.fechaAsignacion ?? s.fechaCreacion, hoy).toLowerCase()}'
                           : 'Solicitada ${haceCuanto(s.fechaCreacion, hoy).toLowerCase()}',
-                      color: urgente ? AppTheme.error : null,
+                      color: urgente ? AppTheme.errorStrong : null,
                       negrita: urgente,
                     ),
                   ],
@@ -147,7 +136,7 @@ class SolicitudCard extends StatelessWidget {
                 'El cliente canceló esta solicitud antes de la ejecución.',
                 key: ValueKey('aviso-cancelada'),
                 style: TextStyle(
-                  color: AppTheme.error,
+                  color: AppTheme.errorStrong,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -236,9 +225,8 @@ class _Problema extends StatelessWidget {
       key: const ValueKey('problema-solicitud'),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.background,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        border: Border.all(color: AppTheme.borderLight, width: 1.5),
+        color: AppTheme.backgroundSoft,
+        borderRadius: BorderRadius.circular(AppTheme.radiusIcon),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,17 +266,17 @@ class _ModalidadBadge extends StatelessWidget {
       ModalidadServicio.cotizacionPrevia => (
         Icons.request_quote_outlined,
         'Requiere cotización antes de empezar',
-        const Color(0xFFE0E7FF),
+        AppTheme.primaryLight,
       ),
       ModalidadServicio.tarifaEstandar => (
         Icons.sell_outlined,
         'Tarifa estándar del tenant',
-        const Color(0xFFDCFCE7),
+        AppTheme.successLight,
       ),
       ModalidadServicio.desconocida => (
         Icons.help_outline,
         'Modalidad de cobro por confirmar',
-        AppTheme.borderLight,
+        AppTheme.backgroundDark,
       ),
     };
     return Align(
@@ -298,7 +286,6 @@ class _ModalidadBadge extends StatelessWidget {
         decoration: BoxDecoration(
           color: fondo,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: AppTheme.dark, width: 1.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -344,10 +331,10 @@ class _ReglasSitio extends StatelessWidget {
         const Text(
           'REGLAS DEL SITIO',
           style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
             letterSpacing: 0.6,
-            color: AppTheme.textTertiary,
+            color: AppTheme.textSecondary,
           ),
         ),
         const SizedBox(height: 6),
@@ -367,14 +354,9 @@ class _ReglasSitio extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: d.advertencia
-                          ? const Color(0xFFFEF3C7)
-                          : AppTheme.background,
+                          ? AppTheme.avisoFondo
+                          : AppTheme.backgroundDark,
                       borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                      border: Border.all(
-                        color: d.advertencia
-                            ? const Color(0xFFB45309)
-                            : AppTheme.borderLight,
-                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -386,9 +368,12 @@ class _ReglasSitio extends StatelessWidget {
                         Flexible(
                           child: Text(
                             d.texto,
-                            style: const TextStyle(
-                              fontSize: 11,
+                            style: TextStyle(
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
+                              color: d.advertencia
+                                  ? AppTheme.avisoTexto
+                                  : AppTheme.dark,
                             ),
                           ),
                         ),
@@ -415,9 +400,8 @@ class _Direccion extends StatelessWidget {
       key: const ValueKey('direccion-solicitud'),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFDCFCE7),
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        border: Border.all(color: AppTheme.dark, width: 1.5),
+        color: AppTheme.successLight,
+        borderRadius: BorderRadius.circular(AppTheme.radiusIcon),
       ),
       child: Row(
         children: [
@@ -430,10 +414,10 @@ class _Direccion extends StatelessWidget {
                 const Text(
                   'DIRECCIÓN DEL SERVICIO',
                   style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.6,
-                    color: Color(0xFF15803D),
+                    color: AppTheme.successStrong,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -518,8 +502,8 @@ class _Etiqueta extends StatelessWidget {
       child: Text(
         texto,
         style: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w900,
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
           letterSpacing: 0.6,
           color: AppTheme.primary,
         ),

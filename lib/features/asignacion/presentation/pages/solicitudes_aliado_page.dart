@@ -3,8 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
+import 'package:mani/core/shell/al_cambiar_visibilidad.dart';
+import 'package:mani/core/shell/app_shell.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_esqueleto.dart';
+import 'package:mani/core/widgets/mani_estados.dart';
+import 'package:mani/core/widgets/mani_personaje.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 import 'package:mani/features/services/ratings/data/calificacion_cierre_datasource.dart';
 import 'package:mani/features/services/ratings/presentation/calificacion_cierre_cubit.dart';
@@ -51,14 +57,34 @@ class _SolicitudesAliadoPageState extends State<SolicitudesAliadoPage> {
   @override
   void initState() {
     super.initState();
+    _programarRefresco();
+  }
+
+  void _refrescar() {
+    final cubit = context.read<SolicitudesAliadoCubit>();
+    if (!cubit.state.procesando) {
+      cubit.cargar(silencioso: true);
+    }
+  }
+
+  void _programarRefresco() {
+    _refresco?.cancel();
     final intervalo = widget.intervaloRefresco;
-    if (intervalo != null) {
-      _refresco = Timer.periodic(intervalo, (_) {
-        final cubit = context.read<SolicitudesAliadoCubit>();
-        if (!cubit.state.procesando) {
-          cubit.cargar(silencioso: true);
-        }
-      });
+    _refresco = intervalo == null
+        ? null
+        : Timer.periodic(intervalo, (_) => _refrescar());
+  }
+
+  /// Con la bandeja oculta (otra pestaña, otra pantalla encima o la app en segundo plano) no se consulta. Al volver se
+  /// pone al día de una vez, sin esperar al siguiente ciclo.
+  void _alCambiarVisibilidad(bool visible) {
+    if (widget.intervaloRefresco == null) return;
+    if (visible) {
+      _refrescar();
+      _programarRefresco();
+    } else {
+      _refresco?.cancel();
+      _refresco = null;
     }
   }
 
@@ -70,6 +96,13 @@ class _SolicitudesAliadoPageState extends State<SolicitudesAliadoPage> {
 
   @override
   Widget build(BuildContext context) {
+    return AlCambiarVisibilidad(
+      alCambiar: _alCambiarVisibilidad,
+      child: _contenido(context),
+    );
+  }
+
+  Widget _contenido(BuildContext context) {
     return BlocListener<SolicitudesAliadoCubit, SolicitudesAliadoState>(
       listenWhen: (antes, ahora) =>
           ahora.aviso != null && antes.aviso != ahora.aviso,
@@ -94,10 +127,9 @@ class _SolicitudesAliadoPageState extends State<SolicitudesAliadoPage> {
                       buildWhen: (a, b) => a.carga != b.carga,
                       builder: (context, state) => switch (state.carga) {
                         CargaSolicitudes.inicial ||
-                        CargaSolicitudes.cargando => const Center(
-                          child: CircularProgressIndicator(
-                            color: AppTheme.dark,
-                          ),
+                        CargaSolicitudes.cargando => Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: ManiEsqueleto.tarjetas(),
                         ),
                         CargaSolicitudes.error => _ErrorCarga(
                           falla: state.error,
@@ -236,12 +268,21 @@ class _Pestanas extends StatelessWidget {
           excludeSemantics: true,
           child: InkWell(
             key: ValueKey('tab-${p.name}'),
+            customBorder: const StadiumBorder(),
             onTap: () => onCambiar(p),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              height: 50,
-              color: activa ? AppTheme.primary : AppTheme.surface,
+              duration: AppTheme.motionFast,
               alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: activa ? AppTheme.surface : Colors.transparent,
+                borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                border: activa
+                    ? Border.all(
+                        color: AppTheme.dark,
+                        width: AppTheme.borderThin,
+                      )
+                    : null,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -250,29 +291,19 @@ class _Pestanas extends StatelessWidget {
                       etiqueta,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                        fontWeight: activa ? FontWeight.w800 : FontWeight.w600,
                         color: activa ? AppTheme.dark : AppTheme.textSecondary,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 1,
-                    ),
-                    decoration: BoxDecoration(
-                      color: activa ? AppTheme.dark : AppTheme.background,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      '$n',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: activa ? AppTheme.primary : AppTheme.dark,
-                      ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '$n',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: activa ? AppTheme.dark : AppTheme.textSecondary,
                     ),
                   ),
                 ],
@@ -284,17 +315,15 @@ class _Pestanas extends StatelessWidget {
     }
 
     return Container(
+      height: 44,
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowSm],
+        color: AppTheme.backgroundDark,
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
       ),
-      clipBehavior: Clip.antiAlias,
       child: Row(
         children: [
           pestana(PestanaSolicitudes.disponibles, 'Disponibles', disponibles),
-          Container(width: 2, height: 50, color: AppTheme.dark),
           pestana(PestanaSolicitudes.misTrabajos, 'Mis trabajos', misTrabajos),
         ],
       ),
@@ -311,19 +340,22 @@ class _ComoFunciona extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF9C3),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 1.5),
+        color: AppTheme.avisoFondo,
+        borderRadius: BorderRadius.circular(AppTheme.radiusIcon),
       ),
       child: const Row(
         children: [
-          Icon(Icons.bolt_rounded, color: AppTheme.dark),
+          Icon(Icons.bolt_rounded, color: AppTheme.avisoTexto),
           SizedBox(width: 8),
           Expanded(
             child: Text(
               'Estas solicitudes se ofrecen a varios aliados a la vez: '
               'el primero en aceptar se queda con el trabajo.',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.avisoTexto,
+              ),
             ),
           ),
         ],
@@ -341,7 +373,7 @@ class _SinDisponibles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Vacio(
-      icono: Icons.inbox_outlined,
+      pose: PoseMani.descansando,
       titulo: 'No hay solicitudes nuevas',
       texto:
           'Aquí aparecerán las solicitudes de tus especialidades en tus zonas '
@@ -373,7 +405,7 @@ class _SinTrabajos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const _Vacio(
-    icono: Icons.work_outline_rounded,
+    pose: PoseMani.buscando,
     titulo: 'Aún no tienes trabajos',
     texto: 'Cuando aceptes una solicitud aparecerá aquí con la dirección.',
   );
@@ -381,50 +413,31 @@ class _SinTrabajos extends StatelessWidget {
 
 class _Vacio extends StatelessWidget {
   const _Vacio({
-    required this.icono,
+    required this.pose,
     required this.titulo,
     required this.texto,
     this.acciones = const [],
   });
 
-  final IconData icono;
+  final PoseMani pose;
   final String titulo;
   final String texto;
   final List<Widget> acciones;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 12),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
+    return ManiEstadoVacio(
+      pose: pose,
+      titulo: titulo,
+      texto: texto,
+      accion: acciones.isEmpty
+          ? null
+          : Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 12,
+              runSpacing: 12,
+              children: acciones,
             ),
-            child: Icon(icono, size: 32, color: AppTheme.dark),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            titulo,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            texto,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.textSecondary),
-          ),
-          if (acciones.isNotEmpty) ...[
-            const SizedBox(height: 18),
-            Wrap(spacing: 12, runSpacing: 12, children: acciones),
-          ],
-        ],
-      ),
     );
   }
 }
@@ -440,8 +453,61 @@ class _BarraSuperior extends StatelessWidget {
   final VoidCallback? onAbrirCategorias;
   final VoidCallback? onAbrirDisponibilidad;
 
+  void _abrirHistorial(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => Dialog(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720, maxHeight: 620),
+          child: BlocProvider(
+            create: (_) =>
+                HistorialServiciosCubit(sl<FuenteModuloM08>(), esAliado: true)
+                  ..cargar(),
+            child: const HistorialServiciosPage(),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // En celular el nombre de la pantalla y sus accesos viven en la barra del armazón (menú «⋮»).
+    if (MediaQuery.sizeOf(context).width < anchoMenuExpandido) {
+      return TituloDePantalla(
+        titulo: 'Solicitudes',
+        acciones: [
+          if (onAbrirCobertura != null)
+            AccionDePantalla(
+              clave: const ValueKey('btn-ir-cobertura'),
+              icono: Icons.map_outlined,
+              etiqueta: 'Mis zonas',
+              alTocar: onAbrirCobertura!,
+            ),
+          if (onAbrirCategorias != null)
+            AccionDePantalla(
+              clave: const ValueKey('btn-ir-especialidades'),
+              icono: Icons.handyman_outlined,
+              etiqueta: 'Mis especialidades',
+              alTocar: onAbrirCategorias!,
+            ),
+          if (onAbrirDisponibilidad != null)
+            AccionDePantalla(
+              clave: const ValueKey('btn-ir-disponibilidad'),
+              icono: Icons.event_busy_outlined,
+              etiqueta: 'Mi disponibilidad',
+              alTocar: onAbrirDisponibilidad!,
+            ),
+          if (sl.isRegistered<FuenteModuloM08>())
+            AccionDePantalla(
+              clave: const ValueKey('btn-ir-historial-aliado'),
+              icono: Icons.history_rounded,
+              etiqueta: 'Historial',
+              alTocar: () => _abrirHistorial(context),
+            ),
+        ],
+      );
+    }
     final puedeVolver = Navigator.of(context).canPop();
     return Container(
       decoration: const BoxDecoration(
@@ -482,7 +548,7 @@ class _BarraSuperior extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Solicitudes de servicio',
+                  'Solicitudes',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 16,
@@ -527,24 +593,7 @@ class _BarraSuperior extends StatelessWidget {
             IconButton(
               key: const ValueKey('btn-ir-historial-aliado'),
               tooltip: 'Historial de trabajos',
-              onPressed: () => showDialog<void>(
-                context: context,
-                builder: (_) => Dialog(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 720,
-                      maxHeight: 620,
-                    ),
-                    child: BlocProvider(
-                      create: (_) => HistorialServiciosCubit(
-                        sl<FuenteModuloM08>(),
-                        esAliado: true,
-                      )..cargar(),
-                      child: const HistorialServiciosPage(),
-                    ),
-                  ),
-                ),
-              ),
+              onPressed: () => _abrirHistorial(context),
               icon: const Icon(Icons.history_rounded, color: AppTheme.dark),
             ),
           IconButton(
@@ -570,32 +619,19 @@ class _ErrorCarga extends StatelessWidget {
   Widget build(BuildContext context) {
     final enRevision = falla?.tipo == AsignacionErrorTipo.aliadoNoVerificado;
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              enRevision
-                  ? Icons.hourglass_top_rounded
-                  : Icons.cloud_off_rounded,
-              size: 48,
-              color: AppTheme.dark,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              falla?.mensajeUsuario ?? 'No pudimos cargar tus solicitudes.',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
-            ManiButton(
-              key: const ValueKey('btn-reintentar-solicitudes'),
-              etiqueta: 'Reintentar',
-              icono: Icons.refresh_rounded,
-              onPressed: onReintentar,
-            ),
-          ],
+      child: SingleChildScrollView(
+        child: ManiEstadoVacio(
+          pose: enRevision ? PoseMani.trabajando : PoseMani.ups,
+          titulo: enRevision
+              ? 'Estamos revisando tu cuenta'
+              : 'Algo no salió bien',
+          texto: falla?.mensajeUsuario ?? 'No pudimos cargar tus solicitudes.',
+          accion: ManiButton(
+            key: const ValueKey('btn-reintentar-solicitudes'),
+            etiqueta: 'Reintentar',
+            icono: Icons.refresh_rounded,
+            onPressed: onReintentar,
+          ),
         ),
       ),
     );

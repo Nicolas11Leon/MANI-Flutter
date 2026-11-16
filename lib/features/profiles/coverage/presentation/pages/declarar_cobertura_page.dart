@@ -7,6 +7,7 @@ import '../../domain/entities/zona.dart';
 import '../controllers/cobertura_controller.dart';
 import '../widgets/resumen_cobertura_bar.dart';
 import '../widgets/zona_tiles.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// US-02.1.4 — Declarar zona de cobertura (SCRUM-849).
 ///
@@ -116,7 +117,7 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
           }
         },
         child: Scaffold(
-          appBar: AppBar(title: const Text('Zona de cobertura')),
+          appBar: barraDePantalla(context, titulo: 'Mis zonas'),
           body: _cuerpo(context),
           bottomNavigationBar: c.carga == EstadoCarga.listo
               ? ResumenCoberturaBar(controller: c)

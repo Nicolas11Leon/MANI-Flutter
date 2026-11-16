@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Mapa del catálogo geográfico como pantalla propia (HU-M04-07 / SCRUM-1396).
 ///
@@ -17,7 +18,7 @@ class MapaZonasPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mapa de zonas')),
+      appBar: barraDePantalla(context, titulo: 'Mapa de zonas'),
       body: const MapaZonas(),
     );
   }

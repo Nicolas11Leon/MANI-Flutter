@@ -4,6 +4,7 @@ import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_esqueleto.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 import 'package:mani/features/availability/domain/entities/ausencia.dart';
 import 'package:mani/features/availability/presentation/bloc/disponibilidad_cubit.dart';
@@ -106,8 +107,9 @@ class DisponibilidadView extends StatelessWidget {
                 child: BlocBuilder<DisponibilidadCubit, DisponibilidadState>(
                   builder: (context, state) => switch (state.carga) {
                     CargaDisponibilidad.inicial ||
-                    CargaDisponibilidad.cargando => const Center(
-                      child: CircularProgressIndicator(color: AppTheme.dark),
+                    CargaDisponibilidad.cargando => Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: ManiEsqueleto.tarjetas(),
                     ),
                     CargaDisponibilidad.error => _ErrorCarga(
                       mensaje:
@@ -290,14 +292,14 @@ class _EstadoActual extends StatelessWidget {
   Widget build(BuildContext context) {
     return ManiCard(
       key: ValueKey(disponible ? 'estado-disponible' : 'estado-no-disponible'),
-      color: disponible ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
+      color: disponible ? AppTheme.successLight : AppTheme.errorLight,
       child: Row(
         children: [
           Icon(
             disponible
                 ? Icons.check_circle_rounded
                 : Icons.do_not_disturb_on_rounded,
-            color: disponible ? AppTheme.success : AppTheme.error,
+            color: disponible ? AppTheme.successStrong : AppTheme.errorStrong,
             size: 32,
           ),
           const SizedBox(width: 12),

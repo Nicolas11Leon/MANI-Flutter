@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:mani/core/shell/sin_deslizar_menus.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:mani/core/theme/app_theme.dart';
@@ -240,86 +241,92 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
           ],
         ),
         const SizedBox(height: 6),
-        SizedBox(
-          height: 76,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.fotosRutas.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final ruta = widget.fotosRutas[index];
-              final url = _resolvedUrls[ruta];
+        SinDeslizarMenus(
+          child: SizedBox(
+            height: 76,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.fotosRutas.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                final ruta = widget.fotosRutas[index];
+                final url = _resolvedUrls[ruta];
 
-              return InkWell(
-                onTap: () => _abrirDetalle(index),
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                child: Container(
-                  width: 76,
-                  height: 76,
-                  decoration: BoxDecoration(
-                    color: AppTheme.background,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    border: Border.all(color: AppTheme.dark, width: 2),
-                    boxShadow: const [AppTheme.hardShadowSm],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd - 2),
-                    child: url != null
-                        ? Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Image.network(
-                                url,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => const Center(
-                                  child: Icon(
-                                    Icons.broken_image,
-                                    size: 24,
-                                    color: AppTheme.textSecondary,
-                                  ),
-                                ),
-                                loadingBuilder: (_, child, progress) {
-                                  if (progress == null) return child;
-                                  return const Center(
-                                    child: SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
+                return InkWell(
+                  onTap: () => _abrirDetalle(index),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  child: Container(
+                    width: 76,
+                    height: 76,
+                    decoration: BoxDecoration(
+                      color: AppTheme.background,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                      border: Border.all(color: AppTheme.dark, width: 2),
+                      boxShadow: const [AppTheme.hardShadowSm],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.radiusMd - 2,
+                      ),
+                      child: url != null
+                          ? Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Image.network(
+                                  url,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) => const Center(
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      size: 24,
+                                      color: AppTheme.textSecondary,
                                     ),
-                                  );
-                                },
-                              ),
-                              Positioned(
-                                right: 3,
-                                bottom: 3,
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.65),
-                                    borderRadius: BorderRadius.circular(4),
                                   ),
-                                  child: const Icon(
-                                    Icons.fullscreen,
-                                    size: 14,
-                                    color: Colors.white,
+                                  loadingBuilder: (_, child, progress) {
+                                    if (progress == null) return child;
+                                    return const Center(
+                                      child: SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                Positioned(
+                                  right: 3,
+                                  bottom: 3,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.65,
+                                      ),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: const Icon(
+                                      Icons.fullscreen,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
+                              ],
+                            )
+                          : const Center(
+                              child: Icon(
+                                Icons.image,
+                                size: 24,
+                                color: AppTheme.textSecondary,
                               ),
-                            ],
-                          )
-                        : const Center(
-                            child: Icon(
-                              Icons.image,
-                              size: 24,
-                              color: AppTheme.textSecondary,
                             ),
-                          ),
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ],

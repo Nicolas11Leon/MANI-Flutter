@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
+import 'package:mani/core/shell/recargar_al_activar.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_esqueleto.dart';
+import 'package:mani/core/widgets/mani_estados.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
+import 'package:mani/core/widgets/mani_personaje.dart';
+import 'package:mani/core/widgets/mani_snackbar.dart';
+import 'package:mani/features/profile_categories/domain/entities/category_entity.dart';
 import 'package:mani/features/profile_categories/presentation/bloc/categories_cubit.dart';
 
-/// Pantalla de selección de categorías del aliado (US-03.1.3).
+/// Mis especialidades: el aliado elige en qué categorías trabaja (US-03.1.3).
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
 
@@ -23,308 +33,110 @@ class CategoriesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6EFDA),
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: BlocConsumer<CategoriesCubit, CategoriesState>(
           listenWhen: (prev, curr) =>
               (curr.saveSuccess && !prev.saveSuccess) ||
               (curr.saveFailure != null && prev.saveFailure == null),
           listener: (context, state) {
-            final messenger = ScaffoldMessenger.of(context);
             if (state.saveSuccess) {
-              messenger.showSnackBar(
-                const SnackBar(content: Text('Categorías guardadas')),
-              );
+              showManiSnackBar(context, 'Especialidades guardadas');
+              // La bandeja del aliado se pone al día con sus nuevas especialidades.
+              activacionDePestanas.invalidar();
             } else if (state.saveFailure != null) {
-              messenger.showSnackBar(
-                SnackBar(content: Text(state.saveFailure!.mensajeUsuario)),
+              showManiSnackBar(
+                context,
+                state.saveFailure!.mensajeUsuario,
+                esError: true,
               );
             }
           },
           builder: (context, state) {
             final cubit = context.read<CategoriesCubit>();
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 14),
-                  child: Row(
+            final Widget cuerpo;
+            if (state.isLoading) {
+              cuerpo = ManiPagina(
+                children: [
+                  const _Encabezado(),
+                  const SizedBox(height: 16),
+                  ManiEsqueleto.tarjetas(cantidad: 4),
+                ],
+              );
+            } else if (state.loadFailure != null) {
+              cuerpo = ManiPagina(
+                children: [
+                  ManiEstadoVacio(
+                    pose: PoseMani.ups,
+                    titulo: 'Algo no salió bien',
+                    texto: state.loadFailure!.mensajeUsuario,
+                    accion: ManiButton(
+                      key: const ValueKey('btn-reintentar-categorias'),
+                      etiqueta: 'Reintentar',
+                      onPressed: cubit.loadCategories,
+                    ),
+                  ),
+                ],
+              );
+            } else if (state.categories.isEmpty) {
+              cuerpo = const ManiPagina(
+                children: [
+                  ManiEstadoVacio(
+                    titulo: 'Aún no hay categorías',
+                    texto:
+                        'Tu organización aún no tiene categorías activas. '
+                        'Contacta al administrador.',
+                  ),
+                ],
+              );
+            } else {
+              cuerpo = ManiPagina(
+                children: [
+                  const _Encabezado(),
+                  const SizedBox(height: 16),
+                  Text(
+                    _contador(state.selectedIds.length),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ManiRejilla(
+                    anchoMinimo: 150,
+                    maxColumnas: 4,
+                    espacio: 12,
                     children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFF1A1A1A),
-                            width: 2,
-                          ),
-                        ),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            size: 18,
-                            color: Color(0xFF1A1A1A),
-                          ),
-                          onPressed: () => Navigator.of(context).maybePop(),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Mis categorías',
-                        style: TextStyle(
-                          fontSize: 19,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A1A1A),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(20, 0, 20, 16),
-                  child: Text(
-                    'Selecciona lo que sabes hacer. Solo verás avisos de trabajos en estas áreas.',
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      height: 1.4,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF5B5648),
-                    ),
-                  ),
-                ),
-                if (state.isLoading)
-                  const Expanded(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (state.loadFailure != null)
-                  Expanded(
-                    child: _Mensaje(
-                      texto: state.loadFailure!.mensajeUsuario,
-                      accion: TextButton(
-                        key: const ValueKey('btn-reintentar-categorias'),
-                        onPressed: cubit.loadCategories,
-                        child: const Text('Reintentar'),
-                      ),
-                    ),
-                  )
-                else if (state.categories.isEmpty)
-                  const Expanded(
-                    child: _Mensaje(
-                      texto:
-                          'Tu organización aún no tiene categorías activas. '
-                          'Contacta al administrador.',
-                    ),
-                  )
-                else
-                  Expanded(
-                    child: ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                      itemCount: state.categories.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 10),
-                      itemBuilder: (context, index) {
-                        final cat = state.categories[index];
-                        final isSelected = state.selectedIds.contains(cat.id);
-                        return GestureDetector(
-                          key: ValueKey('categoria-${cat.id}'),
-                          onTap: state.isSaving
+                      for (final cat in state.categories)
+                        _Ficha(
+                          categoria: cat,
+                          seleccionada: state.selectedIds.contains(cat.id),
+                          alTocar: state.isSaving
                               ? null
                               : () => cubit.toggleCategory(cat.id),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 13,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? const Color(0xFFF5C518)
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: const Color(0xFF1A1A1A),
-                                width: 2,
-                              ),
-                              boxShadow: isSelected
-                                  ? [
-                                      const BoxShadow(
-                                        color: Color(0xFF1A1A1A),
-                                        offset: Offset(2, 2),
-                                        blurRadius: 0,
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 36,
-                                      height: 36,
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? Colors.white
-                                            : const Color(0xFFF6EFDA),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: const Color(0xFF1A1A1A),
-                                          width: 2,
-                                        ),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        cat.emoji,
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      cat.label,
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w800,
-                                        color: Color(0xFF1A1A1A),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? Colors.white
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(7),
-                                    border: Border.all(
-                                      color: const Color(0xFF1A1A1A),
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: isSelected
-                                      ? const Icon(
-                                          Icons.check,
-                                          size: 14,
-                                          color: Color(0xFF1A1A1A),
-                                        )
-                                      : null,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                if (state.showError)
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 13,
-                      vertical: 11,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFFE4342D),
-                        width: 2,
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0xFFE4342D),
-                          offset: Offset(2, 2),
-                          blurRadius: 0,
                         ),
-                      ],
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 16,
-                          color: Color(0xFFE4342D),
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Selecciona al menos una categoría para continuar.',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFE4342D),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 26),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF6EFDA),
-                    border: Border(
-                      top: BorderSide(color: Color(0xFF1A1A1A), width: 2),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${state.selectedIds.length} categoría(s) seleccionada(s)',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF5B5648),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          key: const ValueKey('btn-guardar-categorias'),
-                          onPressed:
-                              state.isLoading ||
-                                  state.isSaving ||
-                                  state.loadFailure != null
-                              ? null
-                              : cubit.save,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFE4342D),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              side: const BorderSide(
-                                color: Color(0xFF1A1A1A),
-                                width: 2,
-                              ),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: state.isSaving
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Text(
-                                  'GUARDAR',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
-                        ),
-                      ),
                     ],
                   ),
+                  if (state.selectedIds.isEmpty) ...[
+                    const SizedBox(height: 16),
+                    const _Indicacion(),
+                  ],
+                ],
+              );
+            }
+            return Column(
+              children: [
+                Expanded(child: cuerpo),
+                _BarraGuardar(
+                  habilitado:
+                      !state.isLoading &&
+                      !state.isSaving &&
+                      state.loadFailure == null &&
+                      state.categories.isNotEmpty &&
+                      state.selectedIds.isNotEmpty,
+                  guardando: state.isSaving,
+                  alGuardar: cubit.save,
                 ),
               ],
             );
@@ -333,33 +145,176 @@ class CategoriesView extends StatelessWidget {
       ),
     );
   }
+
+  static String _contador(int n) =>
+      n == 1 ? '1 seleccionada' : '$n seleccionadas';
 }
 
-class _Mensaje extends StatelessWidget {
-  const _Mensaje({required this.texto, this.accion});
-
-  final String texto;
-  final Widget? accion;
+class _Encabezado extends StatelessWidget {
+  const _Encabezado();
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    return const ManiEncabezadoPagina(
+      icono: Icons.category_outlined,
+      titulo: 'Mis especialidades',
+      descripcion:
+          'Elige lo que sabes hacer. Solo te llegarán solicitudes de estas áreas.',
+    );
+  }
+}
+
+/// Una categoría como ficha: tarjeta de 88 px, con la marca de verificación cuando está elegida.
+class _Ficha extends StatelessWidget {
+  const _Ficha({
+    required this.categoria,
+    required this.seleccionada,
+    required this.alTocar,
+  });
+
+  final CategoryEntity categoria;
+  final bool seleccionada;
+  final VoidCallback? alTocar;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      checked: seleccionada,
+      inMutuallyExclusiveGroup: false,
+      label: categoria.label,
+      excludeSemantics: true,
+      onTap: alTocar,
+      child: SizedBox(
+        key: ValueKey('categoria-${categoria.id}'),
+        height: 88,
+        child: Stack(
           children: [
-            Text(
-              texto,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF5B5648),
+            Positioned.fill(
+              child: ManiCard(
+                seleccionada: seleccionada,
+                onTap: alTocar,
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: seleccionada
+                            ? AppTheme.surface
+                            : AppTheme.primaryLight,
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusIcon,
+                        ),
+                      ),
+                      child: Text(
+                        categoria.emoji,
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        categoria.label,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.dark,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            if (accion != null) ...[const SizedBox(height: 12), accion!],
+            if (seleccionada)
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.dark,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check, size: 14, color: Colors.white),
+                ),
+              ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Sin selección no es un error, es una indicación: va en el tono de aviso y no en rojo.
+class _Indicacion extends StatelessWidget {
+  const _Indicacion();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.avisoFondo,
+        borderRadius: BorderRadius.circular(AppTheme.radiusIcon),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.info_outline, size: 20, color: AppTheme.avisoTexto),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Elige al menos una para continuar.',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.avisoTexto,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BarraGuardar extends StatelessWidget {
+  const _BarraGuardar({
+    required this.habilitado,
+    required this.guardando,
+    required this.alGuardar,
+  });
+
+  final bool habilitado;
+  final bool guardando;
+  final VoidCallback alGuardar;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      decoration: const BoxDecoration(
+        color: AppTheme.surface,
+        border: Border(
+          top: BorderSide(color: AppTheme.dark, width: AppTheme.borderThin),
+        ),
+      ),
+      child: Center(
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: ManiButton(
+            key: const ValueKey('btn-guardar-categorias'),
+            etiqueta: 'Guardar',
+            expandir: true,
+            cargando: guardando,
+            onPressed: habilitado ? alGuardar : null,
+          ),
         ),
       ),
     );
