@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../domain/regla_tenant.dart';
 import 'tenant_rules_cubit.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 class ReglasOperativasPage extends StatefulWidget {
   const ReglasOperativasPage({super.key});
@@ -35,12 +36,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'REGLAS OPERATIVAS DEL TENANT',
-          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.1),
-        ),
-      ),
+      appBar: barraDePantalla(context, titulo: 'Reglas de operación'),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),

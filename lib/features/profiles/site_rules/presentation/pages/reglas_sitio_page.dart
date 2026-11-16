@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/profiles/site_rules/domain/entities/reglas_sitio.dart';
 import 'package:mani/features/profiles/site_rules/presentation/bloc/reglas_sitio_cubit.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Pantalla dual para US-02.2.3 (SCRUM-853):
 /// - Como Cliente Corporativo (`esVistaAliado = false`): permite configurar
@@ -85,19 +86,11 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          widget.esVistaAliado
-              ? 'Reglas de Ingreso a la Sede (Vista Aliado)'
-              : 'Configurar Reglas Contextuales de la Sede',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
-          ),
-        ),
+      appBar: barraDePantalla(
+        context,
+        titulo: widget.esVistaAliado
+            ? 'Reglas de ingreso a la sede'
+            : 'Reglas de la sede',
       ),
       body: BlocConsumer<ReglasSitioCubit, ReglasSitioState>(
         listener: (context, state) {

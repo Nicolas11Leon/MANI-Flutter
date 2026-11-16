@@ -53,7 +53,7 @@ class QuejasPage extends StatelessWidget {
                   ? 'Atiende las quejas de los clientes y cambia su estado. '
                         'Cada cambio queda registrado con tu usuario.'
                   : 'Quejas que presentaste sobre tus servicios. Para '
-                        'presentar una nueva, ve a Mis solicitudes.',
+                        'presentar una nueva, ve a Mis pedidos.',
             ),
             const SizedBox(height: 24),
             if (cubit.esAdmin) ...[

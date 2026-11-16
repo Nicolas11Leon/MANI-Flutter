@@ -7,6 +7,7 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 
 import '../domain/evento_transaccion.dart';
 import 'auditoria_cubit.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Auditoría de transacciones (SCRUM-889, HU-M11-03): el registro inmutable de
 /// pagos del tenant, solo para el administrador. Cada evento dice quién, cuándo
@@ -40,7 +41,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Auditoría de transacciones')),
+      appBar: barraDePantalla(context, titulo: 'Auditoría de transacciones'),
       body: BlocBuilder<AuditoriaCubit, AuditoriaState>(
         builder: (context, state) {
           final cubit = context.read<AuditoriaCubit>();

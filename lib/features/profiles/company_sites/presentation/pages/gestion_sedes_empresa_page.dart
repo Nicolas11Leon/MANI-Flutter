@@ -5,6 +5,7 @@ import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
 import 'package:mani/features/profiles/company_sites/domain/entities/sede_empresa.dart';
 import 'package:mani/features/profiles/company_sites/presentation/bloc/sedes_empresa_cubit.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Pantalla de gestión de múltiples sedes (`sitio`) del cliente empresa de la
 /// sesión (US-02.2.2 / SCRUM-852, SCRUM-1387): alta y edición, cada sede con
@@ -91,20 +92,12 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'Mis Sedes y Sucursales Corporativas',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
-          ),
-        ),
-      ),
+      appBar: barraDePantalla(context, titulo: 'Mis sedes'),
       body: BlocBuilder<SedesEmpresaCubit, SedesEmpresaState>(
         builder: (context, state) {
+          if (state.soloClientesEmpresa) {
+            return const _SoloClientesEmpresa();
+          }
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Center(
@@ -492,6 +485,53 @@ class _SedeCard extends StatelessWidget {
             onPressed: onEditar,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Explicación para quien entra con una cuenta que no es de cliente empresa: las sedes no le aplican, así que no se
+/// muestran los formularios (no podrían funcionar) ni un error genérico.
+class _SoloClientesEmpresa extends StatelessWidget {
+  const _SoloClientesEmpresa();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: _Tarjeta(
+            child: Column(
+              key: const Key('sedes_solo_empresa'),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.apartment_outlined,
+                  size: 36,
+                  color: AppTheme.dark,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Las sedes son para clientes empresa',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.dark,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tu cuenta es de persona natural, así que no necesitas registrar sedes: '
+                  'al pedir un servicio indicas la dirección directamente. '
+                  'Si representas a una empresa, regístrala como cliente empresa desde la pantalla de inicio de sesión.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

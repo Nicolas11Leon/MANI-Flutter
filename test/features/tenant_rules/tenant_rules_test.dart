@@ -241,7 +241,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('REGLAS OPERATIVAS DEL TENANT'), findsOneWidget);
+      expect(find.text('Reglas de operación'), findsOneWidget);
       expect(find.text('VERSIÓN 0 (POR OMISIÓN)'), findsOneWidget);
       expect(find.byKey(const Key('btn_guardar_reglas')), findsOneWidget);
 

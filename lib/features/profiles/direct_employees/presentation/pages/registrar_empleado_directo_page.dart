@@ -7,6 +7,7 @@ import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/profiles/direct_employees/domain/entities/empleado_directo.dart';
 import 'package:mani/features/profiles/direct_employees/presentation/bloc/empleado_directo_cubit.dart';
 import 'package:mani/features/services/categories/data/datasources/categorias_remote_datasource.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Pantalla de administración del Tenant para registrar empleados directos
 /// que quedan con estado `VERIFICADO` inmediato sin pasar por cola KYC (US-02.1.5 / SCRUM-850 / SCRUM-1376).
@@ -119,18 +120,7 @@ class _RegistrarEmpleadoDirectoPageState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'Registrar Empleado Directo del Tenant',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
-          ),
-        ),
-      ),
+      appBar: barraDePantalla(context, titulo: 'Registrar empleado directo'),
       body: BlocConsumer<EmpleadoDirectoCubit, EmpleadoDirectoState>(
         listener: (context, state) {
           if (state is EmpleadoDirectoError) {

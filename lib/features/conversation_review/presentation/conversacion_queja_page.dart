@@ -4,6 +4,7 @@ import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/utils/formato_fecha.dart';
 
 import 'conversacion_queja_cubit.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Conversación de una queja (SCRUM-883): el administrador abre el hilo de un
 /// servicio indicando el motivo. La consulta queda registrada en la auditoría.
@@ -48,7 +49,7 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Conversación de una queja')),
+      appBar: barraDePantalla(context, titulo: 'Conversación de una queja'),
       body: BlocBuilder<ConversacionQuejaCubit, ConversacionQuejaState>(
         builder: (context, state) {
           final consultando = state.fase == FaseConversacion.consultando;
