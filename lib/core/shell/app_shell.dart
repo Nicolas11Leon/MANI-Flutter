@@ -6,6 +6,7 @@ import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/shell/selector_contexto_plataforma.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_confirmacion.dart';
 import 'package:mani/features/platform/data/tenants_datasource.dart';
 
 /// Ancho a partir del cual las entradas se muestran como barra; por debajo
@@ -107,7 +108,16 @@ class _AppShellState extends State<AppShell> {
           actuandoComo: widget.contextoPlataforma!.rolEfectivo,
         )
       : entradasMenuPara(widget.rol);
+
+  /// Cierre pedido por el usuario: es una acción crítica y pide confirmación
+  /// (SCRUM-1650). El cierre por sesión vencida no pasa por aquí.
   Future<void> _cerrarSesion() async {
+    final confirmado = await confirmarAccion(
+      context,
+      titulo: '¿Cerrar sesión?',
+      etiquetaConfirmar: 'Cerrar sesión',
+    );
+    if (!confirmado || !mounted) return;
     await widget.onCerrarSesion();
   }
 
