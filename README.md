@@ -128,6 +128,31 @@ Accede desde el navegador en `http://localhost:8080`.
 
 > **Base de datos y stack local.** Este repo ya no trae `database/`, `scripts/`, `supabase/` ni `docker-compose.yml` (CFG-33 / SCRUM-1110): viven en [MANI-APIGateway](https://github.com/Trama-AS/MANI-APIGateway). Para levantar Postgres, el Gateway y este cliente web juntos, construye aquí la imagen con `docker build -t mani-web:local .` y sigue la guía de `database/README.md` de MANI-APIGateway (perfiles `db` y `web`). La configuración de Nginx del cliente web está en `docker/nginx-web.conf`.
 
+### Configuración por ambiente
+
+La misma imagen se despliega en DEV, QA y PROD; lo que cambia entre ambientes son las variables de entorno del contenedor. Al arrancar, `docker/generate-env.sh` escribe en `assets/.env` las que reciba y deja con el valor empaquetado en la compilación las que no lleguen o lleguen vacías. Si `TENANT_SLUG` no llega y tampoco tiene valor en el `.env` empaquetado, se escribe `acme-servicios`. El log del contenedor indica qué variables tomó del entorno y cuáles quedaron con el valor empaquetado, sin mostrar valores. Nginx sirve `/assets/.env` con `Cache-Control: no-store` para que el navegador no conserve la configuración de un despliegue anterior.
+
+El `docker-compose` de cada ambiente (DEV, QA y PROD) debe pasar estas variables al servicio web:
+
+| Variable | Uso |
+|---|---|
+| `SUPABASE_URL` | URL del proyecto de Supabase del ambiente |
+| `SUPABASE_ANON_KEY` | Clave pública (anon) de Supabase del ambiente |
+| `API_GATEWAY_URL` | URL del `MANI-APIGateway` del ambiente |
+| `TENANT_SLUG` | Slug del tenant para el registro sin selector |
+
+```yaml
+services:
+  web:
+    environment:
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      API_GATEWAY_URL: ${API_GATEWAY_URL}
+      TENANT_SLUG: ${TENANT_SLUG}
+```
+
+La prueba del script está en `test/docker/generate_env_test.sh` (`sh test/docker/generate_env_test.sh`).
+
 ---
 
 ## 🌿 Flujo de Trabajo y CI/CD (Gitflow)
