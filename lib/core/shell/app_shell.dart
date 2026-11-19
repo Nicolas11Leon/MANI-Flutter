@@ -6,6 +6,7 @@ import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/shell/selector_contexto_plataforma.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_logo.dart';
 import 'package:mani/features/platform/data/tenants_datasource.dart';
 
 /// Ancho a partir del cual las entradas se muestran como barra; por debajo
@@ -169,25 +170,7 @@ class _AppShellState extends State<AppShell> {
               alignment: Alignment.centerLeft,
               child: Row(
                 children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      border: Border.all(color: AppTheme.dark, width: 2),
-                      boxShadow: const [AppTheme.hardShadowSm],
-                    ),
-                    child: const Text(
-                      'M',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
-                      ),
-                    ),
-                  ),
+                  ManiLogo(size: 40, sombra: AppTheme.hardShadowSm),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _CabeceraSesion(datos: _datos, rol: widget.rol),
