@@ -41,20 +41,31 @@ class EjecucionCubit extends Cubit<EjecucionState> {
   final FuenteEjecucion _fuente;
   final String solicitudId;
 
-  Future<void> cargar() async {
-    emit(EjecucionState(cargando: true, ejecucion: state.ejecucion));
+  /// Sube con cada acción o carga normal. Un sondeo cuya respuesta llega
+  /// después la descarta: lo que leyó ya puede ser viejo (SCRUM-1644).
+  int _generacion = 0;
+
+  /// Con [silencioso] (sondeo, SCRUM-1644) no muestra cargando, no pisa una
+  /// marca en curso y, si falla, conserva lo que ya se ve sin avisar.
+  Future<void> cargar({bool silencioso = false}) async {
+    if (silencioso && (state.enviando || state.cargando)) return;
+    final generacion = silencioso ? _generacion : ++_generacion;
+    if (!silencioso) {
+      emit(EjecucionState(cargando: true, ejecucion: state.ejecucion));
+    }
     try {
       final e = await _fuente.consultar(solicitudId);
-      if (isClosed) return;
+      if (isClosed || (silencioso && generacion != _generacion)) return;
       emit(EjecucionState(ejecucion: e));
     } on CotizacionFailure catch (f) {
-      if (isClosed) return;
+      if (isClosed || silencioso) return;
       emit(EjecucionState(ejecucion: state.ejecucion, error: f.mensajeUsuario));
     }
   }
 
   Future<void> marcar(HitoEjecucion hito, {String? observacion}) async {
     if (state.enviando) return;
+    _generacion++;
     emit(EjecucionState(enviando: true, ejecucion: state.ejecucion));
     try {
       await _fuente.marcar(solicitudId, hito, observacion: observacion);
