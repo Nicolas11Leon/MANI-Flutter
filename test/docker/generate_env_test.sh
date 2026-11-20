@@ -65,24 +65,35 @@ grep -q "Tomadas del entorno: ninguna" "$TRABAJO/c1.env.log" \
     && echo "ok   - sin variables: el log lo indica" \
     || { echo "FALLO - sin variables: el log no lo indica"; fallos=$((fallos + 1)); }
 
-# Caso 2: con todas, las escribe todas (la clave lleva '/', '&' y '=' para probar que no se rompe al reemplazar).
+# Caso 2: con todas, las escribe todas. La clave lleva '/', '&', '=' y '\' para probar que se escribe tal cual
+# (con awk -v, '\t' se convertiría en un tabulador). Se ejecuta con umask 077 para que el temporal nazca 600.
 empaquetado "$TRABAJO/c2.env"
 cat > "$TRABAJO/c2.esperado" <<'EOF'
 # Comentario del .env empaquetado
 SUPABASE_URL=https://runtime.example.test
-SUPABASE_ANON_KEY=clave/runtime&con=signos
+SUPABASE_ANON_KEY=clave/run\time&con=signos\\fin
 API_GATEWAY_URL=https://gateway-runtime.example.test
 TENANT_SLUG=tenant-runtime
 OTRA_VARIABLE=se-conserva
 EOF
-ejecutar "$TRABAJO/c2.env" \
-    SUPABASE_URL=https://runtime.example.test \
-    'SUPABASE_ANON_KEY=clave/runtime&con=signos' \
-    API_GATEWAY_URL=https://gateway-runtime.example.test \
-    TENANT_SLUG=tenant-runtime
-comparar "con todas las variables las escribe" "$TRABAJO/c2.esperado" "$TRABAJO/c2.env"
+(
+    umask 077
+    ejecutar "$TRABAJO/c2.env" \
+        SUPABASE_URL=https://runtime.example.test \
+        'SUPABASE_ANON_KEY=clave/run\time&con=signos\\fin' \
+        API_GATEWAY_URL=https://gateway-runtime.example.test \
+        TENANT_SLUG=tenant-runtime
+)
+comparar "con todas las variables las escribe (clave con \\ tal cual)" "$TRABAJO/c2.esperado" "$TRABAJO/c2.env"
 sin_valores_en_log "con todas las variables" "$TRABAJO/c2.env.log" \
-    runtime.example.test 'clave/runtime' gateway-runtime tenant-runtime
+    runtime.example.test 'clave/run' gateway-runtime tenant-runtime
+permisos="$(stat -c %a "$TRABAJO/c2.env")"
+if [ "$permisos" = "644" ]; then
+    echo "ok   - con umask 077 el .env final queda 644 (legible por todos)"
+else
+    echo "FALLO - con umask 077 el .env final queda $permisos, se esperaba 644"
+    fallos=$((fallos + 1))
+fi
 
 # Caso 3: solo API_GATEWAY_URL (las demás vacías), cambia esa y conserva el resto.
 empaquetado "$TRABAJO/c3.env"

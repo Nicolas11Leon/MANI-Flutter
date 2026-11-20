@@ -74,4 +74,6 @@ END {
     }
 }
 ' "$ENV_FILE" > "$temporal"
+# El temporal hereda el umask del contenedor (puede quedar 600); NGINX necesita leer el .env final.
+chmod 644 "$temporal"
 mv "$temporal" "$ENV_FILE"
