@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
-import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 import 'package:mani/features/services/ratings/data/calificacion_cierre_datasource.dart';
 import 'package:mani/features/services/ratings/presentation/calificacion_cierre_cubit.dart';
@@ -15,7 +16,6 @@ import '../../domain/failures/asignacion_failure.dart';
 import '../bloc/solicitudes_aliado_cubit.dart';
 import '../widgets/dialogo_rechazo.dart';
 import '../widgets/solicitud_card.dart';
-import 'package:mani/core/widgets/mani_estado.dart';
 
 /// US-04.1.4 — Bandeja de solicitudes del aliado: aceptar o rechazar sin
 /// doble asignación. Requiere un [SolicitudesAliadoCubit] en el contexto.
@@ -72,6 +72,7 @@ class _SolicitudesAliadoPageState extends State<SolicitudesAliadoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return BlocListener<SolicitudesAliadoCubit, SolicitudesAliadoState>(
       listenWhen: (antes, ahora) =>
           ahora.aviso != null && antes.aviso != ahora.aviso,
@@ -81,7 +82,7 @@ class _SolicitudesAliadoPageState extends State<SolicitudesAliadoPage> {
         esError: state.aviso!.tipo == TipoAviso.error,
       ),
       child: Scaffold(
-        backgroundColor: ManiColors.background,
+        backgroundColor: t.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -158,14 +159,15 @@ class _Bandeja extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final cubit = context.read<SolicitudesAliadoCubit>();
     return BlocBuilder<SolicitudesAliadoCubit, SolicitudesAliadoState>(
       builder: (context, state) {
         final visibles = state.visibles;
         final enDisponibles = state.pestana == PestanaSolicitudes.disponibles;
         return RefreshIndicator(
-          color: ManiColors.ink,
-          backgroundColor: ManiColors.brand,
+          color: t.onBrand,
+          backgroundColor: t.brand,
           onRefresh: () => cubit.cargar(silencioso: true),
           child: Center(
             child: ConstrainedBox(
@@ -240,6 +242,7 @@ class _Pestanas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     Widget pestana(PestanaSolicitudes p, String etiqueta, int n) {
       final activa = p == seleccionada;
       return Expanded(
@@ -254,7 +257,7 @@ class _Pestanas extends StatelessWidget {
             child: AnimatedContainer(
               duration: ManiMotion.fast,
               height: 50,
-              color: activa ? ManiColors.brand : ManiColors.surface,
+              color: activa ? t.brand : t.surface,
               alignment: Alignment.center,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -266,7 +269,7 @@ class _Pestanas extends StatelessWidget {
                       style: TextStyle(
                         fontSize: ManiFontSize.bodySm,
                         fontWeight: FontWeight.w800,
-                        color: activa ? ManiColors.ink : ManiColors.inkMuted,
+                        color: activa ? t.onBrand : t.inkMuted,
                       ),
                     ),
                   ),
@@ -277,7 +280,7 @@ class _Pestanas extends StatelessWidget {
                       vertical: 1,
                     ),
                     decoration: BoxDecoration(
-                      color: activa ? ManiColors.ink : ManiColors.background,
+                      color: activa ? t.onBrand : t.background,
                       borderRadius: ManiRadius.brPill,
                     ),
                     child: Text(
@@ -285,7 +288,7 @@ class _Pestanas extends StatelessWidget {
                       style: TextStyle(
                         fontSize: ManiFontSize.caption,
                         fontWeight: FontWeight.w900,
-                        color: activa ? ManiColors.brand : ManiColors.ink,
+                        color: activa ? t.brand : t.ink,
                       ),
                     ),
                   ),
@@ -299,16 +302,16 @@ class _Pestanas extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: ManiColors.surface,
+        color: t.surface,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
-        boxShadow: const [ManiShadow.sm],
+        border: Border.all(color: t.border, width: ManiBorder.regular),
+        boxShadow: [t.shadowSm],
       ),
       clipBehavior: Clip.antiAlias,
       child: Row(
         children: [
           pestana(PestanaSolicitudes.disponibles, 'Disponibles', disponibles),
-          Container(width: 2, height: 50, color: ManiColors.ink),
+          Container(width: 2, height: 50, color: t.border),
           pestana(PestanaSolicitudes.misTrabajos, 'Mis trabajos', misTrabajos),
         ],
       ),
@@ -322,16 +325,17 @@ class _ComoFunciona extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Container(
       padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: ManiColors.brandSoft,
+        color: t.surfaceWarm,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
+        border: Border.all(color: t.border, width: ManiBorder.thin),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.bolt_rounded, color: ManiColors.ink),
+          Icon(Icons.bolt_rounded, color: t.ink),
           ManiGap.hSm,
           Expanded(
             child: Text(
@@ -340,6 +344,7 @@ class _ComoFunciona extends StatelessWidget {
               style: TextStyle(
                 fontSize: ManiFontSize.bodySm,
                 fontWeight: FontWeight.w600,
+                color: t.ink,
               ),
             ),
           ),
@@ -431,6 +436,7 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return ManiEncabezadoPantalla(
       ancho: ManiAncho.formulario,
       icono: Icons.handyman_rounded,
@@ -442,21 +448,21 @@ class _BarraSuperior extends StatelessWidget {
             key: const ValueKey('btn-ir-cobertura'),
             tooltip: 'Mis zonas de cobertura',
             onPressed: onAbrirCobertura,
-            icon: const Icon(Icons.map_outlined, color: ManiColors.ink),
+            icon: Icon(Icons.map_outlined, color: t.ink),
           ),
         if (onAbrirCategorias != null)
           IconButton(
             key: const ValueKey('btn-ir-especialidades'),
             tooltip: 'Mis especialidades',
             onPressed: onAbrirCategorias,
-            icon: const Icon(Icons.handyman_outlined, color: ManiColors.ink),
+            icon: Icon(Icons.handyman_outlined, color: t.ink),
           ),
         if (onAbrirDisponibilidad != null)
           IconButton(
             key: const ValueKey('btn-ir-disponibilidad'),
             tooltip: 'Mi disponibilidad',
             onPressed: onAbrirDisponibilidad,
-            icon: const Icon(Icons.event_busy_outlined, color: ManiColors.ink),
+            icon: Icon(Icons.event_busy_outlined, color: t.ink),
           ),
         if (sl.isRegistered<FuenteModuloM08>())
           IconButton(
@@ -480,14 +486,14 @@ class _BarraSuperior extends StatelessWidget {
                 ),
               ),
             ),
-            icon: const Icon(Icons.history_rounded, color: ManiColors.ink),
+            icon: Icon(Icons.history_rounded, color: t.ink),
           ),
         IconButton(
           key: const ValueKey('btn-actualizar-solicitudes'),
           tooltip: 'Actualizar',
           onPressed: () =>
               context.read<SolicitudesAliadoCubit>().cargar(silencioso: true),
-          icon: const Icon(Icons.refresh_rounded, color: ManiColors.ink),
+          icon: Icon(Icons.refresh_rounded, color: t.ink),
         ),
       ],
     );
@@ -506,6 +512,7 @@ class _ErrorCarga extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final enRevision = falla?.tipo == AsignacionErrorTipo.aliadoNoVerificado;
     return Center(
       child: Padding(
@@ -518,13 +525,13 @@ class _ErrorCarga extends StatelessWidget {
                   ? Icons.hourglass_top_rounded
                   : Icons.cloud_off_rounded,
               size: 48,
-              color: ManiColors.ink,
+              color: t.ink,
             ),
             ManiGap.vMd,
             Text(
               falla?.mensajeUsuario ?? 'No pudimos cargar tus solicitudes.',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: TextStyle(fontWeight: FontWeight.w600, color: t.ink),
             ),
             ManiGap.vLg,
             ManiButton(

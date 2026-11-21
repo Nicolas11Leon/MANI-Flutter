@@ -12,12 +12,14 @@ class SolicitudPublicadaVista extends StatelessWidget {
     super.key,
     required this.solicitud,
     required this.onNueva,
+    this.onIrAMisSolicitudes,
     this.onReintentarAviso,
     this.avisando = false,
   });
 
   final SolicitudPublicada solicitud;
   final VoidCallback onNueva;
+  final VoidCallback? onIrAMisSolicitudes;
 
   /// Repite el aviso a los aliados si la publicación no lo logró (SCRUM-1402).
   final VoidCallback? onReintentarAviso;
@@ -25,6 +27,7 @@ class SolicitudPublicadaVista extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final s = solicitud;
     return Center(
       child: SingleChildScrollView(
@@ -36,24 +39,21 @@ class SolicitudPublicadaVista extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(ManiSpace.xl),
                 decoration: BoxDecoration(
-                  color: ManiColors.brand,
+                  color: t.brand,
                   shape: BoxShape.circle,
-                  border: Border.all(color: ManiColors.border, width: 3),
-                  boxShadow: const [ManiShadow.md],
+                  border: Border.all(color: t.border, width: 3),
+                  boxShadow: [t.shadow],
                 ),
-                child: const Icon(
-                  Icons.campaign_rounded,
-                  size: 40,
-                  color: ManiColors.ink,
-                ),
+                child: Icon(Icons.campaign_rounded, size: 40, color: t.onBrand),
               ),
               ManiGap.vLg,
-              const Text(
+              Text(
                 '¡Solicitud publicada!',
-                key: ValueKey('titulo-publicada'),
+                key: const ValueKey('titulo-publicada'),
                 style: TextStyle(
                   fontSize: ManiFontSize.h2,
                   fontWeight: FontWeight.w900,
+                  color: t.ink,
                 ),
               ),
               ManiGap.vSm,
@@ -65,7 +65,7 @@ class SolicitudPublicadaVista extends StatelessWidget {
                           'avisarle a los aliados.',
                 key: const ValueKey('texto-publicada'),
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: ManiColors.inkMuted),
+                style: TextStyle(color: t.inkMuted),
               ),
               if (!s.aliadosAvisados) ...[
                 ManiGap.vMd,
@@ -79,23 +79,22 @@ class SolicitudPublicadaVista extends StatelessWidget {
               ],
               ManiGap.vXl,
               ManiCard(
-                sombra: ManiShadow.sm,
+                sombra: t.shadowSm,
+                onTap: onIrAMisSolicitudes,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          iconoCategoria(s.categoria),
-                          color: ManiColors.ink,
-                        ),
+                        Icon(iconoCategoria(s.categoria), color: t.ink),
                         ManiGap.hSm,
                         Expanded(
                           child: Text(
                             s.categoria,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: ManiFontSize.bodyLg,
                               fontWeight: FontWeight.w900,
+                              color: t.ink,
                             ),
                           ),
                         ),
@@ -108,7 +107,7 @@ class SolicitudPublicadaVista extends StatelessWidget {
                             color: ManiColors.warningContainer,
                             borderRadius: ManiRadius.brPill,
                             border: Border.all(
-                              color: ManiColors.border,
+                              color: t.border,
                               width: ManiBorder.thin,
                             ),
                           ),
@@ -130,6 +129,7 @@ class SolicitudPublicadaVista extends StatelessWidget {
                       s.descripcion,
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: t.ink),
                     ),
                     ManiGap.vSm,
                     _Dato(icono: Icons.place_outlined, texto: s.direccion),
@@ -151,9 +151,18 @@ class SolicitudPublicadaVista extends StatelessWidget {
               ),
               ManiGap.vXxl,
               ManiButton(
+                key: const ValueKey('btn-mis-solicitudes'),
+                etiqueta: 'Ir a Mis solicitudes',
+                icono: Icons.list_alt_rounded,
+                expandir: true,
+                onPressed: onIrAMisSolicitudes,
+              ),
+              ManiGap.vMd,
+              ManiButton(
                 key: const ValueKey('btn-otra-solicitud'),
                 etiqueta: 'Publicar otra solicitud',
                 icono: Icons.add_rounded,
+                variante: ManiButtonVariante.secundario,
                 expandir: true,
                 onPressed: onNueva,
               ),
@@ -173,19 +182,20 @@ class _Dato extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Padding(
       padding: const EdgeInsets.only(top: ManiSpace.xs),
       child: Row(
         children: [
-          Icon(icono, size: 16, color: ManiColors.inkMuted),
+          Icon(icono, size: 16, color: t.inkMuted),
           ManiGap.hSm,
           Expanded(
             child: Text(
               texto,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: ManiFontSize.bodySm,
                 fontWeight: FontWeight.w600,
-                color: ManiColors.inkMuted,
+                color: t.inkMuted,
               ),
             ),
           ),

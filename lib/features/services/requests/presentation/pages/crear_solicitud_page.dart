@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mani/core/platform/selector_fotos.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
@@ -25,10 +26,14 @@ class CrearSolicitudPage extends StatefulWidget {
   const CrearSolicitudPage({
     super.key,
     required this.selectorFotos,
+    this.onIrAMisSolicitudes,
     this.esperaBusqueda = ManiMotion.slow,
   });
 
   final SelectorFotos selectorFotos;
+
+  /// Redirige a la bandeja de «Mis solicitudes» (`/cliente/solicitudes`).
+  final VoidCallback? onIrAMisSolicitudes;
 
   /// Pausa antes de buscar barrios mientras el usuario escribe.
   final Duration esperaBusqueda;
@@ -73,8 +78,17 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
     await _cubit.nuevaSolicitud();
   }
 
+  void _irAMisSolicitudes() {
+    if (widget.onIrAMisSolicitudes != null) {
+      widget.onIrAMisSolicitudes!();
+      return;
+    }
+    GoRouter.maybeOf(context)?.go('/cliente/solicitudes');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return MultiBlocListener(
       listeners: [
         BlocListener<CrearSolicitudCubit, CrearSolicitudState>(
@@ -101,7 +115,7 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: ManiColors.background,
+        backgroundColor: t.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -118,6 +132,7 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
                       return SolicitudPublicadaVista(
                         solicitud: state.publicada!,
                         onNueva: _nuevaSolicitud,
+                        onIrAMisSolicitudes: _irAMisSolicitudes,
                         avisando: state.avisando,
                         onReintentarAviso: _cubit.reintentarAviso,
                       );
@@ -227,6 +242,7 @@ class _BarraAcciones extends StatelessWidget {
       _ => null,
     };
 
+    final t = context.mani;
     return Container(
       padding: const EdgeInsets.fromLTRB(
         ManiSpace.xl,
@@ -234,9 +250,11 @@ class _BarraAcciones extends StatelessWidget {
         ManiSpace.xl,
         ManiSpace.lg,
       ),
-      decoration: const BoxDecoration(
-        color: ManiColors.surface,
-        border: Border(top: ManiBorder.side),
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border(
+          top: BorderSide(color: t.border, width: ManiBorder.regular),
+        ),
       ),
       child: SafeArea(
         top: false,
@@ -252,10 +270,10 @@ class _BarraAcciones extends StatelessWidget {
                     pista,
                     key: const ValueKey('pista-paso'),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: ManiFontSize.bodySm,
                       fontWeight: FontWeight.w700,
-                      color: ManiColors.inkMuted,
+                      color: t.inkMuted,
                     ),
                   ),
                   ManiGap.vSm,

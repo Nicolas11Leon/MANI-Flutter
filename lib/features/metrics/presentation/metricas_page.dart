@@ -5,6 +5,7 @@ import 'package:mani/core/network/mensaje_error_gateway.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
     show formatearPesos;
@@ -86,6 +87,7 @@ class MetricasPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return BlocBuilder<MetricasCubit, MetricasState>(
       builder: (context, state) {
         final cubit = context.read<MetricasCubit>();
@@ -161,65 +163,90 @@ class MetricasPage extends StatelessWidget {
                 titulo: 'Indicadores del periodo',
               ),
               ManiGap.vLg,
+              // Nivel 1: KPIs primarios de volumen e ingresos
               ManiRejilla(
-                anchoMinimo: 260,
-                maxColumnas: 4,
+                anchoMinimo: 280,
+                maxColumnas: 3,
                 children: [
                   _Indicador(
-                    'metrica-solicitudes',
-                    Icons.assignment_outlined,
-                    'Solicitudes creadas',
-                    '${m.solicitudesCreadas}',
+                    clave: 'metrica-solicitudes',
+                    icono: Icons.assignment_outlined,
+                    etiqueta: 'Solicitudes creadas',
+                    valor: '${m.solicitudesCreadas}',
+                    tono: ManiTono.marca,
+                    destacado: true,
                   ),
                   _Indicador(
-                    'metrica-finalizadas',
-                    Icons.task_alt,
-                    'Finalizadas',
-                    '${m.finalizadas}',
+                    clave: 'metrica-finalizadas',
+                    icono: Icons.task_alt,
+                    etiqueta: 'Finalizadas',
+                    valor: '${m.finalizadas}',
+                    tono: ManiTono.exito,
+                    destacado: true,
                   ),
                   _Indicador(
-                    'metrica-canceladas',
-                    Icons.cancel_outlined,
-                    'Canceladas',
-                    '${m.canceladas} (${_tasa(m.tasaCancelacion)})',
+                    clave: 'metrica-pagos',
+                    icono: Icons.payments_outlined,
+                    etiqueta: 'Pagos aprobados',
+                    valor:
+                        '${m.pagosAprobados} · ${formatearPesos(m.montoAprobado)}',
+                    tono: ManiTono.info,
+                    destacado: true,
+                  ),
+                ],
+              ),
+              ManiGap.vLg,
+              // Nivel 2: Conversión, red de aliados, calidad e incidencias
+              ManiRejilla(
+                anchoMinimo: 260,
+                maxColumnas: 3,
+                children: [
+                  _Indicador(
+                    clave: 'metrica-cotizaciones',
+                    icono: Icons.request_quote_outlined,
+                    etiqueta: 'Cotizaciones emitidas',
+                    valor: '${m.cotizacionesEmitidas}',
+                    tono: ManiTono.neutro,
                   ),
                   _Indicador(
-                    'metrica-cotizaciones',
-                    Icons.request_quote_outlined,
-                    'Cotizaciones emitidas',
-                    '${m.cotizacionesEmitidas}',
+                    clave: 'metrica-aceptacion',
+                    icono: Icons.thumb_up_alt_outlined,
+                    etiqueta: 'Aceptación de cotizaciones',
+                    valor: _tasa(m.tasaAceptacion),
+                    tono: ManiTono.acento,
                   ),
                   _Indicador(
-                    'metrica-aceptacion',
-                    Icons.thumb_up_alt_outlined,
-                    'Aceptación de cotizaciones',
-                    _tasa(m.tasaAceptacion),
+                    clave: 'metrica-aliados',
+                    icono: Icons.engineering_outlined,
+                    etiqueta: 'Aliados con servicios',
+                    valor: '${m.aliadosConServicios}',
+                    tono: ManiTono.info,
                   ),
                   _Indicador(
-                    'metrica-pagos',
-                    Icons.payments_outlined,
-                    'Pagos aprobados',
-                    '${m.pagosAprobados} · ${formatearPesos(m.montoAprobado)}',
-                  ),
-                  _Indicador(
-                    'metrica-calificacion',
-                    Icons.star_outline_rounded,
-                    'Calificación promedio',
-                    m.calificacionPromedio == null
+                    clave: 'metrica-calificacion',
+                    icono: Icons.star_outline_rounded,
+                    etiqueta: 'Calificación promedio',
+                    valor: m.calificacionPromedio == null
                         ? 'Sin calificaciones'
                         : '${m.calificacionPromedio!.toStringAsFixed(2)} (${m.calificaciones})',
+                    tono: ManiTono.marca,
                   ),
                   _Indicador(
-                    'metrica-quejas',
-                    Icons.feedback_outlined,
-                    'Quejas',
-                    '${m.quejasRegistradas} · ${m.quejasAbiertas} abiertas',
+                    clave: 'metrica-canceladas',
+                    icono: Icons.cancel_outlined,
+                    etiqueta: 'Canceladas',
+                    valor: '${m.canceladas} (${_tasa(m.tasaCancelacion)})',
+                    tono: m.canceladas > 0 ? ManiTono.aviso : ManiTono.neutro,
                   ),
                   _Indicador(
-                    'metrica-aliados',
-                    Icons.engineering_outlined,
-                    'Aliados con servicios',
-                    '${m.aliadosConServicios}',
+                    clave: 'metrica-quejas',
+                    icono: Icons.feedback_outlined,
+                    etiqueta: 'Quejas',
+                    valor:
+                        '${m.quejasRegistradas} · ${m.quejasAbiertas} abiertas',
+                    tono: m.quejasAbiertas > 0
+                        ? ManiTono.peligro
+                        : ManiTono.neutro,
                   ),
                 ],
               ),
@@ -232,35 +259,71 @@ class MetricasPage extends StatelessWidget {
                 ManiGap.vLg,
                 ManiRejilla(
                   anchoMinimo: 220,
-                  maxColumnas: 5,
-                  espacio: 12,
+                  maxColumnas: 4,
+                  espacio: 14,
                   children: [
                     for (final e in m.porEstado.entries)
                       ManiCard(
                         key: Key('metrica-estado-${e.key}'),
-                        sombra: ManiShadow.sm,
+                        sombra: t.shadowSm,
                         padding: const EdgeInsets.symmetric(
                           horizontal: ManiSpace.lg,
                           vertical: ManiSpace.md,
                         ),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: Text(
-                                e.key,
-                                style: const TextStyle(
-                                  fontSize: ManiFontSize.bodySm,
-                                  fontWeight: FontWeight.w700,
-                                  color: ManiColors.ink,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    e.key,
+                                    style: TextStyle(
+                                      fontSize: ManiFontSize.bodySm,
+                                      fontWeight: FontWeight.w800,
+                                      color: t.ink,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: ManiSpace.sm,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: t.brandSoft,
+                                    borderRadius: ManiRadius.brSm,
+                                    border: Border.all(
+                                      color: t.border,
+                                      width: ManiBorder.thin,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '${e.value}',
+                                    style: TextStyle(
+                                      fontSize: ManiFontSize.body,
+                                      fontWeight: FontWeight.w900,
+                                      color: t.ink,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${e.value}',
-                              style: const TextStyle(
-                                fontSize: ManiFontSize.title,
-                                fontWeight: FontWeight.w900,
-                                color: ManiColors.ink,
+                            ManiGap.vSm,
+                            ClipRRect(
+                              borderRadius: ManiRadius.brPill,
+                              child: LinearProgressIndicator(
+                                minHeight: 6,
+                                value: m.solicitudesCreadas > 0
+                                    ? (e.value / m.solicitudesCreadas).clamp(
+                                        0.0,
+                                        1.0,
+                                      )
+                                    : 0.0,
+                                backgroundColor: t.surfaceMuted,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  t.brand,
+                                ),
                               ),
                             ),
                           ],
@@ -278,18 +341,30 @@ class MetricasPage extends StatelessWidget {
 }
 
 class _Indicador extends StatelessWidget {
-  const _Indicador(this.clave, this.icono, this.etiqueta, this.valor);
+  const _Indicador({
+    required this.clave,
+    required this.icono,
+    required this.etiqueta,
+    required this.valor,
+    this.tono = ManiTono.marca,
+    this.destacado = false,
+  });
 
   final String clave;
   final IconData icono;
   final String etiqueta;
   final String valor;
+  final ManiTono tono;
+  final bool destacado;
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return ManiCard(
       key: Key(clave),
-      padding: const EdgeInsets.all(ManiSpace.lg),
+      color: destacado ? t.surface : t.surfaceMuted,
+      sombra: destacado ? t.shadow : t.shadowSm,
+      padding: const EdgeInsets.all(ManiSpace.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -298,24 +373,25 @@ class _Indicador extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(ManiSpace.sm),
                 decoration: BoxDecoration(
-                  color: ManiColors.brand,
+                  color: destacado ? t.brand : tono.fondo,
                   borderRadius: ManiRadius.brSm,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.thin,
-                  ),
+                  border: Border.all(color: t.border, width: ManiBorder.thin),
                 ),
-                child: Icon(icono, size: 16, color: ManiColors.ink),
+                child: Icon(
+                  icono,
+                  size: 18,
+                  color: destacado ? t.onBrand : tono.texto,
+                ),
               ),
               ManiGap.hSm,
               Expanded(
                 child: Text(
                   etiqueta.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: ManiFontSize.micro,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w900,
                     letterSpacing: 0.5,
-                    color: ManiColors.inkMuted,
+                    color: t.inkMuted,
                   ),
                 ),
               ),
@@ -324,11 +400,11 @@ class _Indicador extends StatelessWidget {
           ManiGap.vMd,
           Text(
             valor,
-            style: const TextStyle(
-              fontSize: ManiFontSize.h2,
+            style: TextStyle(
+              fontSize: destacado ? ManiFontSize.h1 : ManiFontSize.h2,
               fontWeight: FontWeight.w900,
               letterSpacing: -0.5,
-              color: ManiColors.ink,
+              color: t.ink,
             ),
           ),
         ],

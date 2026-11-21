@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/features/services/ratings/data/calificacion_cierre_datasource.dart';
 import 'package:mani/features/services/ratings/domain/calificacion_cierre_modelos.dart';
@@ -11,12 +14,41 @@ import 'package:mani/features/services/ratings/presentation/calificacion_cierre_
 
 import '../domain/solicitud_seguimiento.dart';
 import 'mis_solicitudes_cubit.dart';
-import 'package:mani/core/widgets/mani_estado.dart';
 
-/// Mis solicitudes (HU-M07-04 / SCRUM-871): estado vigente y zona declarada
-/// de cada solicitud del cliente. No muestra la ubicación del aliado ni se
-/// actualiza sola: el cliente consulta de nuevo con «Actualizar».
-class MisSolicitudesPage extends StatelessWidget {
+/// Categorías de solicitudes mostradas en pestañas y secciones.
+enum _CategoriaSolicitud {
+  todas('Todas', Icons.apps_rounded),
+  publicadas('Publicadas', Icons.campaign_outlined),
+  enCurso('En curso', Icons.autorenew_rounded),
+  finalizadas('Finalizadas', Icons.task_alt_rounded),
+  canceladas('Canceladas', Icons.cancel_outlined);
+
+  const _CategoriaSolicitud(this.etiqueta, this.icono);
+  final String etiqueta;
+  final IconData icono;
+}
+
+_CategoriaSolicitud _categoriaDe(EstadoSeguimiento estado) => switch (estado) {
+  EstadoSeguimiento.pendiente => _CategoriaSolicitud.publicadas,
+  EstadoSeguimiento.finalizada => _CategoriaSolicitud.finalizadas,
+  EstadoSeguimiento.cancelada => _CategoriaSolicitud.canceladas,
+  EstadoSeguimiento.asignada ||
+  EstadoSeguimiento.cotizando ||
+  EstadoSeguimiento.aceptada ||
+  EstadoSeguimiento.rechazada ||
+  EstadoSeguimiento.enEjecucion ||
+  EstadoSeguimiento.otro => _CategoriaSolicitud.enCurso,
+};
+
+/// Mis solicitudes (HU-M07-04 / SCRUM-871) unificada con el Historial de
+/// servicios (SCRUM-879):
+/// - Divide las solicitudes por tipo (Publicadas, En curso, Finalizadas,
+///   Canceladas) mediante pestañas y secciones.
+/// - Pagina el listado en pestañas numéricas (`1, 2, ... >`) para evitar
+///   listas infinitas.
+/// - Integra el panel de Historial y permite acceder al detalle del servicio
+///   desde cualquier solicitud.
+class MisSolicitudesPage extends StatefulWidget {
   const MisSolicitudesPage({
     super.key,
     this.onNuevaSolicitud,
@@ -24,6 +56,8 @@ class MisSolicitudesPage extends StatelessWidget {
     this.onVerAliados,
     this.onPresentarQueja,
     this.previsualizarCancelacion,
+    this.fuenteHistorial,
+    this.itemsPorPagina = 6,
   });
 
   final VoidCallback? onNuevaSolicitud;
@@ -37,91 +71,557 @@ class MisSolicitudesPage extends StatelessWidget {
   final Future<VistaPreviaPenalizacion> Function(String solicitudId)?
   previsualizarCancelacion;
 
-  /// Abre la cotización de la solicitud (SCRUM-867).
+  /// Abre el detalle / cotización de la solicitud (`/cliente/solicitudes/:id/cotizacion`).
   final void Function(String solicitudId)? onVerCotizacion;
 
   /// Abre los aliados elegibles de una solicitud pendiente (SCRUM-1401).
   final void Function(String solicitudId)? onVerAliados;
 
+  /// Fuente opcional para el historial unificado (si no se inyecta, usa `sl`
+  /// cuando está registrado).
+  final FuenteModuloM08? fuenteHistorial;
+
+  /// Cantidad máxima de solicitudes por página antes de mostrar pestañas de
+  /// paginación (`1, 2, ... >`).
+  final int itemsPorPagina;
+
+  @override
+  State<MisSolicitudesPage> createState() => _MisSolicitudesPageState();
+}
+
+class _MisSolicitudesPageState extends State<MisSolicitudesPage> {
+  _CategoriaSolicitud _filtro = _CategoriaSolicitud.todas;
+  int _paginaActual = 1;
+  HistorialServiciosCubit? _historialCubit;
+
+  FuenteModuloM08? get _fuenteM08 =>
+      widget.fuenteHistorial ??
+      (sl.isRegistered<FuenteModuloM08>() ? sl<FuenteModuloM08>() : null);
+
+  @override
+  void initState() {
+    super.initState();
+    final fuente = _fuenteM08;
+    if (fuente != null) {
+      _historialCubit = HistorialServiciosCubit(fuente, esAliado: false)
+        ..cargar();
+    }
+  }
+
+  @override
+  void dispose() {
+    _historialCubit?.close();
+    super.dispose();
+  }
+
+  Future<void> _actualizarTodo(MisSolicitudesCubit cubit) async {
+    await Future.wait([
+      cubit.cargar(),
+      if (_historialCubit != null) _historialCubit!.cargar(),
+    ]);
+  }
+
+  void _cambiarFiltro(_CategoriaSolicitud nuevo) {
+    setState(() {
+      _filtro = nuevo;
+      _paginaActual = 1;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return BlocBuilder<MisSolicitudesCubit, MisSolicitudesState>(
       builder: (context, state) {
         final cubit = context.read<MisSolicitudesCubit>();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _Encabezado(state: state, onActualizar: cubit.cargar),
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: ManiAncho.lista),
-                  child: RefreshIndicator(
-                    color: ManiColors.ink,
-                    backgroundColor: ManiColors.brand,
-                    onRefresh: cubit.cargar,
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: ManiSpace.xxl,
-                        vertical: ManiSpace.xxl,
-                      ),
-                      children: [
-                        const _AvisoZona(),
-                        ManiGap.vLg,
-                        if (state.error != null)
-                          _Error(
-                            mensaje: state.error!,
-                            onReintentar: cubit.cargar,
+        final todas = state.solicitudes;
+        final filtradas = _filtro == _CategoriaSolicitud.todas
+            ? todas
+            : todas.where((s) => _categoriaDe(s.estado) == _filtro).toList();
+
+        final totalPaginas = math.max(
+          1,
+          (filtradas.length / widget.itemsPorPagina).ceil(),
+        );
+        final paginaSegura = _paginaActual.clamp(1, totalPaginas);
+        final inicio = (paginaSegura - 1) * widget.itemsPorPagina;
+        final fin = math.min(inicio + widget.itemsPorPagina, filtradas.length);
+        final enPagina = filtradas.isEmpty
+            ? const <SolicitudSeguimiento>[]
+            : filtradas.sublist(inicio, fin);
+
+        return ColoredBox(
+          color: t.background,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _Encabezado(
+                state: state,
+                onActualizar: () => _actualizarTodo(cubit),
+                onNuevaSolicitud: widget.onNuevaSolicitud,
+              ),
+              Expanded(
+                child: RefreshIndicator(
+                  color: t.onBrand,
+                  backgroundColor: t.brand,
+                  onRefresh: () => _actualizarTodo(cubit),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final esAmplio =
+                          constraints.maxWidth >= 980 &&
+                          _historialCubit != null;
+                      final columnaSolicitudes = _construirColumnaSolicitudes(
+                        context,
+                        cubit: cubit,
+                        state: state,
+                        todas: todas,
+                        filtradas: filtradas,
+                        enPagina: enPagina,
+                        paginaActual: paginaSegura,
+                        totalPaginas: totalPaginas,
+                      );
+
+                      if (!esAmplio) {
+                        return ListView(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: ManiSpace.xxl,
+                            vertical: ManiSpace.xl,
                           ),
-                        if (state.cargando && state.solicitudes.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.all(ManiSpace.xxxl),
-                            child: ManiCargando(),
-                          )
-                        else if (state.solicitudes.isEmpty &&
-                            state.error == null)
-                          _Vacio(onNuevaSolicitud: onNuevaSolicitud)
-                        else
-                          for (final s in state.solicitudes) ...[
-                            _TarjetaSolicitud(
-                              s,
-                              onVerCotizacion:
-                                  onVerCotizacion == null || !s.tieneCotizacion
-                                  ? null
-                                  : () => onVerCotizacion!(s.id),
-                              onVerAliados:
-                                  onVerAliados == null ||
-                                      s.estado != EstadoSeguimiento.pendiente
-                                  ? null
-                                  : () => onVerAliados!(s.id),
-                              onPresentarQueja:
-                                  onPresentarQueja == null ||
-                                      s.estado == EstadoSeguimiento.pendiente ||
-                                      s.estado == EstadoSeguimiento.otro
-                                  ? null
-                                  : () => onPresentarQueja!(s.id),
-                              cancelando: state.cancelandoId == s.id,
-                              onCancelar:
-                                  !s.puedeCancelar || state.cancelandoId != null
-                                  ? null
-                                  : () => _confirmarCancelacion(
-                                      context,
-                                      cubit,
-                                      s,
-                                      previsualizarCancelacion,
-                                    ),
-                            ),
-                            ManiGap.vMd,
+                          children: [
+                            ...columnaSolicitudes,
+                            if (_historialCubit != null) ...[
+                              ManiGap.vXxl,
+                              BlocProvider.value(
+                                value: _historialCubit!,
+                                child: HistorialServiciosPage(
+                                  embebido: true,
+                                  onAbrirServicio: widget.onVerCotizacion,
+                                ),
+                              ),
+                            ],
                           ],
-                      ],
-                    ),
+                        );
+                      }
+
+                      return ListView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: ManiSpace.xxl,
+                          vertical: ManiSpace.xl,
+                        ),
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 7,
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: columnaSolicitudes,
+                                ),
+                              ),
+                              ManiGap.hXxl,
+                              Expanded(
+                                flex: 4,
+                                child: BlocProvider.value(
+                                  value: _historialCubit!,
+                                  child: HistorialServiciosPage(
+                                    embebido: true,
+                                    onAbrirServicio: widget.onVerCotizacion,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
+    );
+  }
+
+  List<Widget> _construirColumnaSolicitudes(
+    BuildContext context, {
+    required MisSolicitudesCubit cubit,
+    required MisSolicitudesState state,
+    required List<SolicitudSeguimiento> todas,
+    required List<SolicitudSeguimiento> filtradas,
+    required List<SolicitudSeguimiento> enPagina,
+    required int paginaActual,
+    required int totalPaginas,
+  }) {
+    final t = context.mani;
+    return [
+      const _AvisoZona(),
+      ManiGap.vLg,
+      if (state.error != null) ...[
+        _Error(mensaje: state.error!, onReintentar: cubit.cargar),
+        ManiGap.vLg,
+      ],
+      if (state.cargando && todas.isEmpty)
+        const Padding(
+          padding: EdgeInsets.all(ManiSpace.xxxl),
+          child: ManiCargando(),
+        )
+      else if (todas.isEmpty && state.error == null)
+        _Vacio(onNuevaSolicitud: widget.onNuevaSolicitud)
+      else ...[
+        _BarraPestanasCategoria(
+          activa: _filtro,
+          solicitudes: todas,
+          onSeleccionar: _cambiarFiltro,
+        ),
+        ManiGap.vLg,
+        if (enPagina.isEmpty)
+          ManiCard(
+            color: t.surfaceMuted,
+            sombra: t.shadowSm,
+            padding: const EdgeInsets.all(ManiSpace.xxl),
+            child: Text(
+              'No tienes solicitudes en la sección «${_filtro.etiqueta}».',
+              key: const Key('seguimiento-seccion-vacia'),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.w700, color: t.inkMuted),
+            ),
+          )
+        else if (_filtro == _CategoriaSolicitud.todas)
+          ..._construirSeccionesAgrupadas(context, cubit, state, enPagina)
+        else
+          _construirSeccionUnica(context, cubit, state, _filtro, enPagina),
+        ManiGap.vXl,
+        _BarraPaginacion(
+          paginaActual: paginaActual,
+          totalPaginas: totalPaginas,
+          totalItems: filtradas.length,
+          onCambiarPagina: (p) => setState(() => _paginaActual = p),
+        ),
+      ],
+    ];
+  }
+
+  List<Widget> _construirSeccionesAgrupadas(
+    BuildContext context,
+    MisSolicitudesCubit cubit,
+    MisSolicitudesState state,
+    List<SolicitudSeguimiento> items,
+  ) {
+    const orden = [
+      _CategoriaSolicitud.publicadas,
+      _CategoriaSolicitud.enCurso,
+      _CategoriaSolicitud.finalizadas,
+      _CategoriaSolicitud.canceladas,
+    ];
+    final widgets = <Widget>[];
+    for (final cat in orden) {
+      final grupo = items.where((s) => _categoriaDe(s.estado) == cat).toList();
+      if (grupo.isEmpty) continue;
+      if (widgets.isNotEmpty) widgets.add(ManiGap.vXl);
+      widgets.add(_construirSeccionUnica(context, cubit, state, cat, grupo));
+    }
+    return widgets;
+  }
+
+  Widget _construirSeccionUnica(
+    BuildContext context,
+    MisSolicitudesCubit cubit,
+    MisSolicitudesState state,
+    _CategoriaSolicitud categoria,
+    List<SolicitudSeguimiento> items,
+  ) {
+    final tituloSeccion = switch (categoria) {
+      _CategoriaSolicitud.publicadas => 'Solicitudes publicadas',
+      _CategoriaSolicitud.enCurso => 'Solicitudes en curso',
+      _CategoriaSolicitud.finalizadas => 'Solicitudes finalizadas',
+      _CategoriaSolicitud.canceladas => 'Solicitudes canceladas',
+      _CategoriaSolicitud.todas => 'Todas las solicitudes',
+    };
+    return Column(
+      key: Key('seccion-solicitudes-${categoria.name}'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ManiTituloSeccion(icono: categoria.icono, titulo: tituloSeccion),
+        ManiGap.vMd,
+        ManiRejilla(
+          anchoMinimo: 300,
+          maxColumnas: 2,
+          espacio: ManiSpace.md,
+          children: [
+            for (final s in items) _construirTarjeta(context, cubit, state, s),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _construirTarjeta(
+    BuildContext context,
+    MisSolicitudesCubit cubit,
+    MisSolicitudesState state,
+    SolicitudSeguimiento s,
+  ) {
+    return _TarjetaSolicitud(
+      s,
+      onAbrirDetalle: widget.onVerCotizacion == null
+          ? null
+          : () => widget.onVerCotizacion!(s.id),
+      onVerCotizacion: widget.onVerCotizacion == null || !s.tieneCotizacion
+          ? null
+          : () => widget.onVerCotizacion!(s.id),
+      onVerAliados:
+          widget.onVerAliados == null || s.estado != EstadoSeguimiento.pendiente
+          ? null
+          : () => widget.onVerAliados!(s.id),
+      onPresentarQueja:
+          widget.onPresentarQueja == null ||
+              s.estado == EstadoSeguimiento.pendiente ||
+              s.estado == EstadoSeguimiento.otro
+          ? null
+          : () => widget.onPresentarQueja!(s.id),
+      cancelando: state.cancelandoId == s.id,
+      onCancelar: !s.puedeCancelar || state.cancelandoId != null
+          ? null
+          : () => _confirmarCancelacion(
+              context,
+              cubit,
+              s,
+              widget.previsualizarCancelacion,
+            ),
+    );
+  }
+}
+
+class _BarraPestanasCategoria extends StatelessWidget {
+  const _BarraPestanasCategoria({
+    required this.activa,
+    required this.solicitudes,
+    required this.onSeleccionar,
+  });
+
+  final _CategoriaSolicitud activa;
+  final List<SolicitudSeguimiento> solicitudes;
+  final ValueChanged<_CategoriaSolicitud> onSeleccionar;
+
+  int _contar(_CategoriaSolicitud cat) {
+    if (cat == _CategoriaSolicitud.todas) return solicitudes.length;
+    return solicitudes.where((s) => _categoriaDe(s.estado) == cat).length;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.mani;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (final cat in _CategoriaSolicitud.values) ...[
+            Padding(
+              padding: const EdgeInsets.only(right: ManiSpace.sm),
+              child: _PestanaFiltro(
+                key: Key('tab-solicitudes-${cat.name}'),
+                etiqueta: cat.etiqueta,
+                icono: cat.icono,
+                cantidad: _contar(cat),
+                seleccionada: activa == cat,
+                onTap: () => onSeleccionar(cat),
+                t: t,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PestanaFiltro extends StatelessWidget {
+  const _PestanaFiltro({
+    super.key,
+    required this.etiqueta,
+    required this.icono,
+    required this.cantidad,
+    required this.seleccionada,
+    required this.onTap,
+    required this.t,
+  });
+
+  final String etiqueta;
+  final IconData icono;
+  final int cantidad;
+  final bool seleccionada;
+  final VoidCallback onTap;
+  final ManiTokens t;
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = seleccionada ? t.onBrand : t.ink;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: seleccionada ? t.brand : t.surface,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(
+          color: seleccionada ? t.border : t.borderSubtle,
+          width: seleccionada ? ManiBorder.regular : ManiBorder.thin,
+        ),
+        boxShadow: seleccionada ? [t.shadowSm] : const [],
+      ),
+      child: InkWell(
+        borderRadius: ManiRadius.brMd,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: ManiSpace.md,
+            vertical: ManiSpace.sm,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icono, size: 16, color: fg),
+              ManiGap.hXs,
+              Text(
+                etiqueta,
+                style: TextStyle(
+                  fontSize: ManiFontSize.bodySm,
+                  fontWeight: seleccionada ? FontWeight.w900 : FontWeight.w700,
+                  color: fg,
+                ),
+              ),
+              ManiGap.hXs,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: ManiSpace.xs,
+                  vertical: 1,
+                ),
+                decoration: BoxDecoration(
+                  color: seleccionada ? t.surface : t.surfaceMuted,
+                  borderRadius: ManiRadius.brPill,
+                  border: Border.all(color: t.border, width: ManiBorder.thin),
+                ),
+                child: Text(
+                  '$cantidad',
+                  style: TextStyle(
+                    fontSize: ManiFontSize.nano,
+                    fontWeight: FontWeight.w900,
+                    color: t.ink,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BarraPaginacion extends StatelessWidget {
+  const _BarraPaginacion({
+    required this.paginaActual,
+    required this.totalPaginas,
+    required this.totalItems,
+    required this.onCambiarPagina,
+  });
+
+  final int paginaActual;
+  final int totalPaginas;
+  final int totalItems;
+  final ValueChanged<int> onCambiarPagina;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.mani;
+    return Row(
+      key: const Key('paginacion-solicitudes'),
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _BotonPagina(
+          key: const Key('pagina-solicitudes-anterior'),
+          etiqueta: '‹',
+          habilitado: paginaActual > 1,
+          activo: false,
+          onTap: () => onCambiarPagina(paginaActual - 1),
+          t: t,
+        ),
+        ManiGap.hXs,
+        for (var p = 1; p <= totalPaginas; p++) ...[
+          _BotonPagina(
+            key: Key('pagina-solicitudes-$p'),
+            etiqueta: '$p',
+            habilitado: true,
+            activo: p == paginaActual,
+            onTap: () => onCambiarPagina(p),
+            t: t,
+          ),
+          ManiGap.hXs,
+        ],
+        _BotonPagina(
+          key: const Key('pagina-solicitudes-siguiente'),
+          etiqueta: '›',
+          habilitado: paginaActual < totalPaginas,
+          activo: false,
+          onTap: () => onCambiarPagina(paginaActual + 1),
+          t: t,
+        ),
+      ],
+    );
+  }
+}
+
+class _BotonPagina extends StatelessWidget {
+  const _BotonPagina({
+    super.key,
+    required this.etiqueta,
+    required this.habilitado,
+    required this.activo,
+    required this.onTap,
+    required this.t,
+  });
+
+  final String etiqueta;
+  final bool habilitado;
+  final bool activo;
+  final VoidCallback onTap;
+  final ManiTokens t;
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = activo
+        ? t.onBrand
+        : habilitado
+        ? t.ink
+        : t.inkSubtle;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: activo ? t.brand : t.surface,
+        borderRadius: ManiRadius.brSm,
+        border: Border.all(
+          color: activo ? t.border : t.borderSubtle,
+          width: activo ? ManiBorder.regular : ManiBorder.thin,
+        ),
+        boxShadow: activo ? [t.shadowSm] : const [],
+      ),
+      child: InkWell(
+        borderRadius: ManiRadius.brSm,
+        onTap: habilitado ? onTap : null,
+        child: Container(
+          constraints: const BoxConstraints(minWidth: 38, minHeight: 38),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: ManiSpace.sm),
+          child: Text(
+            etiqueta,
+            style: TextStyle(
+              fontSize: ManiFontSize.body,
+              fontWeight: FontWeight.w900,
+              color: fg,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -245,75 +745,62 @@ class _DialogoCancelarState extends State<_DialogoCancelar> {
 }
 
 class _Encabezado extends StatelessWidget {
-  const _Encabezado({required this.state, required this.onActualizar});
+  const _Encabezado({
+    required this.state,
+    required this.onActualizar,
+    this.onNuevaSolicitud,
+  });
 
   final MisSolicitudesState state;
   final Future<void> Function() onActualizar;
+  final VoidCallback? onNuevaSolicitud;
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final consultado = state.consultadoEn;
     return ManiEncabezadoPantalla(
-      ancho: ManiAncho.lista,
+      ancho: ManiAncho.panel,
       icono: Icons.list_alt_rounded,
       titulo: 'Mis solicitudes',
       descripcion: consultado == null
           ? null
           : 'Consultado: ${formatearFecha(consultado)}',
       descripcionKey: const Key('seguimiento-consultado'),
-      // En móvil las acciones pasan debajo del título (antes el título quedaba
-      // aplastado y se partía letra por letra a 390 px).
       acciones: [
-        if (sl.isRegistered<FuenteModuloM08>())
+        if (onNuevaSolicitud != null)
           DecoratedBox(
             decoration: BoxDecoration(
-              color: ManiColors.surface,
+              color: t.surface,
               borderRadius: ManiRadius.brMd,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.regular,
-              ),
-              boxShadow: const [ManiShadow.sm],
+              border: Border.all(color: t.border, width: ManiBorder.regular),
+              boxShadow: [t.shadowSm],
             ),
             child: TextButton.icon(
-              key: const Key('seguimiento-ver-historial'),
-              onPressed: () => showDialog<void>(
-                context: context,
-                builder: (_) => Dialog(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: ManiAncho.formulario,
-                      maxHeight: 620,
-                    ),
-                    child: BlocProvider(
-                      create: (_) => HistorialServiciosCubit(
-                        sl<FuenteModuloM08>(),
-                        esAliado: false,
-                      )..cargar(),
-                      child: const HistorialServiciosPage(),
-                    ),
-                  ),
-                ),
+              key: const Key('seguimiento-publicar-header'),
+              onPressed: onNuevaSolicitud,
+              icon: Icon(Icons.add_rounded, size: 18, color: t.ink),
+              label: Text(
+                'Nueva solicitud',
+                style: TextStyle(color: t.ink, fontWeight: FontWeight.w800),
               ),
-              icon: const Icon(Icons.history, size: 18),
-              label: const Text('Historial'),
             ),
           ),
         DecoratedBox(
           decoration: BoxDecoration(
-            color: ManiColors.brand,
+            color: t.brand,
             borderRadius: ManiRadius.brMd,
-            border: Border.all(
-              color: ManiColors.border,
-              width: ManiBorder.regular,
-            ),
-            boxShadow: const [ManiShadow.sm],
+            border: Border.all(color: t.border, width: ManiBorder.regular),
+            boxShadow: [t.shadowSm],
           ),
           child: TextButton.icon(
             key: const Key('seguimiento-actualizar'),
             onPressed: state.cargando ? null : onActualizar,
-            icon: const Icon(Icons.refresh, size: 18),
-            label: const Text('Actualizar'),
+            icon: Icon(Icons.refresh, size: 18, color: t.onBrand),
+            label: Text(
+              'Actualizar',
+              style: TextStyle(color: t.onBrand, fontWeight: FontWeight.w800),
+            ),
           ),
         ),
       ],
@@ -326,27 +813,28 @@ class _AvisoZona extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Container(
       padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: ManiColors.brandSoft,
+        color: t.surfaceWarm,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        border: Border.all(color: t.border, width: ManiBorder.regular),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 20, color: ManiColors.ink),
+          Icon(Icons.info_outline, size: 20, color: t.ink),
           ManiGap.hSm,
           Expanded(
             child: Text(
               'La zona es la que indicaste al publicar la solicitud. '
               'No es la ubicación del aliado: MANI no rastrea su posición.',
-              key: Key('seguimiento-aviso-zona'),
+              key: const Key('seguimiento-aviso-zona'),
               style: TextStyle(
                 fontSize: ManiFontSize.bodySm,
                 fontWeight: FontWeight.w700,
-                color: ManiColors.ink,
+                color: t.ink,
               ),
             ),
           ),
@@ -359,6 +847,7 @@ class _AvisoZona extends StatelessWidget {
 class _TarjetaSolicitud extends StatelessWidget {
   const _TarjetaSolicitud(
     this.solicitud, {
+    this.onAbrirDetalle,
     this.onVerCotizacion,
     this.onVerAliados,
     this.onPresentarQueja,
@@ -367,6 +856,7 @@ class _TarjetaSolicitud extends StatelessWidget {
   });
 
   final SolicitudSeguimiento solicitud;
+  final VoidCallback? onAbrirDetalle;
   final VoidCallback? onVerCotizacion;
 
   /// Solo para solicitudes pendientes (SCRUM-1401).
@@ -381,10 +871,13 @@ class _TarjetaSolicitud extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final zona = solicitud.zonaCompleta;
+    final mostrarVerDetalle = onAbrirDetalle != null && onVerCotizacion == null;
     return ManiCard(
       key: Key('seguimiento-${solicitud.id}'),
       padding: const EdgeInsets.all(ManiSpace.xl),
+      onTap: onAbrirDetalle,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -393,10 +886,10 @@ class _TarjetaSolicitud extends StatelessWidget {
               Expanded(
                 child: Text(
                   solicitud.categoria,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: ManiFontSize.bodyLg,
                     fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
+                    color: t.ink,
                   ),
                 ),
               ),
@@ -408,22 +901,23 @@ class _TarjetaSolicitud extends StatelessWidget {
             zona.isEmpty
                 ? 'Zona declarada: sin información'
                 : 'Zona declarada: $zona',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: ManiFontSize.body,
               fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
+              color: t.ink,
             ),
           ),
           ManiGap.vXs,
           Text(
             'Estado actualizado: ${formatearFecha(solicitud.actualizadaEn)}',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: ManiFontSize.caption,
               fontWeight: FontWeight.w600,
-              color: ManiColors.inkMuted,
+              color: t.inkMuted,
             ),
           ),
           if (onVerCotizacion != null ||
+              mostrarVerDetalle ||
               onVerAliados != null ||
               onPresentarQueja != null ||
               onCancelar != null ||
@@ -435,21 +929,21 @@ class _TarjetaSolicitud extends StatelessWidget {
               runSpacing: ManiSpace.sm,
               children: [
                 if (cancelando)
-                  const Padding(
-                    padding: EdgeInsets.all(ManiSpace.md),
+                  Padding(
+                    padding: const EdgeInsets.all(ManiSpace.md),
                     child: SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: ManiColors.ink,
+                        color: t.ink,
                       ),
                     ),
                   )
                 else if (onCancelar != null)
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: ManiColors.surface,
+                      color: t.surface,
                       borderRadius: ManiRadius.brMd,
                       border: Border.all(
                         color: ManiColors.danger,
@@ -469,55 +963,98 @@ class _TarjetaSolicitud extends StatelessWidget {
                 if (onVerAliados != null)
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: ManiColors.surface,
+                      color: t.surface,
                       borderRadius: ManiRadius.brMd,
                       border: Border.all(
-                        color: ManiColors.border,
+                        color: t.border,
                         width: ManiBorder.regular,
                       ),
-                      boxShadow: const [ManiShadow.sm],
+                      boxShadow: [t.shadowSm],
                     ),
                     child: TextButton.icon(
                       key: Key('ver-aliados-${solicitud.id}'),
-                      icon: const Icon(Icons.groups_outlined, size: 18),
-                      label: const Text('Ver aliados'),
+                      icon: Icon(Icons.groups_outlined, size: 18, color: t.ink),
+                      label: Text(
+                        'Ver aliados',
+                        style: TextStyle(color: t.ink),
+                      ),
                       onPressed: onVerAliados,
                     ),
                   ),
-                // Queja sobre un servicio con aliado (SCRUM-895).
                 if (onPresentarQueja != null)
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: ManiColors.surface,
+                      color: t.surface,
                       borderRadius: ManiRadius.brMd,
                       border: Border.all(
-                        color: ManiColors.border,
+                        color: t.border,
                         width: ManiBorder.regular,
                       ),
-                      boxShadow: const [ManiShadow.sm],
+                      boxShadow: [t.shadowSm],
                     ),
                     child: TextButton.icon(
                       key: Key('presentar-queja-${solicitud.id}'),
-                      icon: const Icon(Icons.feedback_outlined, size: 18),
-                      label: const Text('Presentar queja'),
+                      icon: Icon(
+                        Icons.feedback_outlined,
+                        size: 18,
+                        color: t.ink,
+                      ),
+                      label: Text(
+                        'Presentar queja',
+                        style: TextStyle(color: t.ink),
+                      ),
                       onPressed: onPresentarQueja,
+                    ),
+                  ),
+                if (mostrarVerDetalle)
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: t.surface,
+                      borderRadius: ManiRadius.brMd,
+                      border: Border.all(
+                        color: t.border,
+                        width: ManiBorder.regular,
+                      ),
+                      boxShadow: [t.shadowSm],
+                    ),
+                    child: TextButton.icon(
+                      key: Key('ver-detalle-${solicitud.id}'),
+                      icon: Icon(Icons.open_in_new, size: 18, color: t.ink),
+                      label: Text(
+                        'Ver detalle',
+                        style: TextStyle(
+                          color: t.ink,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      onPressed: onAbrirDetalle,
                     ),
                   ),
                 if (onVerCotizacion != null)
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: ManiColors.brand,
+                      color: t.brand,
                       borderRadius: ManiRadius.brMd,
                       border: Border.all(
-                        color: ManiColors.border,
+                        color: t.border,
                         width: ManiBorder.regular,
                       ),
-                      boxShadow: const [ManiShadow.sm],
+                      boxShadow: [t.shadowSm],
                     ),
                     child: TextButton.icon(
                       key: Key('ver-cotizacion-${solicitud.id}'),
-                      icon: const Icon(Icons.request_quote_outlined, size: 18),
-                      label: const Text('Ver cotización'),
+                      icon: Icon(
+                        Icons.request_quote_outlined,
+                        size: 18,
+                        color: t.onBrand,
+                      ),
+                      label: Text(
+                        'Ver cotización',
+                        style: TextStyle(
+                          color: t.onBrand,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                       onPressed: onVerCotizacion,
                     ),
                   ),

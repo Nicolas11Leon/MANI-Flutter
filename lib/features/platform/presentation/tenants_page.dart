@@ -5,10 +5,10 @@ import 'package:mani/core/network/mensaje_error_gateway.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
 
 import '../data/tenants_datasource.dart';
-import 'package:mani/core/widgets/mani_estado.dart';
 
 class TenantsState extends Equatable {
   const TenantsState({
@@ -117,9 +117,9 @@ class TenantsPage extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<TenantsCubit>();
         return ManiPagina(
-          ancho: ManiAncho.lista,
+          ancho: ManiAncho.panel,
           encabezado: const ManiEncabezadoPantalla(
-            ancho: ManiAncho.lista,
+            ancho: ManiAncho.panel,
             icono: Icons.domain_outlined,
             titulo: 'Tenants de la plataforma',
             descripcion:
@@ -142,9 +142,13 @@ class TenantsPage extends StatelessWidget {
                   onPressed: cubit.cargar,
                 ),
               )
-            else
+            else ...[
+              if (state.tenants.isNotEmpty) ...[
+                _ResumenTenants(tenants: state.tenants),
+                ManiGap.vXl,
+              ],
               ManiRejilla(
-                anchoMinimo: 380,
+                anchoMinimo: 340,
                 maxColumnas: 3,
                 espacio: 20,
                 children: [
@@ -155,6 +159,7 @@ class TenantsPage extends StatelessWidget {
                     ),
                 ],
               ),
+            ],
           ],
         );
       },
@@ -162,7 +167,81 @@ class TenantsPage extends StatelessWidget {
   }
 }
 
-/// Fondo del estado del tenant; el texto va en negro (contraste AA).
+class _ResumenTenants extends StatelessWidget {
+  const _ResumenTenants({required this.tenants});
+
+  final List<TenantPlataforma> tenants;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.mani;
+    final activos = tenants
+        .where((x) => x.estado == EstadoTenant.activo)
+        .length;
+    final suspendidos = tenants
+        .where((x) => x.estado == EstadoTenant.suspendido)
+        .length;
+    final inactivos = tenants
+        .where((x) => x.estado == EstadoTenant.inactivo)
+        .length;
+    return ManiCard(
+      color: t.surfaceMuted,
+      sombra: t.shadowSm,
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.xl,
+        vertical: ManiSpace.md,
+      ),
+      child: Wrap(
+        spacing: ManiSpace.lg,
+        runSpacing: ManiSpace.sm,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.analytics_outlined, size: 18, color: t.ink),
+              ManiGap.hXs,
+              Text(
+                'RESUMEN DE RED:',
+                style: TextStyle(
+                  fontSize: ManiFontSize.caption,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: t.ink,
+                ),
+              ),
+            ],
+          ),
+          ManiStatusBadge(
+            etiqueta: '${tenants.length} registrados',
+            tono: ManiTono.marca,
+            icono: Icons.domain_rounded,
+          ),
+          ManiStatusBadge(
+            etiqueta: '$activos operativos',
+            tono: ManiTono.exito,
+            icono: Icons.check_circle_outline,
+          ),
+          if (suspendidos > 0)
+            ManiStatusBadge(
+              etiqueta: '$suspendidos en pausa',
+              tono: ManiTono.aviso,
+              icono: Icons.pause_circle_outline,
+            ),
+          if (inactivos > 0)
+            ManiStatusBadge(
+              etiqueta: '$inactivos de baja',
+              tono: ManiTono.neutro,
+              icono: Icons.remove_circle_outline,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Fondo del estado del tenant; el texto va en negro sobre fondos claros de
+/// estado (contraste AA).
 Color _colorEstado(EstadoTenant e) => switch (e) {
   EstadoTenant.activo => ManiColors.successBorder,
   EstadoTenant.suspendido => ManiColors.brand,
@@ -177,6 +256,7 @@ class _TarjetaTenant extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tk = context.mani;
     final cubit = context.read<TenantsCubit>();
     final t = tenant;
     return ManiCard(
@@ -190,17 +270,17 @@ class _TarjetaTenant extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(ManiSpace.sm),
                 decoration: BoxDecoration(
-                  color: ManiColors.brand,
+                  color: tk.brand,
                   borderRadius: ManiRadius.brSm,
                   border: Border.all(
-                    color: ManiColors.border,
+                    color: tk.border,
                     width: ManiBorder.regular,
                   ),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.apartment_outlined,
                   size: 20,
-                  color: ManiColors.ink,
+                  color: tk.onBrand,
                 ),
               ),
               ManiGap.hMd,
@@ -210,18 +290,18 @@ class _TarjetaTenant extends StatelessWidget {
                   children: [
                     Text(
                       t.nombre,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: ManiFontSize.bodyLg,
                         fontWeight: FontWeight.w900,
-                        color: ManiColors.ink,
+                        color: tk.ink,
                       ),
                     ),
                     Text(
                       t.slug,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: ManiFontSize.caption,
                         fontWeight: FontWeight.w600,
-                        color: ManiColors.inkMuted,
+                        color: tk.inkMuted,
                       ),
                     ),
                   ],
@@ -237,10 +317,7 @@ class _TarjetaTenant extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: _colorEstado(t.estado),
                   borderRadius: ManiRadius.brSm,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.thin,
-                  ),
+                  border: Border.all(color: tk.border, width: ManiBorder.thin),
                 ),
                 child: Text(
                   t.estado.etiqueta,
@@ -257,14 +334,14 @@ class _TarjetaTenant extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: actualizando
-                ? const Padding(
-                    padding: EdgeInsets.all(ManiSpace.sm),
+                ? Padding(
+                    padding: const EdgeInsets.all(ManiSpace.sm),
                     child: SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: ManiColors.ink,
+                        color: tk.ink,
                       ),
                     ),
                   )
@@ -297,40 +374,35 @@ class _TarjetaTenant extends StatelessWidget {
                         child: const Text('Historial'),
                       ),
                     ],
-                    // Mismo aspecto que los botones en píldora de la app.
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: ManiSpace.md,
                         vertical: 9,
                       ),
                       decoration: BoxDecoration(
-                        color: ManiColors.surface,
+                        color: tk.surface,
                         borderRadius: ManiRadius.brMd,
                         border: Border.all(
-                          color: ManiColors.border,
+                          color: tk.border,
                           width: ManiBorder.regular,
                         ),
-                        boxShadow: const [ManiShadow.sm],
+                        boxShadow: [tk.shadowSm],
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.tune, size: 18, color: ManiColors.ink),
+                          Icon(Icons.tune, size: 18, color: tk.ink),
                           ManiGap.hSm,
                           Text(
                             'Cambiar estado',
                             style: TextStyle(
                               fontSize: ManiFontSize.bodySm,
                               fontWeight: FontWeight.w800,
-                              color: ManiColors.ink,
+                              color: tk.ink,
                             ),
                           ),
                           ManiGap.hXs,
-                          Icon(
-                            Icons.expand_more,
-                            size: 18,
-                            color: ManiColors.ink,
-                          ),
+                          Icon(Icons.expand_more, size: 18, color: tk.ink),
                         ],
                       ),
                     ),

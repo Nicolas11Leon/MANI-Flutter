@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/theme/app_theme.dart';
-import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 
 import '../../domain/entities/solicitud_aliado.dart';
@@ -11,7 +12,6 @@ import '../widgets/detalle_aliado_panel.dart';
 import '../widgets/filtro_estado_tabs.dart';
 import '../widgets/solicitud_aliado_card.dart';
 import 'detalle_aliado_page.dart';
-import 'package:mani/core/widgets/mani_estado.dart';
 
 /// US-02.1.3 — Bandeja de verificación de aliados del Administrador del Tenant.
 ///
@@ -38,6 +38,7 @@ class BandejaVerificacionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return BlocListener<BandejaVerificacionCubit, BandejaVerificacionState>(
       listenWhen: (antes, ahora) =>
           ahora.aviso != null && antes.aviso != ahora.aviso,
@@ -48,7 +49,7 @@ class BandejaVerificacionPage extends StatelessWidget {
         margin: _margenAvisos,
       ),
       child: Scaffold(
-        backgroundColor: ManiColors.background,
+        backgroundColor: t.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -100,6 +101,7 @@ class _Contenido extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return LayoutBuilder(
       builder: (context, constraints) {
         final cubit = context.read<BandejaVerificacionCubit>();
@@ -119,7 +121,7 @@ class _Contenido extends StatelessWidget {
                 onSeleccionar: cubit.seleccionar,
               ),
             ),
-            Container(width: 2, color: ManiColors.ink),
+            Container(width: 2, color: t.border),
             Expanded(
               child:
                   BlocBuilder<
@@ -156,6 +158,7 @@ class _Bandeja extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final cubit = context.read<BandejaVerificacionCubit>();
     return BlocBuilder<BandejaVerificacionCubit, BandejaVerificacionState>(
       builder: (context, state) {
@@ -178,13 +181,14 @@ class _Bandeja extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.5,
+                      color: t.ink,
                     ),
                   ),
                   ManiGap.vXs,
-                  const Text(
+                  Text(
                     'Revisa los documentos de cada candidato y decide quién entra a tu red de técnicos.',
                     style: TextStyle(
-                      color: ManiColors.inkMuted,
+                      color: t.inkMuted,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -202,8 +206,8 @@ class _Bandeja extends StatelessWidget {
             ),
             Expanded(
               child: RefreshIndicator(
-                color: ManiColors.ink,
-                backgroundColor: ManiColors.brand,
+                color: t.onBrand,
+                backgroundColor: t.brand,
                 onRefresh: () => cubit.cargar(silencioso: true),
                 child: visibles.isEmpty
                     ? ListView(
@@ -266,33 +270,31 @@ class _CampoBusquedaState extends State<_CampoBusqueda> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final borde = OutlineInputBorder(
       borderRadius: ManiRadius.brMd,
-      borderSide: ManiBorder.side,
+      borderSide: BorderSide(color: t.border, width: ManiBorder.regular),
     );
     return TextField(
       key: const ValueKey('buscar-aliado'),
       controller: _controller,
-      onChanged: (t) {
+      onChanged: (v) {
         setState(() {});
-        widget.onCambio(t);
+        widget.onCambio(v);
       },
       textInputAction: TextInputAction.search,
-      style: const TextStyle(fontWeight: FontWeight.w600),
+      style: TextStyle(fontWeight: FontWeight.w600, color: t.ink),
       decoration: InputDecoration(
         isDense: true,
         filled: true,
-        fillColor: ManiColors.surface,
+        fillColor: t.surface,
         hintText: 'Buscar por nombre, correo o especialidad',
-        prefixIcon: const Icon(
-          Icons.search_rounded,
-          color: ManiColors.inkMuted,
-        ),
+        prefixIcon: Icon(Icons.search_rounded, color: t.inkMuted),
         suffixIcon: _controller.text.isEmpty
             ? null
             : IconButton(
                 tooltip: 'Limpiar búsqueda',
-                icon: const Icon(Icons.close_rounded),
+                icon: Icon(Icons.close_rounded, color: t.ink),
                 onPressed: () {
                   _controller.clear();
                   setState(() {});
@@ -300,7 +302,9 @@ class _CampoBusquedaState extends State<_CampoBusqueda> {
                 },
               ),
         enabledBorder: borde,
-        focusedBorder: borde.copyWith(borderSide: ManiBorder.sideThick),
+        focusedBorder: borde.copyWith(
+          borderSide: BorderSide(color: t.border, width: ManiBorder.thick),
+        ),
       ),
     );
   }
@@ -313,6 +317,7 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return ManiEncabezadoPantalla(
       icono: Icons.verified_user_rounded,
       titulo: 'Verificación de aliados',
@@ -323,14 +328,14 @@ class _BarraSuperior extends StatelessWidget {
             key: const ValueKey('btn-ir-categorias'),
             tooltip: 'Categorías de servicio',
             onPressed: onAbrirCategorias,
-            icon: const Icon(Icons.category_outlined, color: ManiColors.ink),
+            icon: Icon(Icons.category_outlined, color: t.ink),
           ),
         IconButton(
           key: const ValueKey('btn-actualizar'),
           tooltip: 'Actualizar bandeja',
           onPressed: () =>
               context.read<BandejaVerificacionCubit>().cargar(silencioso: true),
-          icon: const Icon(Icons.refresh_rounded, color: ManiColors.ink),
+          icon: Icon(Icons.refresh_rounded, color: t.ink),
         ),
       ],
     );
@@ -345,6 +350,7 @@ class _BandejaVacia extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final buscando = busqueda.trim().isNotEmpty;
     final (icono, titulo, texto) = buscando
         ? (
@@ -382,29 +388,27 @@ class _BandejaVacia extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(ManiSpace.lg),
             decoration: BoxDecoration(
-              color: ManiColors.brand,
+              color: t.brand,
               shape: BoxShape.circle,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.regular,
-              ),
-              boxShadow: const [ManiShadow.sm],
+              border: Border.all(color: t.border, width: ManiBorder.regular),
+              boxShadow: [t.shadowSm],
             ),
-            child: Icon(icono, size: 32, color: ManiColors.ink),
+            child: Icon(icono, size: 32, color: t.onBrand),
           ),
           ManiGap.vLg,
           Text(
             titulo,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: ManiFontSize.bodyLg,
               fontWeight: FontWeight.w900,
+              color: t.ink,
             ),
           ),
           ManiGap.vSm,
           Text(
             texto,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: ManiColors.inkMuted),
+            style: TextStyle(color: t.inkMuted),
           ),
         ],
       ),
@@ -417,30 +421,28 @@ class _SinSeleccion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final t = context.mani;
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(ManiSpace.xxxl),
+        padding: const EdgeInsets.all(ManiSpace.xxxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.touch_app_outlined,
-              size: 48,
-              color: ManiColors.inkSubtle,
-            ),
+            Icon(Icons.touch_app_outlined, size: 48, color: t.inkSubtle),
             ManiGap.vMd,
             Text(
               'Selecciona un aliado',
               style: TextStyle(
                 fontSize: ManiFontSize.bodyLg,
                 fontWeight: FontWeight.w900,
+                color: t.ink,
               ),
             ),
             ManiGap.vSm,
             Text(
               'Verás su perfil, sus documentos y las opciones para aprobarlo o rechazarlo.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: ManiColors.inkMuted),
+              style: TextStyle(color: t.inkMuted),
             ),
           ],
         ),
@@ -457,22 +459,19 @@ class _ErrorCarga extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(ManiSpace.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.cloud_off_rounded,
-              size: 48,
-              color: ManiColors.ink,
-            ),
+            Icon(Icons.cloud_off_rounded, size: 48, color: t.ink),
             ManiGap.vMd,
             Text(
               mensaje,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: TextStyle(fontWeight: FontWeight.w600, color: t.ink),
             ),
             ManiGap.vLg,
             ManiButton(
