@@ -124,6 +124,25 @@ void main() {
       expect(peticiones, hasLength(1));
     });
 
+    // SCRUM-1634: Core valida el MIME declarado de la parte; sin él la
+    // parte sale como application/octet-stream y Core responde 400.
+    for (final (nombre, mime) in [
+      ('avatar.png', 'image/png'),
+      ('avatar.PNG', 'image/png'),
+      ('avatar.jpg', 'image/jpeg'),
+      ('avatar.jpeg', 'image/jpeg'),
+    ]) {
+      test('$nombre se envía con Content-Type $mime en la parte', () async {
+        await datasource().subirFotoPerfil(
+          nombreArchivo: nombre,
+          bytes: bytes(64),
+        );
+        final cuerpo = (peticiones.single as http.Request).body;
+        expect(cuerpo, contains('content-type: $mime'));
+        expect(cuerpo, isNot(contains('application/octet-stream')));
+      });
+    }
+
     for (final status in [413, 400]) {
       test('$status de la subida se traduce al mensaje de la foto', () async {
         responder = (_) => http.Response(

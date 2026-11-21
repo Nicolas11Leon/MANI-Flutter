@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mani/core/config/tenant_config.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/di/injection_container.dart';
+import 'package:mani/core/widgets/mani_logo.dart';
 import 'package:mani/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mani/features/auth/presentation/widgets/selector_categoria_catalogo.dart';
 import 'package:mani/features/auth/presentation/widgets/terminos_condiciones_section.dart';
@@ -420,25 +421,7 @@ class _RegistroAliadoEmpresaViewState
         children: [
           Row(
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  border: Border.all(color: AppTheme.dark, width: 2),
-                  boxShadow: const [AppTheme.hardShadowSm],
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'M',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
-                  ),
-                ),
-              ),
+              ManiLogo(size: 40, sombra: AppTheme.hardShadowSm),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
