@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// Paleta semántica de MANI (identidad neo-brutalista del Figma oficial).
+/// Paleta semántica de MANI (identidad neo-brutalista «La ficha sellada»).
+///
+/// Basada en la paleta cálida Maní:
+/// - Crema durazno (`#FED1B0`) como sello de marca ([brand]).
+/// - Café maní tostado (`#894C2F`) como acento cálido ([accent]).
+/// - Azul cobalto (`#0065B3`) como color informativo y operativo ([info]).
+/// - Rojo intenso (`#EE1C25` / `#D61921`) para alertas y peligro ([danger]).
+/// - Blanco puro (`#FFFFFF`) sobre papel cálido (`#FAF6F2`).
 ///
 /// Cada par texto/fondo que se declara aquí cumple WCAG AA (≥ 4.5:1 para
 /// texto normal); lo verifica `test/core/theme/contrast_test.dart`. Reglas:
@@ -10,29 +17,28 @@ import 'package:flutter/material.dart';
 ///   rojo legible sobre fondos claros y contenedores.
 /// - Los `*Container` son fondos tenues de estado; su texto es el `*Text`.
 abstract final class ManiColors {
-  // ── Superficies ─────────────────────────────────────────────────────────
-  /// Crema cálido de fondo de página.
-  static const Color background = Color(0xFFFDFBF7);
+  // ── Superficies (Modo Claro) ────────────────────────────────────────────
+  /// Papel crema cálido de fondo de página.
+  static const Color background = Color(0xFFFAF6F2);
 
-  /// Tarjetas, campos y diálogos.
+  /// Tarjetas, campos y diálogos (`#FFFFFF` de la paleta).
   static const Color surface = Color(0xFFFFFFFF);
 
   /// Superficie hundida (fondos de grupo, filas alternas, chips neutros).
-  static const Color surfaceMuted = Color(0xFFF5F3EE);
+  static const Color surfaceMuted = Color(0xFFF3ECE6);
 
-  /// Fondo cálido de secciones destacadas (antes `#F6EFDA` suelto).
-  static const Color surfaceWarm = Color(0xFFF6EFDA);
+  /// Fondo cálido de secciones destacadas.
+  static const Color surfaceWarm = Color(0xFFFCE6D4);
 
-  // ── Tinta ───────────────────────────────────────────────────────────────
-  /// Texto principal, bordes y sombras duras.
-  static const Color ink = Color(0xFF1E1E1E);
+  // ── Tinta (Modo Claro) ──────────────────────────────────────────────────
+  /// Texto principal, bordes y sombras duras (carbón espresso cálido).
+  static const Color ink = Color(0xFF1C1613);
 
-  /// Texto secundario (5.6:1 sobre crema).
-  static const Color inkMuted = Color(0xFF5F6672);
+  /// Texto secundario (≥ 5.5:1 sobre todas las superficies claras).
+  static const Color inkMuted = Color(0xFF5C5049);
 
-  /// Texto terciario y marcadores: 4.7:1 sobre la superficie hundida y 5:1
-  /// sobre crema (el antiguo `#9CA3AF` daba 2.5:1).
-  static const Color inkSubtle = Color(0xFF666D79);
+  /// Texto terciario y marcadores (≥ 4.6:1 sobre superficie hundida y crema).
+  static const Color inkSubtle = Color(0xFF665A52);
 
   /// Texto e íconos sobre fondos oscuros ([ink], [danger]).
   static const Color onInk = Color(0xFFFFFFFF);
@@ -42,23 +48,23 @@ abstract final class ManiColors {
   static const Color border = ink;
 
   /// Separadores suaves y estados deshabilitados.
-  static const Color borderSubtle = Color(0xFFE5E7EB);
+  static const Color borderSubtle = Color(0xFFE4DAD1);
 
-  // ── Marca ───────────────────────────────────────────────────────────────
-  /// Color de marca MANI, fijado por producto el 2026-11-10 (antes #FACC15).
-  /// Contra el fondo da 1.3:1: un relleno de marca siempre lleva el borde
-  /// carbón para distinguirse, nunca se apoya solo en el color.
-  static const Color brand = Color(0xFFF8DE7E);
+  // ── Marca (`#FED1B0` + `#894C2F`) ───────────────────────────────────────
+  /// Color de marca MANI (`#FED1B0`, crema durazno cálido).
+  /// Un relleno de marca siempre lleva borde carbón para distinguirse,
+  /// nunca se apoya solo en el color.
+  static const Color brand = Color(0xFFFED1B0);
 
-  /// Texto e íconos sobre [brand] (12.5:1).
+  /// Texto e íconos sobre [brand] (11.9:1).
   static const Color onBrand = ink;
 
-  /// Texto secundario sobre [brand] o [brandSoft], tinta tomada del mismo tono
-  /// (5.3:1 sobre la marca; el gris [inkMuted] solo llega a 4.3:1 ahí).
-  static const Color onBrandMuted = Color(0xFF5F583B);
+  /// Texto secundario sobre [brand] o [brandSoft], derivado del café maní
+  /// (`#894C2F` oscurecido a `#63341E` para ≥ 4.8:1 sobre `#FED1B0`).
+  static const Color onBrandMuted = Color(0xFF63341E);
 
-  /// Tinte tenue de la marca para selección y resaltado (15:1 con tinta).
-  static const Color brandSoft = Color(0xFFFDF3D2);
+  /// Tinte tenue de la marca para selección y resaltado.
+  static const Color brandSoft = Color(0xFFFFF2E8);
 
   // ── Estados ─────────────────────────────────────────────────────────────
   static const Color success = Color(0xFF15803D);
@@ -70,20 +76,23 @@ abstract final class ManiColors {
   static const Color warningText = Color(0xFF92400E);
   static const Color warningContainer = Color(0xFFFEF3C7);
 
-  /// Rojo de relleno: texto blanco encima con 4.8:1.
-  static const Color danger = Color(0xFFDC2626);
-  static const Color dangerText = Color(0xFFB91C1C);
+  /// Rojo base de la paleta (`#EE1C25`) y su ajuste AA (`#D61921`) para que
+  /// cumpla ≥ 4.5:1 tanto con texto blanco encima como sobre crema/blanco.
+  static const Color paletteRed = Color(0xFFEE1C25);
+  static const Color danger = Color(0xFFD61921);
+  static const Color dangerText = Color(0xFFB01219);
   static const Color dangerContainer = Color(0xFFFEE2E2);
   static const Color dangerBorder = Color(0xFFFECACA);
 
-  static const Color info = Color(0xFF1D4ED8);
-  static const Color infoText = Color(0xFF1E40AF);
-  static const Color infoContainer = Color(0xFFDBEAFE);
-  static const Color infoBorder = Color(0xFFBFDBFE);
+  /// Azul cobalto de la paleta (`#0065B3`) para información y acciones.
+  static const Color info = Color(0xFF0065B3);
+  static const Color infoText = Color(0xFF005294);
+  static const Color infoContainer = Color(0xFFE0F0FF);
+  static const Color infoBorder = Color(0xFFB3D9FF);
 
-  /// Acento secundario (índigo) para estados neutros "en curso".
-  static const Color accent = Color(0xFF3730A3);
-  static const Color accentContainer = Color(0xFFE0E7FF);
+  /// Acento secundario cálido (`#894C2F`, café maní tostado de la paleta).
+  static const Color accent = Color(0xFF894C2F);
+  static const Color accentContainer = Color(0xFFF7E6DC);
 
   // ── Interacción ─────────────────────────────────────────────────────────
   /// Anillo de foco de teclado: carbón sobre la marca es visible en todas las
@@ -92,4 +101,31 @@ abstract final class ManiColors {
 
   /// Velo de modales y visores.
   static const Color scrim = Color(0xA6000000);
+}
+
+/// Paleta semántica de MANI para Modo Oscuro («La ficha sellada nocturna»).
+///
+/// Diseñada explícitamente con superficies cálidas de espresso tostado,
+/// bordes crema de alto contraste y sellos en durazno (`#FED1B0`) con tinta
+/// oscura (`#1C1613`).
+abstract final class ManiDarkColors {
+  static const Color background = Color(0xFF14110F);
+  static const Color surface = Color(0xFF1F1A17);
+  static const Color surfaceMuted = Color(0xFF2B2420);
+  static const Color surfaceWarm = Color(0xFF362A22);
+
+  static const Color ink = Color(0xFFF7F2ED);
+  static const Color inkMuted = Color(0xFFC4B5AA);
+  static const Color inkSubtle = Color(0xFF9E8E83);
+  static const Color onInk = Color(0xFF14110F);
+
+  static const Color border = Color(0xFFD6C2B2);
+  static const Color borderSubtle = Color(0xFF3D332D);
+
+  static const Color brand = Color(0xFFFED1B0);
+  static const Color onBrand = Color(0xFF1C1613);
+  static const Color onBrandMuted = Color(0xFF63341E);
+  static const Color brandSoft = Color(0xFF3A291F);
+
+  static const Color shadow = Color(0xFF050403);
 }

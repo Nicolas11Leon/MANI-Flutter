@@ -42,6 +42,7 @@ class ManiStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: compacto ? ManiSpace.sm : 10,
@@ -50,7 +51,7 @@ class ManiStatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: tono.fondo,
         borderRadius: ManiRadius.brPill,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
+        border: Border.all(color: t.border, width: ManiBorder.thin),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -96,6 +97,7 @@ class ManiEstadoVacio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: ManiSpace.huge,
@@ -108,15 +110,12 @@ class ManiEstadoVacio extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(ManiSpace.lg),
               decoration: BoxDecoration(
-                color: ManiColors.brand,
+                color: t.brand,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: ManiColors.border,
-                  width: ManiBorder.regular,
-                ),
-                boxShadow: const [ManiShadow.sm],
+                border: Border.all(color: t.border, width: ManiBorder.regular),
+                boxShadow: [t.shadowSm],
               ),
-              child: Icon(icono, size: 32, color: ManiColors.ink),
+              child: Icon(icono, size: 32, color: t.onBrand),
             ),
           ),
           ManiGap.vLg,
@@ -124,7 +123,7 @@ class ManiEstadoVacio extends StatelessWidget {
             titulo,
             key: tituloKey,
             textAlign: TextAlign.center,
-            style: ManiText.title,
+            style: ManiText.title.copyWith(color: t.ink),
           ),
           if (texto != null) ...[
             ManiGap.vSm,
@@ -133,7 +132,7 @@ class ManiEstadoVacio extends StatelessWidget {
               child: Text(
                 texto!,
                 textAlign: TextAlign.center,
-                style: ManiText.body.copyWith(color: ManiColors.inkMuted),
+                style: ManiText.body.copyWith(color: t.inkMuted),
               ),
             ),
           ],
@@ -169,6 +168,7 @@ class ManiEstadoError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Semantics(
       liveRegion: true,
       child: Container(
@@ -178,7 +178,8 @@ class ManiEstadoError extends StatelessWidget {
         ),
         decoration: maniDecoracion(
           color: ManiColors.dangerContainer,
-          sombra: ManiShadow.sm,
+          borde: t.border,
+          sombra: t.shadowSm,
           radio: ManiRadius.brMd,
         ),
         child: Row(
@@ -202,6 +203,9 @@ class ManiEstadoError extends StatelessWidget {
               TextButton.icon(
                 key: botonKey,
                 onPressed: onReintentar,
+                style: TextButton.styleFrom(
+                  foregroundColor: ManiColors.dangerText,
+                ),
                 icon: const Icon(Icons.refresh_rounded, size: 18),
                 label: Text(etiquetaReintentar),
               ),
@@ -222,6 +226,7 @@ class ManiCargando extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Semantics(
       label: mensaje ?? 'Cargando',
       liveRegion: true,
@@ -231,13 +236,16 @@ class ManiCargando extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox.square(
+              SizedBox.square(
                 dimension: 28,
-                child: CircularProgressIndicator(strokeWidth: 3),
+                child: CircularProgressIndicator(strokeWidth: 3, color: t.ink),
               ),
               if (mensaje != null) ...[
                 ManiGap.vMd,
-                Text(mensaje!, style: ManiText.bodySm),
+                Text(
+                  mensaje!,
+                  style: ManiText.bodySm.copyWith(color: t.inkMuted),
+                ),
               ],
             ],
           ),
@@ -293,6 +301,7 @@ class _ManiSkeletonState extends State<ManiSkeleton>
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return ExcludeSemantics(
       child: FadeTransition(
         opacity: _c,
@@ -300,7 +309,7 @@ class _ManiSkeletonState extends State<ManiSkeleton>
           width: widget.ancho,
           height: widget.alto,
           decoration: BoxDecoration(
-            color: ManiColors.borderSubtle,
+            color: t.borderSubtle,
             borderRadius: widget.radio,
           ),
         ),
@@ -317,6 +326,7 @@ class ManiSkeletonLista extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Semantics(
       label: 'Cargando',
       liveRegion: true,
@@ -325,7 +335,11 @@ class ManiSkeletonLista extends StatelessWidget {
           for (var i = 0; i < cantidad; i++) ...[
             Container(
               padding: const EdgeInsets.all(ManiSpace.lg),
-              decoration: maniDecoracion(sombra: null),
+              decoration: maniDecoracion(
+                color: t.surface,
+                borde: t.border,
+                sombra: null,
+              ),
               child: const Row(
                 children: [
                   ManiSkeleton(ancho: 44, alto: 44, radio: ManiRadius.brMd),
@@ -406,22 +420,30 @@ class ManiSeccion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Container(
       padding: const EdgeInsets.all(ManiSpace.xl),
-      decoration: maniDecoracion(),
+      decoration: maniDecoracion(
+        color: t.surface,
+        borde: t.border,
+        sombra: t.shadow,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
               if (icono != null) ...[
-                Icon(icono, size: 20, color: ManiColors.ink),
+                Icon(icono, size: 20, color: t.ink),
                 ManiGap.hSm,
               ],
               Expanded(
                 child: Semantics(
                   header: true,
-                  child: Text(titulo, style: ManiText.subtitle),
+                  child: Text(
+                    titulo,
+                    style: ManiText.subtitle.copyWith(color: t.ink),
+                  ),
                 ),
               ),
               ?accion,
@@ -429,7 +451,10 @@ class ManiSeccion extends StatelessWidget {
           ),
           if (descripcion != null) ...[
             ManiGap.vXs,
-            Text(descripcion!, style: ManiText.bodySm),
+            Text(
+              descripcion!,
+              style: ManiText.bodySm.copyWith(color: t.inkMuted),
+            ),
           ],
           ManiGap.vLg,
           child,

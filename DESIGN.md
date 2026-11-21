@@ -2,33 +2,44 @@
 name: MANI
 description: Traceable service operations for multi-tenant companies, from request to close.
 colors:
-  brand: "#F8DE7E"
-  brand-soft: "#FDF3D2"
-  on-brand: "#1E1E1E"
-  on-brand-muted: "#5F583B"
-  ink: "#1E1E1E"
-  ink-muted: "#5F6672"
-  ink-subtle: "#666D79"
+  brand: "#FED1B0"
+  brand-soft: "#FFF2E8"
+  on-brand: "#1C1613"
+  on-brand-muted: "#63341E"
+  ink: "#1C1613"
+  ink-muted: "#5C5049"
+  ink-subtle: "#665A52"
   on-ink: "#FFFFFF"
-  background: "#FDFBF7"
+  background: "#FAF6F2"
   surface: "#FFFFFF"
-  surface-muted: "#F5F3EE"
-  surface-warm: "#F6EFDA"
-  border-subtle: "#E5E7EB"
+  surface-muted: "#F3ECE6"
+  surface-warm: "#FCE6D4"
+  border-subtle: "#E4DAD1"
   success: "#15803D"
   success-text: "#166534"
   success-container: "#DCFCE7"
   warning: "#B45309"
   warning-text: "#92400E"
   warning-container: "#FEF3C7"
-  danger: "#DC2626"
-  danger-text: "#B91C1C"
+  palette-red: "#EE1C25"
+  danger: "#D61921"
+  danger-text: "#B01219"
   danger-container: "#FEE2E2"
-  info: "#1D4ED8"
-  info-text: "#1E40AF"
-  info-container: "#DBEAFE"
-  accent: "#3730A3"
-  accent-container: "#E0E7FF"
+  info: "#0065B3"
+  info-text: "#005294"
+  info-container: "#E0F0FF"
+  accent: "#894C2F"
+  accent-container: "#F7E6DC"
+  dark-background: "#14110F"
+  dark-surface: "#1F1A17"
+  dark-surface-muted: "#2B2420"
+  dark-surface-warm: "#362A22"
+  dark-ink: "#F7F2ED"
+  dark-ink-muted: "#C4B5AA"
+  dark-ink-subtle: "#9E8E83"
+  dark-border: "#D6C2B2"
+  dark-border-subtle: "#3D332D"
+  dark-brand-soft: "#3A291F"
 typography:
   display:
     fontFamily: "Plus Jakarta Sans, sans-serif"
@@ -132,130 +143,41 @@ components:
 
 **Creative North Star: "La ficha sellada"**
 
-Every surface in MANI reads like a printed, stamped work card: a white card with a firm charcoal outline, sitting on a warm paper ground, casting a hard shadow as if it had been pressed onto the desk. The brand color is the stamp. It marks what matters right now (the active tab, the primary action, the selected option, the identity of the page) and nothing else. A service moves from request to close as a stack of these cards, and each one shows its state openly.
+Every surface in MANI reads like a printed, stamped work card: a crisp card with a firm 2px outline, sitting on a warm paper ground, casting a hard offset shadow as if it had been pressed onto the desk. The brand color (`#FED1B0`, warm peach / peanut cream) is the stamp. It marks what matters right now (the active tab, the primary action, the selected option, the identity of the page) and nothing else. A service moves from request to close as a stack of these cards, and each one shows its state openly.
 
-The system is neo-brutalist by product decision, taken from the official Figma prototypes and kept on purpose when the product owner chose refinement over replacement (2026-11-10). Density is moderate: the screens are working tools for clients, allies and tenant admins, so structure and state come first and expression lives in the outline, the shadow and the stamp. Light only; there is no dark theme.
+The system is neo-brutalist by product decision, supporting both **Light Mode** (`AppTheme.light` / `ManiTokens.claro`) and **Dark Mode** (`AppTheme.dark` / `ManiTokens.oscuro`, toggled via `maniThemeController` in the top bar). Density is moderate: the screens are working tools for clients, allies and tenant/platform admins, so structure, hierarchy and state come first, while expression lives in the outline, the hard shadow and the warm Maní stamp.
 
 **Key Characteristics:**
-- Charcoal 2px outlines on every container and control; the outline, not the fill, separates surfaces.
-- Hard offset shadows with no blur; they collapse when a control is pressed.
-- One stamp color (#F8DE7E) used for state and primary action, always with its outline.
+- 2px outlines (`ManiBorder.regular`) on primary containers and controls; 1.5px (`ManiBorder.thin`) on inactive pills and internal dividers.
+- Hard offset shadows (`2px`, `4px`, `6px`) with zero blur; they collapse when a control is pressed.
+- Warm Maní palette: `#FED1B0` stamp fill, `#894C2F` roasted peanut accent, `#0065B3` cobalt blue operational info, `#EE1C25`/`#D61921` alert red, `#FFFFFF` card surface.
+- Composed Dark Mode ("La ficha sellada nocturna"): warm roasted espresso surfaces (`#14110F` / `#1F1A17`), bone-cream 2px outlines (`#D6C2B2`), and `#FED1B0` stamps with dark `#1C1613` ink.
 - Plus Jakarta Sans in heavy weights for titles and labels; medium for reading text.
-- One top bar for the whole app (logo, menu entries, account); each screen opens with its own heading in the content.
 
 ## Colors
 
-A warm paper ground, white cards, charcoal ink and a single soft-butter stamp color; state colors appear only where they carry meaning.
+### Primary & Heritage
+- **Stamp Peach (`#FED1B0`, `brand`)**: primary buttons, the active menu entry and tab, selected options, primary KPI/module icon badges, the logo square.
+- **Pale Stamp (`#FFF2E8`, `brandSoft`)**: selected cards, secondary KPI badges, and highlighted rows.
+- **Roasted Maní (`#894C2F`, `accent`)**: heritage warm brown accent for tenant badges, secondary status chips (`ManiTono.acento`), and on-brand secondary emphasis.
 
-### Primary
-- **Stamp Butter** (brand): primary buttons, the active menu entry and tab, selected options, the icon box of every page bar and empty state, the logo square. Pinned by the product owner.
-- **Pale Stamp** (brand-soft): selected cards and highlighted rows.
+### Neutral (Light & Dark)
+- **Espresso Ink (`#1C1613` light / `#F7F2ED` dark, `ink`)**: all primary text, outlines in light mode, focus rings.
+- **Warm Muted (`#5C5049` light / `#C4B5AA` dark, `inkMuted`)**: secondary text, descriptions under titles.
+- **Warm Subtle (`#665A52` light / `#9E8E83` dark, `inkSubtle`)**: hints, placeholders, tertiary metadata.
+- **Warm Paper (`#FAF6F2` light / `#14110F` dark, `background`)**: the page ground behind every card.
+- **Card Surface (`#FFFFFF` light / `#1F1A17` dark, `surface`)**: cards, fields, bars, dialogs.
+- **Sunk Surface (`#F3ECE6` light / `#2B2420` dark, `surfaceMuted`)**: grouped backgrounds, secondary module cards, table headings.
 
-### Neutral
-- **Charcoal Ink** (ink): all primary text, every outline, every hard shadow, focus rings.
-- **Slate Muted** (ink-muted): secondary text, descriptions under titles.
-- **Slate Subtle** (ink-subtle): hints, placeholders, tertiary metadata.
-- **Warm Paper** (background): the page ground behind every card.
-- **Card White** (surface): cards, fields, bars, dialogs.
-- **Sunk Paper** (surface-muted): grouped backgrounds, neutral chips, table headings.
-
-### Tertiary (state)
-- **Success / Warning / Danger / Info / Accent**, each a container tint with its own AA text tone. They are expressed through `ManiTono` and the status badge, never as free-floating colors.
+### Semantic State (`ManiTono`)
+- **Info (`#0065B3` / `#005294` on `#E0F0FF`)**: operational cobalt blue from the palette.
+- **Danger (`#EE1C25` / `#D61921` / `#B01219` on `#FEE2E2`)**: destructive actions, errors, and open complaints.
+- **Success (`#15803D` / `#166534` on `#DCFCE7`)**: completed services and active tenants.
+- **Warning (`#B45309` / `#92400E` on `#FEF3C7`)**: pending reviews, late cancellations, and paused tenants.
 
 ### Named Rules
-**The Stamp Needs Ink Rule.** Stamp Butter against the paper ground is only 1.3:1, so a brand fill always carries the charcoal outline. Color alone never separates a brand surface.
+**The Stamp Needs Ink Rule.** Stamp Peach (`#FED1B0`) against the light paper ground is 1.4:1, so a brand fill always carries the 2px outline. Color alone never separates a brand surface.
 
-**The Stamp Is Not Text Rule.** Stamp Butter is a fill, never a text color. On a brand fill, text is Charcoal Ink (12.5:1) and secondary text is On-Brand Muted (5.3:1); the gray Slate Muted fails there (4.3:1).
+**The Stamp Is Not Text Rule.** Stamp Peach is a fill, never a text color on light surfaces. On a brand fill, text is Espresso Ink (`#1C1613`, 11.9:1) and secondary text is On-Brand Muted (`#63341E`, 4.8:1).
 
 **The Red Means Loss Rule.** Danger red is reserved for destructive or failed outcomes. A normal save is the primary stamp button, never red.
-
-## Typography
-
-**Display Font:** Plus Jakarta Sans (with the platform sans-serif)
-**Body Font:** Plus Jakarta Sans
-
-**Character:** One family carries the whole system. Weight does the work: 900 for titles, 800 for labels and controls, 500 to 600 for reading text, so a card reads as a heading, its fields and its fine print at a glance.
-
-### Hierarchy
-- **Display** (900, 40px, 1.05): the login brand panel headline only.
-- **Headline** (900, 24 to 32px): large section headings, rare inside the app.
-- **Title** (900, 18px, 1.25): the page bar title and dialog titles.
-- **Body** (500, 14px, 1.45): descriptions and content; secondary body at 13px in Slate Muted.
-- **Label** (800, 13px, 0.2px tracking): buttons, tabs, field labels.
-- **Overline** (800, 11px, 0.6px tracking, uppercase): field captions and status badges.
-
-### Named Rules
-**The Weight Before Size Rule.** Hierarchy steps by weight first and size second; every size comes from the scale (10, 11, 12, 13, 14, 16, 18, 20, 24, 32, 40).
-
-**The Variant Font Rule.** Every style goes through Plus Jakarta Sans for its own weight; the theme sets no global font family, which would collapse bold text into synthetic bold.
-
-## Layout
-
-A 4-point spacing scale (2 to 48) for padding and gaps. Signed-in screens have exactly one top bar; below it, each screen opens with its heading, aligned to the content column. Content is centered at a width cap chosen by screen type: narrow 480 (access, dialogs), form 720, list 880, panel 1200, dashboard 1400. On phones everything takes the full width with 16px side margins, and heading actions drop to a second row below 600px. Below 900px the menu entries leave the top bar for the ☰ compact menu; registration and login switch to two columns from 850px.
-
-### Named Rules
-**The Width By Job Rule.** A screen's content width comes from what it is (form, list, panel), never from a literal. Fields never stretch to the full desktop width.
-
-## Elevation & Depth
-
-Depth is structural and hard-edged. Surfaces sit on the paper ground with an offset shadow and no blur; the offset grows with prominence and collapses on press, so the card or button visibly "stamps" into place. There is no tonal elevation and no soft ambient shadow anywhere.
-
-### Shadow Vocabulary
-- **Stamp Small** (2px 2px 0 Charcoal Ink): buttons, icon boxes, chips that act like buttons.
-- **Stamp Medium** (4px 4px 0 Charcoal Ink): cards and sections at rest.
-- **Stamp Large** (6px 6px 0 Charcoal Ink): selected or hovered cards, the logo.
-
-### Named Rules
-**The Press Collapses Rule.** A pressed control loses its shadow and moves by the shadow's offset (a transform, never a layout change). Hover lifts by 1px and grows the shadow one step.
-
-## Shapes
-
-Gently rounded rectangles throughout: 12px for controls, fields and small panels, 16px for cards and sections, 8px for small boxes and menu items, a full pill for status badges and counters. Outlines are 1.5px (chips, rows, dividers), 2px (standard) or 2.5 to 3px (focus, dialogs).
-
-## Components
-
-### Buttons
-- **Shape:** gently rounded (12px), 2px charcoal outline, Stamp Small shadow.
-- **Primary:** Stamp Butter fill, Charcoal Ink label in uppercase-friendly 900 weight (13px), 13px by 20px padding.
-- **Secondary:** Card White fill, same outline and shadow.
-- **Danger:** Danger red fill with white label, only for destructive actions.
-- **Hover / Focus / Press:** hover lifts 1px and grows to Stamp Medium; keyboard focus draws a charcoal ring outside a thin stamp ring; press collapses the shadow. Disabled drops to 45% opacity without a shadow.
-
-### Status badges
-- **Style:** pill, 1.5px charcoal outline, tinted container from `ManiTono` with its AA text tone, an icon before the label so state never depends on color alone.
-
-### Cards / Containers
-- **Corner Style:** 16px.
-- **Background:** Card White; Pale Stamp when selected.
-- **Shadow Strategy:** Stamp Medium at rest, Stamp Large when selected or hovered.
-- **Border:** 2px Charcoal Ink.
-- **Internal Padding:** 16 to 20px.
-
-### Inputs / Fields
-- **Style:** Card White fill, 2px charcoal outline, 12px radius, 14px by 16px padding, uppercase overline caption above.
-- **Focus:** outline thickens to 3px.
-- **Error:** Danger outline with the message in Danger Text below; disabled uses the subtle border.
-
-### Navigation
-- **Top bar (one per app):** white, 68px, charcoal bottom outline. Left to right: the logo, the menu entries as outlined pills (the active one filled with Stamp Butter; the strip scrolls horizontally with arrows, wheel or drag when it does not fit), the user and tenant, and the logout button. Below 900px the entries move into the ☰ compact menu at the left.
-- **Screen heading:** the first element of every screen's content, never a second bar: a 40px Stamp Butter icon box with Stamp Small shadow, the title (20px, 900), an optional description and the screen's actions on the right, aligned to the content column width. A back arrow appears when the screen opened on top of another.
-
-### Empty, error and loading states
-- **Empty:** a Stamp Butter circle with an icon, a title and one explanatory line, plus the action that resolves it.
-- **Error:** a Danger Container card with the message and "Reintentar".
-- **Loading:** skeleton cards shaped like the content, static under reduced motion; a centered spinner where the shape is unknown.
-
-## Do's and Don'ts
-
-### Do:
-- **Do** give every brand fill its 2px charcoal outline (The Stamp Needs Ink Rule).
-- **Do** start every in-app screen with the shared screen heading, aligned to the content width token; never add a second top bar.
-- **Do** express state through `ManiTono` and the status badge, with an icon.
-- **Do** keep every value on the token scales (color, spacing, radius, type size, width, motion).
-
-### Don't:
-- **Don't** use Stamp Butter as a text color or rely on it without an outline.
-- **Don't** use red for a non-destructive action.
-- **Don't** add soft, blurred shadows or tonal elevation; depth is the hard offset stamp.
-- **Don't** let fields or cards stretch to the full desktop width.
-- **Don't** invent customer metrics, testimonials or logos in any surface.

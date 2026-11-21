@@ -19,7 +19,7 @@ void main() {
     'brandSoft': ManiColors.brandSoft,
   };
 
-  group('texto sobre superficies cumple AA (4.5:1)', () {
+  group('texto sobre superficies claras cumple AA (4.5:1)', () {
     const textos = {
       'ink': ManiColors.ink,
       'inkMuted': ManiColors.inkMuted,
@@ -37,13 +37,14 @@ void main() {
     }
   });
 
-  test('success, warning y danger como texto sobre blanco y crema', () {
+  test('success, warning, info y danger como texto sobre blanco y crema', () {
     for (final c in [
       ManiColors.success,
       ManiColors.successText,
       ManiColors.warning,
       ManiColors.warningText,
       ManiColors.danger,
+      ManiColors.info,
     ]) {
       expect(contraste(c, ManiColors.surface), greaterThanOrEqualTo(4.5));
       expect(contraste(c, ManiColors.background), greaterThanOrEqualTo(4.5));
@@ -85,8 +86,49 @@ void main() {
     }
   });
 
-  test('el amarillo de marca nunca es legible como texto sobre claro', () {
-    // Documenta la regla: el amarillo solo es fondo.
+  test('el color de marca nunca es legible como texto sobre claro', () {
+    // Documenta la regla: el color de marca solo es fondo.
     expect(contraste(ManiColors.brand, ManiColors.surface), lessThan(3));
+  });
+
+  group('modo oscuro neo-brutalista cumple AA (4.5:1) y bordes >= 3:1', () {
+    const fondosOscuros = {
+      'background': ManiDarkColors.background,
+      'surface': ManiDarkColors.surface,
+      'surfaceMuted': ManiDarkColors.surfaceMuted,
+      'brandSoft': ManiDarkColors.brandSoft,
+    };
+
+    for (final f in fondosOscuros.entries) {
+      test('ink e inkMuted sobre ${f.key}', () {
+        expect(
+          contraste(ManiDarkColors.ink, f.value),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          contraste(ManiDarkColors.inkMuted, f.value),
+          greaterThanOrEqualTo(4.5),
+        );
+      });
+
+      test('borde oscuro se distingue sobre ${f.key} (>= 3:1)', () {
+        expect(
+          contraste(ManiDarkColors.border, f.value),
+          greaterThanOrEqualTo(3.0),
+        );
+      });
+    }
+
+    test('ManiThemeController alterna entre claro y oscuro', () {
+      final ctrl = ManiThemeController();
+      expect(ctrl.esOscuro, isFalse);
+      ctrl.alternar();
+      expect(ctrl.esOscuro, isTrue);
+      expect(ctrl.modo, ThemeMode.dark);
+      ctrl.alternar();
+      expect(ctrl.esOscuro, isFalse);
+      expect(AppTheme.dark.brightness, Brightness.dark);
+      expect(AppTheme.light.brightness, Brightness.light);
+    });
   });
 }

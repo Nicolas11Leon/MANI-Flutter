@@ -39,11 +39,12 @@ class _ManiButtonState extends State<ManiButton> {
 
   bool get _habilitado => widget.onPressed != null && !widget.cargando;
 
-  (Color fondo, Color texto) get _colores => switch (widget.variante) {
-    ManiButtonVariante.primario => (ManiColors.brand, ManiColors.onBrand),
-    ManiButtonVariante.peligro => (ManiColors.danger, ManiColors.onInk),
-    ManiButtonVariante.secundario => (ManiColors.surface, ManiColors.ink),
-  };
+  (Color fondo, Color texto) _colores(ManiTokens t) =>
+      switch (widget.variante) {
+        ManiButtonVariante.primario => (t.brand, t.onBrand),
+        ManiButtonVariante.peligro => (ManiColors.danger, ManiColors.onInk),
+        ManiButtonVariante.secundario => (t.surface, t.ink),
+      };
 
   void _presionar(bool valor) {
     if (_habilitado && _presionado != valor) {
@@ -57,7 +58,8 @@ class _ManiButtonState extends State<ManiButton> {
 
   @override
   Widget build(BuildContext context) {
-    final (fondo, texto) = _colores;
+    final t = context.mani;
+    final (fondo, texto) = _colores(t);
     final hundido = _presionado || !_habilitado;
     final rapido = ManiMotion.duracion(context, ManiMotion.fast);
     final estilo = ManiText.label.copyWith(
@@ -137,17 +139,12 @@ class _ManiButtonState extends State<ManiButton> {
               decoration: BoxDecoration(
                 color: fondo,
                 borderRadius: ManiRadius.brMd,
-                border: Border.all(
-                  color: ManiColors.border,
-                  width: ManiBorder.regular,
-                ),
+                border: Border.all(color: t.border, width: ManiBorder.regular),
                 boxShadow: [
-                  if (!hundido) _hover ? ManiShadow.md : ManiShadow.sm,
+                  if (!hundido) _hover ? t.shadow : t.shadowSm,
                   // Anillo de foco: un contorno extra fuera de la sombra.
-                  if (_enfocado)
-                    const BoxShadow(color: ManiColors.focus, spreadRadius: 3),
-                  if (_enfocado)
-                    const BoxShadow(color: ManiColors.brand, spreadRadius: 1.5),
+                  if (_enfocado) BoxShadow(color: t.border, spreadRadius: 3),
+                  if (_enfocado) BoxShadow(color: t.brand, spreadRadius: 1.5),
                 ],
               ),
               child: contenido,

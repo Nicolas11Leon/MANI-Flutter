@@ -7,11 +7,18 @@ class ManiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'MANI Services',
-      theme: AppTheme.light, // Usando el tema centralizado del core
-      routerConfig: appRouter, // Usando go_router
-      debugShowCheckedModeBanner: false,
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: maniThemeController,
+      builder: (context, modo, _) {
+        return MaterialApp.router(
+          title: 'MANI Services',
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: modo,
+          routerConfig: appRouter,
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }
