@@ -307,6 +307,9 @@ void main() {
 
         await tester.tap(find.byKey(const Key('menu-cerrar-sesion')));
         await tester.pumpAndSettle();
+        expect(auth.cierres, 0, reason: 'SCRUM-1650: antes pide confirmar');
+        await tester.tap(find.byKey(const ValueKey('confirmacion-confirmar')));
+        await tester.pumpAndSettle();
         expect(auth.cierres, 1);
 
         await tester.tap(find.byKey(const Key('menu-entrada-/perfil/editar')));
