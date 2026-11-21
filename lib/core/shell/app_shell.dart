@@ -17,10 +17,8 @@ const anchoMenuExpandido = 900.0;
 /// Armazón neo-brutalista de las pantallas con sesión (US-11.2.1 / SCRUM-1444).
 ///
 /// Pinta el menú superior con las entradas del [rol], el usuario y el tenant
-/// de la sesión, y la acción de cerrar sesión en todas las pantallas. Usa la
-/// barra superior de las pantallas de registro (logo, borde negro) y centra el
-/// contenido con el mismo ancho máximo. La pantalla de cada ruta llega como
-/// [child] y conserva su propio título.
+/// de la sesión, el conmutador de modo claro/oscuro y la acción de cerrar
+/// sesión en todas las pantallas.
 class AppShell extends StatefulWidget {
   const AppShell({
     super.key,
@@ -109,6 +107,7 @@ class _AppShellState extends State<AppShell> {
           actuandoComo: widget.contextoPlataforma!.rolEfectivo,
         )
       : entradasMenuPara(widget.rol);
+
   Future<void> _cerrarSesion() async {
     await widget.onCerrarSesion();
   }
@@ -125,6 +124,8 @@ class _AppShellState extends State<AppShell> {
   }
 
   Widget _armazon(BuildContext context) {
+    final t = context.mani;
+    final esOscuro = context.esModoOscuro;
     final entradas = _entradas();
     final contexto = widget._conContexto ? widget.contextoPlataforma : null;
     final cuerpo = contexto == null
@@ -153,19 +154,19 @@ class _AppShellState extends State<AppShell> {
         final expandido = constraints.maxWidth >= anchoMenuExpandido;
         return Scaffold(
           key: const Key('app-shell'),
-          backgroundColor: ManiColors.background,
-          // Una sola barra: marca, adónde ir y quién soy. En escritorio las
-          // entradas del menú van en la misma fila; en móvil, en el menú ☰.
+          backgroundColor: t.background,
           appBar: AppBar(
             key: const Key('menu-superior'),
             automaticallyImplyLeading: false,
-            backgroundColor: ManiColors.surface,
+            backgroundColor: t.surface,
             surfaceTintColor: Colors.transparent,
             elevation: 0,
             scrolledUnderElevation: 0,
             toolbarHeight: 68,
-            shape: const Border(bottom: ManiBorder.side),
-            leading: expandido ? null : _menuCompacto(entradas),
+            shape: Border(
+              bottom: BorderSide(color: t.border, width: ManiBorder.regular),
+            ),
+            leading: expandido ? null : _menuCompacto(context, entradas),
             titleSpacing: expandido ? ManiSpace.xl : 0,
             title: Row(
               children: [
@@ -174,8 +175,20 @@ class _AppShellState extends State<AppShell> {
                 if (expandido) ...[
                   Expanded(child: _entradasEnLinea(context, entradas)),
                   ManiGap.hMd,
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 200),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ManiSpace.md,
+                      vertical: ManiSpace.xs,
+                    ),
+                    constraints: const BoxConstraints(maxWidth: 210),
+                    decoration: BoxDecoration(
+                      color: t.surfaceMuted,
+                      borderRadius: ManiRadius.brSm,
+                      border: Border.all(
+                        color: t.borderSubtle,
+                        width: ManiBorder.thin,
+                      ),
+                    ),
                     child: _CabeceraSesion(datos: _datos, rol: widget.rol),
                   ),
                 ] else
@@ -185,6 +198,34 @@ class _AppShellState extends State<AppShell> {
               ],
             ),
             actions: [
+              Center(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: esOscuro ? t.brandSoft : t.surfaceMuted,
+                    borderRadius: ManiRadius.brSm,
+                    border: Border.all(
+                      color: t.border,
+                      width: ManiBorder.regular,
+                    ),
+                    boxShadow: [t.shadowSm],
+                  ),
+                  child: IconButton(
+                    key: const Key('menu-tema'),
+                    tooltip: esOscuro
+                        ? 'Cambiar a modo claro'
+                        : 'Cambiar a modo oscuro',
+                    icon: Icon(
+                      esOscuro
+                          ? Icons.light_mode_rounded
+                          : Icons.dark_mode_outlined,
+                      color: t.ink,
+                      size: 19,
+                    ),
+                    onPressed: maniThemeController.alternar,
+                  ),
+                ),
+              ),
+              ManiGap.hSm,
               Padding(
                 padding: EdgeInsets.only(
                   right: expandido ? ManiSpace.xl : ManiSpace.lg,
@@ -192,22 +233,18 @@ class _AppShellState extends State<AppShell> {
                 child: Center(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: ManiColors.surface,
+                      color: t.surface,
                       borderRadius: ManiRadius.brSm,
                       border: Border.all(
-                        color: ManiColors.border,
+                        color: t.border,
                         width: ManiBorder.regular,
                       ),
-                      boxShadow: const [ManiShadow.sm],
+                      boxShadow: [t.shadowSm],
                     ),
                     child: IconButton(
                       key: const Key('menu-cerrar-sesion'),
                       tooltip: 'Cerrar sesión',
-                      icon: const Icon(
-                        Icons.logout_rounded,
-                        color: ManiColors.ink,
-                        size: 20,
-                      ),
+                      icon: Icon(Icons.logout_rounded, color: t.ink, size: 20),
                       onPressed: _cerrarSesion,
                     ),
                   ),
@@ -221,14 +258,18 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  Widget _menuCompacto(List<EntradaMenu> entradas) {
+  Widget _menuCompacto(BuildContext context, List<EntradaMenu> entradas) {
+    final t = context.mani;
+    final esOscuro = context.esModoOscuro;
     return PopupMenuButton<String>(
       key: const Key('menu-compacto'),
       tooltip: 'Menú',
-      icon: const Icon(Icons.menu_rounded, color: ManiColors.ink),
+      icon: Icon(Icons.menu_rounded, color: t.ink),
       onSelected: (val) {
         if (val == '__logout__') {
           _cerrarSesion();
+        } else if (val == '__theme__') {
+          maniThemeController.alternar();
         } else {
           widget.onNavegar(val);
         }
@@ -239,12 +280,12 @@ class _AppShellState extends State<AppShell> {
             key: Key('menu-entrada-${e.ruta}'),
             value: e.ruta,
             child: ListTile(
-              leading: Icon(e.icono, color: ManiColors.ink),
+              leading: Icon(e.icono, color: t.ink),
               title: Text(
                 e.etiqueta,
                 style: TextStyle(
                   fontWeight: _esActiva(e) ? FontWeight.w900 : FontWeight.w600,
-                  color: ManiColors.ink,
+                  color: t.ink,
                 ),
               ),
               selected: _esActiva(e),
@@ -252,6 +293,21 @@ class _AppShellState extends State<AppShell> {
             ),
           ),
         const PopupMenuDivider(),
+        PopupMenuItem<String>(
+          key: const Key('menu-compacto-tema'),
+          value: '__theme__',
+          child: ListTile(
+            leading: Icon(
+              esOscuro ? Icons.light_mode_rounded : Icons.dark_mode_outlined,
+              color: t.ink,
+            ),
+            title: Text(
+              esOscuro ? 'Modo claro' : 'Modo oscuro',
+              style: TextStyle(color: t.ink, fontWeight: FontWeight.w700),
+            ),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
         const PopupMenuItem<String>(
           key: Key('menu-compacto-cerrar-sesion'),
           value: '__logout__',
@@ -274,13 +330,14 @@ class _AppShellState extends State<AppShell> {
   /// Entradas del menú en la barra, con desplazamiento horizontal (rueda,
   /// arrastre o flechas) cuando no caben.
   Widget _entradasEnLinea(BuildContext context, List<EntradaMenu> entradas) {
+    final t = context.mani;
     return Row(
       children: [
         Padding(
           padding: EdgeInsets.zero,
           child: IconButton(
             key: const Key('menu-scroll-izq'),
-            icon: const Icon(Icons.chevron_left_rounded, color: ManiColors.ink),
+            icon: Icon(Icons.chevron_left_rounded, color: t.ink),
             tooltip: 'Desplazar a la izquierda',
             onPressed: () => _scrollBarra(-280),
           ),
@@ -313,7 +370,7 @@ class _AppShellState extends State<AppShell> {
                 thumbVisibility: true,
                 thickness: 4,
                 radius: const Radius.circular(2),
-                thumbColor: ManiColors.ink.withValues(alpha: 0.35),
+                thumbColor: t.ink.withValues(alpha: 0.35),
                 padding: const EdgeInsets.only(bottom: ManiSpace.xxs),
                 child: SingleChildScrollView(
                   controller: _menuScrollController,
@@ -331,17 +388,15 @@ class _AppShellState extends State<AppShell> {
                           ),
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              color: _esActiva(e)
-                                  ? ManiColors.brand
-                                  : ManiColors.surface,
+                              color: _esActiva(e) ? t.brand : t.surface,
                               borderRadius: ManiRadius.brMd,
                               border: Border.all(
-                                color: ManiColors.border,
-                                width: ManiBorder.regular,
+                                color: _esActiva(e) ? t.border : t.borderSubtle,
+                                width: _esActiva(e)
+                                    ? ManiBorder.regular
+                                    : ManiBorder.thin,
                               ),
-                              boxShadow: _esActiva(e)
-                                  ? const [ManiShadow.sm]
-                                  : const [],
+                              boxShadow: _esActiva(e) ? [t.shadowSm] : const [],
                             ),
                             child: TextButton.icon(
                               key: Key('menu-entrada-${e.ruta}'),
@@ -349,7 +404,7 @@ class _AppShellState extends State<AppShell> {
                               icon: Icon(
                                 e.icono,
                                 size: 18,
-                                color: ManiColors.ink,
+                                color: _esActiva(e) ? t.onBrand : t.inkMuted,
                               ),
                               label: Text(
                                 e.etiqueta,
@@ -358,19 +413,19 @@ class _AppShellState extends State<AppShell> {
                                   fontWeight: _esActiva(e)
                                       ? FontWeight.w900
                                       : FontWeight.w700,
-                                  color: ManiColors.ink,
+                                  color: _esActiva(e) ? t.onBrand : t.ink,
                                 ),
                               ),
                               style: TextButton.styleFrom(
-                                foregroundColor: ManiColors.ink,
-                                backgroundColor: _esActiva(e)
-                                    ? ManiColors.brand
-                                    : null,
+                                foregroundColor: _esActiva(e)
+                                    ? t.onBrand
+                                    : t.ink,
+                                backgroundColor: _esActiva(e) ? t.brand : null,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: ManiSpace.md,
                                   vertical: ManiSpace.sm,
                                 ),
-                                shape: RoundedRectangleBorder(
+                                shape: const RoundedRectangleBorder(
                                   borderRadius: ManiRadius.brMd,
                                 ),
                               ),
@@ -388,10 +443,7 @@ class _AppShellState extends State<AppShell> {
           padding: EdgeInsets.zero,
           child: IconButton(
             key: const Key('menu-scroll-der'),
-            icon: const Icon(
-              Icons.chevron_right_rounded,
-              color: ManiColors.ink,
-            ),
+            icon: Icon(Icons.chevron_right_rounded, color: t.ink),
             tooltip: 'Desplazar a la derecha',
             onPressed: () => _scrollBarra(280),
           ),
@@ -401,7 +453,7 @@ class _AppShellState extends State<AppShell> {
   }
 }
 
-/// Logo, usuario, rol y tenant de la sesión. Mientras carga muestra solo el
+/// Usuario, rol y tenant de la sesión. Mientras carga muestra solo el
 /// rol, y si Core no responde muestra el rol sin nombre: el menú sigue usable.
 class _CabeceraSesion extends StatelessWidget {
   const _CabeceraSesion({required this.datos, required this.rol});
@@ -411,6 +463,7 @@ class _CabeceraSesion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return FutureBuilder<DatosSesion>(
       future: datos,
       builder: (context, snap) {
@@ -427,10 +480,10 @@ class _CabeceraSesion extends StatelessWidget {
             Text(
               usuario ?? 'MANI',
               key: const Key('menu-usuario'),
-              style: const TextStyle(
-                fontSize: ManiFontSize.bodyLg,
+              style: TextStyle(
+                fontSize: ManiFontSize.body,
                 fontWeight: FontWeight.w900,
-                color: ManiColors.ink,
+                color: t.ink,
                 letterSpacing: -0.3,
               ),
               overflow: TextOverflow.ellipsis,
@@ -439,10 +492,10 @@ class _CabeceraSesion extends StatelessWidget {
             Text(
               linea2,
               key: const Key('menu-tenant'),
-              style: const TextStyle(
-                fontSize: ManiFontSize.caption,
+              style: TextStyle(
+                fontSize: ManiFontSize.micro,
                 fontWeight: FontWeight.w700,
-                color: ManiColors.inkMuted,
+                color: t.inkMuted,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -459,21 +512,19 @@ class _Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return ExcludeSemantics(
       child: Container(
         width: 40,
         height: 40,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: ManiColors.brand,
+          color: t.brand,
           borderRadius: ManiRadius.brSm,
-          border: Border.all(
-            color: ManiColors.border,
-            width: ManiBorder.regular,
-          ),
-          boxShadow: const [ManiShadow.sm],
+          border: Border.all(color: t.border, width: ManiBorder.regular),
+          boxShadow: [t.shadowSm],
         ),
-        child: Text('M', style: ManiText.h3),
+        child: Text('M', style: ManiText.h3.copyWith(color: t.onBrand)),
       ),
     );
   }

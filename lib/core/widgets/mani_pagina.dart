@@ -28,6 +28,7 @@ class ManiPagina extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final contenido = LayoutBuilder(
       builder: (context, c) => SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -49,18 +50,23 @@ class ManiPagina extends StatelessWidget {
     final cuerpo = alRefrescar == null
         ? contenido
         : RefreshIndicator(
-            color: ManiColors.ink,
-            backgroundColor: ManiColors.brand,
+            color: t.onBrand,
+            backgroundColor: t.brand,
             onRefresh: alRefrescar!,
             child: contenido,
           );
-    if (encabezado == null) return cuerpo;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        encabezado!,
-        Expanded(child: cuerpo),
-      ],
+    if (encabezado == null) {
+      return ColoredBox(color: t.background, child: cuerpo);
+    }
+    return ColoredBox(
+      color: t.background,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          encabezado!,
+          Expanded(child: cuerpo),
+        ],
+      ),
     );
   }
 }
@@ -97,113 +103,119 @@ class ManiEncabezadoPantalla extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final puedeVolver = ModalRoute.of(context)?.canPop ?? false;
-    return Align(
-      alignment: Alignment.topCenter,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: ancho),
-        child: LayoutBuilder(
-          builder: (context, c) {
-            final angosta = c.maxWidth < 600;
-            final identidad = Row(
-              children: [
-                if (puedeVolver) ...[
-                  IconButton(
-                    tooltip: 'Volver',
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    icon: const Icon(Icons.arrow_back_rounded),
-                  ),
-                  ManiGap.hXs,
-                ],
-                ExcludeSemantics(
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: ManiColors.brand,
-                      borderRadius: ManiRadius.brSm,
-                      border: Border.all(
-                        color: ManiColors.border,
-                        width: ManiBorder.regular,
-                      ),
-                      boxShadow: const [ManiShadow.sm],
-                    ),
-                    child: Icon(icono, color: ManiColors.onBrand, size: 22),
-                  ),
-                ),
-                ManiGap.hMd,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          titulo,
-                          key: tituloKey,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: ManiText.h3,
-                        ),
-                      ),
-                      if (descripcion != null) ...[
-                        ManiGap.vXxs,
-                        Text(
-                          descripcion!,
-                          key: descripcionKey,
-                          maxLines: angosta ? 3 : 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: ManiText.bodySm,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (!angosta && acciones.isNotEmpty) ...[
-                  ManiGap.hLg,
-                  Wrap(
-                    spacing: ManiSpace.sm,
-                    runSpacing: ManiSpace.sm,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: acciones,
-                  ),
-                ],
-              ],
-            );
-            return Padding(
-              padding: EdgeInsets.fromLTRB(
-                angosta ? ManiSpace.lg : ManiSpace.xxl,
-                angosta ? ManiSpace.lg : ManiSpace.xxl,
-                angosta ? ManiSpace.lg : ManiSpace.xxl,
-                ManiSpace.sm,
-              ),
-              child: angosta && acciones.isNotEmpty
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        identidad,
-                        ManiGap.vMd,
-                        Wrap(
-                          spacing: ManiSpace.sm,
-                          runSpacing: ManiSpace.sm,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: acciones,
-                        ),
-                      ],
-                    )
-                  : identidad,
-            );
-          },
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border(
+          bottom: BorderSide(color: t.borderSubtle, width: ManiBorder.thin),
         ),
+      ),
+      alignment: Alignment.centerLeft,
+      child: LayoutBuilder(
+        builder: (context, c) {
+          final angosta = c.maxWidth < 600;
+          final identidad = Row(
+            children: [
+              if (puedeVolver) ...[
+                IconButton(
+                  tooltip: 'Volver',
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  icon: Icon(Icons.arrow_back_rounded, color: t.ink),
+                ),
+                ManiGap.hXs,
+              ],
+              ExcludeSemantics(
+                child: Container(
+                  width: 42,
+                  height: 42,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: t.brand,
+                    borderRadius: ManiRadius.brSm,
+                    border: Border.all(
+                      color: t.border,
+                      width: ManiBorder.regular,
+                    ),
+                    boxShadow: [t.shadowSm],
+                  ),
+                  child: Icon(icono, color: t.onBrand, size: 22),
+                ),
+              ),
+              ManiGap.hMd,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        titulo,
+                        key: tituloKey,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: ManiText.h3.copyWith(color: t.ink),
+                      ),
+                    ),
+                    if (descripcion != null) ...[
+                      ManiGap.vXxs,
+                      Text(
+                        descripcion!,
+                        key: descripcionKey,
+                        maxLines: angosta ? 3 : 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: ManiText.bodySm.copyWith(color: t.inkMuted),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (!angosta && acciones.isNotEmpty) ...[
+                ManiGap.hLg,
+                Wrap(
+                  spacing: ManiSpace.sm,
+                  runSpacing: ManiSpace.sm,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: acciones,
+                ),
+              ],
+            ],
+          );
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              angosta ? ManiSpace.lg : ManiSpace.xxl,
+              angosta ? ManiSpace.md : ManiSpace.lg,
+              angosta ? ManiSpace.lg : ManiSpace.xxl,
+              angosta ? ManiSpace.md : ManiSpace.lg,
+            ),
+            child: angosta && acciones.isNotEmpty
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      identidad,
+                      ManiGap.vMd,
+                      Wrap(
+                        spacing: ManiSpace.sm,
+                        runSpacing: ManiSpace.sm,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: acciones,
+                      ),
+                    ],
+                  )
+                : identidad,
+          );
+        },
       ),
     );
   }
 }
 
-/// Título de sección: ícono en caja amarilla, texto en mayúsculas y subrayado
-/// negro. Separa los bloques de una página (y las columnas del servicio).
+/// Título de sección: ícono en caja de marca, texto en mayúsculas y línea
+/// divisoria estructural. Separa los bloques de una página y jerarquiza
+/// tableros.
 class ManiTituloSeccion extends StatelessWidget {
   const ManiTituloSeccion({
     super.key,
@@ -218,32 +230,35 @@ class ManiTituloSeccion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Container(
       padding: const EdgeInsets.only(bottom: ManiSpace.sm),
-      decoration: const BoxDecoration(border: Border(bottom: ManiBorder.side)),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: t.border, width: ManiBorder.regular),
+        ),
+      ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(ManiSpace.sm),
             decoration: BoxDecoration(
-              color: ManiColors.brand,
+              color: t.brand,
               borderRadius: ManiRadius.brSm,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.regular,
-              ),
+              border: Border.all(color: t.border, width: ManiBorder.regular),
+              boxShadow: [t.shadowSm],
             ),
-            child: Icon(icono, color: ManiColors.ink, size: 18),
+            child: Icon(icono, color: t.onBrand, size: 18),
           ),
           ManiGap.hSm,
           Expanded(
             child: Text(
               titulo.toUpperCase(),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: ManiFontSize.bodySm,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.6,
-                color: ManiColors.ink,
+                color: t.ink,
               ),
             ),
           ),
@@ -291,9 +306,8 @@ class ManiRejilla extends StatelessWidget {
   }
 }
 
-/// Botón en píldora con borde negro: color de marca con sombra si es [principal],
-/// blanco si no. Es el de las acciones de Mis solicitudes; el texto oscuro
-/// sobre la marca o blanco cumple el contraste AA.
+/// Botón en píldora con borde: color de marca con sombra si es [principal],
+/// superficie si no.
 class ManiBotonPildora extends StatelessWidget {
   const ManiBotonPildora({
     super.key,
@@ -310,8 +324,10 @@ class ManiBotonPildora extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
+    final fg = principal ? t.onBrand : t.ink;
     final estilo = TextButton.styleFrom(
-      foregroundColor: ManiColors.ink,
+      foregroundColor: fg,
       textStyle: const TextStyle(
         fontSize: ManiFontSize.bodySm,
         fontWeight: FontWeight.w800,
@@ -323,10 +339,10 @@ class ManiBotonPildora extends StatelessWidget {
     );
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: principal ? ManiColors.brand : ManiColors.surface,
+        color: principal ? t.brand : t.surface,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
-        boxShadow: const [ManiShadow.sm],
+        border: Border.all(color: t.border, width: ManiBorder.regular),
+        boxShadow: [t.shadowSm],
       ),
       child: icono == null
           ? TextButton(
@@ -337,7 +353,7 @@ class ManiBotonPildora extends StatelessWidget {
           : TextButton.icon(
               onPressed: onPressed,
               style: estilo,
-              icon: Icon(icono, size: 18),
+              icon: Icon(icono, size: 18, color: fg),
               label: Text(etiqueta),
             ),
     );
@@ -362,20 +378,19 @@ class ManiAvisoTarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
+    final colorTexto = esError ? ManiColors.dangerText : t.ink;
     return ManiCard(
-      color: esError ? ManiColors.dangerContainer : ManiColors.surface,
-      sombra: ManiShadow.sm,
+      color: esError ? ManiColors.dangerContainer : t.surface,
+      sombra: t.shadowSm,
       child: Row(
         children: [
-          Icon(icono, color: esError ? ManiColors.dangerText : ManiColors.ink),
+          Icon(icono, color: colorTexto),
           ManiGap.hMd,
           Expanded(
             child: Text(
               texto,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                color: ManiColors.ink,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w700, color: colorTexto),
             ),
           ),
           if (accion != null) ...[ManiGap.hMd, accion!],

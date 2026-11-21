@@ -435,12 +435,6 @@ final appRouter = GoRouter(
                 ? sl<ContextoPlataforma>()
                 : null,
             onNavegar: (ruta) => context.go(ruta),
-            onCerrarSesion: () async {
-              await sl<IAuthRepository>().signOut();
-              if (context.mounted) {
-                context.go('/login');
-              }
-            },
           ),
         ),
         // Ruta independiente: Selección de categorías del aliado (US-03.1.3)
@@ -505,7 +499,10 @@ final appRouter = GoRouter(
           name: 'crear-solicitud',
           builder: (context, state) => BlocProvider(
             create: (_) => sl<CrearSolicitudCubit>()..cargar(),
-            child: CrearSolicitudPage(selectorFotos: sl()),
+            child: CrearSolicitudPage(
+              selectorFotos: sl(),
+              onIrAMisSolicitudes: () => context.go('/cliente/solicitudes'),
+            ),
           ),
         ),
         // Mis solicitudes (HU-M07-04 / SCRUM-871): estado y zona declarada,

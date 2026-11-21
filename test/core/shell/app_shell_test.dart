@@ -10,6 +10,7 @@ import 'package:mani/core/session/rol_usuario.dart';
 import 'package:mani/core/shell/app_shell.dart';
 import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Arma un JWT sin firma válida: el shell solo lee el payload para pintar.
 String _token(Map<String, dynamic> payload) {
@@ -116,7 +117,11 @@ void main() {
 
     test('cliente ve sus pantallas y ninguna de aliado ni de admin', () {
       final r = rutas(RolUsuario.cliente);
-      expect(r, containsAll(['/cliente/solicitudes/nueva', '/cliente/sedes']));
+      expect(
+        r,
+        containsAll(['/cliente/solicitudes/nueva', '/cliente/solicitudes']),
+      );
+      expect(r, isNot(contains('/cliente/sedes')));
       expect(r.any((x) => x.startsWith('/aliado')), isFalse);
       expect(r.any((x) => x.startsWith('/admin')), isFalse);
     });
@@ -393,16 +398,16 @@ void main() {
       );
 
       expect(find.byKey(const Key('menu-compacto')), findsOneWidget);
-      expect(find.text('Mis sedes'), findsNothing);
+      expect(find.text('Mis solicitudes'), findsNothing);
       expect(find.byKey(const Key('menu-cerrar-sesion')), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('menu-compacto')));
       await tester.pumpAndSettle();
-      expect(find.text('Mis sedes'), findsOneWidget);
+      expect(find.text('Mis solicitudes'), findsOneWidget);
 
-      await tester.tap(find.text('Mis sedes'));
+      await tester.tap(find.text('Mis solicitudes'));
       await tester.pumpAndSettle();
-      expect(destino, '/cliente/sedes');
+      expect(destino, '/cliente/solicitudes');
     });
 
     testWidgets(
@@ -452,11 +457,11 @@ void main() {
         tester,
         ancho: 1024,
         rol: RolUsuario.cliente,
-        ubicacion: '/cliente/sedes',
+        ubicacion: '/cliente/solicitudes',
       );
 
       final activa = tester.widget<TextButton>(
-        find.byKey(const Key('menu-entrada-/cliente/sedes')),
+        find.byKey(const Key('menu-entrada-/cliente/solicitudes')),
       );
       final inactiva = tester.widget<TextButton>(
         find.byKey(const Key('menu-entrada-/perfil/editar')),
@@ -483,6 +488,26 @@ void main() {
       expect(fondo('/cliente/solicitudes/nueva'), isNotNull);
       // "Mis solicitudes" es prefijo de la ruta pero no debe resaltarse.
       expect(fondo('/cliente/solicitudes'), isNull);
+    });
+
+    testWidgets('botón de tema alterna entre modo claro y modo oscuro', (
+      tester,
+    ) async {
+      maniThemeController.fijar(ThemeMode.light);
+      addTearDown(() => maniThemeController.fijar(ThemeMode.light));
+
+      await _montar(tester, ancho: 1024, rol: RolUsuario.cliente);
+
+      expect(maniThemeController.esOscuro, isFalse);
+      expect(find.byKey(const Key('menu-tema')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('menu-tema')));
+      await tester.pumpAndSettle();
+      expect(maniThemeController.esOscuro, isTrue);
+
+      await tester.tap(find.byKey(const Key('menu-tema')));
+      await tester.pumpAndSettle();
+      expect(maniThemeController.esOscuro, isFalse);
     });
   });
 }

@@ -52,17 +52,6 @@ const _entradasCliente = [
     icono: Icons.list_alt_outlined,
     ruta: '/cliente/solicitudes',
   ),
-  // Historial de servicios (SCRUM-879).
-  EntradaMenu(
-    etiqueta: 'Historial',
-    icono: Icons.history,
-    ruta: '/cliente/historial',
-  ),
-  EntradaMenu(
-    etiqueta: 'Mis sedes',
-    icono: Icons.apartment_outlined,
-    ruta: '/cliente/sedes',
-  ),
   // El cliente ubica sus propias sedes en el catálogo geográfico (HU-M04-07).
   _mapaZonas,
   // Quejas del cliente (SCRUM-895).
