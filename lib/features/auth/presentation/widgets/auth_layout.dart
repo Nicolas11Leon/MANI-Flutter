@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_layout.dart';
+import 'package:mani/core/widgets/mani_logo.dart';
 
 /// Marco de las pantallas de acceso (inicio de sesión).
 ///
@@ -49,42 +50,6 @@ class AuthSplitScaffold extends StatelessWidget {
               ],
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-/// Logotipo de MANI: la "M" sobre caja amarilla con sombra dura.
-class ManiLogo extends StatelessWidget {
-  const ManiLogo({super.key, this.tamano = 96});
-
-  final double tamano;
-
-  @override
-  Widget build(BuildContext context) {
-    final grande = tamano >= 64;
-    return ExcludeSemantics(
-      child: Container(
-        width: tamano,
-        height: tamano,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: ManiColors.brand,
-          borderRadius: grande ? ManiRadius.brLg : ManiRadius.brSm,
-          border: Border.all(
-            color: ManiColors.border,
-            width: grande ? 3 : ManiBorder.regular,
-          ),
-          boxShadow: [grande ? ManiShadow.lg : ManiShadow.sm],
-        ),
-        child: Text(
-          'M',
-          style: ManiText.display.copyWith(
-            fontSize: tamano * 0.44,
-            height: 1,
-            letterSpacing: 0,
-          ),
         ),
       ),
     );
@@ -489,7 +454,7 @@ class AuthBarraSuperior extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const ManiLogo(tamano: 40),
+                const ManiLogo(size: 40),
                 ManiGap.hMd,
                 Expanded(
                   child: Column(

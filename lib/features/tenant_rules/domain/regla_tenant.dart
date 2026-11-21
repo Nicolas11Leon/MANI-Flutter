@@ -29,7 +29,7 @@ class ReglasOperativas {
           .toUpperCase(),
       toleranciaTarifa:
           (alerta['toleranciaPorcentaje'] as num?)?.toDouble() ?? 10.0,
-      comisionPorcentaje: (com['porcentaje'] as num?)?.toDouble() ?? 15.0,
+      comisionPorcentaje: (com['porcentaje'] as num?)?.toDouble() ?? 10.0,
       ventanaCancelacionHoras:
           (canc['ventanaHoras'] as num?)?.toDouble() ?? 2.0,
       penalizacionCancelacion:

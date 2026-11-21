@@ -6,6 +6,7 @@ import 'package:mani/features/catalog/map/data/mapa_remote_datasource.dart';
 import 'package:mani/features/catalog/map/domain/entities/geometria_zona.dart';
 import 'package:mani/features/catalog/map/presentation/bloc/mapa_cubit.dart';
 import 'package:mani/features/catalog/map/presentation/pages/mapa_zonas_page.dart';
+import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
 
 const _chapinero = 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13';
 const _chico = 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15';
@@ -25,11 +26,32 @@ final _anillo = GeometriaZona.anillosDesdeGeoJson({
   ],
 });
 
+/// Otro límite, lo bastante lejos como para que el centro cambie de verdad.
+final _otroAnillo = GeometriaZona.anillosDesdeGeoJson({
+  'type': 'Polygon',
+  'coordinates': [
+    [
+      [-74.09, 4.74],
+      [-74.08, 4.74],
+      [-74.08, 4.75],
+      [-74.09, 4.75],
+      [-74.09, 4.74],
+    ],
+  ],
+});
+
 class _CubitFalso extends Cubit<MapaState> implements MapaCubit {
   _CubitFalso(super.initialState);
 
   @override
   Future<void> cargar() async {}
+
+  @override
+  Future<void> cargarPanoramica() async {
+    panoramica = true;
+  }
+
+  bool panoramica = false;
 
   @override
   Future<void> seleccionar(String localidadId) async {
@@ -244,7 +266,12 @@ void main() {
       );
 
       expect(find.byKey(const Key('mapa_leyenda_cobertura')), findsOneWidget);
-      expect(find.textContaining('usa Cobertura en el menú'), findsOneWidget);
+      // Ya no remite a una entrada de menú: el mapa del aliado vive dentro de
+      // «Zona de cobertura», y esta pantalla suelta quedó para el catálogo.
+      expect(
+        find.textContaining('ya declaraste como cobertura'),
+        findsOneWidget,
+      );
     },
   );
 
@@ -318,5 +345,201 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(cubit.seleccionada, 'otra-id');
+  });
+
+  testWidgets(
+    'al elegir otra localidad la cámara se reencuadra sobre sus límites',
+    (tester) async {
+      // `initialCameraFit` solo actúa al construir, así que sin reencuadre
+      // explícito el mapa se quedaba sobre la localidad anterior.
+      final cubit = _CubitFalso(
+        MapaState(
+          estado: MapaEstado.listo,
+          localidadId: _chapinero,
+          geometrias: [
+            GeometriaZona(
+              zonaId: _chico,
+              nombre: 'Chicó Norte',
+              nivel: 'BARRIO',
+              anillos: _anillo,
+              atribucion: 'UAECD',
+            ),
+          ],
+        ),
+      );
+      await tester.pumpWidget(_app(MapaState(), cubit: cubit));
+      await tester.pumpAndSettle();
+
+      final centroInicial = tester
+          .widget<FlutterMap>(find.byType(FlutterMap))
+          .options
+          .initialCenter;
+
+      cubit.emit(
+        MapaState(
+          estado: MapaEstado.listo,
+          localidadId: 'otra-id',
+          geometrias: [
+            GeometriaZona(
+              zonaId: 'otra-zona',
+              nombre: 'Suba',
+              nivel: 'LOCALIDAD',
+              anillos: _otroAnillo,
+              atribucion: 'UAECD',
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final camara = tester
+          .widget<FlutterMap>(find.byType(FlutterMap))
+          .mapController!
+          .camera;
+
+      // La cámara quedó sobre el nuevo límite, no sobre el anterior.
+      expect(camara.center.latitude, closeTo(4.745, 0.02));
+      expect(camara.center.longitude, closeTo(-74.085, 0.02));
+      expect(camara.center, isNot(centroInicial));
+    },
+  );
+
+  testWidgets(
+    'con selección en curso resalta esa, no la cobertura ya guardada',
+    (tester) async {
+      // Es lo que ve el aliado mientras marca zonas en «Zona de cobertura»:
+      // debe pintarse lo que lleva marcado, no lo que guardó la última vez.
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider<MapaCubit>.value(
+            value: _CubitFalso(
+              MapaState(
+                estado: MapaEstado.listo,
+                coberturaPropia: const {'zona-guardada'},
+                geometrias: [
+                  GeometriaZona(
+                    zonaId: _chico,
+                    nombre: 'Chicó Norte',
+                    nivel: 'BARRIO',
+                    anillos: _anillo,
+                    atribucion: 'UAECD',
+                  ),
+                ],
+              ),
+            ),
+            child: const Scaffold(
+              body: MapaZonas(
+                coberturaResaltada: {_chico},
+                leyendaCobertura: 'En verde, lo que llevas seleccionado.',
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final poligono = tester
+          .widget<PolygonLayer>(find.byType(PolygonLayer))
+          .polygons
+          .first;
+      expect(poligono.borderColor, const Color(0xFF166534));
+      expect(find.textContaining('lo que llevas seleccionado'), findsOneWidget);
+    },
+  );
+
+  group('modo selector: el mapa marca cobertura (SCRUM-1396)', () {
+    Widget selector({
+      required Set<String> elegidas,
+      required void Function(String) onTocar,
+    }) => MaterialApp(
+      home: BlocProvider<MapaCubit>.value(
+        value: _CubitFalso(
+          MapaState(
+            estado: MapaEstado.listo,
+            localidades: const [
+              {'id': _chapinero, 'name': 'Chapinero', 'level': 'LOCALIDAD'},
+              {'id': 'otra-id', 'name': 'Suba', 'level': 'LOCALIDAD'},
+            ],
+            geometrias: [
+              GeometriaZona(
+                zonaId: _chico,
+                nombre: 'Chicó Norte',
+                nivel: 'BARRIO',
+                anillos: _anillo,
+                atribucion: 'UAECD',
+              ),
+            ],
+          ),
+        ),
+        child: Scaffold(
+          body: MapaZonas(coberturaResaltada: elegidas, onZonaTocada: onTocar),
+        ),
+      ),
+    );
+
+    testWidgets('cada zona lleva su nombre encima', (tester) async {
+      await tester.pumpWidget(selector(elegidas: const {}, onTocar: (_) {}));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chicó Norte'), findsOneWidget);
+      expect(find.byKey(const Key('mapa_marca_Chicó Norte')), findsOneWidget);
+    });
+
+    testWidgets('tocar la zona avisa con su id', (tester) async {
+      final tocadas = <String>[];
+      await tester.pumpWidget(
+        selector(elegidas: const {}, onTocar: tocadas.add),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('mapa_marca_Chicó Norte')));
+      await tester.pumpAndSettle();
+
+      expect(tocadas, [_chico]);
+    });
+
+    testWidgets('la marca distingue elegida de no elegida', (tester) async {
+      await tester.pumpWidget(selector(elegidas: const {}, onTocar: (_) {}));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.byIcon(Icons.check), findsNothing);
+
+      await tester.pumpWidget(
+        selector(elegidas: const {_chico}, onTocar: (_) {}),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(Icons.add), findsNothing);
+    });
+
+    testWidgets('no ofrece el desplegable de localidad', (tester) async {
+      // En panorámica están todas a la vez: elegir una sola sobra y confunde.
+      await tester.pumpWidget(selector(elegidas: const {}, onTocar: (_) {}));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('mapa_selector_localidad')), findsNothing);
+    });
+
+    testWidgets('sin modo selector no hay marcas que tocar', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          MapaState(
+            estado: MapaEstado.listo,
+            geometrias: [
+              GeometriaZona(
+                zonaId: _chico,
+                nombre: 'Chicó Norte',
+                nivel: 'BARRIO',
+                anillos: _anillo,
+                atribucion: 'UAECD',
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('mapa_marca_Chicó Norte')), findsNothing);
+    });
   });
 }

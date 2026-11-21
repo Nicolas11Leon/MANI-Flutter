@@ -380,7 +380,11 @@ class ServidorSolicitudesFake implements SolicitudesClienteRemoteDataSource {
       throw GatewayException.fromStatus(401);
     }
     if (!esCliente) {
-      throw GatewayException.fromStatus(403);
+      // Core responde el 403 de quien no es cliente con su código (SCRUM-1643).
+      throw GatewayException.fromStatus(
+        403,
+        cuerpo: const {'code': 'MANI-SOL-403C'},
+      );
     }
     if (fotos.length > 5) {
       throw _rechazo('MANI-SOL-422F: fotos');

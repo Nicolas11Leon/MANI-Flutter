@@ -364,4 +364,43 @@ void main() {
       expect(h.calificacionRecibida, isNull);
     });
   });
+
+  group('Calificaciones privadas entre participantes', () {
+    test(
+      'historial del cliente: la recibida llega oculta y solo se marca que existe',
+      () async {
+        responder = (_) => http.Response(
+          jsonEncode({
+            'historial': [
+              {
+                'id': 'sol-9',
+                'estado': 'CERRADA',
+                'categoria': 'Plomería',
+                'descripcion': 'Fuga',
+                'direccion': 'Calle 1',
+                'zonaDeclarada': {'nombre': 'Chapinero'},
+                'calificaciones': {
+                  'clienteAlAliado': {'puntaje': 1, 'comentario': null},
+                  'aliadoAlCliente': null,
+                  'calificacionRecibidaRegistrada': true,
+                  'cierreCompleto': true,
+                },
+                'creadaEn': '2026-11-01T10:00:00.000Z',
+              },
+            ],
+            'totalCount': 1,
+          }),
+          200,
+          headers: _json,
+        );
+        final h = (await GatewayFuenteModuloM08(
+          gateway(),
+        ).listarHistorialCliente()).single;
+
+        expect(h.calificacionEmitida!.puntaje, 1);
+        expect(h.calificacionRecibida, isNull);
+        expect(h.calificacionRecibidaRegistrada, isTrue);
+      },
+    );
+  });
 }

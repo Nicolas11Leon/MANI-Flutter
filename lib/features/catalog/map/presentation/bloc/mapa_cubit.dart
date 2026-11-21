@@ -99,6 +99,9 @@ class MapaCubit extends Cubit<MapaState> {
 
   final MapaRemoteDataSource _datos;
 
+  /// Tope por petición que impone el contrato de Core.
+  static const _porPeticion = GatewayMapaDataSource.maxZonasPorPeticion;
+
   Future<void> cargar() async {
     emit(state.copyWith(estado: MapaEstado.cargando));
     try {
@@ -131,6 +134,70 @@ class MapaCubit extends Cubit<MapaState> {
     }
   }
 
+  /// Carga **todas** las localidades a la vez, sin barrios.
+  ///
+  /// Es el modo que necesita la declaración de cobertura: el aliado elige
+  /// sobre el mapa de la ciudad entera, así que no sirve mostrarle una
+  /// localidad cada vez. Se pide en tandas porque el contrato topa cada
+  /// petición en [MapaRemoteDataSource] y la ciudad puede tener más.
+  Future<void> cargarPanoramica() async {
+    emit(state.copyWith(estado: MapaEstado.cargando));
+    try {
+      final zonas = await _datos.listarZonas();
+      final localidades = zonas
+          .where((z) => z['level'] == 'LOCALIDAD' && z['selectable'] != false)
+          .toList(growable: false);
+      if (localidades.isEmpty) {
+        emit(state.copyWith(estado: MapaEstado.vacio, localidades: const []));
+        return;
+      }
+      _zonas = zonas;
+      final cobertura = await _cargarCoberturaTolerante();
+
+      final ids = localidades.map((z) => '${z['id']}').toList();
+      final pedido = await _pedirEnTandas(ids);
+      final geometrias = pedido.geometrias;
+      final sinGeometria = pedido.sinGeometria;
+      final atribuciones = pedido.atribuciones;
+
+      emit(
+        state.copyWith(
+          estado: geometrias.isEmpty ? MapaEstado.vacio : MapaEstado.listo,
+          localidades: localidades,
+          geometrias: geometrias,
+          sinGeometria: sinGeometria,
+          atribuciones: atribuciones,
+          coberturaPropia: cobertura,
+          sitios: const [],
+          sitiosSinUbicacion: 0,
+        ),
+      );
+    } on GatewayException catch (e) {
+      emit(state.copyWith(estado: MapaEstado.error, mensajeError: e.message));
+    }
+  }
+
+  /// Pide los límites de [ids] partiéndolos en tandas del tope que impone el
+  /// contrato, y junta lo recibido: solo los dibujables, lo que no tiene límite
+  /// y las atribuciones sin repetir.
+  Future<_GeometriasPedidas> _pedirEnTandas(List<String> ids) async {
+    final geometrias = <GeometriaZona>[];
+    final sinGeometria = <String>[];
+    final atribuciones = <String>{};
+    for (var i = 0; i < ids.length; i += _porPeticion) {
+      final fin = i + _porPeticion > ids.length ? ids.length : i + _porPeticion;
+      final res = await _datos.obtenerGeometrias(ids.sublist(i, fin));
+      geometrias.addAll(res.geometrias.where((g) => g.tienePuntos));
+      sinGeometria.addAll(res.sinGeometria);
+      atribuciones.addAll(res.atribuciones);
+    }
+    return _GeometriasPedidas(
+      geometrias,
+      sinGeometria,
+      atribuciones.toList(growable: false),
+    );
+  }
+
   Future<void> seleccionar(String localidadId) async {
     emit(state.copyWith(estado: MapaEstado.cargando, localidadId: localidadId));
     try {
@@ -139,10 +206,11 @@ class MapaCubit extends Cubit<MapaState> {
           .map((z) => '${z['id']}')
           .toList();
       final pedidas = <String>[localidadId, ...barrios];
-      final res = await _datos.obtenerGeometrias(pedidas);
-      final dibujables = res.geometrias
-          .where((g) => g.tienePuntos)
-          .toList(growable: false);
+      // Una localidad grande llega a más de cien barrios: se pide en tandas del
+      // tope del contrato. Con una sola petición el cliente recortaba la lista
+      // a 20 y el resto de barrios no se dibujaba nunca, sin avisar.
+      final res = await _pedirEnTandas(pedidas);
+      final dibujables = res.geometrias;
 
       // Sedes de la localidad elegida y de sus barrios.
       final deLaZona = _misSitios
@@ -195,4 +263,17 @@ class MapaCubit extends Cubit<MapaState> {
 
   List<Map<String, dynamic>> _zonas = const [];
   List<SitioUbicado> _misSitios = const [];
+}
+
+/// Lo recibido tras pedir los límites de varias zonas en tandas.
+class _GeometriasPedidas {
+  const _GeometriasPedidas(
+    this.geometrias,
+    this.sinGeometria,
+    this.atribuciones,
+  );
+
+  final List<GeometriaZona> geometrias;
+  final List<String> sinGeometria;
+  final List<String> atribuciones;
 }

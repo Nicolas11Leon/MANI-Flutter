@@ -307,7 +307,8 @@ void main() {
       const GatewayException(message: 'sin red'):
           SolicitudErrorTipo.sinConexion,
       GatewayException.fromStatus(401): SolicitudErrorTipo.sinSesion,
-      GatewayException.fromStatus(403): SolicitudErrorTipo.noEsCliente,
+      // SCRUM-1643: un 403 sin código ya no se explica como «solo clientes».
+      GatewayException.fromStatus(403): SolicitudErrorTipo.sinPermiso,
       GatewayException.fromStatus(413): SolicitudErrorTipo.fotoMuyPesada,
       GatewayException.fromStatus(422, detalle: 'MANI-SOL-422Z: zona'):
           SolicitudErrorTipo.zonaInvalida,

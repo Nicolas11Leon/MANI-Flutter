@@ -7,6 +7,7 @@ import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_card.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
+import 'package:mani/core/widgets/refresco_periodico.dart';
 import 'package:mani/features/services/ratings/data/calificacion_cierre_datasource.dart';
 import 'package:mani/features/services/ratings/domain/calificacion_cierre_modelos.dart';
 import 'package:mani/features/services/ratings/presentation/calificacion_cierre_cubit.dart';
@@ -58,7 +59,12 @@ class MisSolicitudesPage extends StatefulWidget {
     this.previsualizarCancelacion,
     this.fuenteHistorial,
     this.itemsPorPagina = 6,
+    this.intervaloRefresco = RefrescoPeriodico.intervaloPorDefecto,
   });
+
+  /// Cada cuánto se vuelve a consultar el estado (SCRUM-1710). `null`
+  /// desactiva el sondeo (tests).
+  final Duration? intervaloRefresco;
 
   final VoidCallback? onNuevaSolicitud;
 
@@ -128,8 +134,17 @@ class _MisSolicitudesPageState extends State<MisSolicitudesPage> {
     });
   }
 
+  /// Se actualiza sola mientras está a la vista (SCRUM-1710); el cliente
+  /// también puede consultar con «Actualizar».
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RefrescoPeriodico(
+    intervalo: widget.intervaloRefresco,
+    onRefrescar: () =>
+        context.read<MisSolicitudesCubit>().cargar(silencioso: true),
+    child: _contenido(context),
+  );
+
+  Widget _contenido(BuildContext context) {
     final t = context.mani;
     return BlocBuilder<MisSolicitudesCubit, MisSolicitudesState>(
       builder: (context, state) {

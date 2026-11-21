@@ -149,15 +149,15 @@ const _rutasConSesion = {
   '/admin/reportes/cotizaciones-fuera-de-rango',
   // M-01 (SCRUM-1366).
   '/admin/reglas',
+  // M-08 (SCRUM-878, 879 y 880).
+  '/cliente/historial',
+  '/aliado/historial',
+  '/admin/politica-cancelacion',
   // M-12 (SCRUM-895, 896, 900 y 901).
   '/cliente/quejas',
   '/admin/quejas',
   '/admin/metricas',
   '/plataforma/tenants',
-  // M-08 (SCRUM-878, 879 y 880).
-  '/cliente/historial',
-  '/aliado/historial',
-  '/admin/politica-cancelacion',
   // Mapa del catálogo geográfico (HU-M04-07).
   '/catalogo/mapa',
 };

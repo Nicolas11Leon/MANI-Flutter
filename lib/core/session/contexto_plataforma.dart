@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mani/core/network/gateway_client.dart';
 import 'package:mani/core/session/rol_usuario.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthChangeEvent, GoTrueClient;
 
 /// Usuario de un tenant con el que el administrador de plataforma puede actuar.
 class UsuarioTenant extends Equatable {
@@ -68,6 +72,16 @@ class GatewayFuenteUsuariosTenant implements FuenteUsuariosTenant {
 /// `X-Mani-Actuar-Como`); Core y Dispatch las validan y solo las aceptan para
 /// ese permiso. Sin tenant elegido, administra el suyo.
 class ContextoPlataforma extends ChangeNotifier {
+  /// Con [auth] (la app), el contexto se borra en cada inicio o cierre de
+  /// sesión y [cabeceras] solo sale con una sesión de administrador de
+  /// plataforma. Sin él (pruebas del shell), no escucha nada.
+  ContextoPlataforma({GoTrueClient? auth}) : _auth = auth {
+    if (auth != null) {
+      escucharSesion(auth.onAuthStateChange.map((cambio) => cambio.event));
+    }
+  }
+
+  final GoTrueClient? _auth;
   String? _tenantId;
   String? _tenantNombre;
   UsuarioTenant? _actuarComo;
@@ -84,10 +98,23 @@ class ContextoPlataforma extends ChangeNotifier {
   /// el de administrador del tenant si no actúa como nadie.
   RolUsuario get rolEfectivo => _actuarComo?.rolApp ?? RolUsuario.adminTenant;
 
-  Map<String, String> get cabeceras => {
-    'X-Mani-Tenant': ?_tenantId,
-    'X-Mani-Actuar-Como': ?_actuarComo?.id,
-  };
+  /// Cabeceras de contexto de cada petición. Con [GoTrueClient] (la app) solo
+  /// salen si la sesión vigente es de un administrador de plataforma: Core
+  /// rechaza con 403 `MANI-PLA-403` a cualquier otro rol que las mande, y un
+  /// contexto que quedó de otra sesión en el mismo navegador no debe bloquear
+  /// al cliente o aliado que entró después.
+  Map<String, String> get cabeceras {
+    final auth = _auth;
+    if (auth != null &&
+        rolDesdeAccessToken(auth.currentSession?.accessToken) !=
+            RolUsuario.adminPlataforma) {
+      return const {};
+    }
+    return {
+      'X-Mani-Tenant': ?_tenantId,
+      'X-Mani-Actuar-Como': ?_actuarComo?.id,
+    };
+  }
 
   /// Administra [tenantId]; deja de actuar como otro usuario.
   void elegirTenant(String tenantId, String nombre) {
@@ -113,6 +140,19 @@ class ContextoPlataforma extends ChangeNotifier {
     _actuarComo = null;
     _cambio();
   }
+
+  /// Borra el contexto en cada inicio o cierre de sesión que llegue por
+  /// [eventos], por cualquier camino (menú, tarjeta de Inicio, token vencido):
+  /// el contexto es de la sesión que lo eligió. Un refresco de token no lo
+  /// toca.
+  StreamSubscription<AuthChangeEvent> escucharSesion(
+    Stream<AuthChangeEvent> eventos,
+  ) => eventos.listen((evento) {
+    if (evento == AuthChangeEvent.signedIn ||
+        evento == AuthChangeEvent.signedOut) {
+      limpiar();
+    }
+  });
 
   void _cambio() {
     _version++;

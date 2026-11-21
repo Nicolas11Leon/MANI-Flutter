@@ -80,7 +80,7 @@ void main() {
       expect(v.origen, 'POR_OMISION');
       expect(v.reglas.criterioOrden, 'CALIFICACION');
       expect(v.reglas.toleranciaTarifa, 10);
-      expect(v.reglas.comisionPorcentaje, 15);
+      expect(v.reglas.comisionPorcentaje, 10);
       expect(v.reglas.ventanaCancelacionHoras, 2);
       expect(v.reglas.penalizacionCancelacion, 20);
       expect(v.reglas.minutosParaAceptarOferta, 15);

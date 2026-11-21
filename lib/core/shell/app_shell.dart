@@ -6,6 +6,7 @@ import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/shell/selector_contexto_plataforma.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_logo.dart';
 import 'package:mani/features/platform/data/tenants_datasource.dart';
 
 /// Ancho a partir del cual las entradas del menú van en la misma barra que
@@ -170,7 +171,7 @@ class _AppShellState extends State<AppShell> {
             titleSpacing: expandido ? ManiSpace.xl : 0,
             title: Row(
               children: [
-                const _Logo(),
+                const ManiLogo(size: 40),
                 ManiGap.hMd,
                 if (expandido) ...[
                   Expanded(child: _entradasEnLinea(context, entradas)),
@@ -502,30 +503,6 @@ class _CabeceraSesion extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-/// Logotipo de la barra: la "M" sobre caja de marca con sombra dura.
-class _Logo extends StatelessWidget {
-  const _Logo();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.mani;
-    return ExcludeSemantics(
-      child: Container(
-        width: 40,
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: t.brand,
-          borderRadius: ManiRadius.brSm,
-          border: Border.all(color: t.border, width: ManiBorder.regular),
-          boxShadow: [t.shadowSm],
-        ),
-        child: Text('M', style: ManiText.h3.copyWith(color: t.onBrand)),
-      ),
     );
   }
 }

@@ -12,6 +12,8 @@ import 'package:mani/features/profiles/company_sites/domain/entities/sede_empres
 import 'package:mani/features/profiles/company_sites/domain/usecases/sedes_empresa_usecases.dart';
 import 'package:mani/features/profiles/company_sites/presentation/bloc/sedes_empresa_cubit.dart';
 import 'package:mani/features/profiles/company_sites/presentation/pages/gestion_sedes_empresa_page.dart';
+import 'package:mani/features/catalog/map/domain/entities/geometria_zona.dart';
+import 'package:mani/features/catalog/map/presentation/bloc/mapa_cubit.dart';
 
 const _rutaSedes = '/api/v1/core/clients/me/sites';
 const _rutaZonas = '/api/v1/core/catalog/zones';
@@ -614,4 +616,129 @@ void main() {
       );
     });
   });
+
+  group('mapa de las sedes (HU-M04-07 / SCRUM-1396)', () {
+    /// Cubit con el catálogo y una sede, que es lo que la pantalla necesita
+    /// para pintarse; el mapa llega por su propio cubit.
+    SedesEmpresaCubit cubitBasico() => _cubit(
+      _gateway({
+        'GET $_rutaSedes': (_) => _json({
+          'totalSitios': 1,
+          'sitios': [_sedePrincipal],
+        }, 200),
+        'GET $_rutaZonas': (_) => _json({'zones': _zonas}, 200),
+      }, <http.Request>[]),
+    );
+
+    /// La pantalla con mapa necesita un `MapaCubit` en el contexto.
+    Future<void> abrirConMapa(
+      WidgetTester tester,
+      SedesEmpresaCubit cubit, {
+      required MapaState mapa,
+    }) async {
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: cubit),
+              BlocProvider<MapaCubit>.value(value: _MapaFalso(mapa)),
+            ],
+            child: const GestionSedesEmpresaPage(conMapa: true),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('dibuja el mapa y explica para qué sirve', (tester) async {
+      await abrirConMapa(
+        tester,
+        cubitBasico(),
+        mapa: MapaState(
+          estado: MapaEstado.listo,
+          geometrias: [
+            GeometriaZona(
+              zonaId: 'z-chap',
+              nombre: 'Chapinero',
+              nivel: 'LOCALIDAD',
+              anillos: _anilloSede,
+              atribucion: 'UAECD',
+            ),
+          ],
+        ),
+      );
+
+      expect(find.byKey(const Key('sedes_mapa')), findsOneWidget);
+      expect(find.text('Dónde quedan tus sedes'), findsOneWidget);
+      // La razón por la que el cliente mira un mapa.
+      expect(find.textContaining('cae donde esperas'), findsOneWidget);
+    });
+
+    testWidgets('informa de las sedes sin ubicación en vez de inventarla', (
+      tester,
+    ) async {
+      // Criterio C2: una sede sin punto capturado no se marca en el centroide
+      // de su zona; se cuenta aparte.
+      await abrirConMapa(
+        tester,
+        cubitBasico(),
+        mapa: MapaState(
+          estado: MapaEstado.listo,
+          geometrias: [
+            GeometriaZona(
+              zonaId: 'z-chap',
+              nombre: 'Chapinero',
+              nivel: 'LOCALIDAD',
+              anillos: _anilloSede,
+              atribucion: 'UAECD',
+            ),
+          ],
+          sitiosSinUbicacion: 2,
+        ),
+      );
+
+      expect(
+        find.byKey(const Key('mapa_sitios_sin_ubicacion')),
+        findsOneWidget,
+      );
+      expect(find.textContaining('2 sede(s) sin ubicación'), findsOneWidget);
+    });
+
+    testWidgets('sin la bandera la pantalla no monta el mapa', (tester) async {
+      await _abrir(tester, cubitBasico());
+
+      expect(find.byKey(const Key('sedes_mapa')), findsNothing);
+    });
+  });
 }
+
+/// Cubit de mapa con estado fijo: la pantalla de sedes no debe depender de la
+/// red para probarse.
+class _MapaFalso extends Cubit<MapaState> implements MapaCubit {
+  _MapaFalso(super.initialState);
+
+  @override
+  Future<void> cargar() async {}
+
+  @override
+  Future<void> cargarPanoramica() async {}
+
+  @override
+  Future<void> seleccionar(String localidadId) async {}
+}
+
+final _anilloSede = GeometriaZona.anillosDesdeGeoJson({
+  'type': 'Polygon',
+  'coordinates': [
+    [
+      [-74.05, 4.68],
+      [-74.04, 4.68],
+      [-74.04, 4.67],
+      [-74.05, 4.67],
+      [-74.05, 4.68],
+    ],
+  ],
+});

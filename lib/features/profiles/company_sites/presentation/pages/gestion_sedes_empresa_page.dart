@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
 import 'package:mani/features/profiles/company_sites/domain/entities/sede_empresa.dart';
 import 'package:mani/features/profiles/company_sites/presentation/bloc/sedes_empresa_cubit.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
@@ -12,7 +13,15 @@ import 'package:mani/core/widgets/mani_pagina.dart';
 /// sedes lo decide Core con el token; la pantalla no envía ningún id de
 /// cliente.
 class GestionSedesEmpresaPage extends StatefulWidget {
-  const GestionSedesEmpresaPage({super.key});
+  const GestionSedesEmpresaPage({super.key, this.conMapa = false});
+
+  /// Dibuja el mapa con la ubicación de las sedes. El cliente mira un mapa por
+  /// una sola razón —comprobar sus propias sedes—, así que va aquí y no en una
+  /// pantalla de catálogo aparte (HU-M04-07 / SCRUM-1396).
+  ///
+  /// Exige un `MapaCubit` en el contexto, así que lo activa quien monta la
+  /// ruta; por omisión está apagado y la pantalla no depende de ese cubit.
+  final bool conMapa;
 
   @override
   State<GestionSedesEmpresaPage> createState() =>
@@ -134,6 +143,39 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                               onGuardar: _agregar,
                             ),
                           ),
+                          if (widget.conMapa) ...[
+                            ManiGap.vXxl,
+                            _Tarjeta(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    'Dónde quedan tus sedes',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: ManiFontSize.bodyLg,
+                                      fontWeight: FontWeight.w900,
+                                      color: ManiColors.ink,
+                                    ),
+                                  ),
+                                  ManiGap.vXs,
+                                  Text(
+                                    'Comprueba que la dirección que registraste cae donde esperas. '
+                                    'Las sedes sin ubicación capturada se informan abajo y no se marcan.',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
+                                  ),
+                                  ManiGap.vMd,
+                                  // Alto fijo: la pantalla ya hace scroll, así que el
+                                  // mapa no puede pedir el espacio disponible.
+                                  const MapaZonas(
+                                    key: Key('sedes_mapa'),
+                                    alto: 320,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           ManiGap.vXxl,
                           Text(
                             'Sedes Registradas (${state.sedes.length})',

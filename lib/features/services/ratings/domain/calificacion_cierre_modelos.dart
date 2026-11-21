@@ -352,6 +352,7 @@ class RegistroHistorialServicio extends Equatable {
     this.penalizacionMonto = 0,
     this.calificacionEmitida,
     this.calificacionRecibida,
+    this.calificacionRecibidaRegistrada = false,
     this.cerradaEn,
   });
 
@@ -410,6 +411,12 @@ class RegistroHistorialServicio extends Equatable {
       calificacionRecibida:
           _leerCalificacion(califs, claveRecibida.$1) ??
           _leerCalificacion(califs, claveRecibida.$2),
+      // Core oculta la calificación del otro participante (es privada) y
+      // solo informa si ya existe.
+      calificacionRecibidaRegistrada:
+          califs['calificacionRecibidaRegistrada'] == true ||
+          _leerCalificacion(califs, claveRecibida.$1) != null ||
+          _leerCalificacion(califs, claveRecibida.$2) != null,
       creadaEn:
           DateTime.tryParse((json['creadaEn'] as String?) ?? '')?.toLocal() ??
           DateTime.fromMillisecondsSinceEpoch(0),
@@ -463,6 +470,10 @@ class RegistroHistorialServicio extends Equatable {
   final double penalizacionMonto;
   final CalificacionServicio? calificacionEmitida;
   final CalificacionServicio? calificacionRecibida;
+
+  /// El otro participante ya calificó. El puntaje es privado: solo lo ve el
+  /// administrador del tenant.
+  final bool calificacionRecibidaRegistrada;
   final DateTime creadaEn;
   final DateTime? cerradaEn;
 
@@ -482,6 +493,7 @@ class RegistroHistorialServicio extends Equatable {
     penalizacionMonto,
     calificacionEmitida,
     calificacionRecibida,
+    calificacionRecibidaRegistrada,
     creadaEn,
     cerradaEn,
   ];

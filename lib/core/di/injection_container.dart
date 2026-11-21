@@ -120,7 +120,11 @@ Future<void> init() async {
       cabecerasExtra: () => sl<ContextoPlataforma>().cabeceras,
     ),
   );
-  sl.registerLazySingleton<ContextoPlataforma>(ContextoPlataforma.new);
+  // El contexto es de la sesión que lo eligió: al iniciar o cerrar sesión,
+  // por cualquier camino (menú, tarjeta de Inicio, token vencido), se borra.
+  sl.registerLazySingleton<ContextoPlataforma>(
+    () => ContextoPlataforma(auth: sl<SupabaseClient>().auth),
+  );
   sl.registerLazySingleton<FuenteUsuariosTenant>(
     () => GatewayFuenteUsuariosTenant(sl()),
   );

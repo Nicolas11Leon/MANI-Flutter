@@ -115,4 +115,27 @@ void main() {
       expect(c.resultados.map((z) => z.id), ['niz']);
     });
   });
+
+  group('zonaDelCatalogo: el mapa solo conoce identificadores', () {
+    test('encuentra la ciudad, la localidad y el barrio ya cargados', () async {
+      final c = CoberturaController(FakeCoberturaRepository());
+      await c.iniciar();
+
+      expect(c.zonaDelCatalogo('bog')?.nombre, 'Bogotá');
+      expect(c.zonaDelCatalogo('cha')?.nombre, 'Chapinero');
+
+      // El barrio solo existe tras expandir su localidad.
+      expect(c.zonaDelCatalogo('chi'), isNull);
+      await c.cargarHijas('cha');
+      expect(c.zonaDelCatalogo('chi')?.nombre, isNotNull);
+    });
+
+    test('un id desconocido devuelve null y no altera nada', () async {
+      final c = CoberturaController(FakeCoberturaRepository());
+      await c.iniciar();
+
+      expect(c.zonaDelCatalogo('no-existe'), isNull);
+      expect(c.seleccion.ids, isEmpty);
+    });
+  });
 }

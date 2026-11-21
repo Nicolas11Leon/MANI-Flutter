@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:mani/features/profiles/coverage/domain/entities/zona.dart';
 import 'package:mani/features/profiles/coverage/domain/failures/cobertura_failure.dart';
 import 'package:mani/features/profiles/coverage/domain/repositories/cobertura_repository.dart';
@@ -75,9 +76,14 @@ class FakeCoberturaRepository implements CoberturaRepository {
   CoberturaFailure? fallarAlDeclarar;
   CoberturaFailure? fallarAlCargar;
 
+  /// Retrasa la carga de hijas para poder ver el estado intermedio, en el que
+  /// la localidad aún no está y la pantalla muestra el indicador.
+  Completer<void>? esperaHijas;
+
   @override
   Future<List<Zona>> listarZonas({String? padreId}) async {
     if (fallarAlCargar != null) throw fallarAlCargar!;
+    if (padreId != null && esperaHijas != null) await esperaHijas!.future;
     return catalogo[padreId] ?? const [];
   }
 

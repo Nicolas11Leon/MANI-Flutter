@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'package:mani/core/shell/app_shell.dart';
 import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/features/platform/data/tenants_datasource.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 const _t2 = '10000000-0000-4000-8000-000000000021';
 const _clienteT2 = UsuarioTenant(
@@ -61,6 +63,43 @@ class _Usuarios implements FuenteUsuariosTenant {
     pedidos.add(tenantId);
     return const [_clienteT2, _aliadoT2];
   }
+}
+
+/// JWT sin firmar con el rol dado: `rolDesdeAccessToken` solo lee el payload.
+String _tokenConRol(String rol) {
+  String parte(Map<String, dynamic> o) =>
+      base64Url.encode(utf8.encode(jsonEncode(o))).replaceAll('=', '');
+  return '${parte({'alg': 'none'})}.${parte({
+    'sub': 'u-1',
+    'app_metadata': {'tenant_id': 'otro', 'user_role': rol},
+  })}.firma';
+}
+
+/// Auth de Supabase mínimo: la sesión vigente y el flujo de cambios de sesión.
+class _AuthFalso implements GoTrueClient {
+  final cambios = StreamController<AuthState>.broadcast();
+  Session? sesion;
+
+  @override
+  Session? get currentSession => sesion;
+
+  @override
+  Stream<AuthState> get onAuthStateChange => cambios.stream;
+
+  Session conRol(String rol) => Session(
+    accessToken: _tokenConRol(rol),
+    tokenType: 'bearer',
+    user: const User(
+      id: 'u-1',
+      appMetadata: {},
+      userMetadata: {},
+      aud: 'authenticated',
+      createdAt: '2026-11-05T00:00:00Z',
+    ),
+  );
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 Set<String> _rutas(RolUsuario rol, {RolUsuario? como}) => {
@@ -136,6 +175,93 @@ void main() {
         }
       },
     );
+
+    test(
+      'las cabeceras solo salen con una sesión de admin de plataforma: un contexto '
+      'que quedó de otra sesión no bloquea al cliente que entra después',
+      () {
+        // Reproduce el 403 MANI-PLA-403 de «Nueva solicitud»: el admin de
+        // plataforma actuó como un cliente, otra persona inició sesión como
+        // cliente en el mismo navegador y la app seguía enviando el contexto.
+        final auth = _AuthFalso();
+        addTearDown(auth.cambios.close);
+        final c = ContextoPlataforma(auth: auth)
+          ..elegirTenant(_t2, 'Nova')
+          ..actuarComoUsuario(_clienteT2);
+
+        auth.sesion = auth.conRol('admin_plataforma');
+        expect(c.cabeceras, {
+          'X-Mani-Tenant': _t2,
+          'X-Mani-Actuar-Como': _clienteT2.id,
+        });
+        for (final rol in ['cliente', 'aliado', 'admin_tenant']) {
+          auth.sesion = auth.conRol(rol);
+          expect(c.cabeceras, isEmpty, reason: rol);
+        }
+        auth.sesion = null;
+        expect(c.cabeceras, isEmpty, reason: 'sin sesión');
+      },
+    );
+
+    test(
+      'el contexto se borra al iniciar o cerrar sesión, no al refrescar el token',
+      () async {
+        final eventos = StreamController<AuthChangeEvent>();
+        final c = ContextoPlataforma();
+        final sub = c.escucharSesion(eventos.stream);
+        addTearDown(() async {
+          await sub.cancel();
+          await eventos.close();
+        });
+
+        Future<void> emitir(AuthChangeEvent e) async {
+          eventos.add(e);
+          await Future<void>.delayed(Duration.zero);
+        }
+
+        c
+          ..elegirTenant(_t2, 'Nova')
+          ..actuarComoUsuario(_clienteT2);
+        await emitir(AuthChangeEvent.tokenRefreshed);
+        expect(
+          c.actuarComo,
+          _clienteT2,
+          reason: 'refrescar no cambia de sesión',
+        );
+
+        await emitir(AuthChangeEvent.signedOut);
+        expect(c.cabeceras, isEmpty);
+
+        c.elegirTenant(_t2, 'Nova');
+        await emitir(AuthChangeEvent.signedIn);
+        expect(
+          c.tenantId,
+          isNull,
+          reason: 'otro inicio de sesión empieza limpio',
+        );
+      },
+    );
+
+    test(
+      'con el auth de la app, el contexto se borra al cambiar de sesión',
+      () async {
+        final auth = _AuthFalso();
+        addTearDown(auth.cambios.close);
+        final c = ContextoPlataforma(auth: auth)
+          ..elegirTenant(_t2, 'Nova')
+          ..actuarComoUsuario(_clienteT2);
+
+        auth.cambios.add(AuthState(AuthChangeEvent.signedIn, null));
+        await Future<void>.delayed(Duration.zero);
+        expect(c.tenantId, isNull);
+        expect(c.actuarComo, isNull);
+      },
+    );
+
+    test('sin auth (pruebas del shell) las cabeceras son las elegidas', () {
+      final c = ContextoPlataforma()..elegirTenant(_t2, 'Nova');
+      expect(c.cabeceras, {'X-Mani-Tenant': _t2});
+    });
 
     test(
       'GatewayClient envía las cabeceras del contexto en cada petición',

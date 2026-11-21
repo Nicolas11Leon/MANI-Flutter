@@ -18,7 +18,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
 
   String _criterioOrden = 'CALIFICACION';
   double _toleranciaTarifa = 10.0;
-  double _comision = 15.0;
+  double _comision = 10.0;
   double _ventanaHoras = 2.0;
   double _penalizacion = 20.0;
   int _minutosOferta = 15;

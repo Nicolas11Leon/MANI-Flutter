@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mani/core/session/guardas_ruta.dart';
 import 'package:mani/core/session/rol_usuario.dart';
+import 'package:mani/core/widgets/mani_mano.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/di/injection_container.dart';
@@ -126,7 +127,8 @@ class _LoginViewState extends State<_LoginView> {
   Widget _buildLogoHeader() {
     return Column(
       children: [
-        const ManiLogo(),
+        // El muñequito de MANI, grande y sin círculo ni letras; el nombre va en el título de abajo.
+        const ManiMano(alto: 140),
         ManiGap.vLg,
         Semantics(
           header: true,

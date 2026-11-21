@@ -145,6 +145,25 @@ class CoberturaController extends ChangeNotifier {
     _notificar();
   }
 
+  /// Zona del catálogo ya cargada, por id. La necesita el mapa, que solo
+  /// conoce identificadores: [alternar] trabaja con la zona entera porque
+  /// tiene que mirar sus ancestros. Devuelve null si todavía no está cargada,
+  /// y entonces no se altera nada en vez de inventar una zona suelta.
+  Zona? zonaDelCatalogo(String id) {
+    for (final z in ciudades) {
+      if (z.id == id) return z;
+    }
+    for (final hijas in _hijas.values) {
+      for (final z in hijas) {
+        if (z.id == id) return z;
+      }
+    }
+    for (final z in resultados) {
+      if (z.id == id) return z;
+    }
+    return seleccion.zonas.where((z) => z.id == id).firstOrNull;
+  }
+
   void alternar(Zona z) {
     if (seleccion.estaCubiertaPorAncestro(z)) return;
     final absorbidas = seleccion.estaSeleccionadaDirectamente(z)

@@ -40,6 +40,40 @@ Map<String, dynamic> _respuesta({List<String> sinGeometria = const []}) => {
   'atribuciones': const ['UAECD, CC BY 4.0'],
 };
 
+/// Un límite por id pedido, con el mismo recorte: sirve para contar cuántos
+/// agrega la panorámica sin depender de la forma.
+Map<String, dynamic> _porId(List<String> ids) => {
+  'type': 'FeatureCollection',
+  'features': [
+    for (final id in ids)
+      {
+        'type': 'Feature',
+        'id': id,
+        'geometry': {
+          'type': 'Polygon',
+          'coordinates': [
+            [
+              [-74.05045, 4.68132],
+              [-74.04500, 4.68132],
+              [-74.04500, 4.67500],
+              [-74.05045, 4.67500],
+              [-74.05045, 4.68132],
+            ],
+          ],
+        },
+        'properties': {
+          'zoneId': id,
+          'name': 'Zona $id',
+          'level': 'LOCALIDAD',
+          'attribution': 'UAECD, CC BY 4.0',
+        },
+      },
+  ],
+  'sinGeometria': const <String>[],
+  'desconocidas': const <String>[],
+  'atribuciones': const ['UAECD, CC BY 4.0'],
+};
+
 class _DatosFalsos implements MapaRemoteDataSource {
   _DatosFalsos({
     this.respuesta,
@@ -57,10 +91,20 @@ class _DatosFalsos implements MapaRemoteDataSource {
 
   List<String>? pedidas;
 
+  /// Todas las peticiones, en orden. La panorámica pide por tandas, así que
+  /// con la última no se ve si se partió bien.
+  final List<List<String>> peticiones = [];
+
+  /// Devuelve un límite por cada id pedido, para poder contar lo agregado.
+  bool unLimitePorId = false;
+
   /// Cobertura declarada del aliado. Para los demás roles el servicio
   /// responde error, que es lo que reproduce `fallaCobertura`.
   List<String>? cobertura;
   bool fallaCobertura = true;
+
+  /// El Gateway no responde al listar el catálogo.
+  bool falla = false;
 
   @override
   Future<List<SitioUbicado>> listarMisSitios() async {
@@ -79,28 +123,36 @@ class _DatosFalsos implements MapaRemoteDataSource {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> listarZonas() async =>
-      zonas ??
-      [
-        {
-          'id': _chapinero,
-          'name': 'Chapinero',
-          'level': 'LOCALIDAD',
-          'parentId': null,
-          'selectable': true,
-        },
-        {
-          'id': _chico,
-          'name': 'Chicó Norte',
-          'level': 'BARRIO',
-          'parentId': _chapinero,
-          'selectable': true,
-        },
-      ];
+  Future<List<Map<String, dynamic>>> listarZonas() async {
+    if (falla) {
+      throw GatewayException(message: 'Gateway caído', statusCode: 502);
+    }
+    return zonas ??
+        [
+          {
+            'id': _chapinero,
+            'name': 'Chapinero',
+            'level': 'LOCALIDAD',
+            'parentId': null,
+            'selectable': true,
+          },
+          {
+            'id': _chico,
+            'name': 'Chicó Norte',
+            'level': 'BARRIO',
+            'parentId': _chapinero,
+            'selectable': true,
+          },
+        ];
+  }
 
   @override
   Future<GeometriasZonas> obtenerGeometrias(List<String> zonaIds) async {
     pedidas = zonaIds;
+    peticiones.add(List.of(zonaIds));
+    if (unLimitePorId) {
+      return GatewayMapaDataSource.parsear(_porId(zonaIds));
+    }
     return GatewayMapaDataSource.parsear(respuesta ?? _respuesta());
   }
 }
@@ -266,6 +318,43 @@ void main() {
 
         expect(cubit.state.estado, MapaEstado.vacio);
         expect(datos.pedidas, isNull);
+      },
+    );
+
+    test(
+      'una localidad con muchos barrios se pide en tandas y se dibuja completa (SCRUM-1396)',
+      () async {
+        // Kennedy tiene más de cien barrios y el contrato topa en 20 por
+        // petición: antes el cliente recortaba la lista y el resto no salía.
+        final datos = _DatosFalsos(
+          zonas: [
+            {
+              'id': 'loc-0',
+              'name': 'Kennedy',
+              'level': 'LOCALIDAD',
+              'parentId': null,
+              'selectable': true,
+            },
+            for (var i = 0; i < 45; i++)
+              {
+                'id': 'barrio-$i',
+                'name': 'Barrio $i',
+                'level': 'BARRIO',
+                'parentId': 'loc-0',
+                'selectable': true,
+              },
+          ],
+        )..unLimitePorId = true;
+        final cubit = MapaCubit(datos);
+
+        await cubit.cargar();
+
+        // 1 localidad + 45 barrios = 46 zonas: tandas de 20, 20 y 6.
+        expect(datos.peticiones.map((p) => p.length), [20, 20, 6]);
+        expect(datos.peticiones.expand((p) => p).toSet().length, 46);
+        expect(cubit.state.geometrias, hasLength(46));
+        expect(cubit.state.atribuciones, ['UAECD, CC BY 4.0']);
+        expect(cubit.state.estado, MapaEstado.listo);
       },
     );
 
@@ -441,5 +530,149 @@ void main() {
         isEmpty,
       );
     });
+  });
+
+  group('panorámica: todas las localidades a la vez (SCRUM-1396)', () {
+    List<Map<String, dynamic>> localidades(int cuantas) => [
+      for (var i = 0; i < cuantas; i++)
+        {
+          'id': 'loc-$i',
+          'name': 'Localidad $i',
+          'level': 'LOCALIDAD',
+          'parentId': null,
+          'selectable': true,
+        },
+    ];
+
+    test('parte la consulta en tandas del tope del contrato', () async {
+      // 25 localidades no caben en una petición: el contrato topa en 20 y lo
+      // que sobra se perdía en silencio si se pidiera todo de una vez.
+      final datos = _DatosFalsos(zonas: localidades(25))..unLimitePorId = true;
+      final cubit = MapaCubit(datos);
+
+      await cubit.cargarPanoramica();
+
+      expect(datos.peticiones.length, 2);
+      expect(datos.peticiones.first.length, 20);
+      expect(datos.peticiones.last.length, 5);
+      // Ninguna se queda fuera.
+      expect(
+        datos.peticiones.expand((p) => p).toSet().length,
+        25,
+        reason: 'las 25 localidades se piden',
+      );
+      expect(cubit.state.geometrias.length, 25);
+      expect(cubit.state.localidades.length, 25);
+      expect(cubit.state.estado, MapaEstado.listo);
+    });
+
+    test('no pide barrios ni sedes: solo localidades', () async {
+      final datos = _DatosFalsos(
+        zonas: [
+          ...localidades(2),
+          {
+            'id': _chico,
+            'name': 'Chicó Norte',
+            'level': 'BARRIO',
+            'parentId': 'loc-0',
+            'selectable': true,
+          },
+        ],
+      )..unLimitePorId = true;
+      final cubit = MapaCubit(datos);
+
+      await cubit.cargarPanoramica();
+
+      expect(datos.peticiones.single, ['loc-0', 'loc-1']);
+      // La panorámica es para elegir cobertura, que no tiene que ver con las
+      // sedes del cliente: no se dibujan ni se cuentan.
+      expect(cubit.state.sitios, isEmpty);
+      expect(cubit.state.sitiosSinUbicacion, 0);
+    });
+
+    test('deja fuera lo no seleccionable', () async {
+      final datos = _DatosFalsos(
+        zonas: [
+          ...localidades(1),
+          {
+            'id': 'loc-inactiva',
+            'name': 'Inactiva',
+            'level': 'LOCALIDAD',
+            'parentId': null,
+            'selectable': false,
+          },
+        ],
+      )..unLimitePorId = true;
+      final cubit = MapaCubit(datos);
+
+      await cubit.cargarPanoramica();
+
+      expect(datos.peticiones.single, ['loc-0']);
+    });
+
+    test('resalta la cobertura ya declarada del aliado', () async {
+      final datos = _DatosFalsos(zonas: localidades(2))
+        ..unLimitePorId = true
+        ..fallaCobertura = false
+        ..cobertura = ['loc-1'];
+      final cubit = MapaCubit(datos);
+
+      await cubit.cargarPanoramica();
+
+      expect(cubit.state.coberturaPropia, {'loc-1'});
+    });
+
+    test('sin cobertura legible el mapa sigue, sin resaltado', () async {
+      // Es lo que recibe un rol que no es aliado: error esperado, no fallo.
+      final datos = _DatosFalsos(zonas: localidades(1))..unLimitePorId = true;
+      final cubit = MapaCubit(datos);
+
+      await cubit.cargarPanoramica();
+
+      expect(cubit.state.estado, MapaEstado.listo);
+      expect(cubit.state.coberturaPropia, isEmpty);
+    });
+
+    test('sin localidades queda vacío, no en error', () async {
+      final cubit = MapaCubit(_DatosFalsos(zonas: const []));
+
+      await cubit.cargarPanoramica();
+
+      expect(cubit.state.estado, MapaEstado.vacio);
+      expect(cubit.state.localidades, isEmpty);
+    });
+
+    test('sin ningún límite dibujable queda vacío', () async {
+      // Catálogo con localidades pero sin geometría cargada todavía: no se
+      // dibuja una forma aproximada (C2).
+      final datos = _DatosFalsos(
+        zonas: localidades(1),
+        respuesta: {
+          'type': 'FeatureCollection',
+          'features': const [],
+          'sinGeometria': const ['loc-0'],
+          'desconocidas': const <String>[],
+          'atribuciones': const <String>[],
+        },
+      );
+      final cubit = MapaCubit(datos);
+
+      await cubit.cargarPanoramica();
+
+      expect(cubit.state.estado, MapaEstado.vacio);
+      expect(cubit.state.sinGeometria, ['loc-0']);
+    });
+
+    test(
+      'un fallo del Gateway se reporta y no deja el mapa cargando',
+      () async {
+        final cubit = MapaCubit(_DatosFalsos(zonas: const [])..falla = true);
+
+        await cubit.cargarPanoramica();
+
+        expect(cubit.state.estado, MapaEstado.error);
+        expect(cubit.state.mensajeError, isNotNull);
+      },
+    );
   });
 }
