@@ -13,6 +13,10 @@ import 'package:mani/features/platform/data/tenants_datasource.dart';
 /// se agrupan en un menú desplegable para que quepan en móvil (RNF-08).
 const anchoMenuExpandido = 600.0;
 
+/// Texto de la acción de cerrar sesión, compartido por el botón, el ícono,
+/// el menú compacto y el diálogo de confirmación.
+const _textoCerrarSesion = 'Cerrar sesión';
+
 /// Armazón neo-brutalista de las pantallas con sesión (US-11.2.1 / SCRUM-1444).
 ///
 /// Pinta el menú superior con las entradas del [rol], el usuario y el tenant
@@ -115,7 +119,7 @@ class _AppShellState extends State<AppShell> {
     final confirmado = await confirmarAccion(
       context,
       titulo: '¿Cerrar sesión?',
-      etiquetaConfirmar: 'Cerrar sesión',
+      etiquetaConfirmar: _textoCerrarSesion,
     );
     if (!confirmado || !mounted) return;
     await widget.onCerrarSesion();
@@ -214,7 +218,7 @@ class _AppShellState extends State<AppShell> {
                           key: const Key('menu-cerrar-sesion'),
                           onPressed: _cerrarSesion,
                           icon: const Icon(Icons.logout_rounded, size: 18),
-                          label: const Text('Cerrar sesión'),
+                          label: const Text(_textoCerrarSesion),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppTheme.dark,
                             backgroundColor: AppTheme.surface,
@@ -244,7 +248,7 @@ class _AppShellState extends State<AppShell> {
                           ),
                           child: IconButton(
                             key: const Key('menu-cerrar-sesion'),
-                            tooltip: 'Cerrar sesión',
+                            tooltip: _textoCerrarSesion,
                             icon: const Icon(
                               Icons.logout_rounded,
                               color: AppTheme.dark,
@@ -301,7 +305,7 @@ class _AppShellState extends State<AppShell> {
           child: ListTile(
             leading: Icon(Icons.logout, color: AppTheme.error),
             title: Text(
-              'Cerrar sesión',
+              _textoCerrarSesion,
               style: TextStyle(
                 color: AppTheme.error,
                 fontWeight: FontWeight.w800,
