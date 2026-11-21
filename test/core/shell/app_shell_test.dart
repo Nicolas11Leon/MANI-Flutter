@@ -372,6 +372,8 @@ void main() {
 
       await tester.tap(find.byKey(const Key('menu-cerrar-sesion')));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('confirmacion-confirmar')));
+      await tester.pumpAndSettle();
 
       expect(cerro, isTrue);
     });
@@ -419,6 +421,8 @@ void main() {
         );
 
         await tester.tap(find.byKey(const Key('menu-compacto-cerrar-sesion')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('confirmacion-confirmar')));
         await tester.pumpAndSettle();
         expect(cerro, isTrue);
       },
@@ -478,6 +482,88 @@ void main() {
       expect(fondo('/cliente/solicitudes/nueva'), isNotNull);
       // "Mis solicitudes" es prefijo de la ruta pero no debe resaltarse.
       expect(fondo('/cliente/solicitudes'), isNull);
+    });
+  });
+
+  group('SCRUM-1650 — confirmación antes de cerrar sesión', () {
+    final variantes = {
+      'botón de escritorio': (ancho: 1024.0, menu: false),
+      'ícono de móvil': (ancho: 390.0, menu: false),
+      'opción del menú desplegable': (ancho: 390.0, menu: true),
+    };
+
+    Future<void> pedirCierre(WidgetTester tester, {required bool menu}) async {
+      if (menu) {
+        await tester.tap(find.byKey(const Key('menu-compacto')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('menu-compacto-cerrar-sesion')));
+      } else {
+        await tester.tap(find.byKey(const Key('menu-cerrar-sesion')));
+      }
+      await tester.pumpAndSettle();
+    }
+
+    for (final MapEntry(key: nombre, value: v) in variantes.entries) {
+      testWidgets('$nombre: muestra el diálogo y confirmar cierra la sesión', (
+        tester,
+      ) async {
+        var cierres = 0;
+        await _montar(
+          tester,
+          ancho: v.ancho,
+          rol: RolUsuario.cliente,
+          onCerrarSesion: () async => cierres++,
+        );
+
+        await pedirCierre(tester, menu: v.menu);
+
+        expect(find.text('¿Cerrar sesión?'), findsOneWidget);
+        expect(cierres, 0, reason: 'no cierra antes de confirmar');
+
+        await tester.tap(find.byKey(const ValueKey('confirmacion-confirmar')));
+        await tester.pumpAndSettle();
+
+        expect(cierres, 1);
+        expect(find.text('¿Cerrar sesión?'), findsNothing);
+      });
+
+      testWidgets('$nombre: cancelar no cierra y deja la pantalla igual', (
+        tester,
+      ) async {
+        var cierres = 0;
+        await _montar(
+          tester,
+          ancho: v.ancho,
+          rol: RolUsuario.cliente,
+          onCerrarSesion: () async => cierres++,
+        );
+
+        await pedirCierre(tester, menu: v.menu);
+        await tester.tap(find.byKey(const ValueKey('confirmacion-cancelar')));
+        await tester.pumpAndSettle();
+
+        expect(cierres, 0);
+        expect(find.text('¿Cerrar sesión?'), findsNothing);
+        expect(find.text('contenido de la pantalla'), findsOneWidget);
+        expect(find.byKey(const Key('menu-cerrar-sesion')), findsOneWidget);
+      });
+    }
+
+    testWidgets('tocar fuera del diálogo equivale a cancelar', (tester) async {
+      var cierres = 0;
+      await _montar(
+        tester,
+        ancho: 1024,
+        rol: RolUsuario.cliente,
+        onCerrarSesion: () async => cierres++,
+      );
+
+      await pedirCierre(tester, menu: false);
+      await tester.tapAt(const Offset(5, 795));
+      await tester.pumpAndSettle();
+
+      expect(find.text('¿Cerrar sesión?'), findsNothing);
+      expect(cierres, 0);
     });
   });
 }

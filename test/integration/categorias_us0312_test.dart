@@ -137,8 +137,9 @@ void main() {
         'Plomería',
       ]);
 
-      // CA-1: El Admin del Tenant oculta "Plomería".
+      // CA-1: El Admin del Tenant oculta "Plomería" y lo confirma (SCRUM-1650).
       await _tocar(t, const ValueKey('toggle-estado-categoria-cat-plo'));
+      await _tocar(t, const ValueKey('confirmacion-confirmar'));
 
       final filaPlomeria = servidorCat
           .delTenant(_tenantA)

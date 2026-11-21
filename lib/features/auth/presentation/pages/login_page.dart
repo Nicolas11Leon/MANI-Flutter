@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mani/core/session/guardas_ruta.dart';
 import 'package:mani/core/session/rol_usuario.dart';
+import 'package:mani/core/widgets/mani_mano.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/di/injection_container.dart';
@@ -157,27 +158,9 @@ class _LoginViewState extends State<_LoginView> {
   Widget _buildLogoHeader() {
     return Column(
       children: [
-        // Ícono / Logo cuadrado amarillo con 'M'
-        Container(
-          width: 96,
-          height: 96,
-          decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-            border: Border.all(color: AppTheme.dark, width: 3),
-            boxShadow: const [AppTheme.hardShadowLg],
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            'M',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 42,
-              fontWeight: FontWeight.w900,
-              color: AppTheme.dark,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
+        // El muñequito de MANI, grande y sin círculo ni letras; el nombre va en el título de abajo.
+        const ManiMano(alto: 140),
+        const SizedBox(height: 12),
         Text(
           'MANI',
           style: GoogleFonts.plusJakartaSans(

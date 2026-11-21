@@ -6,11 +6,17 @@ import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/shell/selector_contexto_plataforma.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_confirmacion.dart';
+import 'package:mani/core/widgets/mani_logo.dart';
 import 'package:mani/features/platform/data/tenants_datasource.dart';
 
 /// Ancho a partir del cual las entradas se muestran como barra; por debajo
 /// se agrupan en un menú desplegable para que quepan en móvil (RNF-08).
 const anchoMenuExpandido = 600.0;
+
+/// Texto de la acción de cerrar sesión, compartido por el botón, el ícono,
+/// el menú compacto y el diálogo de confirmación.
+const _textoCerrarSesion = 'Cerrar sesión';
 
 /// Armazón neo-brutalista de las pantallas con sesión (US-11.2.1 / SCRUM-1444).
 ///
@@ -107,7 +113,16 @@ class _AppShellState extends State<AppShell> {
           actuandoComo: widget.contextoPlataforma!.rolEfectivo,
         )
       : entradasMenuPara(widget.rol);
+
+  /// Cierre pedido por el usuario: es una acción crítica y pide confirmación
+  /// (SCRUM-1650). El cierre por sesión vencida no pasa por aquí.
   Future<void> _cerrarSesion() async {
+    final confirmado = await confirmarAccion(
+      context,
+      titulo: '¿Cerrar sesión?',
+      etiquetaConfirmar: _textoCerrarSesion,
+    );
+    if (!confirmado || !mounted) return;
     await widget.onCerrarSesion();
   }
 
@@ -169,25 +184,7 @@ class _AppShellState extends State<AppShell> {
               alignment: Alignment.centerLeft,
               child: Row(
                 children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      border: Border.all(color: AppTheme.dark, width: 2),
-                      boxShadow: const [AppTheme.hardShadowSm],
-                    ),
-                    child: const Text(
-                      'M',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
-                      ),
-                    ),
-                  ),
+                  ManiLogo(size: 40, sombra: AppTheme.hardShadowSm),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _CabeceraSesion(datos: _datos, rol: widget.rol),
@@ -204,7 +201,7 @@ class _AppShellState extends State<AppShell> {
                           key: const Key('menu-cerrar-sesion'),
                           onPressed: _cerrarSesion,
                           icon: const Icon(Icons.logout_rounded, size: 18),
-                          label: const Text('Cerrar sesión'),
+                          label: const Text(_textoCerrarSesion),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppTheme.dark,
                             backgroundColor: AppTheme.surface,
@@ -234,7 +231,7 @@ class _AppShellState extends State<AppShell> {
                           ),
                           child: IconButton(
                             key: const Key('menu-cerrar-sesion'),
-                            tooltip: 'Cerrar sesión',
+                            tooltip: _textoCerrarSesion,
                             icon: const Icon(
                               Icons.logout_rounded,
                               color: AppTheme.dark,
@@ -291,7 +288,7 @@ class _AppShellState extends State<AppShell> {
           child: ListTile(
             leading: Icon(Icons.logout, color: AppTheme.error),
             title: Text(
-              'Cerrar sesión',
+              _textoCerrarSesion,
               style: TextStyle(
                 color: AppTheme.error,
                 fontWeight: FontWeight.w800,

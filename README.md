@@ -113,6 +113,27 @@ flutter test --coverage
 
 ---
 
+## 🎨 Sistema de diseño
+
+Regla vigente desde el **2026-11-17** (SCRUM-1648):
+
+- **Toda pantalla nueva o modificada** usa los widgets del sistema de diseño de `lib/core/widgets/`:
+  - `ManiButton` en lugar de `ElevatedButton`, `TextButton` y `OutlinedButton`.
+  - `ManiTextField` en lugar de `TextFormField`.
+- **Las pantallas existentes que no se tocan** conservan sus widgets actuales. Se migran al sistema de diseño cuando se modifiquen.
+- **Acciones críticas** (por ejemplo, cerrar sesión o desactivar una categoría): el diálogo de confirmación es `confirmarAccion` de `lib/core/widgets/mani_confirmacion.dart`, que devuelve `true` solo si el usuario confirma.
+
+```dart
+final confirmado = await confirmarAccion(
+  context,
+  titulo: '¿Cerrar sesión?',
+  etiquetaConfirmar: 'Cerrar sesión',
+);
+if (!confirmado) return;
+```
+
+---
+
 ## 🐳 Contenedorización con Docker
 
 El proyecto cuenta con un `Dockerfile` multi-stage optimizado para compilar la aplicación Flutter Web y servirla mediante Nginx:
