@@ -6,6 +6,7 @@ import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/shell/selector_contexto_plataforma.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_confirmacion.dart';
 import 'package:mani/core/widgets/mani_logo.dart';
 import 'package:mani/features/platform/data/tenants_datasource.dart';
 
@@ -14,6 +15,10 @@ import 'package:mani/features/platform/data/tenants_datasource.dart';
 /// que quepan (RNF-08). Con 900 px la franja de entradas conserva espacio
 /// útil junto al logo, la sesión y el botón de salir.
 const anchoMenuExpandido = 900.0;
+
+/// Texto de la acción de cerrar sesión, compartido por el botón, el ícono,
+/// el menú compacto y el diálogo de confirmación.
+const _textoCerrarSesion = 'Cerrar sesión';
 
 /// Armazón neo-brutalista de las pantallas con sesión (US-11.2.1 / SCRUM-1444).
 ///
@@ -109,7 +114,15 @@ class _AppShellState extends State<AppShell> {
         )
       : entradasMenuPara(widget.rol);
 
+  /// Cierre pedido por el usuario: es una acción crítica y pide confirmación
+  /// (SCRUM-1650). El cierre por sesión vencida no pasa por aquí.
   Future<void> _cerrarSesion() async {
+    final confirmado = await confirmarAccion(
+      context,
+      titulo: '¿Cerrar sesión?',
+      etiquetaConfirmar: _textoCerrarSesion,
+    );
+    if (!confirmado || !mounted) return;
     await widget.onCerrarSesion();
   }
 
@@ -244,7 +257,7 @@ class _AppShellState extends State<AppShell> {
                     ),
                     child: IconButton(
                       key: const Key('menu-cerrar-sesion'),
-                      tooltip: 'Cerrar sesión',
+                      tooltip: _textoCerrarSesion,
                       icon: Icon(Icons.logout_rounded, color: t.ink, size: 20),
                       onPressed: _cerrarSesion,
                     ),
@@ -315,7 +328,7 @@ class _AppShellState extends State<AppShell> {
           child: ListTile(
             leading: Icon(Icons.logout, color: ManiColors.danger),
             title: Text(
-              'Cerrar sesión',
+              _textoCerrarSesion,
               style: TextStyle(
                 color: ManiColors.danger,
                 fontWeight: FontWeight.w800,

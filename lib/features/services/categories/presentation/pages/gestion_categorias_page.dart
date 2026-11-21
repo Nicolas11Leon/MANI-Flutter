@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_confirmacion.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 
+import '../../domain/entities/categoria_servicio.dart';
 import '../bloc/categorias_cubit.dart';
 import '../widgets/categoria_card.dart';
 import '../widgets/formulario_categoria.dart';
@@ -145,9 +147,11 @@ class _Catalogo extends StatelessWidget {
                               cambiandoEstado: state.cambiandoEstadoDe(
                                 visibles[i].id,
                               ),
-                              onCambiarEstado: (activa) => context
-                                  .read<CategoriasCubit>()
-                                  .cambiarEstado(visibles[i], activa: activa),
+                              onCambiarEstado: (activa) => _cambiarEstado(
+                                context,
+                                visibles[i],
+                                activa: activa,
+                              ),
                             ),
                           ),
                         ),
@@ -161,6 +165,28 @@ class _Catalogo extends StatelessWidget {
       },
     );
   }
+}
+
+/// Desactivar una categoría es crítico y pide confirmación; activarla no
+/// (decisión del PO en SCRUM-1650).
+Future<void> _cambiarEstado(
+  BuildContext context,
+  CategoriaServicio categoria, {
+  required bool activa,
+}) async {
+  final cubit = context.read<CategoriasCubit>();
+  if (categoria.activa && !activa) {
+    final confirmado = await confirmarAccion(
+      context,
+      titulo: '¿Desactivar ${categoria.nombre}?',
+      mensaje:
+          'Los clientes dejarán de verla en Nueva solicitud. '
+          'Los servicios en curso no se afectan.',
+      etiquetaConfirmar: 'Desactivar',
+    );
+    if (!confirmado) return;
+  }
+  await cubit.cambiarEstado(categoria, activa: activa);
 }
 
 class _Encabezado extends StatelessWidget {
