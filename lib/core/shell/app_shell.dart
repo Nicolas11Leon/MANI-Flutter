@@ -284,7 +284,7 @@ class _AppShellState extends State<AppShell> {
         style: AppTheme.titulo(
           size: 20,
           height: 26 / 20,
-          color: ManiColors.ink,
+          color: context.mani.ink,
         ),
       );
     }
@@ -337,14 +337,16 @@ class _AppShellState extends State<AppShell> {
     return AppBar(
       key: const Key('menu-superior'),
       automaticallyImplyLeading: false,
-      backgroundColor: expandido ? ManiColors.surface : ManiColors.background,
+      backgroundColor: expandido
+          ? context.mani.surface
+          : context.mani.background,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
       toolbarHeight: expandido ? 68 : 60,
       shape: Border(
         bottom: BorderSide(
-          color: ManiColors.ink,
+          color: context.mani.ink,
           width: expandido ? 2 : ManiBorder.thin,
         ),
       ),
@@ -372,7 +374,7 @@ class _AppShellState extends State<AppShell> {
           },
           child: Scaffold(
             key: const Key('app-shell'),
-            backgroundColor: ManiColors.background,
+            backgroundColor: context.mani.background,
             appBar: _barraSuperior(context, estado, entradas),
             body: conDeslizar ? _conDeslizar(cuerpo) : cuerpo,
             bottomNavigationBar: expandido || estado.enFlujo
@@ -460,7 +462,7 @@ class _AppShellState extends State<AppShell> {
     return IconButton(
       key: const Key('menu-atras'),
       tooltip: 'Volver',
-      icon: const Icon(Icons.arrow_back_rounded, color: ManiColors.ink),
+      icon: Icon(Icons.arrow_back_rounded, color: context.mani.ink),
       onPressed: () => _volver(entradas),
     );
   }
@@ -505,10 +507,10 @@ class _AppShellState extends State<AppShell> {
     ];
     return DecoratedBox(
       key: const Key('barra-inferior'),
-      decoration: const BoxDecoration(
-        color: ManiColors.surface,
+      decoration: BoxDecoration(
+        color: context.mani.surface,
         border: Border(
-          top: BorderSide(color: ManiColors.ink, width: ManiBorder.thick),
+          top: BorderSide(color: context.mani.ink, width: ManiBorder.thick),
         ),
       ),
       child: SafeArea(
@@ -566,15 +568,15 @@ class _AppShellState extends State<AppShell> {
     }
     return Container(
       decoration: BoxDecoration(
-        color: ManiColors.surface,
+        color: context.mani.surface,
         borderRadius: BorderRadius.circular(ManiRadius.lg),
-        border: Border.all(color: ManiColors.ink, width: 2),
+        border: Border.all(color: context.mani.ink, width: 2),
         boxShadow: const [ManiShadow.sm],
       ),
       child: IconButton(
         key: const Key('menu-cerrar-sesion'),
         tooltip: _textoCerrarSesion,
-        icon: const Icon(Icons.logout_rounded, color: ManiColors.ink, size: 20),
+        icon: Icon(Icons.logout_rounded, color: context.mani.ink, size: 20),
         onPressed: _cerrarSesion,
       ),
     );
@@ -588,9 +590,9 @@ class _AppShellState extends State<AppShell> {
       preferredSize: const Size.fromHeight(62),
       child: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          color: ManiColors.background,
-          border: Border(top: BorderSide(color: ManiColors.ink, width: 1.5)),
+        decoration: BoxDecoration(
+          color: context.mani.background,
+          border: Border(top: BorderSide(color: context.mani.ink, width: 1.5)),
         ),
         child: Row(
           children: [
@@ -598,10 +600,7 @@ class _AppShellState extends State<AppShell> {
               padding: const EdgeInsets.only(left: 6),
               child: IconButton(
                 key: const Key('menu-scroll-izq'),
-                icon: const Icon(
-                  Icons.chevron_left_rounded,
-                  color: ManiColors.ink,
-                ),
+                icon: Icon(Icons.chevron_left_rounded, color: context.mani.ink),
                 tooltip: 'Desplazar a la izquierda',
                 onPressed: () => _scrollBarra(-280),
               ),
@@ -634,7 +633,7 @@ class _AppShellState extends State<AppShell> {
                     thumbVisibility: true,
                     thickness: 4,
                     radius: const Radius.circular(2),
-                    thumbColor: ManiColors.ink.withValues(alpha: 0.35),
+                    thumbColor: context.mani.ink.withValues(alpha: 0.35),
                     padding: const EdgeInsets.only(bottom: 2),
                     child: SingleChildScrollView(
                       controller: _menuScrollController,
@@ -653,13 +652,13 @@ class _AppShellState extends State<AppShell> {
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   color: _esActiva(e)
-                                      ? ManiColors.brand
-                                      : ManiColors.surface,
+                                      ? context.mani.brand
+                                      : context.mani.surface,
                                   borderRadius: BorderRadius.circular(
                                     ManiRadius.lg,
                                   ),
                                   border: Border.all(
-                                    color: ManiColors.ink,
+                                    color: context.mani.ink,
                                     width: 2,
                                   ),
                                   boxShadow: _esActiva(e)
@@ -674,7 +673,7 @@ class _AppShellState extends State<AppShell> {
                                   icon: Icon(
                                     e.icono,
                                     size: 18,
-                                    color: ManiColors.ink,
+                                    color: context.mani.ink,
                                   ),
                                   label: Text(
                                     e.etiqueta,
@@ -683,13 +682,13 @@ class _AppShellState extends State<AppShell> {
                                       fontWeight: _esActiva(e)
                                           ? FontWeight.w900
                                           : FontWeight.w700,
-                                      color: ManiColors.ink,
+                                      color: context.mani.ink,
                                     ),
                                   ),
                                   style: TextButton.styleFrom(
-                                    foregroundColor: ManiColors.ink,
+                                    foregroundColor: context.mani.ink,
                                     backgroundColor: _esActiva(e)
-                                        ? ManiColors.brand
+                                        ? context.mani.brand
                                         : null,
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
@@ -715,9 +714,9 @@ class _AppShellState extends State<AppShell> {
               padding: const EdgeInsets.only(right: 6),
               child: IconButton(
                 key: const Key('menu-scroll-der'),
-                icon: const Icon(
+                icon: Icon(
                   Icons.chevron_right_rounded,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                 ),
                 tooltip: 'Desplazar a la derecha',
                 onPressed: () => _scrollBarra(280),
@@ -756,10 +755,10 @@ class _CabeceraSesion extends StatelessWidget {
             Text(
               usuario ?? 'MANI',
               key: const Key('menu-usuario'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
-                color: ManiColors.ink,
+                color: context.mani.ink,
                 letterSpacing: -0.3,
               ),
               overflow: TextOverflow.ellipsis,
@@ -768,10 +767,10 @@ class _CabeceraSesion extends StatelessWidget {
             Text(
               linea2,
               key: const Key('menu-tenant'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: ManiColors.inkMuted,
+                color: context.mani.inkMuted,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -815,14 +814,14 @@ class _ItemInferior extends StatelessWidget {
               width: 52,
               height: 30,
               decoration: BoxDecoration(
-                color: activo ? ManiColors.brand : Colors.transparent,
+                color: activo ? context.mani.brand : Colors.transparent,
                 borderRadius: BorderRadius.circular(ManiRadius.pill),
                 border: Border.all(
-                  color: activo ? ManiColors.ink : Colors.transparent,
+                  color: activo ? context.mani.ink : Colors.transparent,
                   width: ManiBorder.thick,
                 ),
               ),
-              child: Icon(icono, size: 22, color: ManiColors.ink),
+              child: Icon(icono, size: 22, color: context.mani.ink),
             ),
             const SizedBox(height: 2),
             Padding(
@@ -834,7 +833,7 @@ class _ItemInferior extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                 ),
               ),
             ),
@@ -860,9 +859,12 @@ class _MarcaCelular extends StatelessWidget {
             width: 10,
             height: 10,
             decoration: BoxDecoration(
-              color: ManiColors.brand,
+              color: context.mani.brand,
               shape: BoxShape.circle,
-              border: Border.all(color: ManiColors.ink, width: ManiBorder.thin),
+              border: Border.all(
+                color: context.mani.ink,
+                width: ManiBorder.thin,
+              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -873,7 +875,7 @@ class _MarcaCelular extends StatelessWidget {
               style: AppTheme.titulo(
                 size: 22,
                 height: 28 / 22,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
           ),
