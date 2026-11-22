@@ -56,16 +56,16 @@ class PasoCategoria extends StatelessWidget {
                             height: 44,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: ManiColors.brand,
+                              color: context.mani.brand,
                               borderRadius: ManiRadius.brMd,
                               border: Border.all(
-                                color: ManiColors.border,
+                                color: context.mani.border,
                                 width: ManiBorder.regular,
                               ),
                             ),
                             child: Icon(
                               iconoCategoria(cat.nombre),
-                              color: ManiColors.ink,
+                              color: context.mani.onBrand,
                             ),
                           ),
                           ManiGap.hMd,
@@ -88,18 +88,18 @@ class PasoCategoria extends StatelessWidget {
                                   textoModalidad(cat.modalidad),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: ManiFontSize.caption,
-                                    color: ManiColors.inkMuted,
+                                    color: context.mani.inkMuted,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right_rounded,
-                            color: ManiColors.inkSubtle,
+                            color: context.mani.inkSubtle,
                           ),
                         ],
                       ),
@@ -121,13 +121,16 @@ class _SinCategorias extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(ManiSpace.xl),
       decoration: BoxDecoration(
-        color: ManiColors.surface,
+        color: context.mani.surface,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        border: Border.all(
+          color: context.mani.border,
+          width: ManiBorder.regular,
+        ),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.inventory_2_outlined, size: 36, color: ManiColors.ink),
+          Icon(Icons.inventory_2_outlined, size: 36, color: context.mani.ink),
           ManiGap.vSm,
           Text(
             'Aún no hay servicios disponibles',
@@ -141,7 +144,7 @@ class _SinCategorias extends StatelessWidget {
             'Tu empresa de servicios todavía no publicó categorías. '
             'Vuelve a intentarlo más tarde.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: ManiColors.inkMuted),
+            style: TextStyle(color: context.mani.inkMuted),
           ),
         ],
       ),

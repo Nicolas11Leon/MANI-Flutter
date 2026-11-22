@@ -19,18 +19,18 @@ class EncabezadoPaso extends StatelessWidget {
       children: [
         Text(
           titulo,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: ManiFontSize.h3,
             fontWeight: FontWeight.w900,
             letterSpacing: -0.4,
-            color: ManiColors.ink,
+            color: context.mani.ink,
           ),
         ),
         ManiGap.vXs,
         Text(
           subtitulo,
-          style: const TextStyle(
-            color: ManiColors.inkMuted,
+          style: TextStyle(
+            color: context.mani.inkMuted,
             fontWeight: FontWeight.w500,
           ),
         ),
