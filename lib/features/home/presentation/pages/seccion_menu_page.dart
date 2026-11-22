@@ -52,18 +52,18 @@ class SeccionMenuPage extends StatelessWidget {
         : 'Todo lo que haces en MANI, en un solo lugar.';
   }
 
-  Widget _listaEntradas(List<EntradaMenu> entradas) {
+  Widget _listaEntradas(BuildContext context, List<EntradaMenu> entradas) {
     return ManiCard(
       padding: EdgeInsets.zero,
       child: Column(
         children: [
           for (var i = 0; i < entradas.length; i++) ...[
             if (i > 0)
-              const Divider(
+              Divider(
                 height: 1,
                 thickness: 1.0,
                 indent: 68,
-                color: ManiColors.borderSubtle,
+                color: context.mani.borderSubtle,
               ),
             _Acceso(
               key: Key('seccion-acceso-${entradas[i].ruta}'),
@@ -95,7 +95,7 @@ class SeccionMenuPage extends StatelessWidget {
     final subtitulo = _subtitulo(gestion);
 
     return Scaffold(
-      backgroundColor: ManiColors.background,
+      backgroundColor: context.mani.background,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
@@ -108,26 +108,26 @@ class SeccionMenuPage extends StatelessWidget {
                 style: AppTheme.titulo(
                   size: 26,
                   height: 32 / 26,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitulo,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: ManiColors.inkMuted,
+                  color: context.mani.inkMuted,
                 ),
               ),
               const SizedBox(height: 18),
               if (entradas.isEmpty)
-                const Text(
+                Text(
                   'Por ahora no hay nada aquí para tu cuenta.',
                   key: Key('seccion-vacia'),
-                  style: TextStyle(color: ManiColors.inkMuted),
+                  style: TextStyle(color: context.mani.inkMuted),
                 ),
-              if (entradas.isNotEmpty) _listaEntradas(entradas),
+              if (entradas.isNotEmpty) _listaEntradas(context, entradas),
               if (tipo == TipoSeccion.cuenta && onCerrarSesion != null) ...[
                 const SizedBox(height: 32),
                 ManiButton(
@@ -176,17 +176,17 @@ class _Acceso extends StatelessWidget {
               Expanded(
                 child: Text(
                   etiqueta,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.chevron_right_rounded,
                 size: 20,
-                color: ManiColors.inkMuted,
+                color: context.mani.inkMuted,
               ),
             ],
           ),

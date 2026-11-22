@@ -137,17 +137,17 @@ class _Resumen extends StatelessWidget {
                                     size: 28,
                                     height: 32 / 28,
                                     color: i.valor == '0'
-                                        ? ManiColors.inkMuted
-                                        : ManiColors.ink,
+                                        ? context.mani.inkMuted
+                                        : context.mani.ink,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   i.etiqueta,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: ManiColors.inkMuted,
+                                    color: context.mani.inkMuted,
                                   ),
                                 ),
                               ],
@@ -209,11 +209,11 @@ class _Modulo extends StatelessWidget {
               children: [
                 for (var i = 0; i < hijos.length; i++) ...[
                   if (i > 0)
-                    const Divider(
+                    Divider(
                       height: 1,
                       thickness: 1.0,
                       indent: 68,
-                      color: ManiColors.borderSubtle,
+                      color: context.mani.borderSubtle,
                     ),
                   hijos[i],
                 ],
@@ -256,17 +256,17 @@ class _Fila extends StatelessWidget {
                   titulo,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.chevron_right_rounded,
                 size: 20,
-                color: ManiColors.inkMuted,
+                color: context.mani.inkMuted,
               ),
             ],
           ),

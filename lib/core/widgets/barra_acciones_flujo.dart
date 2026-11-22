@@ -47,9 +47,9 @@ class BarraAccionesFlujo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
-      decoration: const BoxDecoration(
-        color: ManiColors.surface,
-        border: Border(top: BorderSide(color: ManiColors.ink, width: 2)),
+      decoration: BoxDecoration(
+        color: context.mani.surface,
+        border: Border(top: BorderSide(color: context.mani.ink, width: 2)),
       ),
       child: SafeArea(
         top: false,
@@ -68,10 +68,10 @@ class BarraAccionesFlujo extends StatelessWidget {
                     pista!,
                     key: clavePista,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: ManiColors.inkMuted,
+                      color: context.mani.inkMuted,
                     ),
                   ),
                   const SizedBox(height: 10),

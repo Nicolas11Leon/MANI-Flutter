@@ -35,8 +35,8 @@ class ManiBarraPasos extends StatelessWidget {
                     height: 6,
                     decoration: BoxDecoration(
                       color: i <= actual
-                          ? ManiColors.brand
-                          : ManiColors.surfaceMuted,
+                          ? context.mani.brand
+                          : context.mani.surfaceMuted,
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
@@ -47,10 +47,10 @@ class ManiBarraPasos extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Paso ${actual + 1} de $total · ${etiquetas[actual]}',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: ManiColors.inkMuted,
+              color: context.mani.inkMuted,
             ),
           ),
         ],
