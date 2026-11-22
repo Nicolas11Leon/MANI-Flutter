@@ -222,50 +222,46 @@ class _InicioPageState extends State<InicioPage> {
                     ),
                 ],
               ),
-              if (widget.onCerrarSesion != null && !compacto) ...[
-                const SizedBox(height: 20),
-                ManiCard(
-                  key: const Key('inicio-card-sesion'),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
-                  ),
-                  sombra: ManiShadow.sm,
-                  child: ListTile(
-                    key: const Key('inicio-cerrar-sesion'),
-                    leading: const Icon(Icons.logout, color: _rojoSesion),
-                    title: const Text(
-                      'Cerrar sesión',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: _rojoSesion,
-                      ),
-                    ),
-                    subtitle: const Text(
-                      'Finaliza la sesión actual en este dispositivo',
-                    ),
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                      color: _rojoSesion,
-                    ),
-                    onTap: () async {
-                      // Pide confirmación como el menú superior (SCRUM-1650, QAS-39).
-                      final confirmado = await confirmarAccion(
-                        context,
-                        titulo: '¿Cerrar sesión?',
-                        etiquetaConfirmar: 'Cerrar sesión',
-                      );
-                      if (!confirmado || !mounted) return;
-                      await widget.onCerrarSesion!();
-                    },
-                  ),
-                ),
-              ],
+              if (widget.onCerrarSesion != null && !compacto)
+                ..._tarjetaCerrarSesion(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  List<Widget> _tarjetaCerrarSesion() {
+    return [
+      const SizedBox(height: 20),
+      ManiCard(
+        key: const Key('inicio-card-sesion'),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        sombra: ManiShadow.sm,
+        child: ListTile(
+          key: const Key('inicio-cerrar-sesion'),
+          leading: const Icon(Icons.logout, color: _rojoSesion),
+          title: const Text(
+            'Cerrar sesión',
+            style: TextStyle(fontWeight: FontWeight.w800, color: _rojoSesion),
+          ),
+          subtitle: const Text('Finaliza la sesión actual en este dispositivo'),
+          trailing: const Icon(Icons.chevron_right, color: _rojoSesion),
+          onTap: _cerrarSesion,
+        ),
+      ),
+    ];
+  }
+
+  /// Pide confirmación como el menú superior (SCRUM-1650, QAS-39).
+  Future<void> _cerrarSesion() async {
+    final confirmado = await confirmarAccion(
+      context,
+      titulo: '¿Cerrar sesión?',
+      etiquetaConfirmar: 'Cerrar sesión',
+    );
+    if (!confirmado || !mounted) return;
+    await widget.onCerrarSesion!();
   }
 
   static String _subtitulo(RolUsuario rol) {
