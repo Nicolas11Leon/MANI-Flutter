@@ -123,6 +123,37 @@ void main() {
       expect(r.headers.containsKey('X-Tenant-ID'), isFalse);
     });
 
+    test(
+      'cada documento sale con su tipo MIME, no como octet-stream',
+      () async {
+        await registrar(
+          datasource(),
+          documentos: [
+            doc('CEDULA_CIUDADANIA', 'cedula.PDF', 'PDF-CEDULA'),
+            doc('RUT_CERTIFICADO', 'rut.jpg', 'JPG-RUT'),
+          ],
+        );
+
+        final cuerpo = alGateway.single.body;
+        expect(cuerpo, contains('content-type: application/pdf'));
+        expect(cuerpo, contains('content-type: image/jpeg'));
+        expect(cuerpo, isNot(contains('application/octet-stream')));
+      },
+    );
+
+    test('tipo MIME por extensión', () {
+      expect(
+        AuthRemoteDataSource.tipoContenidoDocumento('a.pdf'),
+        'application/pdf',
+      );
+      expect(
+        AuthRemoteDataSource.tipoContenidoDocumento('a.JPEG'),
+        'image/jpeg',
+      );
+      expect(AuthRemoteDataSource.tipoContenidoDocumento('a.png'), 'image/png');
+      expect(AuthRemoteDataSource.tipoContenidoDocumento('a.docx'), isNull);
+    });
+
     test('mantiene la forma de respuesta que espera la UI', () async {
       final res = await registrar(datasource());
 

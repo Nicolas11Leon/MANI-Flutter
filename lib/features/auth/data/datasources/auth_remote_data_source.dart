@@ -349,11 +349,25 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
             'adjunto. Vuelve a seleccionarlo.',
       );
     }
+    final nombre = doc['nombre_archivo'] ?? tipo.toLowerCase();
     return ArchivoMultipart(
       campo: tipo.toLowerCase(),
-      nombre: doc['nombre_archivo'] ?? tipo.toLowerCase(),
+      nombre: nombre,
       bytes: base64Decode(contenido),
+      // Sin tipo, el navegador envía application/octet-stream y Core rechaza el
+      // documento con 400 «Tipo de archivo no permitido» (QA, 22 nov).
+      tipoContenido: tipoContenidoDocumento(nombre),
     );
+  }
+
+  /// MIME del documento KYC según su extensión: Core solo acepta PDF, JPG y PNG.
+  /// Devuelve `null` con otra extensión, y Core responde con su propio mensaje.
+  static String? tipoContenidoDocumento(String nombreArchivo) {
+    final n = nombreArchivo.toLowerCase();
+    if (n.endsWith('.pdf')) return 'application/pdf';
+    if (n.endsWith('.jpg') || n.endsWith('.jpeg')) return 'image/jpeg';
+    if (n.endsWith('.png')) return 'image/png';
+    return null;
   }
 
   String? _texto(String? valor) {
