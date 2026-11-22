@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mani/core/di/injection_container.dart';
-import 'package:mani/core/widgets/mani_logo.dart';
+import 'package:mani/core/widgets/mani_mano.dart';
 import 'package:mani/features/auth/domain/repositories/i_auth_repository.dart';
 import 'package:mani/features/auth/domain/usecases/login_usecase.dart';
 import 'package:mani/features/auth/domain/usecases/register_aliado_usecase.dart';
@@ -31,7 +31,7 @@ AuthCubit _cubit() {
   );
 }
 
-/// La barra superior de los registros lleva el sello de MANI (SCRUM-1646): una sola pieza compartida, no una copia
+/// La barra superior de los registros lleva la manita de MANI (SCRUM-1646): una sola pieza compartida, no una copia
 /// dibujada a mano en cada pantalla.
 void main() {
   setUp(() {
@@ -61,12 +61,12 @@ void main() {
   };
 
   for (final e in paginas.entries) {
-    testWidgets('${e.key}: la barra superior usa el sello de MANI', (
+    testWidgets('${e.key}: la barra superior usa la manita de MANI', (
       tester,
     ) async {
       await montar(tester, e.value());
-      expect(find.byType(ManiLogo), findsWidgets);
-      expect(find.text('MANI Services'), findsOneWidget);
+      expect(find.byType(ManiMano), findsWidgets);
+      expect(find.text('MANI'), findsWidgets);
     });
   }
 }

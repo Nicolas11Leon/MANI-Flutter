@@ -1,10 +1,12 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/profiles/site_rules/domain/entities/reglas_sitio.dart';
 import 'package:mani/features/profiles/site_rules/presentation/bloc/reglas_sitio_cubit.dart';
-import 'package:mani/core/widgets/mani_pagina.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Pantalla dual para US-02.2.3 (SCRUM-853):
 /// - Como Cliente Corporativo (`esVistaAliado = false`): permite configurar
@@ -86,51 +88,39 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ManiColors.background,
-
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ManiEncabezadoPantalla(
-            ancho: ManiAncho.formulario,
-            icono: Icons.rule_rounded,
-            titulo: widget.esVistaAliado
-                ? 'Reglas de ingreso a la sede'
-                : 'Configurar reglas contextuales de la sede',
-          ),
-          Expanded(
-            child: BlocConsumer<ReglasSitioCubit, ReglasSitioState>(
-              listener: (context, state) {
-                if (state.reglas != null && !state.guardadoExitoso) {
-                  setState(() => _sincronizarFormulario(state.reglas!));
-                }
-              },
-              builder: (context, state) {
-                final reglas = state.reglas;
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(ManiSpace.xxl),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: ManiAncho.formulario,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (reglas != null)
-                            _buildTarjetaVisibleAliado(reglas),
-                          if (!widget.esVistaAliado) ...[
-                            ManiGap.vXl,
-                            _buildFormularioConfiguracion(state.cargando),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
+      appBar: barraDePantalla(
+        context,
+        titulo: widget.esVistaAliado
+            ? 'Reglas de ingreso a la sede'
+            : 'Reglas de la sede',
+      ),
+      body: BlocConsumer<ReglasSitioCubit, ReglasSitioState>(
+        listener: (context, state) {
+          if (state.reglas != null && !state.guardadoExitoso) {
+            setState(() => _sincronizarFormulario(state.reglas!));
+          }
+        },
+        builder: (context, state) {
+          final reglas = state.reglas;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 760),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (reglas != null) _buildTarjetaVisibleAliado(reglas),
+                    if (!widget.esVistaAliado) ...[
+                      const SizedBox(height: 20),
+                      _buildFormularioConfiguracion(state.cargando),
+                    ],
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -138,11 +128,11 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
   Widget _buildTarjetaVisibleAliado(ReglasContextualesSitio reglas) {
     return Container(
       key: const Key('card_reglas_visibles_aliado'),
-      padding: const EdgeInsets.all(ManiSpace.xl),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: ManiColors.brand,
-        borderRadius: ManiRadius.brLg,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.thick),
+        borderRadius: BorderRadius.circular(24.0),
+        border: Border.all(color: ManiColors.ink, width: 2.5),
         boxShadow: const [ManiShadow.sm],
       ),
       child: Column(
@@ -155,12 +145,12 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
                 color: ManiColors.ink,
                 size: 26,
               ),
-              ManiGap.hSm,
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Requisitos de Ingreso al Sitio (${reglas.siteId})',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.body,
+                    fontSize: 15,
                     fontWeight: FontWeight.w900,
                     color: ManiColors.ink,
                   ),
@@ -168,11 +158,11 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
               ),
             ],
           ),
-          ManiGap.vSm,
+          const SizedBox(height: 10),
           Text(
             '• Requiere EPP (Botas / Casco): ${reglas.requiereEpp ? "SÍ" : "NO"}',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.bodySm,
+              fontSize: 13,
               fontWeight: FontWeight.w800,
               color: ManiColors.ink,
             ),
@@ -182,7 +172,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
             Text(
               '• Horario permitido: ${reglas.horarioPermitido}',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: ManiFontSize.bodySm,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: ManiColors.ink,
               ),
@@ -191,7 +181,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
             Text(
               '• Documentos exigidos en portería: ${reglas.documentosRequeridos.join(", ")}',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: ManiFontSize.bodySm,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: ManiColors.ink,
               ),
@@ -201,7 +191,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
             Text(
               '• Instrucciones: ${reglas.instruccionesIngreso}',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: ManiFontSize.bodySm,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: ManiColors.ink,
               ),
@@ -213,11 +203,11 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
 
   Widget _buildFormularioConfiguracion(bool cargando) {
     return Container(
-      padding: const EdgeInsets.all(ManiSpace.xl),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: ManiRadius.brLg,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        borderRadius: BorderRadius.circular(24.0),
+        border: Border.all(color: ManiColors.ink, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -233,8 +223,8 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
               onChanged: (val) => setState(() => _requiereEpp = val),
             ),
           ),
-          ManiGap.vMd,
-          TextFormField(
+          const SizedBox(height: 12),
+          ManiTextField(
             key: const Key('input_horario_reglas_sitio'),
             controller: _horarioController,
             decoration: const InputDecoration(
@@ -242,8 +232,8 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
                   'Horario permitido (ej. Lunes a Viernes 08:00 - 17:00)',
             ),
           ),
-          ManiGap.vMd,
-          TextFormField(
+          const SizedBox(height: 12),
+          ManiTextField(
             key: const Key('input_documentos_reglas_sitio'),
             controller: _documentosController,
             decoration: const InputDecoration(
@@ -251,19 +241,19 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
                   'Documentos requeridos en portería (separados por coma)',
             ),
           ),
-          ManiGap.vMd,
-          TextFormField(
+          const SizedBox(height: 12),
+          ManiTextField(
             key: const Key('input_instrucciones_reglas_sitio'),
             controller: _instruccionesController,
             decoration: const InputDecoration(
               labelText: 'Instrucciones de ingreso para el aliado',
             ),
           ),
-          ManiGap.vLg,
-          ElevatedButton(
+          const SizedBox(height: 16),
+          ManiButton(
             key: const Key('btn_guardar_reglas_sitio'),
+            etiqueta: cargando ? 'GUARDANDO...' : 'GUARDAR REGLAS DEL SITIO',
             onPressed: cargando ? null : _guardar,
-            child: Text(cargando ? 'GUARDANDO...' : 'GUARDAR REGLAS DEL SITIO'),
           ),
         ],
       ),

@@ -6,7 +6,10 @@ import 'package:mani/core/theme/app_theme.dart';
 /// Es la imagen grande de las pantallas de entrada. El sello circular con la leyenda «Mani · Al servicio» es
 /// `ManiLogo`, para los sitios pequeños.
 class ManiMano extends StatelessWidget {
-  const ManiMano({super.key, this.alto = 140});
+  const ManiMano({super.key, this.alto = 140, this.mini = false});
+
+  /// Versión liviana de la imagen para la barra y los registros (SCRUM-1646).
+  final bool mini;
 
   /// Alto en píxeles lógicos; el ancho sale de la proporción de la imagen.
   final double alto;
@@ -17,7 +20,9 @@ class ManiMano extends StatelessWidget {
       label: 'MANI',
       image: true,
       child: Image.asset(
-        'assets/images/mani_mano.webp',
+        mini
+            ? 'assets/images/mani_mano_mini.webp'
+            : 'assets/images/mani_mano.webp',
         height: alto,
         fit: BoxFit.contain,
         filterQuality: FilterQuality.high,

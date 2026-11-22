@@ -100,7 +100,7 @@ class _SelectorFijo implements SelectorFotos {
 
 void main() {
   test(
-    'el modelo traduce los tipos conocidos y deja los desconocidos tal cual',
+    'el modelo traduce los tipos conocidos y vuelve legible el código de los desconocidos',
     () {
       expect(
         EventoServicio.fromJson(
@@ -114,9 +114,17 @@ void main() {
         ).etiquetaTipo,
         'Novedad',
       );
+      // Un tipo que la app aún no conoce no se muestra como código de Core.
       expect(
         EventoServicio.fromJson(_eventoJson('a', 'OTRO_TIPO')).etiquetaTipo,
-        'OTRO_TIPO',
+        'Otro tipo',
+      );
+      // SOLICITUD_ASIGNADA salía como código crudo en la bitácora.
+      expect(
+        EventoServicio.fromJson(
+          _eventoJson('a', 'SOLICITUD_ASIGNADA'),
+        ).etiquetaTipo,
+        'Aliado asignado',
       );
       // SCRUM-1432: el pago aprobado aparece en la bitácora con un texto legible.
       expect(

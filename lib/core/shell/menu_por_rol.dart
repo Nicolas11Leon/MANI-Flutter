@@ -48,9 +48,15 @@ const _entradasCliente = [
     ruta: '/cliente/solicitudes/nueva',
   ),
   EntradaMenu(
-    etiqueta: 'Mis solicitudes',
+    etiqueta: 'Mis pedidos',
     icono: Icons.list_alt_outlined,
     ruta: '/cliente/solicitudes',
+  ),
+  // Sedes del cliente empresa; en celular va en Cuenta (SCRUM-1647).
+  EntradaMenu(
+    etiqueta: 'Mis sedes',
+    icono: Icons.apartment_outlined,
+    ruta: '/cliente/sedes',
   ),
   // Quejas del cliente (SCRUM-895).
   EntradaMenu(
@@ -74,12 +80,12 @@ const _entradasAliado = [
     ruta: '/aliado/historial',
   ),
   EntradaMenu(
-    etiqueta: 'Cobertura',
+    etiqueta: 'Mis zonas',
     icono: Icons.checklist_outlined,
     ruta: '/aliado/cobertura',
   ),
   EntradaMenu(
-    etiqueta: 'Categorías',
+    etiqueta: 'Mis especialidades',
     icono: Icons.category_outlined,
     ruta: '/categories',
   ),
@@ -227,4 +233,94 @@ String etiquetaRol(RolUsuario rol) {
     case RolUsuario.desconocido:
       return 'Sin rol';
   }
+}
+
+// ── Secciones para celular (SCRUM-1647) ───────────────────────────────────────────────────────────────────────────────
+//
+// En celular el menú es una barra inferior con cuatro destinos: Inicio, Servicios, Avisos y Perfil. Servicios y Perfil
+// son pantallas que agrupan las entradas del rol; Inicio muestra atajos a lo más usado. Son las mismas entradas y rutas
+// de `entradasMenuPara`, solo repartidas: aquí no hay pantallas ni permisos nuevos.
+
+/// Ruta de la pantalla que agrupa lo operativo del rol.
+const rutaServicios = '/servicios';
+
+/// Ruta de la pantalla de la cuenta: perfil, sedes, cobertura y cerrar sesión.
+const rutaCuenta = '/cuenta';
+
+// Todo lo que describe a la persona o a su negocio: perfil, sedes, cobertura, categorías y disponibilidad.
+const _rutasDeCuenta = {
+  '/perfil/editar',
+  '/cliente/sedes',
+  '/aliado/cobertura',
+  '/aliado/disponibilidad',
+  '/categories',
+};
+
+const _rutasQueNoSonServicios = {'/inicio', '/perfil/avisos', '/perfil/editar'};
+
+/// Lo operativo del rol: lo que se hace día a día (pedir y seguir servicios, atender solicitudes, administrar).
+List<EntradaMenu> entradasServiciosPara(
+  RolUsuario rol, {
+  RolUsuario actuandoComo = RolUsuario.adminTenant,
+}) => [
+  for (final e in entradasMenuPara(rol, actuandoComo: actuandoComo))
+    if (!_rutasQueNoSonServicios.contains(e.ruta) &&
+        !_rutasDeCuenta.contains(e.ruta))
+      e,
+];
+
+/// La cuenta: el perfil y lo que describe a la persona o a su negocio (sedes, cobertura, categorías).
+List<EntradaMenu> entradasCuentaPara(
+  RolUsuario rol, {
+  RolUsuario actuandoComo = RolUsuario.adminTenant,
+}) => [
+  for (final e in entradasMenuPara(rol, actuandoComo: actuandoComo))
+    if (_rutasDeCuenta.contains(e.ruta)) e,
+];
+
+/// Los dos atajos del inicio en celular: lo más usado de cada rol.
+List<EntradaMenu> atajosPara(
+  RolUsuario rol, {
+  RolUsuario actuandoComo = RolUsuario.adminTenant,
+}) {
+  final rutas = switch (rol == RolUsuario.adminPlataforma
+      ? actuandoComo
+      : rol) {
+    RolUsuario.cliente => const [
+      '/cliente/solicitudes/nueva',
+      '/cliente/solicitudes',
+    ],
+    RolUsuario.aliado => const ['/aliado/solicitudes', '/aliado/cobros'],
+    RolUsuario.adminTenant => const [
+      '/admin/verificacion-aliados',
+      '/admin/quejas',
+    ],
+    _ => const <String>[],
+  };
+  final todas = entradasMenuPara(rol, actuandoComo: actuandoComo);
+  return [for (final r in rutas) ...todas.where((e) => e.ruta == r)];
+}
+
+/// Pantalla de agrupación a la que pertenece [ruta] (`rutaServicios` o `rutaCuenta`), o `null` si no cuelga de ninguna.
+String? seccionDeLaRuta(
+  String ruta,
+  RolUsuario rol, {
+  RolUsuario actuandoComo = RolUsuario.adminTenant,
+}) {
+  bool coincide(EntradaMenu e) =>
+      ruta == e.ruta || ruta.startsWith('${e.ruta}/');
+  EntradaMenu? mejor(List<EntradaMenu> l) {
+    EntradaMenu? m;
+    for (final e in l) {
+      if (coincide(e) && (m == null || e.ruta.length > m.ruta.length)) m = e;
+    }
+    return m;
+  }
+
+  final s = mejor(entradasServiciosPara(rol, actuandoComo: actuandoComo));
+  final c = mejor(entradasCuentaPara(rol, actuandoComo: actuandoComo));
+  if (s == null && c == null) return null;
+  if (s == null) return rutaCuenta;
+  if (c == null) return rutaServicios;
+  return s.ruta.length >= c.ruta.length ? rutaServicios : rutaCuenta;
 }

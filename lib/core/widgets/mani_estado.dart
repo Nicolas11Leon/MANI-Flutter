@@ -11,7 +11,13 @@ enum ManiTono {
   aviso(ManiColors.warningContainer, ManiColors.warningText),
   peligro(ManiColors.dangerContainer, ManiColors.dangerText),
   info(ManiColors.infoContainer, ManiColors.infoText),
-  acento(ManiColors.accentContainer, ManiColors.accent);
+  acento(ManiColors.accentContainer, ManiColors.accent),
+
+  // Tonos de la píldora [ManiEstado] (SCRUM-1646, trabajo de Nicolás).
+  enCurso(ManiColors.brandSoft, ManiColors.ink),
+  atencion(ManiColors.warningContainer, ManiColors.warningText),
+  listo(ManiColors.successContainer, ManiColors.successText),
+  mal(ManiColors.dangerContainer, ManiColors.dangerText);
 
   const ManiTono(this.fondo, this.texto);
 
@@ -24,6 +30,55 @@ enum ManiTono {
 
 /// Insignia de estado: píldora con borde, ícono y texto en mayúsculas. El
 /// ícono acompaña al color para que el estado no dependa solo de él.
+/// Píldora de estado sin mayúsculas: un punto y el texto. Es la forma corta
+/// de [ManiStatusBadge] que usan las tarjetas de solicitud, cotización y cobro.
+class ManiEstado extends StatelessWidget {
+  const ManiEstado({
+    super.key,
+    required this.texto,
+    this.tono = ManiTono.neutro,
+  });
+
+  final String texto;
+  final ManiTono tono;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 26,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: tono.fondo,
+        borderRadius: ManiRadius.brPill,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: tono.texto,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              texto,
+              overflow: TextOverflow.ellipsis,
+              style: ManiText.caption.copyWith(
+                color: tono.texto,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ManiStatusBadge extends StatelessWidget {
   const ManiStatusBadge({
     super.key,

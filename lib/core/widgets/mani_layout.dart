@@ -103,24 +103,30 @@ class ManiEncabezado extends StatelessWidget {
 }
 
 /// Ícono sobre caja amarilla con borde, como en las tarjetas del registro.
+/// Forma de [ManiIconoCaja]: `fuerte` usa el color de marca y `suave` el fondo
+/// suave de marca (SCRUM-1646).
+enum ManiIconoForma { suave, fuerte }
+
 class ManiIconoCaja extends StatelessWidget {
   const ManiIconoCaja({
     super.key,
     required this.icono,
     this.tamano = 26,
     this.color = ManiColors.brand,
+    this.forma,
   });
 
   final IconData icono;
   final double tamano;
   final Color color;
+  final ManiIconoForma? forma;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(tamano >= 24 ? ManiSpace.md : ManiSpace.sm),
       decoration: BoxDecoration(
-        color: color,
+        color: forma == ManiIconoForma.suave ? ManiColors.brandSoft : color,
         borderRadius: ManiRadius.brMd,
         border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
       ),

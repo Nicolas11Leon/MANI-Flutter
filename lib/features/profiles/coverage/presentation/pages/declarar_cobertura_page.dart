@@ -1,3 +1,5 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -7,9 +9,7 @@ import '../../domain/entities/zona.dart';
 import '../controllers/cobertura_controller.dart';
 import '../widgets/resumen_cobertura_bar.dart';
 import '../widgets/zona_tiles.dart';
-import 'package:mani/core/theme/app_theme.dart';
-import 'package:mani/core/widgets/mani_estado.dart';
-import 'package:mani/core/widgets/mani_pagina.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// US-02.1.4 — Declarar zona de cobertura (SCRUM-849).
 ///
@@ -30,7 +30,7 @@ class DeclararCoberturaPage extends StatefulWidget {
   const DeclararCoberturaPage({
     super.key,
     required this.controller,
-    this.debounce = ManiMotion.slow,
+    this.debounce = const Duration(milliseconds: 300),
     this.conMapa = false,
   });
 
@@ -50,10 +50,6 @@ class DeclararCoberturaPage extends StatefulWidget {
 }
 
 class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
-  /// Con el mapa al lado la pantalla es de dos columnas y necesita el ancho de
-  /// panel; sin él, una lista de una columna.
-  double get _ancho => widget.conMapa ? ManiAncho.panel : ManiAncho.lista;
-
   final _busqueda = TextEditingController();
   Timer? _debounce;
 
@@ -94,13 +90,15 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
         title: const Text('¿Salir sin guardar?'),
         content: const Text('Tus cambios en la zona de cobertura se perderán.'),
         actions: [
-          TextButton(
+          ManiButton(
+            variante: ManiButtonVariante.enlace,
+            etiqueta: 'Seguir editando',
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Seguir editando'),
           ),
-          TextButton(
+          ManiButton(
+            variante: ManiButtonVariante.enlace,
+            etiqueta: 'Salir',
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Salir'),
           ),
         ],
       ),
@@ -123,22 +121,8 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
           }
         },
         child: Scaffold(
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ManiEncabezadoPantalla(
-                ancho: _ancho,
-                icono: Icons.map_outlined,
-                titulo: 'Zona de cobertura',
-              ),
-              Expanded(
-                child: ManiAnchoContenido(
-                  ancho: _ancho,
-                  child: _cuerpo(context),
-                ),
-              ),
-            ],
-          ),
+          appBar: barraDePantalla(context, titulo: 'Mis zonas'),
+          body: _cuerpo(context),
           bottomNavigationBar: c.carga == EstadoCarga.listo
               ? ResumenCoberturaBar(controller: c)
               : null,
@@ -176,12 +160,7 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            ManiSpace.lg,
-            ManiSpace.md,
-            ManiSpace.lg,
-            ManiSpace.xs,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: Text(
             c.esPrimeraDeclaracion
                 ? 'Elige las localidades o barrios donde puedes trabajar. Solo recibirás solicitudes de clientes en esas zonas.'
@@ -191,10 +170,7 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
         ),
         if (c.ciudades.length > 1)
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: ManiSpace.lg,
-              vertical: ManiSpace.xs,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: DropdownButtonFormField<String>(
               initialValue: ciudad.id,
               decoration: const InputDecoration(labelText: 'Ciudad'),
@@ -210,13 +186,8 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
             ),
           ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            ManiSpace.lg,
-            ManiSpace.sm,
-            ManiSpace.lg,
-            ManiSpace.xs,
-          ),
-          child: TextField(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: ManiTextField(
             key: const ValueKey('buscar-zona'),
             controller: _busqueda,
             onChanged: _onBuscar,
@@ -257,7 +228,7 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
                         const Divider(height: 1),
                         if (localidades == null)
                           const Padding(
-                            padding: EdgeInsets.all(ManiSpace.xxl),
+                            padding: EdgeInsets.all(24),
                             child: Center(
                               child: CircularProgressIndicator.adaptive(),
                             ),
@@ -357,30 +328,26 @@ class _AvisoDesactivadas extends StatelessWidget {
     final n = controller.seleccion.desactivadas.length;
     final cs = Theme.of(context).colorScheme;
     return Container(
-      margin: const EdgeInsets.fromLTRB(
-        ManiSpace.lg,
-        ManiSpace.sm,
-        ManiSpace.lg,
-        ManiSpace.xs,
-      ),
-      padding: const EdgeInsets.all(ManiSpace.md),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: cs.errorContainer,
-        borderRadius: ManiRadius.brMd,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
           Icon(Icons.warning_amber_rounded, color: cs.onErrorContainer),
-          ManiGap.hSm,
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               '$n ${n == 1 ? 'zona ya no está disponible' : 'zonas ya no están disponibles'} y no recibirás solicitudes de allí.',
               style: TextStyle(color: cs.onErrorContainer),
             ),
           ),
-          TextButton(
+          ManiButton(
+            variante: ManiButtonVariante.enlace,
+            etiqueta: 'Quitar',
             onPressed: controller.quitarDesactivadas,
-            child: const Text('Quitar'),
           ),
         ],
       ),
@@ -396,18 +363,15 @@ class _ErrorCarga extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Padding(
-      padding: const EdgeInsets.all(ManiSpace.xxl),
+      padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.cloud_off, size: 48),
-          ManiGap.vMd,
+          const SizedBox(height: 12),
           Text(mensaje, textAlign: TextAlign.center),
-          ManiGap.vMd,
-          FilledButton(
-            onPressed: onReintentar,
-            child: const Text('Reintentar'),
-          ),
+          const SizedBox(height: 12),
+          ManiButton(etiqueta: 'Reintentar', onPressed: onReintentar),
         ],
       ),
     ),
@@ -419,6 +383,8 @@ class _Vacio extends StatelessWidget {
   final String texto;
 
   @override
-  Widget build(BuildContext context) =>
-      ManiEstadoVacio(icono: Icons.map_outlined, titulo: texto);
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.all(24),
+    child: Text(texto, textAlign: TextAlign.center),
+  );
 }

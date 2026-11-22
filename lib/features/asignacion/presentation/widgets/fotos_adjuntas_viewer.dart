@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:mani/core/shell/sin_deslizar_menus.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:mani/core/theme/app_theme.dart';
@@ -124,7 +125,7 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
     if (_loading) {
       return Container(
         height: 74,
-        margin: const EdgeInsets.only(top: ManiSpace.sm),
+        margin: const EdgeInsets.only(top: 8),
         alignment: Alignment.centerLeft,
         child: Row(
           children: [
@@ -133,11 +134,8 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
               height: 74,
               decoration: BoxDecoration(
                 color: ManiColors.background,
-                borderRadius: ManiRadius.brSm,
-                border: Border.all(
-                  color: ManiColors.borderSubtle,
-                  width: ManiBorder.thin,
-                ),
+                borderRadius: BorderRadius.circular(ManiRadius.lg),
+                border: Border.all(color: ManiColors.borderSubtle, width: 1.5),
               ),
               child: const Center(
                 child: SizedBox(
@@ -147,11 +145,11 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
                 ),
               ),
             ),
-            ManiGap.hSm,
+            const SizedBox(width: 8),
             const Text(
               'Cargando vista previa...',
               style: TextStyle(
-                fontSize: ManiFontSize.caption,
+                fontSize: 12,
                 color: ManiColors.inkMuted,
                 fontWeight: FontWeight.w600,
               ),
@@ -163,15 +161,12 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
 
     if (_hasError && _resolvedUrls.isEmpty) {
       return Container(
-        margin: const EdgeInsets.only(top: ManiSpace.sm),
-        padding: const EdgeInsets.all(ManiSpace.sm),
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: ManiColors.background,
-          borderRadius: ManiRadius.brSm,
-          border: Border.all(
-            color: ManiColors.borderSubtle,
-            width: ManiBorder.thin,
-          ),
+          borderRadius: BorderRadius.circular(ManiRadius.lg),
+          border: Border.all(color: ManiColors.borderSubtle, width: 1.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -181,13 +176,10 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
               size: 18,
               color: ManiColors.inkMuted,
             ),
-            ManiGap.hSm,
+            const SizedBox(width: 6),
             Text(
               '${widget.fotosRutas.length} foto(s) no disponible(s)',
-              style: const TextStyle(
-                fontSize: ManiFontSize.caption,
-                color: ManiColors.inkMuted,
-              ),
+              style: const TextStyle(fontSize: 12, color: ManiColors.inkMuted),
             ),
           ],
         ),
@@ -197,7 +189,7 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ManiGap.vSm,
+        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -208,13 +200,13 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
                   size: 16,
                   color: ManiColors.ink,
                 ),
-                ManiGap.hSm,
+                const SizedBox(width: 6),
                 Text(
                   widget.fotosRutas.length == 1
                       ? '1 foto adjunta'
                       : '${widget.fotosRutas.length} fotos adjuntas',
                   style: const TextStyle(
-                    fontSize: ManiFontSize.caption,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: ManiColors.ink,
                   ),
@@ -223,20 +215,17 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
             ),
             InkWell(
               onTap: () => _abrirDetalle(0),
-              borderRadius: ManiRadius.brXs,
+              borderRadius: BorderRadius.circular(ManiRadius.sm),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: ManiSpace.sm,
-                  vertical: ManiSpace.xxs,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 child: Row(
                   children: const [
                     Icon(Icons.zoom_in, size: 16, color: ManiColors.ink),
-                    ManiGap.hXs,
+                    SizedBox(width: 4),
                     Text(
                       'Ver en detalle',
                       style: TextStyle(
-                        fontSize: ManiFontSize.caption,
+                        fontSize: 12,
                         fontWeight: FontWeight.w800,
                         color: ManiColors.ink,
                         decoration: TextDecoration.underline,
@@ -248,92 +237,91 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
             ),
           ],
         ),
-        ManiGap.vSm,
-        SizedBox(
-          height: 76,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.fotosRutas.length,
-            separatorBuilder: (_, _) => ManiGap.hSm,
-            itemBuilder: (context, index) {
-              final ruta = widget.fotosRutas[index];
-              final url = _resolvedUrls[ruta];
+        const SizedBox(height: 6),
+        SinDeslizarMenus(
+          child: SizedBox(
+            height: 76,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.fotosRutas.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                final ruta = widget.fotosRutas[index];
+                final url = _resolvedUrls[ruta];
 
-              return InkWell(
-                onTap: () => _abrirDetalle(index),
-                borderRadius: ManiRadius.brSm,
-                child: Container(
-                  width: 76,
-                  height: 76,
-                  decoration: BoxDecoration(
-                    color: ManiColors.background,
-                    borderRadius: ManiRadius.brSm,
-                    border: Border.all(
-                      color: ManiColors.border,
-                      width: ManiBorder.regular,
+                return InkWell(
+                  onTap: () => _abrirDetalle(index),
+                  borderRadius: BorderRadius.circular(ManiRadius.lg),
+                  child: Container(
+                    width: 76,
+                    height: 76,
+                    decoration: BoxDecoration(
+                      color: ManiColors.background,
+                      borderRadius: BorderRadius.circular(ManiRadius.lg),
+                      border: Border.all(color: ManiColors.ink, width: 2),
+                      boxShadow: const [ManiShadow.sm],
                     ),
-                    boxShadow: const [ManiShadow.sm],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(ManiRadius.sm - 2),
-                    child: url != null
-                        ? Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Image.network(
-                                url,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => const Center(
-                                  child: Icon(
-                                    Icons.broken_image,
-                                    size: 24,
-                                    color: ManiColors.inkMuted,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(ManiRadius.lg - 2),
+                      child: url != null
+                          ? Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Image.network(
+                                  url,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) => const Center(
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      size: 24,
+                                      color: ManiColors.inkMuted,
+                                    ),
                                   ),
-                                ),
-                                loadingBuilder: (_, child, progress) {
-                                  if (progress == null) return child;
-                                  return const Center(
-                                    child: SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
+                                  loadingBuilder: (_, child, progress) {
+                                    if (progress == null) return child;
+                                    return const Center(
+                                      child: SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
                                       ),
+                                    );
+                                  },
+                                ),
+                                Positioned(
+                                  right: 3,
+                                  bottom: 3,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.65,
+                                      ),
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
-                                  );
-                                },
-                              ),
-                              Positioned(
-                                right: 3,
-                                bottom: 3,
-                                child: Container(
-                                  padding: const EdgeInsets.all(ManiSpace.xxs),
-                                  decoration: BoxDecoration(
-                                    color: ManiColors.ink.withValues(
-                                      alpha: 0.65,
+                                    child: const Icon(
+                                      Icons.fullscreen,
+                                      size: 14,
+                                      color: Colors.white,
                                     ),
-                                    borderRadius: ManiRadius.brXs,
-                                  ),
-                                  child: const Icon(
-                                    Icons.fullscreen,
-                                    size: 14,
-                                    color: Colors.white,
                                   ),
                                 ),
+                              ],
+                            )
+                          : const Center(
+                              child: Icon(
+                                Icons.image,
+                                size: 24,
+                                color: ManiColors.inkMuted,
                               ),
-                            ],
-                          )
-                        : const Center(
-                            child: Icon(
-                              Icons.image,
-                              size: 24,
-                              color: ManiColors.inkMuted,
                             ),
-                          ),
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -377,7 +365,7 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
     if (index >= 0 && index < widget.urls.length) {
       _pageController.animateToPage(
         index,
-        duration: ManiMotion.base,
+        duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
       );
     }
@@ -389,24 +377,15 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.lg,
-        vertical: ManiSpace.xxl,
-      ),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: ManiAncho.formulario,
-            maxHeight: 640,
-          ),
+          constraints: const BoxConstraints(maxWidth: 760, maxHeight: 640),
           child: Container(
             decoration: BoxDecoration(
               color: ManiColors.surface,
-              borderRadius: ManiRadius.brMd,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.thick,
-              ),
+              borderRadius: BorderRadius.circular(ManiRadius.lg),
+              border: Border.all(color: ManiColors.ink, width: 2.5),
               boxShadow: const [ManiShadow.md],
             ),
             child: Column(
@@ -416,23 +395,22 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                 // Barra superior
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: ManiSpace.lg,
-                    vertical: ManiSpace.md,
+                    horizontal: 16,
+                    vertical: 12,
                   ),
                   decoration: const BoxDecoration(
-                    border: Border(bottom: ManiBorder.side),
+                    border: Border(
+                      bottom: BorderSide(color: ManiColors.ink, width: 2),
+                    ),
                   ),
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(ManiSpace.sm),
+                        padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
                           color: ManiColors.brand,
-                          borderRadius: ManiRadius.brXs,
-                          border: Border.all(
-                            color: ManiColors.border,
-                            width: ManiBorder.thin,
-                          ),
+                          borderRadius: BorderRadius.circular(ManiRadius.sm),
+                          border: Border.all(color: ManiColors.ink, width: 1.5),
                         ),
                         child: const Icon(
                           Icons.image_outlined,
@@ -440,11 +418,11 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                           color: ManiColors.ink,
                         ),
                       ),
-                      ManiGap.hSm,
+                      const SizedBox(width: 10),
                       Text(
                         'Foto ${_currentIndex + 1} de $total',
                         style: const TextStyle(
-                          fontSize: ManiFontSize.bodyLg,
+                          fontSize: 16,
                           fontWeight: FontWeight.w900,
                           color: ManiColors.ink,
                         ),
@@ -455,15 +433,17 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                         label: 'Cerrar vista detallada',
                         child: InkWell(
                           onTap: () => Navigator.of(context).pop(),
-                          borderRadius: ManiRadius.brXs,
+                          borderRadius: BorderRadius.circular(ManiRadius.sm),
                           child: Container(
-                            padding: const EdgeInsets.all(ManiSpace.sm),
+                            padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
                               color: ManiColors.background,
-                              borderRadius: ManiRadius.brXs,
+                              borderRadius: BorderRadius.circular(
+                                ManiRadius.sm,
+                              ),
                               border: Border.all(
-                                color: ManiColors.border,
-                                width: ManiBorder.thin,
+                                color: ManiColors.ink,
+                                width: 1.5,
                               ),
                             ),
                             child: const Icon(
@@ -484,7 +464,7 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                     alignment: Alignment.center,
                     children: [
                       Container(
-                        color: ManiColors.ink,
+                        color: const Color(0xFF1E293B),
                         child: PageView.builder(
                           controller: _pageController,
                           itemCount: total,
@@ -515,7 +495,7 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                                           size: 48,
                                           color: Colors.white54,
                                         ),
-                                        ManiGap.vSm,
+                                        SizedBox(height: 8),
                                         Text(
                                           'No se pudo cargar la imagen',
                                           style: TextStyle(
@@ -538,15 +518,15 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                           left: 12,
                           child: InkWell(
                             onTap: () => _irA(_currentIndex - 1),
-                            borderRadius: ManiRadius.brSm,
+                            borderRadius: BorderRadius.circular(ManiRadius.lg),
                             child: Container(
-                              padding: const EdgeInsets.all(ManiSpace.sm),
+                              padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: ManiColors.border,
-                                  width: ManiBorder.regular,
+                                  color: ManiColors.ink,
+                                  width: 2,
                                 ),
                                 boxShadow: const [ManiShadow.sm],
                               ),
@@ -565,15 +545,15 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                           right: 12,
                           child: InkWell(
                             onTap: () => _irA(_currentIndex + 1),
-                            borderRadius: ManiRadius.brSm,
+                            borderRadius: BorderRadius.circular(ManiRadius.lg),
                             child: Container(
-                              padding: const EdgeInsets.all(ManiSpace.sm),
+                              padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: ManiColors.border,
-                                  width: ManiBorder.regular,
+                                  color: ManiColors.ink,
+                                  width: 2,
                                 ),
                                 boxShadow: const [ManiShadow.sm],
                               ),
@@ -594,30 +574,34 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                   Container(
                     height: 72,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: ManiSpace.lg,
-                      vertical: ManiSpace.sm,
+                      horizontal: 16,
+                      vertical: 8,
                     ),
                     decoration: const BoxDecoration(
                       color: ManiColors.background,
-                      border: Border(top: ManiBorder.side),
+                      border: Border(
+                        top: BorderSide(color: ManiColors.ink, width: 2),
+                      ),
                     ),
                     child: Center(
                       child: ListView.separated(
                         shrinkWrap: true,
                         scrollDirection: Axis.horizontal,
                         itemCount: total,
-                        separatorBuilder: (_, _) => ManiGap.hSm,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
                         itemBuilder: (context, index) {
                           final isSelected = index == _currentIndex;
                           return InkWell(
                             onTap: () => _irA(index),
-                            borderRadius: ManiRadius.brXs,
+                            borderRadius: BorderRadius.circular(ManiRadius.sm),
                             child: AnimatedContainer(
-                              duration: ManiMotion.base,
+                              duration: const Duration(milliseconds: 200),
                               width: 52,
                               height: 52,
                               decoration: BoxDecoration(
-                                borderRadius: ManiRadius.brXs,
+                                borderRadius: BorderRadius.circular(
+                                  ManiRadius.sm,
+                                ),
                                 border: Border.all(
                                   color: isSelected
                                       ? ManiColors.ink
@@ -630,7 +614,7 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(
-                                  ManiRadius.xs - 1,
+                                  ManiRadius.sm - 1,
                                 ),
                                 child: Image.network(
                                   widget.urls[index],

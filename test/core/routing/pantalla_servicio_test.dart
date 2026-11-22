@@ -282,12 +282,14 @@ void main() {
 
   tearDownAll(sl.reset);
 
-  GoRoute ruta(String nombre) => appRouter.configuration.routes
-      .whereType<ShellRoute>()
-      .single
-      .routes
-      .whereType<GoRoute>()
-      .singleWhere((r) => r.name == nombre);
+  GoRoute ruta(String nombre) => [
+    for (final b
+        in appRouter.configuration.routes
+            .whereType<StatefulShellRoute>()
+            .single
+            .branches)
+      ...b.routes.whereType<GoRoute>(),
+  ].singleWhere((r) => r.name == nombre);
 
   Future<void> montar(WidgetTester tester, String nombre) async {
     final r = ruta(nombre);

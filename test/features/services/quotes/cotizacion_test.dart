@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/network/gateway_client.dart';
 import 'package:mani/features/services/quotes/data/cotizaciones_datasource.dart';
 import 'package:mani/features/services/quotes/domain/cotizacion.dart';
@@ -512,7 +513,7 @@ void main() {
         'no',
       );
       await tester.pump();
-      final confirmar = tester.widget<FilledButton>(
+      final confirmar = tester.widget<ManiButton>(
         find.byKey(const Key('btn-confirmar-decision')),
       );
       expect(confirmar.onPressed, isNull);

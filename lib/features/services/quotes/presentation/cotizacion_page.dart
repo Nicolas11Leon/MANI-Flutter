@@ -1,14 +1,17 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_esqueleto.dart';
+import 'package:mani/core/widgets/mani_estado.dart'
+    hide ManiEstadoVacio, ManiEstadoError;
+import 'package:mani/core/widgets/mani_estados.dart';
 
 import '../domain/cotizacion.dart';
 import 'cotizacion_cubit.dart';
-import 'package:mani/core/widgets/mani_estado.dart';
-import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Importe de la cotización: no negativo, hasta diez enteros y dos decimales,
 /// el mismo formato que valida Core (DECIMAL(12,2)).
@@ -105,16 +108,19 @@ class CotizacionPage extends StatelessWidget {
         final pagos = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (encabezado != null) ...[encabezado!, ManiGap.vLg],
+            if (encabezado != null) ...[
+              encabezado!,
+              const SizedBox(height: 16),
+            ],
             if (state.cargando && state.cotizaciones.isEmpty)
-              const ManiCargando()
+              ManiEsqueleto.detalle()
             else if (state.error != null)
               _Error(mensaje: state.error!, onReintentar: cubit.cargar)
             else ...[
               if (state.vigente != null) ...[
                 _TarjetaCotizacion(state.vigente!, vigente: true),
                 if (alertaTarifa != null) ...[
-                  ManiGap.vSm,
+                  const SizedBox(height: 8),
                   alertaTarifa!(state.vigente!.id),
                 ],
               ],
@@ -123,7 +129,7 @@ class CotizacionPage extends StatelessWidget {
               else
                 _SeccionCliente(state: state, alPagar: alPagar),
               if (state.cotizaciones.length > 1) ...[
-                ManiGap.vLg,
+                const SizedBox(height: 16),
                 Text(
                   'Versiones anteriores',
                   style: Theme.of(context).textTheme.titleSmall,
@@ -132,8 +138,11 @@ class CotizacionPage extends StatelessWidget {
                   _TarjetaCotizacion(c, vigente: false),
               ],
             ],
-            if (pagosExtra != null) ...[ManiGap.vLg, pagosExtra!],
-            if (pie != null) ...[ManiGap.vLg, pie!],
+            if (pagosExtra != null) ...[
+              const SizedBox(height: 16),
+              pagosExtra!,
+            ],
+            if (pie != null) ...[const SizedBox(height: 16), pie!],
           ],
         );
         final columnas = <Widget>[
@@ -158,79 +167,110 @@ class CotizacionPage extends StatelessWidget {
               child: calificacion!,
             ),
         ];
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _encabezado(),
-            Expanded(
-              child: RefreshIndicator(
-                color: ManiColors.ink,
-                backgroundColor: ManiColors.brand,
-                onRefresh: () async {
-                  await Future.wait([cubit.cargar(), ?alRefrescar?.call()]);
-                },
-                child: LayoutBuilder(
-                  builder: (context, c) {
-                    final enColumnas =
-                        columnas.length > 1 && c.maxWidth >= anchoTresColumnas;
-                    // Scroll que construye todo (no perezoso): cada columna es un
-                    // bloque alto que debe existir completo aunque quede fuera de vista.
-                    return SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: c.maxWidth >= 600
-                            ? ManiSpace.xxxl
-                            : ManiSpace.lg,
-                        vertical: ManiSpace.xxl,
-                      ),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxWidth: ManiAncho.pagina,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if (enColumnas)
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    for (
-                                      var k = 0;
-                                      k < columnas.length;
-                                      k++
-                                    ) ...[
-                                      if (k > 0) ManiGap.hXxl,
-                                      Expanded(child: columnas[k]),
-                                    ],
-                                  ],
-                                )
-                              else
-                                for (var k = 0; k < columnas.length; k++) ...[
-                                  if (k > 0) ManiGap.vXxl,
-                                  columnas[k],
-                                ],
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+        return RefreshIndicator(
+          color: ManiColors.ink,
+          backgroundColor: ManiColors.brand,
+          onRefresh: () async {
+            await Future.wait([cubit.cargar(), ?alRefrescar?.call()]);
+          },
+          child: LayoutBuilder(
+            builder: (context, c) {
+              final enColumnas =
+                  columnas.length > 1 && c.maxWidth >= anchoTresColumnas;
+              // Scroll que construye todo (no perezoso): cada columna es un
+              // bloque alto que debe existir completo aunque quede fuera de vista.
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(
+                  horizontal: c.maxWidth >= 600 ? 32 : 16,
+                  vertical: 24,
                 ),
-              ),
-            ),
-          ],
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1400),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _encabezado(),
+                        const SizedBox(height: 24),
+                        if (enColumnas)
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (var k = 0; k < columnas.length; k++) ...[
+                                if (k > 0) const SizedBox(width: 24),
+                                Expanded(child: columnas[k]),
+                              ],
+                            ],
+                          )
+                        else
+                          for (var k = 0; k < columnas.length; k++) ...[
+                            if (k > 0) const SizedBox(height: 28),
+                            columnas[k],
+                          ],
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         );
       },
     );
   }
 
   Widget _encabezado() {
-    return ManiEncabezadoPantalla(
-      ancho: ManiAncho.pagina,
-      icono: Icons.request_quote_outlined,
-      titulo: esAliado ? 'Cotizar el servicio' : 'Cotización del servicio',
-      acciones: [?accionEncabezado],
+    return ManiCard(
+      padding: const EdgeInsets.all(20),
+      child: LayoutBuilder(
+        builder: (context, c) {
+          final titulo = Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: ManiColors.brand,
+                  borderRadius: BorderRadius.circular(ManiRadius.lg),
+                  border: Border.all(color: ManiColors.ink, width: 2),
+                  boxShadow: const [ManiShadow.sm],
+                ),
+                child: const Icon(
+                  Icons.request_quote_outlined,
+                  color: ManiColors.ink,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  esAliado ? 'Cotizar el servicio' : 'Cotización del servicio',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: ManiColors.ink,
+                  ),
+                ),
+              ),
+            ],
+          );
+          // En escritorio el botón va a la derecha del título; en móvil, debajo.
+          if (accionEncabezado == null) return titulo;
+          if (c.maxWidth < 600) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [titulo, const SizedBox(height: 14), accionEncabezado!],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(child: titulo),
+              const SizedBox(width: 16),
+              accionEncabezado!,
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -255,30 +295,27 @@ class _Columna extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          padding: const EdgeInsets.only(bottom: ManiSpace.sm),
+          padding: const EdgeInsets.only(bottom: 10),
           decoration: const BoxDecoration(
-            border: Border(bottom: ManiBorder.side),
+            border: Border(bottom: BorderSide(color: ManiColors.ink, width: 2)),
           ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(ManiSpace.sm),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: ManiColors.brand,
-                  borderRadius: ManiRadius.brSm,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.regular,
-                  ),
+                  borderRadius: BorderRadius.circular(ManiRadius.lg),
+                  border: Border.all(color: ManiColors.ink, width: 2),
                 ),
                 child: Icon(icono, color: ManiColors.ink, size: 18),
               ),
-              ManiGap.hSm,
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   titulo.toUpperCase(),
                   style: const TextStyle(
-                    fontSize: ManiFontSize.bodySm,
+                    fontSize: 13,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.6,
                     color: ManiColors.ink,
@@ -288,7 +325,7 @@ class _Columna extends StatelessWidget {
             ],
           ),
         ),
-        ManiGap.vLg,
+        const SizedBox(height: 16),
         child,
       ],
     );
@@ -305,7 +342,7 @@ class _TarjetaCotizacion extends StatelessWidget {
   Widget build(BuildContext context) {
     return ManiCard(
       key: Key('cotizacion-v${c.version}'),
-      padding: const EdgeInsets.all(ManiSpace.lg),
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -321,36 +358,17 @@ class _TarjetaCotizacion extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: ManiSpace.sm,
-                  vertical: ManiSpace.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: vigente
-                      ? ManiColors.successContainer
-                      : ManiColors.background,
-                  borderRadius: ManiRadius.brXs,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.thin,
-                  ),
-                ),
-                child: Text(
-                  c.etiquetaEstado,
-                  style: const TextStyle(
-                    fontSize: ManiFontSize.caption,
-                    fontWeight: FontWeight.w700,
-                    color: ManiColors.ink,
-                  ),
-                ),
-              ),
+              ManiEstado(texto: c.etiquetaEstado, tono: _tonoDe(c.estado)),
             ],
           ),
-          ManiGap.vMd,
+          const SizedBox(height: 12),
           _Renglon('Mano de obra', formatearPesos(c.valorManoObra)),
           _Renglon('Materiales', formatearPesos(c.valorMateriales)),
-          const Divider(color: ManiColors.ink, thickness: 1.5, height: 24),
+          const Divider(
+            color: ManiColors.borderSubtle,
+            thickness: 1.0,
+            height: 24,
+          ),
           _Renglon('Total', formatearPesos(c.total), negrita: true),
         ],
       ),
@@ -358,6 +376,16 @@ class _TarjetaCotizacion extends StatelessWidget {
   }
 }
 
+ManiTono _tonoDe(EstadoCotizacion estado) => switch (estado) {
+  EstadoCotizacion.aceptada => ManiTono.listo,
+  EstadoCotizacion.rechazada || EstadoCotizacion.expirada => ManiTono.mal,
+  EstadoCotizacion.pendiente ||
+  EstadoCotizacion.ajusteSolicitado => ManiTono.atencion,
+  EstadoCotizacion.otro => ManiTono.neutro,
+};
+
+/// Un renglón del desglose: etiqueta atenuada a la izquierda y valor con cifras tabulares a la derecha. El total, más
+/// grande y en la fuente de títulos; no va en rojo: el rojo en una cifra de dinero se lee como deuda o error.
 class _Renglon extends StatelessWidget {
   const _Renglon(this.etiqueta, this.valor, {this.negrita = false});
 
@@ -367,15 +395,38 @@ class _Renglon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final estilo = negrita
-        ? const TextStyle(fontWeight: FontWeight.w800)
-        : null;
+    const tabular = [FontFeature.tabularFigures()];
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: ManiSpace.xxs),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
         children: [
-          Expanded(child: Text(etiqueta, style: estilo)),
-          Text(valor, style: estilo),
+          Expanded(
+            child: Text(
+              etiqueta,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: negrita ? FontWeight.w700 : FontWeight.w500,
+                color: negrita ? ManiColors.ink : ManiColors.inkMuted,
+              ),
+            ),
+          ),
+          Text(
+            valor,
+            style: negrita
+                ? AppTheme.titulo(
+                    size: 22,
+                    height: 28 / 22,
+                    color: ManiColors.ink,
+                  ).copyWith(fontFeatures: tabular)
+                : const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: ManiColors.ink,
+                    fontFeatures: tabular,
+                  ),
+          ),
         ],
       ),
     );
@@ -411,7 +462,7 @@ class _SeccionAliado extends StatelessWidget {
       _ => 'Esta cotización ya no admite cambios.',
     };
     return Padding(
-      padding: const EdgeInsets.only(top: ManiSpace.sm),
+      padding: const EdgeInsets.only(top: 8),
       child: Text(texto, key: const Key('estado-cotizacion-aliado')),
     );
   }
@@ -474,21 +525,18 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
     return Form(
       key: _form,
       child: ManiCard(
-        padding: const EdgeInsets.all(ManiSpace.xl),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(ManiSpace.sm),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: ManiColors.brand,
-                    borderRadius: ManiRadius.brXs,
-                    border: Border.all(
-                      color: ManiColors.border,
-                      width: ManiBorder.thin,
-                    ),
+                    borderRadius: BorderRadius.circular(ManiRadius.sm),
+                    border: Border.all(color: ManiColors.ink, width: 1.5),
                   ),
                   child: const Icon(
                     Icons.edit_note_rounded,
@@ -496,12 +544,12 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                     color: ManiColors.ink,
                   ),
                 ),
-                ManiGap.hSm,
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     widget.titulo,
                     style: const TextStyle(
-                      fontSize: ManiFontSize.bodyLg,
+                      fontSize: 16,
                       fontWeight: FontWeight.w800,
                       color: ManiColors.ink,
                     ),
@@ -509,11 +557,11 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                 ),
               ],
             ),
-            ManiGap.vLg,
+            const SizedBox(height: 16),
             LayoutBuilder(
               builder: (context, constraints) {
                 final enFila = constraints.maxWidth > 460;
-                final campoManoObra = TextFormField(
+                final campoManoObra = ManiTextField(
                   key: const Key('campo-mano-obra'),
                   controller: _manoObra,
                   decoration: const InputDecoration(
@@ -527,7 +575,7 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                   validator: _validar,
                   onChanged: (_) => setState(() {}),
                 );
-                final campoMateriales = TextFormField(
+                final campoMateriales = ManiTextField(
                   key: const Key('campo-materiales'),
                   controller: _materiales,
                   decoration: const InputDecoration(
@@ -547,29 +595,27 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(child: campoManoObra),
-                      ManiGap.hLg,
+                      const SizedBox(width: 16),
                       Expanded(child: campoMateriales),
                     ],
                   );
                 }
                 return Column(
-                  children: [campoManoObra, ManiGap.vMd, campoMateriales],
+                  children: [
+                    campoManoObra,
+                    const SizedBox(height: 12),
+                    campoMateriales,
+                  ],
                 );
               },
             ),
-            ManiGap.vLg,
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: ManiSpace.lg,
-                vertical: ManiSpace.md,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: ManiColors.background,
-                borderRadius: ManiRadius.brSm,
-                border: Border.all(
-                  color: ManiColors.border,
-                  width: ManiBorder.thin,
-                ),
+                borderRadius: BorderRadius.circular(ManiRadius.lg),
+                border: Border.all(color: ManiColors.ink, width: 1.5),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -577,7 +623,7 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                   const Text(
                     'Total calculado:',
                     style: TextStyle(
-                      fontSize: ManiFontSize.body,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: ManiColors.ink,
                     ),
@@ -586,7 +632,7 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                     'Total: ${formatearPesos((_valor(_manoObra.text) ?? 0) + (_valor(_materiales.text) ?? 0))}',
                     key: const Key('total-calculado'),
                     style: const TextStyle(
-                      fontSize: ManiFontSize.bodyLg,
+                      fontSize: 16,
                       fontWeight: FontWeight.w900,
                       color: ManiColors.ink,
                     ),
@@ -594,7 +640,7 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                 ],
               ),
             ),
-            ManiGap.vLg,
+            const SizedBox(height: 16),
             Align(
               alignment: Alignment.centerLeft,
               child: ConstrainedBox(
@@ -643,14 +689,14 @@ class _SeccionCliente extends StatelessWidget {
         _ => 'Esta cotización ya no admite respuesta.',
       };
       return Padding(
-        padding: const EdgeInsets.only(top: ManiSpace.sm),
+        padding: const EdgeInsets.only(top: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(texto, key: const Key('estado-cotizacion-cliente')),
             if (vigente.estado == EstadoCotizacion.aceptada &&
                 alPagar != null) ...[
-              ManiGap.vMd,
+              const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerLeft,
                 child: ConstrainedBox(
@@ -675,61 +721,62 @@ class _SeccionCliente extends StatelessWidget {
     final cubit = context.read<CotizacionCubit>();
     final habilitado = !state.enviando;
     return Padding(
-      padding: const EdgeInsets.only(top: ManiSpace.md),
-      child: Wrap(
-        spacing: ManiSpace.md,
-        runSpacing: ManiSpace.md,
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 160, maxWidth: 230),
-            child: ManiButton(
-              key: const Key('btn-aceptar-cotizacion'),
-              etiqueta: 'Aceptar cotización',
-              icono: Icons.check_rounded,
-              expandir: true,
-              cargando: state.enviando,
-              onPressed: habilitado
-                  ? () => cubit.responder(DecisionCotizacion.aceptar)
-                  : null,
-            ),
+          ManiButton(
+            key: const Key('btn-aceptar-cotizacion'),
+            etiqueta: 'Aceptar cotización',
+            icono: Icons.check_rounded,
+            expandir: true,
+            cargando: state.enviando,
+            onPressed: habilitado
+                ? () => cubit.responder(DecisionCotizacion.aceptar)
+                : null,
           ),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 140, maxWidth: 200),
-            child: ManiButton(
-              key: const Key('btn-ajustar-cotizacion'),
-              etiqueta: 'Pedir ajuste',
-              icono: Icons.edit_note_rounded,
-              variante: ManiButtonVariante.secundario,
-              expandir: true,
-              onPressed: habilitado
-                  ? () => _pedirTexto(
-                      context,
-                      titulo: 'Pedir ajuste',
-                      etiqueta: '¿Qué debe cambiar el aliado?',
-                      minimo: 3,
-                      decision: DecisionCotizacion.ajustar,
-                    )
-                  : null,
-            ),
-          ),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 130, maxWidth: 180),
-            child: ManiButton(
-              key: const Key('btn-rechazar-cotizacion'),
-              etiqueta: 'Rechazar',
-              icono: Icons.close_rounded,
-              variante: ManiButtonVariante.secundario,
-              expandir: true,
-              onPressed: habilitado
-                  ? () => _pedirTexto(
-                      context,
-                      titulo: 'Rechazar cotización',
-                      etiqueta: 'Motivo del rechazo',
-                      minimo: 5,
-                      decision: DecisionCotizacion.rechazar,
-                    )
-                  : null,
-            ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: ManiButton(
+                  key: const Key('btn-ajustar-cotizacion'),
+                  etiqueta: 'Pedir ajuste',
+                  icono: Icons.edit_note_rounded,
+                  variante: ManiButtonVariante.secundario,
+                  expandir: true,
+                  onPressed: habilitado
+                      ? () => _pedirTexto(
+                          context,
+                          titulo: 'Pedir ajuste',
+                          etiqueta: '¿Qué debe cambiar el aliado?',
+                          minimo: 3,
+                          decision: DecisionCotizacion.ajustar,
+                        )
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ManiButton(
+                  key: const Key('btn-rechazar-cotizacion'),
+                  etiqueta: 'Rechazar',
+                  variante: ManiButtonVariante.texto,
+                  colorTexto: ManiColors.dangerText,
+                  expandir: true,
+                  onPressed: habilitado
+                      ? () => _pedirTexto(
+                          context,
+                          titulo: 'Rechazar cotización',
+                          etiqueta: 'Motivo del rechazo',
+                          minimo: 5,
+                          decision: DecisionCotizacion.rechazar,
+                          peligro: true,
+                        )
+                      : null,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -742,12 +789,17 @@ class _SeccionCliente extends StatelessWidget {
     required String etiqueta,
     required int minimo,
     required DecisionCotizacion decision,
+    bool peligro = false,
   }) async {
     final cubit = context.read<CotizacionCubit>();
     final texto = await showDialog<String>(
       context: context,
-      builder: (_) =>
-          _DialogoTexto(titulo: titulo, etiqueta: etiqueta, minimo: minimo),
+      builder: (_) => _DialogoTexto(
+        titulo: titulo,
+        etiqueta: etiqueta,
+        minimo: minimo,
+        peligro: peligro,
+      ),
     );
     if (texto != null) await cubit.responder(decision, texto: texto);
   }
@@ -758,11 +810,15 @@ class _DialogoTexto extends StatefulWidget {
     required this.titulo,
     required this.etiqueta,
     required this.minimo,
+    this.peligro = false,
   });
 
   final String titulo;
   final String etiqueta;
   final int minimo;
+
+  /// La decisión es destructiva (rechazar): el botón de confirmar va en rojo.
+  final bool peligro;
 
   @override
   State<_DialogoTexto> createState() => _DialogoTextoState();
@@ -782,7 +838,7 @@ class _DialogoTextoState extends State<_DialogoTexto> {
     final valido = _texto.text.trim().length >= widget.minimo;
     return AlertDialog(
       title: Text(widget.titulo),
-      content: TextField(
+      content: ManiTextField(
         key: const Key('campo-texto-decision'),
         controller: _texto,
         maxLength: 500,
@@ -794,16 +850,20 @@ class _DialogoTextoState extends State<_DialogoTexto> {
         onChanged: (_) => setState(() {}),
       ),
       actions: [
-        TextButton(
+        ManiButton(
+          etiqueta: 'Cancelar',
+          variante: ManiButtonVariante.secundario,
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
         ),
-        FilledButton(
+        ManiButton(
           key: const Key('btn-confirmar-decision'),
+          etiqueta: 'Confirmar',
+          variante: widget.peligro
+              ? ManiButtonVariante.peligro
+              : ManiButtonVariante.primario,
           onPressed: valido
               ? () => Navigator.of(context).pop(_texto.text.trim())
               : null,
-          child: const Text('Confirmar'),
         ),
       ],
     );
@@ -818,25 +878,9 @@ class _Error extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ManiCard(
+    return KeyedSubtree(
       key: const Key('error-cotizacion'),
-      padding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.lg,
-        vertical: ManiSpace.md,
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline, color: ManiColors.danger, size: 22),
-          ManiGap.hMd,
-          Expanded(
-            child: Text(
-              mensaje,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-          TextButton(onPressed: onReintentar, child: const Text('Reintentar')),
-        ],
-      ),
+      child: ManiEstadoError(texto: mensaje, alReintentar: onReintentar),
     );
   }
 }

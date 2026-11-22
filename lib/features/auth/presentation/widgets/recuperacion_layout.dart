@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_personaje.dart';
+import 'package:mani/core/widgets/mani_trama.dart';
 
 /// Marco común de las pantallas de recuperación de contraseña (HU-M02-10):
 /// tarjeta centrada con título, explicación y vuelta al inicio de sesión.
@@ -22,57 +25,51 @@ class RecuperacionLayout extends StatelessWidget {
     return Scaffold(
       backgroundColor: ManiColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: ManiColors.background,
         foregroundColor: ManiColors.ink,
+        toolbarHeight: 60,
         leading: IconButton(
           key: const Key('volverAlLogin'),
           tooltip: 'Iniciar sesión',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/login'),
         ),
-        title: Text(
-          'Recuperar contraseña',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900),
-        ),
+        title: const Text('Recuperar contraseña'),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(ManiSpace.xxl),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: ManiAncho.estrecho),
-              child: Container(
-                padding: const EdgeInsets.all(ManiSpace.xxl),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: ManiRadius.brLg,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.regular,
-                  ),
-                  boxShadow: const [ManiShadow.md],
-                ),
+      body: ManiTrama(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      titulo,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: ManiFontSize.h3,
-                        fontWeight: FontWeight.w900,
-                        color: ManiColors.ink,
+                    const ManiPersonaje(),
+                    const SizedBox(height: 16),
+                    ManiCard(
+                      enfasis: ManiEnfasis.protagonista,
+                      sombra: ManiShadow.md,
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(titulo, style: AppTheme.titulo(size: 20)),
+                          const SizedBox(height: 8),
+                          Text(
+                            descripcion,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              height: 1.5,
+                              color: ManiColors.inkMuted,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          child,
+                        ],
                       ),
                     ),
-                    ManiGap.vSm,
-                    Text(
-                      descripcion,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: ManiFontSize.bodySm,
-                        color: ManiColors.inkMuted,
-                      ),
-                    ),
-                    ManiGap.vXl,
-                    child,
                   ],
                 ),
               ),
@@ -84,17 +81,11 @@ class RecuperacionLayout extends StatelessWidget {
   }
 }
 
-/// Campo de texto con el estilo de los formularios de acceso.
+/// Campo de texto con el estilo de los formularios de acceso (el borde y el foco los pone el tema).
 InputDecoration decoracionRecuperacion(String etiqueta, IconData icono) {
   return InputDecoration(
     labelText: etiqueta,
     prefixIcon: Icon(icono, color: ManiColors.ink, size: 18),
-    filled: true,
-    fillColor: Colors.white,
-    border: OutlineInputBorder(
-      borderRadius: ManiRadius.brMd,
-      borderSide: ManiBorder.side,
-    ),
   );
 }
 
@@ -113,35 +104,11 @@ class BotonRecuperacion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 52,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: ManiColors.brand,
-          foregroundColor: ManiColors.ink,
-          shape: RoundedRectangleBorder(
-            borderRadius: ManiRadius.brMd,
-            side: ManiBorder.side,
-          ),
-        ),
-        onPressed: cargando ? null : onPressed,
-        child: cargando
-            ? const SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: ManiColors.ink,
-                ),
-              )
-            : Text(
-                texto,
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.8,
-                ),
-              ),
-      ),
+    return ManiButton(
+      etiqueta: texto,
+      onPressed: onPressed,
+      cargando: cargando,
+      expandir: true,
     );
   }
 }

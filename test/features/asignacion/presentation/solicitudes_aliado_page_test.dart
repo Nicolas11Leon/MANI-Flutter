@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mani/core/widgets/mani_button.dart';
@@ -65,13 +66,62 @@ FakeAsignacionRepository _repoBase() => FakeAsignacionRepository([
   solicitud('s2', categoria: 'Electricidad', minutosAtras: 3),
 ]);
 
+class _RepoQueCuenta extends FakeAsignacionRepository {
+  _RepoQueCuenta() : super([solicitud('s1', categoria: 'Plomería')]);
+
+  int listados = 0;
+
+  @override
+  Future<List<SolicitudEntity>> listar() {
+    listados++;
+    return super.listar();
+  }
+}
+
 void main() {
+  testWidgets('con la bandeja oculta no consulta; al volver se pone al día', (
+    t,
+  ) async {
+    final repo = _RepoQueCuenta();
+    final cubit = crearCubit(repo);
+    addTearDown(cubit.close);
+    Widget arbol({required bool seVe}) => MaterialApp(
+      home: TickerMode(
+        enabled: seVe,
+        child: BlocProvider.value(
+          value: cubit,
+          child: const SolicitudesAliadoPage(
+            intervaloRefresco: Duration(seconds: 30),
+          ),
+        ),
+      ),
+    );
+
+    await t.pumpWidget(arbol(seVe: true));
+    await t.pump(const Duration(seconds: 61));
+    expect(repo.listados, 2, reason: 'a la vista consulta cada 30 s');
+
+    await t.pumpWidget(arbol(seVe: false));
+    await t.pump(const Duration(minutes: 10));
+    expect(repo.listados, 2, reason: 'oculta no gasta consultas');
+
+    await t.pumpWidget(arbol(seVe: true));
+    await t.pump();
+    expect(repo.listados, 3, reason: 'al volver consulta de una vez');
+    await t.pump(const Duration(seconds: 31));
+    expect(repo.listados, 4, reason: 'y retoma el ciclo');
+
+    await t.pumpWidget(const SizedBox());
+  });
+
   testWidgets('muestra las solicitudes disponibles con conteos y la regla', (
     t,
   ) async {
     await _montar(t, _repoBase());
 
-    expect(find.text('Solicitudes de servicio'), findsOneWidget);
+    // En celular el título lo pinta la barra del armazón; la pantalla solo se lo declara.
+    await t.pump();
+    expect(titulosDePantalla.actual, 'Solicitudes');
     expect(find.bySemanticsLabel('Disponibles: 2'), findsOneWidget);
     expect(find.bySemanticsLabel('Mis trabajos: 0'), findsOneWidget);
     expect(

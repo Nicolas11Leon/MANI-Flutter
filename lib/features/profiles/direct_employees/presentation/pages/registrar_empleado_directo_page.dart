@@ -1,3 +1,5 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,7 +9,7 @@ import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/profiles/direct_employees/domain/entities/empleado_directo.dart';
 import 'package:mani/features/profiles/direct_employees/presentation/bloc/empleado_directo_cubit.dart';
 import 'package:mani/features/services/categories/data/datasources/categorias_remote_datasource.dart';
-import 'package:mani/core/widgets/mani_pagina.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Pantalla de administración del Tenant para registrar empleados directos
 /// que quedan con estado `VERIFICADO` inmediato sin pasar por cola KYC (US-02.1.5 / SCRUM-850 / SCRUM-1376).
@@ -120,70 +122,56 @@ class _RegistrarEmpleadoDirectoPageState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ManiColors.background,
-
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ManiEncabezadoPantalla(
-            ancho: ManiAncho.formulario,
-            icono: Icons.badge_rounded,
-            titulo: 'Registrar empleado directo del tenant',
-          ),
-          Expanded(
-            child: BlocConsumer<EmpleadoDirectoCubit, EmpleadoDirectoState>(
-              listener: (context, state) {
-                if (state is EmpleadoDirectoError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      key: const Key('snackbar_error_empleado_directo'),
-                      backgroundColor: ManiColors.danger,
-                      content: Text(state.message),
-                    ),
-                  );
-                }
-              },
-              builder: (context, state) {
-                final cargando = state is EmpleadoDirectoLoading;
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(ManiSpace.xxl),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: ManiAncho.formulario,
-                      ),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _buildBannerInfo(),
-                            ManiGap.vXl,
-                            if (state is EmpleadoDirectoRegistrado) ...[
-                              _buildConfirmacionCard(state),
-                              ManiGap.vXl,
-                            ],
-                            _buildFormularioCard(cargando),
-                          ],
-                        ),
-                      ),
-                    ),
+      appBar: barraDePantalla(context, titulo: 'Registrar empleado directo'),
+      body: BlocConsumer<EmpleadoDirectoCubit, EmpleadoDirectoState>(
+        listener: (context, state) {
+          if (state is EmpleadoDirectoError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                key: const Key('snackbar_error_empleado_directo'),
+                backgroundColor: ManiColors.danger,
+                content: Text(state.message),
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          final cargando = state is EmpleadoDirectoLoading;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 760),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildBannerInfo(),
+                      const SizedBox(height: 20),
+                      if (state is EmpleadoDirectoRegistrado) ...[
+                        _buildConfirmacionCard(state),
+                        const SizedBox(height: 20),
+                      ],
+                      _buildFormularioCard(cargando),
+                    ],
                   ),
-                );
-              },
+                ),
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildBannerInfo() {
     return Container(
-      padding: const EdgeInsets.all(ManiSpace.lg),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: ManiColors.brand,
-        borderRadius: ManiRadius.brLg,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.thick),
+        borderRadius: BorderRadius.circular(24.0),
+        border: Border.all(color: ManiColors.ink, width: 2.5),
         boxShadow: const [ManiShadow.sm],
       ),
       child: Row(
@@ -193,7 +181,7 @@ class _RegistrarEmpleadoDirectoPageState
             color: ManiColors.ink,
             size: 28,
           ),
-          ManiGap.hMd,
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,7 +189,7 @@ class _RegistrarEmpleadoDirectoPageState
                 Text(
                   'Activación Inmediata (Estado VERIFICADO)',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.body,
+                    fontSize: 15,
                     fontWeight: FontWeight.w900,
                     color: ManiColors.ink,
                   ),
@@ -209,7 +197,7 @@ class _RegistrarEmpleadoDirectoPageState
                 Text(
                   'Los empleados directos creados por el administrador del tenant no pasan por la bandeja de verificación: quedan habilitados de inmediato, con la copia de su documento de identidad como único documento.',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.caption,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: ManiColors.ink,
                   ),
@@ -226,11 +214,11 @@ class _RegistrarEmpleadoDirectoPageState
     final emp = state.empleado;
     return Container(
       key: const Key('card_empleado_directo_creado'),
-      padding: const EdgeInsets.all(ManiSpace.lg),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: ManiRadius.brLg,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.thick),
+        borderRadius: BorderRadius.circular(24.0),
+        border: Border.all(color: ManiColors.ink, width: 2.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,16 +226,16 @@ class _RegistrarEmpleadoDirectoPageState
           Text(
             'Empleado Directo Registrado: ${emp.nombreCompleto}',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.body,
+              fontSize: 15,
               fontWeight: FontWeight.w900,
               color: ManiColors.ink,
             ),
           ),
-          ManiGap.vSm,
+          const SizedBox(height: 6),
           Text(
             'Estado: ${emp.estadoVerificacion} · Nómina directa: ${emp.esEmpleadoDirecto ? "SÍ" : "NO"}',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.bodySm,
+              fontSize: 13,
               fontWeight: FontWeight.w700,
               color: ManiColors.inkMuted,
             ),
@@ -259,17 +247,17 @@ class _RegistrarEmpleadoDirectoPageState
 
   Widget _buildFormularioCard(bool cargando) {
     return Container(
-      padding: const EdgeInsets.all(ManiSpace.xxl),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: ManiRadius.brLg,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        borderRadius: BorderRadius.circular(24.0),
+        border: Border.all(color: ManiColors.ink, width: 2),
         boxShadow: const [ManiShadow.md],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextFormField(
+          ManiTextField(
             key: const Key('input_nombre_empleado_directo'),
             controller: _nombreController,
             decoration: const InputDecoration(
@@ -279,8 +267,8 @@ class _RegistrarEmpleadoDirectoPageState
                 ? 'El nombre es obligatorio'
                 : null,
           ),
-          ManiGap.vMd,
-          TextFormField(
+          const SizedBox(height: 14),
+          ManiTextField(
             key: const Key('input_email_empleado_directo'),
             controller: _emailController,
             decoration: const InputDecoration(
@@ -290,8 +278,8 @@ class _RegistrarEmpleadoDirectoPageState
                 ? 'El correo es obligatorio'
                 : null,
           ),
-          ManiGap.vMd,
-          TextFormField(
+          const SizedBox(height: 14),
+          ManiTextField(
             key: const Key('input_password_empleado_directo'),
             controller: _passwordController,
             obscureText: true,
@@ -301,8 +289,8 @@ class _RegistrarEmpleadoDirectoPageState
             validator: (v) =>
                 (v == null || v.length < 8) ? 'Mínimo 8 caracteres' : null,
           ),
-          ManiGap.vMd,
-          TextFormField(
+          const SizedBox(height: 14),
+          ManiTextField(
             key: const Key('input_telefono_empleado_directo'),
             controller: _telefonoController,
             keyboardType: TextInputType.phone,
@@ -313,7 +301,7 @@ class _RegistrarEmpleadoDirectoPageState
                 ? 'El teléfono es obligatorio'
                 : null,
           ),
-          ManiGap.vMd,
+          const SizedBox(height: 14),
           DropdownButtonFormField<String>(
             key: const Key('input_tipo_documento_empleado_directo'),
             initialValue: _tipoDocumento,
@@ -335,8 +323,8 @@ class _RegistrarEmpleadoDirectoPageState
             validator: (v) =>
                 v == null ? 'Selecciona el tipo de documento' : null,
           ),
-          ManiGap.vMd,
-          TextFormField(
+          const SizedBox(height: 14),
+          ManiTextField(
             key: const Key('input_numero_documento_empleado_directo'),
             controller: _numeroDocumentoController,
             decoration: const InputDecoration(labelText: 'Número de documento'),
@@ -344,45 +332,41 @@ class _RegistrarEmpleadoDirectoPageState
                 ? 'El número de documento es obligatorio'
                 : null,
           ),
-          ManiGap.vMd,
-          OutlinedButton.icon(
+          const SizedBox(height: 14),
+          ManiButton(
             key: const Key('btn_adjuntar_documento_empleado_directo'),
+            variante: ManiButtonVariante.secundario,
+            icono: Icons.attach_file_rounded,
+            etiqueta: _documento == null
+                ? 'Adjuntar copia del documento (PDF, JPG o PNG, máx. 5 MB)'
+                : _documento!.nombre,
             onPressed: _elegirDocumento,
-            icon: const Icon(Icons.attach_file_rounded),
-            label: Text(
-              _documento == null
-                  ? 'Adjuntar copia del documento (PDF, JPG o PNG, máx. 5 MB)'
-                  : _documento!.nombre,
-            ),
           ),
           if (_errorDocumento != null)
             Padding(
-              padding: const EdgeInsets.only(top: ManiSpace.sm),
+              padding: const EdgeInsets.only(top: 6),
               child: Text(
                 _errorDocumento!,
                 key: const Key('error_documento_empleado_directo'),
-                style: const TextStyle(
-                  color: ManiColors.danger,
-                  fontSize: ManiFontSize.caption,
-                ),
+                style: const TextStyle(color: ManiColors.danger, fontSize: 12),
               ),
             ),
-          ManiGap.vXl,
+          const SizedBox(height: 20),
           Text(
             'Categorías Operativas Asignadas',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.bodySm,
+              fontSize: 13,
               fontWeight: FontWeight.w900,
               color: ManiColors.ink,
             ),
           ),
-          ManiGap.vSm,
+          const SizedBox(height: 8),
           FutureBuilder<Map<String, String>>(
             future: _categorias,
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.done) {
                 return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: ManiSpace.sm),
+                  padding: EdgeInsets.symmetric(vertical: 8),
                   child: LinearProgressIndicator(
                     key: Key('categorias_empleado_cargando'),
                   ),
@@ -397,14 +381,15 @@ class _RegistrarEmpleadoDirectoPageState
                         'No pudimos cargar las categorías del tenant.',
                       ),
                     ),
-                    TextButton(
+                    ManiButton(
+                      variante: ManiButtonVariante.enlace,
+                      etiqueta: 'Reintentar',
                       onPressed: () {
                         final nuevo = _cargarCategorias();
                         setState(() {
                           _categorias = nuevo;
                         });
                       },
-                      child: const Text('Reintentar'),
                     ),
                   ],
                 );
@@ -446,13 +431,13 @@ class _RegistrarEmpleadoDirectoPageState
               );
             },
           ),
-          ManiGap.vXl,
-          ElevatedButton(
+          const SizedBox(height: 20),
+          ManiButton(
             key: const Key('btn_registrar_empleado_directo'),
+            etiqueta: cargando
+                ? 'REGISTRANDO...'
+                : 'CREAR EMPLEADO DIRECTO VERIFICADO',
             onPressed: cargando ? null : _enviar,
-            child: Text(
-              cargando ? 'REGISTRANDO...' : 'CREAR EMPLEADO DIRECTO VERIFICADO',
-            ),
           ),
         ],
       ),
