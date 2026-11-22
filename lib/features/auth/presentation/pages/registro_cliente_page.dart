@@ -1,13 +1,11 @@
-import 'package:mani/core/widgets/mani_text_field.dart';
-import 'package:mani/core/widgets/mani_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mani/core/config/tenant_config.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/di/injection_container.dart';
-import 'package:mani/core/widgets/mani_mano.dart';
+import 'package:mani/features/auth/presentation/widgets/auth_layout.dart';
+import 'package:mani/features/auth/presentation/widgets/registro_comun.dart';
 import 'package:mani/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mani/features/auth/presentation/widgets/terminos_condiciones_section.dart';
 
@@ -44,7 +42,6 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _showPassword = false;
   bool _aceptaTerminos = false;
   bool _mostrarErrorTerminos = false;
 
@@ -79,144 +76,19 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
     );
   }
 
-  void _mostrarExitoClienteDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: ManiColors.background,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.0),
-            side: const BorderSide(color: ManiColors.ink, width: 3),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: ManiColors.brand,
-                  borderRadius: BorderRadius.circular(ManiRadius.lg),
-                  border: Border.all(color: ManiColors.ink, width: 2),
-                ),
-                child: const Icon(
-                  Icons.home_repair_service_rounded,
-                  color: ManiColors.ink,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  '¡Cuenta de Cliente Creada!',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '¡Bienvenido a MANI! Tu cuenta ha sido creada y se encuentra ACTIVA.',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: ManiColors.ink,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(ManiRadius.lg),
-                    border: Border.all(color: ManiColors.ink, width: 1.5),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '🏠 Mantenimientos para tu Hogar:',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: ManiColors.ink,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Ya puedes iniciar sesión para solicitar servicios de plomería, electricidad y cerrajería con técnicos aliados verificados.',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
-                          color: ManiColors.inkMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            GestureDetector(
-              onTap: () {
-                Navigator.of(ctx).pop();
-                context.go('/login');
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: ManiColors.brand,
-                  borderRadius: BorderRadius.circular(ManiRadius.lg),
-                  border: Border.all(color: ManiColors.ink, width: 2),
-                  boxShadow: const [ManiShadow.sm],
-                ),
-                child: Text(
-                  'IR AL INICIO DE SESIÓN',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  void _mostrarExitoClienteDialog() => mostrarRegistroExitoso(
+    context,
+    icono: Icons.home_repair_service_rounded,
+    titulo: '¡Cuenta de Cliente Creada!',
+    mensaje:
+        '¡Bienvenido a MANI! Tu cuenta ha sido creada y se encuentra ACTIVA.',
+    tituloDetalle: '🏠 Mantenimientos para tu Hogar:',
+    detalle:
+        'Ya puedes iniciar sesión para solicitar servicios de plomería, electricidad y cerrajería con técnicos aliados verificados.',
+  );
 
-  void _showNotification(String message, {bool isError = true}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.plusJakartaSans(
-            color: isError ? Colors.white : ManiColors.ink,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        backgroundColor: isError ? ManiColors.danger : ManiColors.brand,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(ManiRadius.lg),
-          side: const BorderSide(color: ManiColors.ink, width: 2),
-        ),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
-  }
+  void _showNotification(String message, {bool isError = true}) =>
+      mostrarAvisoRegistro(context, message, esError: isError);
 
   @override
   Widget build(BuildContext context) {
@@ -228,228 +100,48 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
           _showNotification(state.message);
         }
       },
-      builder: (context, state) {
-        final isLoading = state is AuthLoading;
-        return Scaffold(
-          backgroundColor: ManiColors.background,
-          body: SafeArea(
-            child: Column(
-              children: [
-                // ── Top Navigation Bar ─────────────────────────────────────
-                _buildTopNavBar(),
-
-                // ── Contenido Principal ──────────────────────────────────
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 36,
-                      vertical: 24,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1200),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Banner Hero de Cliente
-                              _buildHeroBanner(),
-                              const SizedBox(height: 28),
-
-                              // Layout en 2 columnas Web
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final isDesktop = constraints.maxWidth >= 850;
-                                  if (isDesktop) {
-                                    return Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          flex: 5,
-                                          child: _buildLeftColumn(),
-                                        ),
-                                        const SizedBox(width: 28),
-                                        Expanded(
-                                          flex: 5,
-                                          child: _buildRightColumn(),
-                                        ),
-                                      ],
-                                    );
-                                  } else {
-                                    return Column(
-                                      children: [
-                                        _buildLeftColumn(),
-                                        const SizedBox(height: 24),
-                                        _buildRightColumn(),
-                                      ],
-                                    );
-                                  }
-                                },
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Sección obligatoria de Términos y Condiciones (SCRUM-856)
-                              TerminosCondicionesSection(
-                                aceptaTerminos: _aceptaTerminos,
-                                mostrarError: _mostrarErrorTerminos,
-                                onChanged: (val) => setState(() {
-                                  _aceptaTerminos = val;
-                                  if (val) _mostrarErrorTerminos = false;
-                                }),
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Barra de acción inferior
-                              _buildBottomAction(isLoading),
-                              const SizedBox(height: 40),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // ── Top Navigation Bar ───────────────────────────────────────────────────────
-  Widget _buildTopNavBar() {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: ManiColors.ink, width: 2)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              const ManiMano(alto: 36, mini: true),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'MANI',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: ManiColors.ink,
-                    ),
-                  ),
-                  Text(
-                    'Al servicio',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: ManiColors.inkMuted,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          ManiButton(
-            variante: ManiButtonVariante.enlace,
-            icono: Icons.arrow_back,
-            etiqueta: 'Iniciar Sesión',
-            onPressed: () => context.go('/login'),
-          ),
-        ],
+      builder: (context, state) => RegistroEstructura(
+        formKey: _formKey,
+        banner: _buildHeroBanner(),
+        izquierda: _buildLeftColumn(),
+        derecha: _buildRightColumn(),
+        // Sección obligatoria de Términos y Condiciones (SCRUM-856)
+        terminos: TerminosCondicionesSection(
+          aceptaTerminos: _aceptaTerminos,
+          mostrarError: _mostrarErrorTerminos,
+          onChanged: (val) => setState(() {
+            _aceptaTerminos = val;
+            if (val) _mostrarErrorTerminos = false;
+          }),
+        ),
+        accion: _buildBottomAction(state is AuthLoading),
       ),
     );
   }
 
   // ── Hero Banner de Cliente ──────────────────────────────────────────────────
-  Widget _buildHeroBanner() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24.0),
-        border: Border.all(color: ManiColors.ink, width: 2),
-        boxShadow: const [ManiShadow.md],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: ManiColors.brand,
-              borderRadius: BorderRadius.circular(ManiRadius.lg),
-              border: Border.all(color: ManiColors.ink, width: 2),
-            ),
-            child: const Icon(
-              Icons.home_repair_service_rounded,
-              color: ManiColors.ink,
-              size: 26,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Registro de Cliente',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                    letterSpacing: -0.4,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Crea tu cuenta para solicitar servicios de plomería, electricidad y cerrajería para tu hogar.',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    color: ManiColors.inkMuted,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildHeroBanner() => RegistroBanner(
+    icono: Icons.home_repair_service_rounded,
+    titulo: 'Registro de Cliente',
+    descripcion:
+        'Crea tu cuenta para solicitar servicios de plomería, electricidad y cerrajería para tu hogar.',
+  );
 
   // ── Columna Izquierda: Datos Personales y del Hogar ─────────────────────────
   Widget _buildLeftColumn() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24.0),
-        border: Border.all(color: ManiColors.ink, width: 2),
-        boxShadow: const [ManiShadow.md],
-      ),
-      padding: const EdgeInsets.all(24),
+    return RegistroTarjeta(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCardTitle(Icons.person_outline, '1. Datos del Cliente y Hogar'),
-          const SizedBox(height: 20),
+          ManiGap.vXl,
 
           // Nombre Completo
           _buildFieldLabel('NOMBRE COMPLETO'),
-          const SizedBox(height: 6),
-          ManiTextField(
+          ManiGap.vSm,
+          TextFormField(
             controller: _nombreController,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: 'Ej: Carlos Alberto Gómez Mendoza',
               prefixIcon: Icons.person_outline,
@@ -458,36 +150,28 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
                 ? 'El nombre completo es obligatorio'
                 : null,
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
 
           // Teléfono / WhatsApp
           _buildFieldLabel('TELÉFONO / WHATSAPP DE CONTACTO'),
-          const SizedBox(height: 6),
-          ManiTextField(
+          ManiGap.vSm,
+          TextFormField(
             controller: _telefonoController,
             keyboardType: TextInputType.phone,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: '+57 300 123 4567',
               prefixIcon: Icons.phone_outlined,
             ),
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
 
           // Dirección del Hogar
           _buildFieldLabel('DIRECCIÓN O BARRIO DE TU HOGAR'),
-          const SizedBox(height: 6),
-          ManiTextField(
+          ManiGap.vSm,
+          TextFormField(
             controller: _direccionHogarController,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: 'Ej: Cra 15 # 85-30, Apto 402, Chapinero',
               prefixIcon: Icons.location_on_outlined,
@@ -504,92 +188,33 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Tarjeta de Credenciales
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24.0),
-            border: Border.all(color: ManiColors.ink, width: 2),
-            boxShadow: const [ManiShadow.md],
-          ),
-          padding: const EdgeInsets.all(24),
+        RegistroTarjeta(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildCardTitle(Icons.lock_rounded, '2. Credenciales de Acceso'),
-              const SizedBox(height: 18),
+              ManiGap.vLg,
 
               // Correo
               _buildFieldLabel('CORREO ELECTRÓNICO'),
-              const SizedBox(height: 6),
-              ManiTextField(
+              ManiGap.vSm,
+              RegistroCampoCorreo(
                 controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: ManiColors.ink,
-                ),
-                decoration: _inputDecoration(
-                  hint: 'cliente@ejemplo.com',
-                  prefixIcon: Icons.email_outlined,
-                ),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return 'El correo es obligatorio';
-                  }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim())) {
-                    return 'Ingresa un correo electrónico válido';
-                  }
-                  return null;
-                },
+                hint: 'cliente@ejemplo.com',
               ),
-              const SizedBox(height: 16),
+              ManiGap.vLg,
 
               // Contraseña
               _buildFieldLabel('CONTRASEÑA'),
-              const SizedBox(height: 6),
-              ManiTextField(
-                controller: _passwordController,
-                obscureText: !_showPassword,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: ManiColors.ink,
-                ),
-                decoration: _inputDecoration(
-                  hint: '••••••••',
-                  prefixIcon: Icons.key_outlined,
-                  suffixIcon: ManiButton(
-                    variante: ManiButtonVariante.enlace,
-                    etiqueta: _showPassword ? 'OCULTAR' : 'VER',
-                    onPressed: () =>
-                        setState(() => _showPassword = !_showPassword),
-                  ),
-                ),
-                validator: (v) {
-                  if (v == null || v.isEmpty) {
-                    return 'La contraseña es obligatoria';
-                  }
-                  if (v.length < 6) {
-                    return 'Mínimo 6 caracteres';
-                  }
-                  return null;
-                },
-              ),
+              ManiGap.vSm,
+              RegistroCampoContrasena(controller: _passwordController),
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        ManiGap.vXxl,
 
         // Beneficios para el Cliente
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24.0),
-            border: Border.all(color: ManiColors.ink, width: 2),
-            boxShadow: const [ManiShadow.md],
-          ),
-          padding: const EdgeInsets.all(24),
+        RegistroTarjeta(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -597,19 +222,19 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
                 Icons.verified_outlined,
                 '3. Beneficios de tu Cuenta',
               ),
-              const SizedBox(height: 14),
+              ManiGap.vMd,
               _buildBenefitItem(
                 Icons.flash_on_rounded,
                 'Activación Inmediata',
                 'Tu cuenta queda lista para solicitar servicios de plomería, electricidad y cerrajería.',
               ),
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               _buildBenefitItem(
                 Icons.shield_outlined,
                 'Técnicos Verificados',
                 'Todos los aliados que atienden tu hogar pasaron por el proceso de validación KYC.',
               ),
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               _buildBenefitItem(
                 Icons.price_check_rounded,
                 'Cotizaciones Claras',
@@ -627,15 +252,18 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.all(ManiSpace.sm),
           decoration: BoxDecoration(
             color: ManiColors.brand,
-            borderRadius: BorderRadius.circular(ManiRadius.lg),
-            border: Border.all(color: ManiColors.ink, width: 1.5),
+            borderRadius: ManiRadius.brSm,
+            border: Border.all(
+              color: ManiColors.border,
+              width: ManiBorder.thin,
+            ),
           ),
           child: Icon(icon, color: ManiColors.ink, size: 16),
         ),
-        const SizedBox(width: 12),
+        ManiGap.hMd,
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -643,7 +271,7 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
               Text(
                 title,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
+                  fontSize: ManiFontSize.caption,
                   fontWeight: FontWeight.w800,
                   color: ManiColors.ink,
                 ),
@@ -651,7 +279,7 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
               Text(
                 description,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
+                  fontSize: ManiFontSize.micro,
                   color: ManiColors.inkMuted,
                 ),
               ),
@@ -664,155 +292,29 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
 
   // ── Botón Inferior ─────────────────────────────────────────────────────────
   Widget _buildBottomAction(bool isLoading) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24.0),
-        border: Border.all(color: ManiColors.ink, width: 2),
-        boxShadow: const [ManiShadow.md],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.security_rounded,
-                color: ManiColors.ink,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Garantía de Servicio para Clientes',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: ManiColors.ink,
-                    ),
-                  ),
-                  Text(
-                    'Tus datos de hogar quedan protegidos y sólo se comparten al confirmar un servicio.',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
-                      color: ManiColors.inkMuted,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(
-            width: 320,
-            height: 52,
-            child: GestureDetector(
-              onTap: isLoading ? null : _handleRegistro,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isLoading ? ManiColors.inkSubtle : ManiColors.brand,
-                  borderRadius: BorderRadius.circular(ManiRadius.lg),
-                  border: Border.all(color: ManiColors.ink, width: 2),
-                  boxShadow: isLoading ? [] : const [ManiShadow.sm],
-                ),
-                alignment: Alignment.center,
-                child: isLoading
-                    ? const SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: ManiColors.ink,
-                        ),
-                      )
-                    : Text(
-                        'CREAR MI CUENTA DE CLIENTE',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.8,
-                          color: ManiColors.ink,
-                        ),
-                      ),
-              ),
-            ),
-          ),
-        ],
-      ),
+    return AuthBarraEnvio(
+      titulo: 'Garantía de Servicio para Clientes',
+      descripcion:
+          'Tus datos de hogar quedan protegidos y sólo se comparten al confirmar un servicio.',
+      etiquetaBoton: 'CREAR MI CUENTA DE CLIENTE',
+      cargando: isLoading,
+      onPressed: _handleRegistro,
     );
   }
 
   // ── Helpers de diseño ────────────────────────────────────────────────────────
-  Widget _buildCardTitle(IconData icon, String title) {
-    return Row(
-      children: [
-        Icon(icon, color: ManiColors.ink, size: 20),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 15,
-            fontWeight: FontWeight.w900,
-            color: ManiColors.ink,
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildCardTitle(IconData icon, String title) =>
+      RegistroTituloTarjeta(icono: icon, titulo: title);
 
-  Widget _buildFieldLabel(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.plusJakartaSans(
-        fontSize: 11,
-        fontWeight: FontWeight.w800,
-        color: ManiColors.ink,
-        letterSpacing: 0.5,
-      ),
-    );
-  }
+  Widget _buildFieldLabel(String text) => RegistroEtiquetaCampo(text);
 
   InputDecoration _inputDecoration({
     required String hint,
     IconData? prefixIcon,
     Widget? suffixIcon,
-  }) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.plusJakartaSans(
-        color: ManiColors.inkSubtle,
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-      ),
-      prefixIcon: prefixIcon != null
-          ? Icon(prefixIcon, color: ManiColors.ink, size: 18)
-          : null,
-      suffixIcon: suffixIcon,
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(ManiRadius.lg),
-        borderSide: const BorderSide(color: ManiColors.ink, width: 2),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(ManiRadius.lg),
-        borderSide: const BorderSide(color: ManiColors.ink, width: 2),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(ManiRadius.lg),
-        borderSide: const BorderSide(color: ManiColors.ink, width: 2.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(ManiRadius.lg),
-        borderSide: const BorderSide(color: ManiColors.danger, width: 2),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(ManiRadius.lg),
-        borderSide: const BorderSide(color: ManiColors.danger, width: 2.5),
-      ),
-    );
-  }
+  }) => decoracionCampoRegistro(
+    hint: hint,
+    prefixIcon: prefixIcon,
+    suffixIcon: suffixIcon,
+  );
 }
