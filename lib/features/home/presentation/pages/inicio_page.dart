@@ -6,6 +6,7 @@ import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_confirmacion.dart';
 import 'package:mani/features/home/data/resumen_inicio.dart';
 import 'package:mani/features/home/presentation/widgets/inicio_movil.dart';
 import 'package:mani/features/home/presentation/widgets/saludo_inicio.dart';
@@ -248,6 +249,13 @@ class _InicioPageState extends State<InicioPage> {
                       color: _rojoSesion,
                     ),
                     onTap: () async {
+                      // Pide confirmación como el menú superior (SCRUM-1650, QAS-39).
+                      final confirmado = await confirmarAccion(
+                        context,
+                        titulo: '¿Cerrar sesión?',
+                        etiquetaConfirmar: 'Cerrar sesión',
+                      );
+                      if (!confirmado || !mounted) return;
                       await widget.onCerrarSesion!();
                     },
                   ),
