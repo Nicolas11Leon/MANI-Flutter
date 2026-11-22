@@ -4,6 +4,8 @@ import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_mano.dart';
 
+const _rutaInicio = '/inicio';
+
 /// Navegación en celular (SCRUM-1647): cinco destinos en una barra inferior con **Inicio en el centro**, resaltado, y
 /// dos destinos a cada lado; los menús se pueden recorrer deslizando. Cada rol tiene sus destinos.
 ///
@@ -36,7 +38,7 @@ class DestinoMovil {
   bool get esSeccion => ruta == rutaServicios || ruta == rutaCuenta;
 }
 
-const _inicio = DestinoMovil('Inicio', Icons.home_outlined, '/inicio');
+const _inicio = DestinoMovil('Inicio', Icons.home_outlined, _rutaInicio);
 
 /// Destinos de un rol: dos a la izquierda y dos a la derecha de Inicio, que va siempre al centro.
 class NavegacionMovil {
@@ -166,7 +168,7 @@ class BarraInferiorMovil extends StatelessWidget {
   String? get _directo {
     String? mejor;
     for (final d in navegacion.todos) {
-      if (d.esSeccion || d.ruta == '/inicio') continue;
+      if (d.esSeccion || d.ruta == _rutaInicio) continue;
       if (_coincide(d.ruta) &&
           (mejor == null || d.ruta.length > mejor.length)) {
         mejor = d.ruta;
@@ -176,7 +178,7 @@ class BarraInferiorMovil extends StatelessWidget {
   }
 
   bool _activo(DestinoMovil d) {
-    if (d.ruta == '/inicio') return _coincide('/inicio');
+    if (d.ruta == _rutaInicio) return _coincide(_rutaInicio);
     final directo = _directo;
     if (d.esSeccion) {
       return directo == null && (ubicacion == d.ruta || seccion == d.ruta);
@@ -224,7 +226,7 @@ class BarraInferiorMovil extends StatelessWidget {
                   child: _Centro(
                     key: const Key('menu-entrada-/inicio'),
                     activo: _activo(_inicio),
-                    alTocar: () => onNavegar('/inicio'),
+                    alTocar: () => onNavegar(_rutaInicio),
                   ),
                 ),
                 for (final d in navegacion.derecha) _lateral(d),

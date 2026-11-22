@@ -21,6 +21,8 @@ import '../bloc/solicitudes_aliado_cubit.dart';
 import '../widgets/dialogo_rechazo.dart';
 import '../widgets/solicitud_card.dart';
 
+const _textoMisEspecialidades = 'Mis especialidades';
+
 /// US-04.1.4 — Bandeja de solicitudes del aliado: aceptar o rechazar sin
 /// doble asignación. Requiere un [SolicitudesAliadoCubit] en el contexto.
 ///
@@ -387,7 +389,7 @@ class _SinDisponibles extends StatelessWidget {
         if (onAbrirCategorias != null)
           ManiButton(
             key: const ValueKey('btn-vacio-categorias'),
-            etiqueta: 'Mis especialidades',
+            etiqueta: _textoMisEspecialidades,
             icono: Icons.handyman_outlined,
             variante: ManiButtonVariante.secundario,
             onPressed: onAbrirCategorias,
@@ -485,7 +487,7 @@ class _BarraSuperior extends StatelessWidget {
             AccionDePantalla(
               clave: const ValueKey('btn-ir-especialidades'),
               icono: Icons.handyman_outlined,
-              etiqueta: 'Mis especialidades',
+              etiqueta: _textoMisEspecialidades,
               alTocar: onAbrirCategorias!,
             ),
           if (onAbrirDisponibilidad != null)
@@ -575,7 +577,7 @@ class _BarraSuperior extends StatelessWidget {
           if (onAbrirCategorias != null)
             IconButton(
               key: const ValueKey('btn-ir-especialidades'),
-              tooltip: 'Mis especialidades',
+              tooltip: _textoMisEspecialidades,
               onPressed: onAbrirCategorias,
               icon: const Icon(Icons.handyman_outlined, color: ManiColors.ink),
             ),

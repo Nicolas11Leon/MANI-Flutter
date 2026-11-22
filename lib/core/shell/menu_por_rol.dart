@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mani/core/session/rol_usuario.dart';
 
+const _rutaEditarPerfil = '/perfil/editar';
+
 /// Entrada del menú superior: etiqueta visible, icono y ruta de go_router.
 class EntradaMenu {
   const EntradaMenu({
@@ -30,7 +32,7 @@ const _avisos = EntradaMenu(
 const _miPerfil = EntradaMenu(
   etiqueta: 'Mi perfil',
   icono: Icons.person_outline,
-  ruta: '/perfil/editar',
+  ruta: _rutaEditarPerfil,
 );
 
 /// Consulta del catálogo geográfico (HU-M04-07), para los tres roles.
@@ -249,14 +251,18 @@ const rutaCuenta = '/cuenta';
 
 // Todo lo que describe a la persona o a su negocio: perfil, sedes, cobertura, categorías y disponibilidad.
 const _rutasDeCuenta = {
-  '/perfil/editar',
+  _rutaEditarPerfil,
   '/cliente/sedes',
   '/aliado/cobertura',
   '/aliado/disponibilidad',
   '/categories',
 };
 
-const _rutasQueNoSonServicios = {'/inicio', '/perfil/avisos', '/perfil/editar'};
+const _rutasQueNoSonServicios = {
+  '/inicio',
+  '/perfil/avisos',
+  _rutaEditarPerfil,
+};
 
 /// Lo operativo del rol: lo que se hace día a día (pedir y seguir servicios, atender solicitudes, administrar).
 List<EntradaMenu> entradasServiciosPara(

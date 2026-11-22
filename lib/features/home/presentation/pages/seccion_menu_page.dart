@@ -38,6 +38,45 @@ class SeccionMenuPage extends StatelessWidget {
       ? contextoPlataforma!.rolEfectivo
       : rol;
 
+  String _titulo(bool gestion) {
+    if (tipo == TipoSeccion.cuenta) return 'Tu cuenta';
+    return gestion ? 'Gestión' : 'Servicios';
+  }
+
+  String _subtitulo(bool gestion) {
+    if (tipo == TipoSeccion.cuenta) {
+      return 'Tu perfil y los datos de tu cuenta.';
+    }
+    return gestion
+        ? 'Catálogo, reglas, tarifario y seguimiento de tu empresa.'
+        : 'Todo lo que haces en MANI, en un solo lugar.';
+  }
+
+  Widget _listaEntradas(List<EntradaMenu> entradas) {
+    return ManiCard(
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
+          for (var i = 0; i < entradas.length; i++) ...[
+            if (i > 0)
+              const Divider(
+                height: 1,
+                thickness: 1.0,
+                indent: 68,
+                color: ManiColors.borderSubtle,
+              ),
+            _Acceso(
+              key: Key('seccion-acceso-${entradas[i].ruta}'),
+              etiqueta: entradas[i].etiqueta,
+              icono: entradas[i].icono,
+              alTocar: () => onNavegar(entradas[i].ruta),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final entradas = switch (tipo) {
@@ -52,14 +91,8 @@ class SeccionMenuPage extends StatelessWidget {
     };
     // El administrador de la empresa lo ve como «Gestión»: no pide ni presta servicios, administra su empresa.
     final gestion = _rolDePantallas == RolUsuario.adminTenant;
-    final titulo = tipo == TipoSeccion.servicios
-        ? (gestion ? 'Gestión' : 'Servicios')
-        : 'Tu cuenta';
-    final subtitulo = tipo == TipoSeccion.servicios
-        ? (gestion
-              ? 'Catálogo, reglas, tarifario y seguimiento de tu empresa.'
-              : 'Todo lo que haces en MANI, en un solo lugar.')
-        : 'Tu perfil y los datos de tu cuenta.';
+    final titulo = _titulo(gestion);
+    final subtitulo = _subtitulo(gestion);
 
     return Scaffold(
       backgroundColor: ManiColors.background,
@@ -94,29 +127,7 @@ class SeccionMenuPage extends StatelessWidget {
                   key: Key('seccion-vacia'),
                   style: TextStyle(color: ManiColors.inkMuted),
                 ),
-              if (entradas.isNotEmpty)
-                ManiCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < entradas.length; i++) ...[
-                        if (i > 0)
-                          const Divider(
-                            height: 1,
-                            thickness: 1.0,
-                            indent: 68,
-                            color: ManiColors.borderSubtle,
-                          ),
-                        _Acceso(
-                          key: Key('seccion-acceso-${entradas[i].ruta}'),
-                          etiqueta: entradas[i].etiqueta,
-                          icono: entradas[i].icono,
-                          alTocar: () => onNavegar(entradas[i].ruta),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
+              if (entradas.isNotEmpty) _listaEntradas(entradas),
               if (tipo == TipoSeccion.cuenta && onCerrarSesion != null) ...[
                 const SizedBox(height: 32),
                 ManiButton(

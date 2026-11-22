@@ -93,6 +93,12 @@ import 'package:mani/features/platform/presentation/tenants_page.dart';
 import 'package:mani/features/tenant_rules/presentation/tenant_rules_cubit.dart';
 import 'package:mani/features/tenant_rules/presentation/reglas_operativas_page.dart';
 
+const _rutaClienteSolicitudes = '/cliente/solicitudes';
+const _rutaAliadoSolicitudes = '/aliado/solicitudes';
+const _rutaAliadoCobros = '/aliado/cobros';
+const _rutaVerificacionAliados = '/admin/verificacion-aliados';
+const _rutaAdminQuejas = '/admin/quejas';
+
 /// Notifica a go_router cada vez que cambia el estado de autenticación de
 /// Supabase, para que el `redirect` de abajo se reevalúe automáticamente
 /// (por ejemplo, cuando expira la sesión o el usuario cierra sesión).
@@ -549,15 +555,15 @@ final appRouter = GoRouter(
         ),
         // Pestaña: Mis pedidos del cliente. Su estado se conserva al cambiar de pestaña y al volver atrás.
         StatefulShellBranch(
-          initialLocation: '/cliente/solicitudes',
+          initialLocation: _rutaClienteSolicitudes,
           routes: [
             // Mis solicitudes (HU-M07-04 / SCRUM-871): estado y zona declarada,
             // sin rastreo en vivo del aliado.
             GoRoute(
-              path: '/cliente/solicitudes',
+              path: _rutaClienteSolicitudes,
               name: 'mis-solicitudes',
               builder: (context, state) => RecargarAlActivar(
-                ruta: '/cliente/solicitudes',
+                ruta: _rutaClienteSolicitudes,
                 child: BlocProvider(
                   create: (_) => sl<MisSolicitudesCubit>()..cargar(),
                   child: _ConCubit<MisSolicitudesCubit>(
@@ -567,13 +573,13 @@ final appRouter = GoRouter(
                       onVerCotizacion: (id) => _abrirDetalle(
                         context.push<void>,
                         '/cliente/solicitudes/$id/cotizacion',
-                        origen: '/cliente/solicitudes',
+                        origen: _rutaClienteSolicitudes,
                         alVolver: () => cubit.isClosed ? null : cubit.cargar(),
                       ),
                       onVerAliados: (id) => _abrirDetalle(
                         context.push<void>,
                         '/cliente/solicitudes/$id/aliados',
-                        origen: '/cliente/solicitudes',
+                        origen: _rutaClienteSolicitudes,
                         alVolver: () => cubit.isClosed ? null : cubit.cargar(),
                       ),
                       onPresentarQueja: (id) async {
@@ -635,7 +641,7 @@ final appRouter = GoRouter(
         ),
         // Pestaña: Solicitudes del aliado. Su estado se conserva al cambiar de pestaña y al volver atrás.
         StatefulShellBranch(
-          initialLocation: '/aliado/solicitudes',
+          initialLocation: _rutaAliadoSolicitudes,
           routes: [
             GoRoute(
               path: '/aliado/solicitudes/:id/chat',
@@ -656,10 +662,10 @@ final appRouter = GoRouter(
             // Bandeja del aliado (US-04.1.4). La asignación sin doble aliado la
             // garantiza el servidor (UPDATE condicional atómico, DD-MANI §7.1).
             GoRoute(
-              path: '/aliado/solicitudes',
+              path: _rutaAliadoSolicitudes,
               name: 'solicitudes-aliado',
               builder: (context, state) => RecargarAlActivar(
-                ruta: '/aliado/solicitudes',
+                ruta: _rutaAliadoSolicitudes,
                 child: BlocProvider(
                   create: (_) => sl<SolicitudesAliadoCubit>()..cargar(),
                   child: _ConCubit<SolicitudesAliadoCubit>(
@@ -671,7 +677,7 @@ final appRouter = GoRouter(
                       Future<void> abrir(String ruta) => _abrirDetalle(
                         context.push<void>,
                         ruta,
-                        origen: '/aliado/solicitudes',
+                        origen: _rutaAliadoSolicitudes,
                         alVolver: alDia,
                       );
                       return SolicitudesAliadoPage(
@@ -691,14 +697,14 @@ final appRouter = GoRouter(
         ),
         // Pestaña: Cobros del aliado. Su estado se conserva al cambiar de pestaña y al volver atrás.
         StatefulShellBranch(
-          initialLocation: '/aliado/cobros',
+          initialLocation: _rutaAliadoCobros,
           routes: [
             // Cobros del aliado (SCRUM-894): retención y liquidación simuladas.
             GoRoute(
-              path: '/aliado/cobros',
+              path: _rutaAliadoCobros,
               name: 'cobros-aliado',
               builder: (context, state) => RecargarAlActivar(
-                ruta: '/aliado/cobros',
+                ruta: _rutaAliadoCobros,
                 child: const CobrosAliadoPage(),
               ),
             ),
@@ -706,15 +712,15 @@ final appRouter = GoRouter(
         ),
         // Pestaña: Verificación de aliados (administrador). Su estado se conserva al cambiar de pestaña y al volver atrás.
         StatefulShellBranch(
-          initialLocation: '/admin/verificacion-aliados',
+          initialLocation: _rutaVerificacionAliados,
           routes: [
             // Bandeja de verificación de aliados (US-02.1.3). La autorización real
             // la aplica el servidor: las RPC exigen rol ADMIN_TENANT.
             GoRoute(
-              path: '/admin/verificacion-aliados',
+              path: _rutaVerificacionAliados,
               name: 'verificacion-aliados',
               builder: (context, state) => RecargarAlActivar(
-                ruta: '/admin/verificacion-aliados',
+                ruta: _rutaVerificacionAliados,
                 child: BlocProvider(
                   create: (_) => sl<BandejaVerificacionCubit>()..cargar(),
                   child: BandejaVerificacionPage(
@@ -727,14 +733,14 @@ final appRouter = GoRouter(
         ),
         // Pestaña: Quejas (administrador). Su estado se conserva al cambiar de pestaña y al volver atrás.
         StatefulShellBranch(
-          initialLocation: '/admin/quejas',
+          initialLocation: _rutaAdminQuejas,
           routes: [
             // Gestión de quejas del tenant (HU-M12-02 / SCRUM-896).
             GoRoute(
-              path: '/admin/quejas',
+              path: _rutaAdminQuejas,
               name: 'quejas-tenant',
               builder: (context, state) => RecargarAlActivar(
-                ruta: '/admin/quejas',
+                ruta: _rutaAdminQuejas,
                 child: BlocProvider(
                   create: (_) => QuejasCubit(sl(), esAdmin: true)..cargar(),
                   child: const QuejasPage(),

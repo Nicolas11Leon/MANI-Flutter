@@ -42,93 +42,100 @@ class AvisosView extends StatelessWidget {
     return Scaffold(
       appBar: barraDePantalla(context, titulo: 'Avisos'),
       body: BlocBuilder<AvisosCubit, AvisosState>(
-        builder: (context, state) {
-          if (state.fase == FaseAvisos.cargando) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: ManiEsqueleto.lista(filas: 5),
-            );
-          }
-          if (state.fase == FaseAvisos.error) {
-            return Center(
-              child: SingleChildScrollView(
-                child: ManiEstadoVacio(
-                  key: const Key('error-avisos'),
-                  pose: PoseMani.ups,
-                  titulo: 'Algo no salió bien',
-                  texto: state.error!,
-                  accion: ManiButton(
-                    key: const Key('reintentar-avisos'),
-                    etiqueta: 'Reintentar',
-                    onPressed: context.read<AvisosCubit>().cargar,
-                  ),
-                ),
-              ),
-            );
-          }
-          final bandeja = state.bandeja!;
-          final grupos = _agrupar(bandeja.items, DateTime.now());
-          return RefreshIndicator(
-            onRefresh: context.read<AvisosCubit>().cargar,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                if (bandeja.simulada)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 12),
-                    child: ManiFranjaSimulado(
-                      key: Key('aviso-simulado'),
-                      texto: avisoSimulado,
-                    ),
-                  ),
-                if (bandeja.items.isEmpty)
-                  const KeyedSubtree(
-                    key: Key('avisos-vacio'),
-                    child: ManiEstadoVacio(
-                      pose: PoseMani.descansando,
-                      titulo: 'Estás al día',
-                      texto:
-                          'Aquí verás los mensajes nuevos y los cambios de estado '
-                          'de tus servicios.',
-                    ),
-                  ),
-                for (final g in grupos) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
-                    child: Text(
-                      g.rotulo.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.6,
-                        color: ManiColors.inkMuted,
-                      ),
-                    ),
-                  ),
-                  ManiCard(
-                    padding: EdgeInsets.zero,
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < g.avisos.length; i++) ...[
-                          if (i > 0)
-                            const Divider(
-                              height: 1,
-                              thickness: 1.0,
-                              indent: 68,
-                              color: ManiColors.borderSubtle,
-                            ),
-                          _FilaAviso(aviso: g.avisos[i], onAbrir: onAbrir),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          );
+        builder: (context, state) => switch (state.fase) {
+          FaseAvisos.cargando => Padding(
+            padding: const EdgeInsets.all(16),
+            child: ManiEsqueleto.lista(filas: 5),
+          ),
+          FaseAvisos.error => _error(context, state.error!),
+          _ => _bandeja(context, state.bandeja!),
         },
       ),
     );
+  }
+
+  Widget _error(BuildContext context, String mensaje) {
+    return Center(
+      child: SingleChildScrollView(
+        child: ManiEstadoVacio(
+          key: const Key('error-avisos'),
+          pose: PoseMani.ups,
+          titulo: 'Algo no salió bien',
+          texto: mensaje,
+          accion: ManiButton(
+            key: const Key('reintentar-avisos'),
+            etiqueta: 'Reintentar',
+            onPressed: context.read<AvisosCubit>().cargar,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _bandeja(BuildContext context, BandejaAvisos bandeja) {
+    final grupos = _agrupar(bandeja.items, DateTime.now());
+    return RefreshIndicator(
+      onRefresh: context.read<AvisosCubit>().cargar,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          if (bandeja.simulada)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: ManiFranjaSimulado(
+                key: Key('aviso-simulado'),
+                texto: avisoSimulado,
+              ),
+            ),
+          if (bandeja.items.isEmpty)
+            const KeyedSubtree(
+              key: Key('avisos-vacio'),
+              child: ManiEstadoVacio(
+                pose: PoseMani.descansando,
+                titulo: 'Estás al día',
+                texto:
+                    'Aquí verás los mensajes nuevos y los cambios de estado '
+                    'de tus servicios.',
+              ),
+            ),
+          for (final g in grupos) ..._grupo(g.rotulo, g.avisos),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _grupo(String rotulo, List<Aviso> avisos) {
+    return [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+        child: Text(
+          rotulo.toUpperCase(),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.6,
+            color: ManiColors.inkMuted,
+          ),
+        ),
+      ),
+      ManiCard(
+        padding: EdgeInsets.zero,
+        child: Column(
+          children: [
+            for (var i = 0; i < avisos.length; i++) ...[
+              if (i > 0)
+                const Divider(
+                  height: 1,
+                  thickness: 1.0,
+                  indent: 68,
+                  color: ManiColors.borderSubtle,
+                ),
+              _FilaAviso(aviso: avisos[i], onAbrir: onAbrir),
+            ],
+          ],
+        ),
+      ),
+    ];
   }
 
   /// Agrupa en «Hoy», «Ayer» y «Antes», conservando el orden de llegada.

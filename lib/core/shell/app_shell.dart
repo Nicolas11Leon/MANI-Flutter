@@ -16,6 +16,10 @@ import 'package:mani/core/widgets/mani_logo.dart';
 import 'package:mani/features/notifications/data/avisos_datasource.dart';
 import 'package:mani/features/platform/data/tenants_datasource.dart';
 
+const _textoCerrarSesion = 'Cerrar sesión';
+const _rutaInicio = '/inicio';
+const _rutaAvisos = '/perfil/avisos';
+
 /// Ancho a partir del cual las entradas se muestran como barra; por debajo
 /// se agrupan en un menú desplegable para que quepan en móvil (RNF-08).
 const anchoMenuExpandido = 600.0;
@@ -25,7 +29,7 @@ const anchoMenuExpandido = 600.0;
 /// dejaría poco espacio. Las que se abren apiladas sobre el armazón (como el pago) se declaran en el enrutador, por
 /// encima de él (SCRUM-1647).
 const salidaDeFlujo = {
-  '/cliente/solicitudes/nueva': '/inicio',
+  '/cliente/solicitudes/nueva': _rutaInicio,
   '/aliado/cobertura': rutaCuenta,
 };
 
@@ -126,8 +130,8 @@ class _AppShellState extends State<AppShell> {
     if (anterior.ubicacion != widget.ubicacion) _avisarPestana();
     // Al volver de la bandeja o llegar al inicio el número se actualiza: ahí es donde cambia o donde se mira.
     if (anterior.ubicacion != widget.ubicacion &&
-        (anterior.ubicacion == '/perfil/avisos' ||
-            widget.ubicacion == '/inicio')) {
+        (anterior.ubicacion == _rutaAvisos ||
+            widget.ubicacion == _rutaInicio)) {
       _recargarAvisos();
     }
   }
@@ -191,7 +195,7 @@ class _AppShellState extends State<AppShell> {
     final confirmado = await confirmarAccion(
       context,
       titulo: '¿Cerrar sesión?',
-      etiquetaConfirmar: 'Cerrar sesión',
+      etiquetaConfirmar: _textoCerrarSesion,
     );
     if (!confirmado || !mounted) return;
     await widget.onCerrarSesion();
@@ -223,50 +227,118 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
+  Widget _cuerpoConContexto() {
+    final contexto = widget._conContexto ? widget.contextoPlataforma : null;
+    if (contexto == null) return widget.child;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SelectorContextoPlataforma(
+          contexto: contexto,
+          fuenteTenants: widget.fuenteTenants!,
+          fuenteUsuarios: widget.fuenteUsuarios!,
+          alCambiar: () => widget.onNavegar(_rutaInicio),
+        ),
+        Expanded(
+          // Pantallas nuevas con el contexto nuevo: sus cubits vuelven a
+          // consultar con las cabeceras actualizadas.
+          child: KeyedSubtree(
+            key: ValueKey('contexto-${contexto.version}'),
+            child: widget.child,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Banderas de la barra superior según el ancho y la ruta actual.
+  _EstadoBarra _estadoBarra(bool expandido, List<EntradaMenu> entradas) {
+    if (expandido) return const _EstadoBarra(expandido: true);
+    // En celular, dentro de una sección (no en su pantalla principal) la barra superior muestra «volver» y el
+    // título de la sección (SCRUM-1647). El escritorio no cambia.
+    final enFlujo = rutasDeFlujo.contains(widget.ubicacion);
+    // La pantalla a la vista puede declarar su propio título: va en esta barra, no en una segunda.
+    final tituloDePantalla = titulosDePantalla.actual;
+    final noRaiz = !_esRaiz(entradas);
+    final enSeccion = enFlujo || noRaiz || tituloDePantalla != null;
+    // Una pantalla principal no tiene a dónde volver, salvo que tenga otra abierta encima.
+    final conVolver =
+        enSeccion &&
+        (enFlujo || noRaiz || (widget.puedeVolver?.call() ?? false));
+    return _EstadoBarra(
+      expandido: false,
+      enFlujo: enFlujo,
+      enSeccion: enSeccion,
+      conVolver: conVolver,
+      tituloDePantalla: tituloDePantalla,
+    );
+  }
+
+  Widget _tituloBarra(_EstadoBarra estado, List<EntradaMenu> entradas) {
+    if (estado.enSeccion) {
+      return Text(
+        estado.tituloDePantalla ?? _tituloSeccion(entradas),
+        key: const Key('menu-titulo-seccion'),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTheme.titulo(
+          size: 20,
+          height: 26 / 20,
+          color: ManiColors.ink,
+        ),
+      );
+    }
+    if (!estado.expandido) return const _MarcaCelular();
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Row(
+        children: [
+          const ManiLogo(size: 40, sombra: null),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _CabeceraSesion(datos: _datos, rol: widget.rol),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _accionesBarra(BuildContext context, bool expandido) {
+    final salir = expandido
+        ? ManiButton(
+            key: const Key('menu-cerrar-sesion'),
+            variante: ManiButtonVariante.secundario,
+            icono: Icons.logout_rounded,
+            etiqueta: _textoCerrarSesion,
+            onPressed: _cerrarSesion,
+          )
+        : _accionCompacta();
+    return [
+      if (!expandido) ...botonesDeAcciones(titulosDePantalla.acciones),
+      Center(child: _botonTema(context)),
+      Padding(
+        padding: EdgeInsets.only(right: expandido ? 32 : 16),
+        child: Center(child: salir),
+      ),
+    ];
+  }
+
+  double _espacioTitulo(_EstadoBarra estado) {
+    if (estado.expandido) return 32;
+    return estado.conVolver ? 0 : 16;
+  }
+
   Widget _armazon(BuildContext context) {
     final entradas = _entradas();
-    final contexto = widget._conContexto ? widget.contextoPlataforma : null;
-    final cuerpo = contexto == null
-        ? widget.child
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SelectorContextoPlataforma(
-                contexto: contexto,
-                fuenteTenants: widget.fuenteTenants!,
-                fuenteUsuarios: widget.fuenteUsuarios!,
-                alCambiar: () => widget.onNavegar('/inicio'),
-              ),
-              Expanded(
-                // Pantallas nuevas con el contexto nuevo: sus cubits vuelven a
-                // consultar con las cabeceras actualizadas.
-                child: KeyedSubtree(
-                  key: ValueKey('contexto-${contexto.version}'),
-                  child: widget.child,
-                ),
-              ),
-            ],
-          );
+    final cuerpo = _cuerpoConContexto();
     return LayoutBuilder(
       builder: (context, constraints) {
         final expandido = constraints.maxWidth >= anchoMenuExpandido;
-        // En celular, dentro de una sección (no en su pantalla principal) la barra superior muestra «volver» y el
-        // título de la sección (SCRUM-1647). El escritorio no cambia.
-        final enFlujo = !expandido && rutasDeFlujo.contains(widget.ubicacion);
-        // La pantalla a la vista puede declarar su propio título: va en esta barra, no en una segunda.
-        final tituloDePantalla = expandido ? null : titulosDePantalla.actual;
-        final enSeccion =
-            !expandido &&
-            (enFlujo || !_esRaiz(entradas) || tituloDePantalla != null);
-        // Una pantalla principal no tiene a dónde volver, salvo que tenga otra abierta encima.
-        final conVolver =
-            enSeccion &&
-            (enFlujo ||
-                !_esRaiz(entradas) ||
-                (widget.puedeVolver?.call() ?? false));
+        final estado = _estadoBarra(expandido, entradas);
+        final conDeslizar = _navMovil != null && !expandido;
         return PopScope(
           // En celular, el «atrás» del sistema sube un nivel en lugar de salir de la app; solo en el inicio sale.
-          canPop: expandido || widget.ubicacion == '/inicio',
+          canPop: expandido || widget.ubicacion == _rutaInicio,
           onPopInvokedWithResult: (salio, _) {
             if (!salio) _volver(entradas);
           },
@@ -289,62 +361,14 @@ class _AppShellState extends State<AppShell> {
                   width: expandido ? 2 : ManiBorder.thin,
                 ),
               ),
-              leading: conVolver ? _botonAtras(entradas) : null,
-              titleSpacing: expandido ? 32 : (conVolver ? 0 : 16),
-              title: enSeccion
-                  ? Text(
-                      tituloDePantalla ?? _tituloSeccion(entradas),
-                      key: const Key('menu-titulo-seccion'),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTheme.titulo(
-                        size: 20,
-                        height: 26 / 20,
-                        color: ManiColors.ink,
-                      ),
-                    )
-                  : (!expandido
-                        ? const _MarcaCelular()
-                        : Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              children: [
-                                const ManiLogo(size: 40, sombra: null),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _CabeceraSesion(
-                                    datos: _datos,
-                                    rol: widget.rol,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )),
-              actions: [
-                if (!expandido)
-                  ...botonesDeAcciones(titulosDePantalla.acciones),
-                Center(child: _botonTema(context)),
-                Padding(
-                  padding: EdgeInsets.only(right: expandido ? 32 : 16),
-                  child: Center(
-                    child: expandido
-                        ? ManiButton(
-                            key: const Key('menu-cerrar-sesion'),
-                            variante: ManiButtonVariante.secundario,
-                            icono: Icons.logout_rounded,
-                            etiqueta: 'Cerrar sesión',
-                            onPressed: _cerrarSesion,
-                          )
-                        : _accionCompacta(),
-                  ),
-                ),
-              ],
+              leading: estado.conVolver ? _botonAtras(entradas) : null,
+              titleSpacing: _espacioTitulo(estado),
+              title: _tituloBarra(estado, entradas),
+              actions: _accionesBarra(context, expandido),
               bottom: expandido ? _barraEntradas(context, entradas) : null,
             ),
-            body: _navMovil != null && !expandido
-                ? _conDeslizar(cuerpo)
-                : cuerpo,
-            bottomNavigationBar: expandido || enFlujo
+            body: conDeslizar ? _conDeslizar(cuerpo) : cuerpo,
+            bottomNavigationBar: expandido || estado.enFlujo
                 ? null
                 : _barraInferior(context, entradas),
           ),
@@ -360,10 +384,10 @@ class _AppShellState extends State<AppShell> {
 
   /// Pantallas principales de la barra inferior: no llevan «volver».
   static const _rutasRaizMovil = {
-    '/inicio',
+    _rutaInicio,
     rutaServicios,
     rutaCuenta,
-    '/perfil/avisos',
+    _rutaAvisos,
   };
 
   /// La navegación de celular del rol (cinco destinos con Inicio al centro), o `null` si el rol no la usa.
@@ -405,14 +429,14 @@ class _AppShellState extends State<AppShell> {
   /// una pantalla principal de una sección, a Servicios o Perfil.
   String _destinoAtras(List<EntradaMenu> entradas) {
     // Desde una pantalla de la barra inferior se vuelve al inicio; desde el inicio se sale de la app.
-    if (_raicesMovil.contains(widget.ubicacion)) return '/inicio';
+    if (_raicesMovil.contains(widget.ubicacion)) return _rutaInicio;
     final salida = salidaDeFlujo[widget.ubicacion];
     if (salida != null) return salida;
     final entrada = _entradaDeLaRuta(entradas);
     if (entrada != null && entrada.ruta != widget.ubicacion) {
       return entrada.ruta;
     }
-    return _seccionActual() ?? '/inicio';
+    return _seccionActual() ?? _rutaInicio;
   }
 
   /// Vuelve un nivel: a la pantalla anterior de la pila si la hay y, si no, a la pantalla lógica de arriba (una opción
@@ -450,8 +474,8 @@ class _AppShellState extends State<AppShell> {
       (
         etiqueta: 'Inicio',
         icono: Icons.home_outlined,
-        ruta: '/inicio',
-        activo: ubicacion == '/inicio' || ubicacion.startsWith('/inicio/'),
+        ruta: _rutaInicio,
+        activo: ubicacion == _rutaInicio || ubicacion.startsWith('/inicio/'),
       ),
       (
         etiqueta: 'Servicios',
@@ -462,8 +486,8 @@ class _AppShellState extends State<AppShell> {
       (
         etiqueta: 'Avisos',
         icono: Icons.notifications_none,
-        ruta: '/perfil/avisos',
-        activo: ubicacion.startsWith('/perfil/avisos'),
+        ruta: _rutaAvisos,
+        activo: ubicacion.startsWith(_rutaAvisos),
       ),
       (
         etiqueta: 'Perfil',
@@ -529,7 +553,7 @@ class _AppShellState extends State<AppShell> {
         future: _sinLeer,
         builder: (context, snap) => CampanaAvisos(
           sinLeer: snap.data ?? 0,
-          alTocar: () => widget.onNavegar('/perfil/avisos'),
+          alTocar: () => widget.onNavegar(_rutaAvisos),
         ),
       );
     }
@@ -542,7 +566,7 @@ class _AppShellState extends State<AppShell> {
       ),
       child: IconButton(
         key: const Key('menu-cerrar-sesion'),
-        tooltip: 'Cerrar sesión',
+        tooltip: _textoCerrarSesion,
         icon: const Icon(Icons.logout_rounded, color: ManiColors.ink, size: 20),
         onPressed: _cerrarSesion,
       ),
@@ -908,4 +932,21 @@ class _DeslizarMenusState extends State<_DeslizarMenus> {
       child: widget.child,
     );
   }
+}
+
+/// Banderas que deciden cómo se ve la barra superior.
+class _EstadoBarra {
+  const _EstadoBarra({
+    required this.expandido,
+    this.enFlujo = false,
+    this.enSeccion = false,
+    this.conVolver = false,
+    this.tituloDePantalla,
+  });
+
+  final bool expandido;
+  final bool enFlujo;
+  final bool enSeccion;
+  final bool conVolver;
+  final String? tituloDePantalla;
 }
