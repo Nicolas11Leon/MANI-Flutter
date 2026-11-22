@@ -30,7 +30,7 @@ void main() {
       await tester.pumpWidget(_en(const ManiLogo(size: 56)));
       await tester.pump();
 
-      expect(tester.getSize(find.byType(ClipOval)), const Size(56, 56));
+      expect(tester.getSize(find.byType(ManiLogo)), const Size(56, 56));
       expect(find.bySemanticsLabel('MANI'), findsOneWidget);
       sem.dispose();
     });

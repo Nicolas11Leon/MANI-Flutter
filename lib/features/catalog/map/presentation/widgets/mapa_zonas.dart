@@ -1,4 +1,6 @@
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:flutter/material.dart';
+import 'package:mani/core/shell/sin_deslizar_menus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -300,75 +302,78 @@ class _MapaState extends State<_Mapa> {
       }
     }
 
-    return FlutterMap(
-      key: const Key('mapa_zonas'),
-      mapController: _controlador,
-      options: MapOptions(
-        initialCenter: encuadre.centro,
-        initialZoom: encuadre.zoom,
-        initialCameraFit: encuadre.limites == null
-            ? null
-            : CameraFit.bounds(
-                bounds: encuadre.limites!,
-                padding: const EdgeInsets.all(24),
-              ),
-        onMapReady: () => _listo = true,
-      ),
-      children: [
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'co.mani.app',
+    return SinDeslizarMenus(
+      child: FlutterMap(
+        key: const Key('mapa_zonas'),
+        mapController: _controlador,
+        options: MapOptions(
+          initialCenter: encuadre.centro,
+          initialZoom: encuadre.zoom,
+          initialCameraFit: encuadre.limites == null
+              ? null
+              : CameraFit.bounds(
+                  bounds: encuadre.limites!,
+                  padding: const EdgeInsets.all(24),
+                ),
+          onMapReady: () => _listo = true,
         ),
-        PolygonLayer(polygons: poligonos),
-        // Modo selector: cada zona lleva su nombre y una marca que dice si
-        // está elegida. Tocarla la alterna, igual que la casilla de la lista.
-        if (widget.onZonaTocada != null)
+        children: [
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'co.mani.app',
+          ),
+          PolygonLayer(polygons: poligonos),
+          // Modo selector: cada zona lleva su nombre y una marca que dice si
+          // está elegida. Tocarla la alterna, igual que la casilla de la lista.
+          if (widget.onZonaTocada != null)
+            MarkerLayer(
+              markers: [
+                for (final g in widget.state.geometrias)
+                  if (_centroDe(g.anillos) case final centro?)
+                    Marker(
+                      point: centro,
+                      width: 128,
+                      height: 56,
+                      child: _MarcaZona(
+                        nombre: g.nombre,
+                        elegida: widget.resaltadas.contains(g.zonaId),
+                        onTocar: () => widget.onZonaTocada!(g.zonaId),
+                      ),
+                    ),
+              ],
+            ),
+          // Sedes propias con punto capturado. Las que no lo tienen no se
+          // dibujan en el centroide de su zona: se cuentan aparte (C2).
           MarkerLayer(
             markers: [
-              for (final g in widget.state.geometrias)
-                if (_centroDe(g.anillos) case final centro?)
-                  Marker(
-                    point: centro,
-                    width: 128,
-                    height: 56,
-                    child: _MarcaZona(
-                      nombre: g.nombre,
-                      elegida: widget.resaltadas.contains(g.zonaId),
-                      onTocar: () => widget.onZonaTocada!(g.zonaId),
+              for (final s in widget.state.sitios)
+                Marker(
+                  point: LatLng(s.latitud!, s.longitud!),
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.topCenter,
+                  child: Tooltip(
+                    message: s.nombre,
+                    child: const Icon(
+                      Icons.place,
+                      size: 34,
+                      color: Color(0xFF166534),
                     ),
                   ),
+                ),
             ],
           ),
-        // Sedes propias con punto capturado. Las que no lo tienen no se
-        // dibujan en el centroide de su zona: se cuentan aparte (C2).
-        MarkerLayer(
-          markers: [
-            for (final s in widget.state.sitios)
-              Marker(
-                point: LatLng(s.latitud!, s.longitud!),
-                width: 40,
-                height: 40,
-                alignment: Alignment.topCenter,
-                child: Tooltip(
-                  message: s.nombre,
-                  child: const Icon(
-                    Icons.place,
-                    size: 34,
-                    color: Color(0xFF166534),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        // La licencia de la fuente obliga a acreditarla donde se muestren los
-        // límites, así que la atribución no es decorativa.
-        RichAttributionWidget(
-          attributions: [
-            const TextSourceAttribution('OpenStreetMap contributors'),
-            for (final a in widget.state.atribuciones) TextSourceAttribution(a),
-          ],
-        ),
-      ],
+          // La licencia de la fuente obliga a acreditarla donde se muestren los
+          // límites, así que la atribución no es decorativa.
+          RichAttributionWidget(
+            attributions: [
+              const TextSourceAttribution('OpenStreetMap contributors'),
+              for (final a in widget.state.atribuciones)
+                TextSourceAttribution(a),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -486,7 +491,7 @@ class _Aviso extends StatelessWidget {
             Text(detalle, textAlign: TextAlign.center),
             if (accion != null) ...[
               const SizedBox(height: 16),
-              FilledButton(onPressed: accion, child: const Text('Reintentar')),
+              ManiButton(etiqueta: 'Reintentar', onPressed: accion),
             ],
           ],
         ),

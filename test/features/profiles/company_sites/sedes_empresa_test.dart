@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mani/core/network/gateway_client.dart';
@@ -434,13 +435,11 @@ void main() {
       addTearDown(cubit.close);
       await _abrir(tester, cubit);
 
-      expect(
-        find.text(
-          'Las sedes son para clientes empresa. Tu cuenta no tiene una '
-          'empresa registrada.',
-        ),
-        findsOneWidget,
-      );
+      // En lugar de un error y un formulario que no puede funcionar, se explica que las sedes no le aplican.
+      expect(find.byKey(const Key('sedes_solo_empresa')), findsOneWidget);
+      expect(find.text('Las sedes son para clientes empresa'), findsOneWidget);
+      expect(find.byKey(const Key('banner_error_sedes')), findsNothing);
+      expect(find.text('AGREGAR SEDE'), findsNothing);
       expect(find.textContaining('t-1'), findsNothing);
     });
 
@@ -470,7 +469,7 @@ void main() {
           find.byKey(const Key('btn_editar_sede_sede-1')),
         );
         expect(editar.onPressed, isNull);
-        final guardar = tester.widget<ElevatedButton>(
+        final guardar = tester.widget<ManiButton>(
           find.byKey(const Key('btn_guardar_sede')),
         );
         expect(guardar.onPressed, isNull);

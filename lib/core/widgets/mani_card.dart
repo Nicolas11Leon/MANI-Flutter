@@ -9,6 +9,10 @@ import 'package:mani/core/theme/app_theme.dart';
 /// Con [onTap] es interactiva: en web se eleva al pasar el mouse (la sombra
 /// crece y la tarjeta sube 1 px, sin mover el layout) y muestra un anillo de
 /// foco al recorrerla con el teclado.
+/// Énfasis de una tarjeta (SCRUM-1646): `protagonista` lleva sombra,
+/// `trabajo` es la tarjeta normal y `plano` va sin borde ni sombra.
+enum ManiEnfasis { protagonista, trabajo, plano }
+
 class ManiCard extends StatefulWidget {
   const ManiCard({
     super.key,
@@ -18,6 +22,7 @@ class ManiCard extends StatefulWidget {
     this.seleccionada = false,
     this.onTap,
     this.sombra = ManiShadow.md,
+    this.enfasis = ManiEnfasis.trabajo,
   });
 
   final Widget child;
@@ -25,6 +30,7 @@ class ManiCard extends StatefulWidget {
   final Color color;
   final bool seleccionada;
   final VoidCallback? onTap;
+  final ManiEnfasis enfasis;
   final BoxShadow? sombra;
 
   static const Color colorSeleccion = ManiColors.brandSoft;
@@ -35,6 +41,7 @@ class ManiCard extends StatefulWidget {
 
 class _ManiCardState extends State<ManiCard> {
   bool _hover = false;
+  bool get _plano => widget.enfasis == ManiEnfasis.plano;
   bool _foco = false;
 
   BoxShadow? _resolverSombra(ManiTokens t, bool elevada) {
@@ -59,7 +66,7 @@ class _ManiCardState extends State<ManiCard> {
     final t = context.mani;
     final interactiva = widget.onTap != null;
     final elevada = interactiva && _hover && !widget.seleccionada;
-    final sombra = _resolverSombra(t, elevada);
+    final sombra = _plano ? null : _resolverSombra(t, elevada);
     final fondo = _resolverFondo(t);
 
     return AnimatedContainer(
@@ -74,7 +81,7 @@ class _ManiCardState extends State<ManiCard> {
         color: fondo,
         borderRadius: ManiRadius.brLg,
         border: Border.all(
-          color: _foco ? t.brand : t.border,
+          color: _foco ? t.brand : (_plano ? Colors.transparent : t.border),
           width: _foco ? ManiBorder.thick + 0.5 : ManiBorder.regular,
         ),
         boxShadow: [?sombra],

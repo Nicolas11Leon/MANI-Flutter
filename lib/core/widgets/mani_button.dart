@@ -5,7 +5,9 @@ import 'package:mani/core/theme/app_theme.dart';
 /// `enlace` es la acción de menor jerarquía (texto subrayado, sin borde ni
 /// sombra): ver u ocultar contraseña, «¿Olvidaste tu contraseña?», reintentar
 /// dentro de una fila.
-enum ManiButtonVariante { primario, peligro, secundario, enlace }
+/// `oscuro` (fondo de tinta) y `texto` (igual a `enlace`) vienen de la
+/// navegación móvil y el inicio de SCRUM-1646/1647.
+enum ManiButtonVariante { primario, peligro, secundario, enlace, oscuro, texto }
 
 /// Botón neo-brutalista MANI. Al presionarlo "se hunde": la sombra dura
 /// desaparece y el botón se desplaza a su lugar, como un botón físico. El
@@ -23,6 +25,7 @@ class ManiButton extends StatefulWidget {
     this.cargando = false,
     this.expandir = false,
     this.etiquetaAccesible,
+    this.colorTexto,
   });
 
   final String etiqueta;
@@ -35,6 +38,10 @@ class ManiButton extends StatefulWidget {
   /// Texto para lectores de pantalla cuando la etiqueta visible es corta
   /// (por ejemplo «VER» → «Ver contraseña»).
   final String? etiquetaAccesible;
+
+  /// Color del texto cuando la pantalla necesita otro (por ejemplo, sobre una
+  /// franja de color). Si es nulo se usa el de la variante.
+  final Color? colorTexto;
 
   @override
   State<ManiButton> createState() => _ManiButtonState();
@@ -52,7 +59,9 @@ class _ManiButtonState extends State<ManiButton> {
         ManiButtonVariante.primario => (t.brand, t.onBrand),
         ManiButtonVariante.peligro => (ManiColors.danger, ManiColors.onInk),
         ManiButtonVariante.secundario => (t.surface, t.ink),
-        ManiButtonVariante.enlace => (Colors.transparent, t.ink),
+        ManiButtonVariante.enlace ||
+        ManiButtonVariante.texto => (Colors.transparent, t.ink),
+        ManiButtonVariante.oscuro => (t.ink, t.surface),
       };
 
   void _presionar(bool valor) {
@@ -68,8 +77,12 @@ class _ManiButtonState extends State<ManiButton> {
   @override
   Widget build(BuildContext context) {
     final t = context.mani;
-    if (widget.variante == ManiButtonVariante.enlace) return _enlace(t);
-    final (fondo, texto) = _colores(t);
+    if (widget.variante == ManiButtonVariante.enlace ||
+        widget.variante == ManiButtonVariante.texto) {
+      return _enlace(t);
+    }
+    final (fondo, textoVariante) = _colores(t);
+    final texto = widget.colorTexto ?? textoVariante;
     final hundido = _presionado || !_habilitado;
     final rapido = ManiMotion.duracion(context, ManiMotion.fast);
     final desplazamiento = _desplazamiento(hundido);
@@ -196,7 +209,7 @@ class _ManiButtonState extends State<ManiButton> {
         child: Text(
           widget.etiqueta,
           style: ManiText.bodySm.copyWith(
-            color: t.ink,
+            color: widget.colorTexto ?? t.ink,
             fontWeight: FontWeight.w700,
             decoration: TextDecoration.underline,
           ),

@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_layout.dart';
-import 'package:mani/core/widgets/mani_logo.dart';
+import 'package:mani/core/widgets/mani_mano.dart';
 
 /// Marco de las pantallas de acceso (inicio de sesión).
 ///
@@ -454,7 +454,9 @@ class AuthBarraSuperior extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const ManiLogo(size: 40),
+                // La manita de MANI (SCRUM-1646, Nicolás): una sola pieza
+                // compartida por los registros.
+                const ManiMano(alto: 36, mini: true),
                 ManiGap.hMd,
                 Expanded(
                   child: Column(
@@ -462,7 +464,7 @@ class AuthBarraSuperior extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'MANI Services',
+                        'MANI',
                         overflow: TextOverflow.ellipsis,
                         style: ManiText.subtitle.copyWith(
                           fontWeight: FontWeight.w900,
@@ -470,7 +472,7 @@ class AuthBarraSuperior extends StatelessWidget {
                       ),
                       if (!angosta)
                         Text(
-                          'Plataforma Digital de Servicios Multi-tenant',
+                          'Al servicio',
                           overflow: TextOverflow.ellipsis,
                           style: ManiText.caption,
                         ),

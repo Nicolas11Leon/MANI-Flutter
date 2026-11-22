@@ -246,7 +246,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(resumen.pedido, RolUsuario.adminTenant);
-      expect(find.text('Hola, Ana Pérez'), findsOneWidget);
+      expect(find.text('Ana Pérez'), findsOneWidget);
       expect(find.text('4'), findsOneWidget);
       expect(find.text('Aliados por verificar'), findsOneWidget);
       expect(

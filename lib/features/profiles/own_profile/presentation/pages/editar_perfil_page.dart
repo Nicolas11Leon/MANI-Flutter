@@ -1,14 +1,16 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_layout.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/features/profiles/own_profile/data/datasources/perfil_propio_remote_datasource.dart';
 import 'package:mani/features/profiles/own_profile/domain/entities/perfil_propio.dart';
 import 'package:mani/features/profiles/own_profile/presentation/widgets/foto_perfil_selector_widget.dart';
-import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_pagina.dart' show ManiEncabezadoPantalla;
 
 /// US-02.3.1 (SCRUM-854 / SCRUM-1029 / SCRUM-1030):
@@ -243,13 +245,14 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
               spacing: ManiSpace.sm,
               runSpacing: ManiSpace.sm,
               children: [
-                Chip(
+                ManiEstado(
                   key: const Key('chip-rol-solo-lectura'),
-                  label: Text('Rol: ${_perfil!.role}'),
+                  texto: _textoRol(_perfil!.role),
                 ),
-                Chip(
+                ManiEstado(
                   key: const Key('chip-estado-solo-lectura'),
-                  label: Text('Estado: ${_perfil!.status}'),
+                  texto: _estado(_perfil!.status).$1,
+                  tono: _estado(_perfil!.status).$2,
                 ),
               ],
             ),
@@ -272,7 +275,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
           ),
           ManiGap.vXl,
           const ManiEtiquetaCampo('Nombre completo o razón social'),
-          TextFormField(
+          ManiTextField(
             key: const Key('input-nombre-perfil'),
             controller: _nombreController,
             decoration: const InputDecoration(
@@ -289,7 +292,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
           ),
           ManiGap.vLg,
           const ManiEtiquetaCampo('Teléfono de contacto'),
-          TextFormField(
+          ManiTextField(
             key: const Key('input-telefono-perfil'),
             controller: _telefonoController,
             keyboardType: TextInputType.phone,
@@ -307,7 +310,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
           ),
           ManiGap.vLg,
           const ManiEtiquetaCampo('Dirección principal'),
-          TextFormField(
+          ManiTextField(
             key: const Key('input-direccion-perfil'),
             controller: _direccionController,
             decoration: const InputDecoration(
@@ -421,3 +424,22 @@ class _Aviso extends StatelessWidget {
     );
   }
 }
+
+/// El rol en palabras de persona; un valor desconocido se muestra tal cual.
+String _textoRol(String rol) => switch (rol.toUpperCase()) {
+  'ALLY' || 'ALIADO' => 'Aliado',
+  'CLIENT' || 'CLIENTE' => 'Cliente',
+  'ADMIN_TENANT' || 'ADMIN_PLATAFORMA' || 'ADMIN' => 'Administrador',
+  _ => rol,
+};
+
+/// El estado de la cuenta como texto de persona y su tono; un valor desconocido se muestra tal cual.
+(String, ManiTono) _estado(String estado) => switch (estado.toUpperCase()) {
+  'VERIFIED' || 'VERIFICADO' => ('Verificado', ManiTono.listo),
+  'ACTIVE' || 'ACTIVO' => ('Cuenta activa', ManiTono.listo),
+  'PENDING' ||
+  'PENDING_VERIFICATION' ||
+  'IN_REVIEW' => ('En verificación', ManiTono.atencion),
+  'SUSPENDED' || 'REJECTED' || 'SUSPENDIDO' => ('Suspendida', ManiTono.mal),
+  _ => (estado, ManiTono.neutro),
+};

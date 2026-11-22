@@ -10,6 +10,7 @@ class SedesEmpresaState extends Equatable {
     this.cargando = false,
     this.error,
     this.aviso,
+    this.soloClientesEmpresa = false,
   });
 
   final List<SedeEmpresa> sedes;
@@ -22,6 +23,9 @@ class SedesEmpresaState extends Equatable {
 
   /// Confirmación de la última acción («Sede actualizada.»).
   final String? aviso;
+
+  /// La cuenta no es de un cliente empresa: la pantalla muestra una explicación y no los formularios.
+  final bool soloClientesEmpresa;
 
   List<ZonaSede> get zonasElegibles {
     final elegibles = zonas.where((z) => z.elegible).toList()
@@ -44,6 +48,7 @@ class SedesEmpresaState extends Equatable {
     bool? cargando,
     String? error,
     String? aviso,
+    bool? soloClientesEmpresa,
   }) {
     return SedesEmpresaState(
       sedes: sedes ?? this.sedes,
@@ -51,11 +56,19 @@ class SedesEmpresaState extends Equatable {
       cargando: cargando ?? this.cargando,
       error: error,
       aviso: aviso,
+      soloClientesEmpresa: soloClientesEmpresa ?? this.soloClientesEmpresa,
     );
   }
 
   @override
-  List<Object?> get props => [sedes, zonas, cargando, error, aviso];
+  List<Object?> get props => [
+    sedes,
+    zonas,
+    cargando,
+    error,
+    aviso,
+    soloClientesEmpresa,
+  ];
 }
 
 class SedesEmpresaCubit extends Cubit<SedesEmpresaState> {
@@ -85,7 +98,11 @@ class SedesEmpresaCubit extends Cubit<SedesEmpresaState> {
     try {
       sedes = await listarUseCase();
     } on SedeEmpresaFailure catch (e) {
-      emit(state.copyWith(cargando: false, error: e.message));
+      emit(
+        e.soloClientesEmpresa
+            ? const SedesEmpresaState(soloClientesEmpresa: true)
+            : state.copyWith(cargando: false, error: e.message),
+      );
       return;
     }
     final catalogo = await zonas;

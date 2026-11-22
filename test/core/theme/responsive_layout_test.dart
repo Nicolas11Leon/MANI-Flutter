@@ -66,12 +66,9 @@ void main() {
         LoginPage(rolDeSesion: () => RolUsuario.cliente),
       );
       expect(tester.takeException(), isNull);
-      expect(find.text('INGRESAR A MANI'), findsOneWidget);
-      // El panel de marca solo aparece en escritorio.
-      expect(
-        find.byKey(const Key('auth-panel-marca')),
-        ancho >= 850 ? findsOneWidget : findsNothing,
-      );
+      expect(find.text('Ingresar'), findsOneWidget);
+      // El login de SCRUM-1646 (Nicolás) no lleva el panel de marca de
+      // escritorio de #152; se valida solo que no desborde.
     });
 
     for (final rol in [

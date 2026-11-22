@@ -78,6 +78,31 @@ class ManiPagina extends StatelessWidget {
 /// derecha. Por debajo de 600 px las acciones pasan a una segunda fila para
 /// que el título nunca se aplaste. Si la pantalla se abrió encima de otra,
 /// muestra la flecha para volver.
+/// Encabezado de página con una sola acción (forma de SCRUM-1646): delega en
+/// [ManiEncabezadoPantalla].
+class ManiEncabezadoPagina extends StatelessWidget {
+  const ManiEncabezadoPagina({
+    super.key,
+    required this.icono,
+    required this.titulo,
+    this.descripcion,
+    this.accion,
+  });
+
+  final IconData icono;
+  final String titulo;
+  final String? descripcion;
+  final Widget? accion;
+
+  @override
+  Widget build(BuildContext context) => ManiEncabezadoPantalla(
+    icono: icono,
+    titulo: titulo,
+    descripcion: descripcion,
+    acciones: [?accion],
+  );
+}
+
 class ManiEncabezadoPantalla extends StatelessWidget {
   const ManiEncabezadoPantalla({
     super.key,
@@ -230,12 +255,13 @@ class _IconoEncabezado extends StatelessWidget {
 class ManiTituloSeccion extends StatelessWidget {
   const ManiTituloSeccion({
     super.key,
-    required this.icono,
+    this.icono,
     required this.titulo,
     this.accion,
   });
 
-  final IconData icono;
+  /// Sin ícono, el título va solo (secciones del inicio móvil, SCRUM-1647).
+  final IconData? icono;
   final String titulo;
   final Widget? accion;
 
@@ -251,17 +277,19 @@ class ManiTituloSeccion extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(ManiSpace.sm),
-            decoration: BoxDecoration(
-              color: t.brand,
-              borderRadius: ManiRadius.brSm,
-              border: Border.all(color: t.border, width: ManiBorder.regular),
-              boxShadow: [t.shadowSm],
+          if (icono != null) ...[
+            Container(
+              padding: const EdgeInsets.all(ManiSpace.sm),
+              decoration: BoxDecoration(
+                color: t.brand,
+                borderRadius: ManiRadius.brSm,
+                border: Border.all(color: t.border, width: ManiBorder.regular),
+                boxShadow: [t.shadowSm],
+              ),
+              child: Icon(icono, color: t.onBrand, size: 18),
             ),
-            child: Icon(icono, color: t.onBrand, size: 18),
-          ),
-          ManiGap.hSm,
+            ManiGap.hSm,
+          ],
           Expanded(
             child: Text(
               titulo.toUpperCase(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/mani_transiciones.dart';
 import 'package:mani/core/theme/tokens/mani_tokens.dart';
 
@@ -10,6 +11,19 @@ export 'package:mani/core/theme/tokens/mani_tokens.dart';
 /// y movimiento), disponible en Modo Claro ([light]) y Modo Oscuro ([dark]).
 class AppTheme {
   AppTheme._();
+
+  /// Fuente de títulos (Fredoka a 600), usada por las pantallas de la
+  /// navegación móvil y el inicio (SCRUM-1646/1647, trabajo de Nicolás).
+  static TextStyle titulo({
+    double size = 18,
+    double height = 24 / 18,
+    Color color = ManiColors.ink,
+  }) => GoogleFonts.fredoka(
+    fontSize: size,
+    height: height,
+    fontWeight: FontWeight.w600,
+    color: color,
+  );
 
   static ThemeData get light => _construir(
     brightness: Brightness.light,

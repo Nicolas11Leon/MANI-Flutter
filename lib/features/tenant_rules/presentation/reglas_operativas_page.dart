@@ -1,12 +1,10 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../domain/regla_tenant.dart';
 import 'tenant_rules_cubit.dart';
-import 'package:mani/core/widgets/mani_text_field.dart';
-import 'package:mani/core/widgets/mani_button.dart';
-import 'package:mani/core/theme/app_theme.dart';
-import 'package:mani/core/widgets/mani_estado.dart';
-import 'package:mani/core/widgets/mani_pagina.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 class ReglasOperativasPage extends StatefulWidget {
   const ReglasOperativasPage({super.key});
@@ -40,135 +38,115 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ManiEncabezadoPantalla(
-            ancho: ManiAncho.formulario,
-            icono: Icons.tune_rounded,
-            titulo: 'Reglas operativas del tenant',
-          ),
-          Expanded(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: ManiAncho.formulario,
-                ),
-                child: BlocConsumer<TenantRulesCubit, TenantRulesState>(
-                  listener: (context, state) {
-                    if (state is TenantRulesLoaded) {
-                      if (state.mensajeExito != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(state.mensajeExito!),
-                            backgroundColor: ManiColors.success,
+      appBar: barraDePantalla(context, titulo: 'Reglas de operación'),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: BlocConsumer<TenantRulesCubit, TenantRulesState>(
+            listener: (context, state) {
+              if (state is TenantRulesLoaded) {
+                if (state.mensajeExito != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.mensajeExito!),
+                      backgroundColor: Colors.green[800],
+                    ),
+                  );
+                }
+                if (state.mensajeError != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.mensajeError!),
+                      backgroundColor: Colors.red[800],
+                    ),
+                  );
+                }
+              }
+            },
+            builder: (context, state) {
+              if (state is TenantRulesLoading || state is TenantRulesInitial) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (state is TenantRulesError) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          state.mensaje,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
                           ),
-                        );
-                      }
-                      if (state.mensajeError != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(state.mensajeError!),
-                            backgroundColor: ManiColors.dangerText,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  builder: (context, state) {
-                    if (state is TenantRulesLoading ||
-                        state is TenantRulesInitial) {
-                      return const ManiCargando();
-                    }
-                    if (state is TenantRulesError) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(ManiSpace.xxl),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                state.mensaje,
-                                style: const TextStyle(
-                                  color: ManiColors.dangerText,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              ManiGap.vLg,
-                              ManiButton(
-                                etiqueta: 'Reintentar',
-                                onPressed: () =>
-                                    context.read<TenantRulesCubit>().cargar(),
-                              ),
-                            ],
-                          ),
+                          textAlign: TextAlign.center,
                         ),
-                      );
-                    }
-
-                    final loaded = state as TenantRulesLoaded;
-                    _sincronizarConVigente(loaded.vigente.reglas);
-
-                    return SingleChildScrollView(
-                      padding: const EdgeInsets.all(ManiSpace.xxl),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Encabezado de estado vigente
-                            _buildHeaderCard(loaded.vigente),
-                            ManiGap.vXxl,
-
-                            // Formulario de reglas
-                            _buildFormCard(loaded.guardando),
-                            ManiGap.vXxxl,
-
-                            // Botón guardar
-                            ManiButton(
-                              key: const Key('btn_guardar_reglas'),
-                              etiqueta: 'GUARDAR NUEVA VERSIÓN',
-                              expandir: true,
-                              cargando: loaded.guardando,
-                              onPressed: loaded.guardando
-                                  ? null
-                                  : () {
-                                      if (_formKey.currentState?.validate() ??
-                                          false) {
-                                        context
-                                            .read<TenantRulesCubit>()
-                                            .guardar(
-                                              ReglasOperativas(
-                                                criterioOrden: _criterioOrden,
-                                                toleranciaTarifa:
-                                                    _toleranciaTarifa,
-                                                comisionPorcentaje: _comision,
-                                                ventanaCancelacionHoras:
-                                                    _ventanaHoras,
-                                                penalizacionCancelacion:
-                                                    _penalizacion,
-                                                minutosParaAceptarOferta:
-                                                    _minutosOferta,
-                                              ),
-                                            );
-                                      }
-                                    },
-                            ),
-                            ManiGap.vHuge,
-
-                            // Historial
-                            _buildHistorialCard(loaded.historial),
-                          ],
+                        const SizedBox(height: 16),
+                        ManiButton(
+                          etiqueta: 'Reintentar',
+                          onPressed: () =>
+                              context.read<TenantRulesCubit>().cargar(),
                         ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              final loaded = state as TenantRulesLoaded;
+              _sincronizarConVigente(loaded.vigente.reglas);
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Encabezado de estado vigente
+                      _buildHeaderCard(loaded.vigente),
+                      const SizedBox(height: 24),
+
+                      // Formulario de reglas
+                      _buildFormCard(loaded.guardando),
+                      const SizedBox(height: 32),
+
+                      // Botón guardar
+                      ManiButton(
+                        key: const Key('btn_guardar_reglas'),
+                        etiqueta: 'GUARDAR NUEVA VERSIÓN',
+                        expandir: true,
+                        cargando: loaded.guardando,
+                        onPressed: loaded.guardando
+                            ? null
+                            : () {
+                                if (_formKey.currentState?.validate() ??
+                                    false) {
+                                  context.read<TenantRulesCubit>().guardar(
+                                    ReglasOperativas(
+                                      criterioOrden: _criterioOrden,
+                                      toleranciaTarifa: _toleranciaTarifa,
+                                      comisionPorcentaje: _comision,
+                                      ventanaCancelacionHoras: _ventanaHoras,
+                                      penalizacionCancelacion: _penalizacion,
+                                      minutosParaAceptarOferta: _minutosOferta,
+                                    ),
+                                  );
+                                }
+                              },
                       ),
-                    );
-                  },
+                      const SizedBox(height: 40),
+
+                      // Historial
+                      _buildHistorialCard(loaded.historial),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
-        ],
+        ),
       ),
     );
   }
@@ -176,13 +154,11 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
   Widget _buildHeaderCard(ReglaTenantVigente vigente) {
     final esPorOmision = vigente.origen == 'POR_OMISION';
     return Container(
-      padding: const EdgeInsets.all(ManiSpace.lg),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: esPorOmision ? ManiColors.brandSoft : ManiColors.infoContainer,
-        border: Border.all(width: ManiBorder.regular, color: ManiColors.border),
-        boxShadow: const [
-          BoxShadow(color: ManiColors.ink, offset: Offset(4, 4)),
-        ],
+        color: esPorOmision ? Colors.yellow[100] : Colors.blue[50],
+        border: Border.all(width: 2, color: Colors.black),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,26 +167,26 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
             children: [
               Icon(
                 esPorOmision ? Icons.info_outline : Icons.check_circle_outline,
-                color: ManiColors.ink,
+                color: Colors.black,
               ),
-              ManiGap.hSm,
+              const SizedBox(width: 8),
               Text(
                 esPorOmision
                     ? 'VERSIÓN 0 (POR OMISIÓN)'
                     : 'VERSIÓN VIGENTE ${vigente.version}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
-                  fontSize: ManiFontSize.bodyLg,
+                  fontSize: 16,
                 ),
               ),
             ],
           ),
-          ManiGap.vSm,
+          const SizedBox(height: 8),
           Text(
             esPorOmision
                 ? 'El tenant aún no ha configurado reglas propias. Al guardar se creará la versión 1.'
                 : 'Configuración personalizada activa para el tenant.',
-            style: const TextStyle(fontSize: ManiFontSize.bodySm),
+            style: const TextStyle(fontSize: 13),
           ),
         ],
       ),
@@ -219,43 +195,33 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
 
   Widget _buildFormCard(bool guardando) {
     return Container(
-      padding: const EdgeInsets.all(ManiSpace.xl),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(width: ManiBorder.regular, color: ManiColors.border),
-        boxShadow: const [
-          BoxShadow(color: ManiColors.ink, offset: Offset(4, 4)),
-        ],
+        border: Border.all(width: 2, color: Colors.black),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'PARÁMETROS OPERATIVOS',
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              fontSize: ManiFontSize.title,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
           ),
-          const Divider(thickness: 2, color: ManiColors.ink, height: 24),
+          const Divider(thickness: 2, color: Colors.black, height: 24),
 
           // 1. Criterio de orden
           const Text(
             '1. Criterio para ordenar aliados (RF-13):',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          ManiGap.vSm,
+          const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             key: const Key('dropdown_criterio_orden'),
             initialValue: _criterioOrden,
             decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(width: ManiBorder.regular),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: ManiSpace.md,
-                vertical: ManiSpace.sm,
-              ),
+              border: OutlineInputBorder(borderSide: BorderSide(width: 2)),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
             items: const [
               DropdownMenuItem(
@@ -271,7 +237,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                 ? null
                 : (v) => setState(() => _criterioOrden = v ?? 'CALIFICACION'),
           ),
-          ManiGap.vXl,
+          const SizedBox(height: 20),
 
           // 2. Tolerancia de tarifa
           Row(
@@ -294,12 +260,12 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
             min: 0,
             max: 50,
             divisions: 50,
-            activeColor: ManiColors.ink,
+            activeColor: Colors.black,
             onChanged: guardando
                 ? null
                 : (v) => setState(() => _toleranciaTarifa = v),
           ),
-          ManiGap.vMd,
+          const SizedBox(height: 12),
 
           // 3. Comisión del tenant
           Row(
@@ -322,17 +288,17 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
             min: 0,
             max: 30,
             divisions: 30,
-            activeColor: ManiColors.ink,
+            activeColor: Colors.black,
             onChanged: guardando ? null : (v) => setState(() => _comision = v),
           ),
-          ManiGap.vMd,
+          const SizedBox(height: 12),
 
           // 4. Cancelación
           const Text(
             '4. Política de cancelación y penalización (RNF-10):',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          ManiGap.vSm,
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
@@ -343,7 +309,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                   decoration: const InputDecoration(
                     labelText: 'Ventana (horas, 0-72)',
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(width: ManiBorder.regular),
+                      borderSide: BorderSide(width: 2),
                     ),
                   ),
                   onChanged: (v) {
@@ -357,7 +323,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                   },
                 ),
               ),
-              ManiGap.hLg,
+              const SizedBox(width: 16),
               Expanded(
                 child: ManiTextField(
                   key: const Key('input_penalizacion_cancelacion'),
@@ -366,7 +332,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                   decoration: const InputDecoration(
                     labelText: 'Penalización (%)',
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(width: ManiBorder.regular),
+                      borderSide: BorderSide(width: 2),
                     ),
                   ),
                   onChanged: (v) {
@@ -385,23 +351,21 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
               ),
             ],
           ),
-          ManiGap.vXl,
+          const SizedBox(height: 20),
 
           // 5. Oferta
           const Text(
             '5. Tiempo límite para aceptar oferta (RNF-10):',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          ManiGap.vSm,
+          const SizedBox(height: 8),
           ManiTextField(
             key: const Key('input_minutos_oferta'),
             initialValue: _minutosOferta.toString(),
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               labelText: 'Minutos para aceptar (1-1440)',
-              border: OutlineInputBorder(
-                borderSide: BorderSide(width: ManiBorder.regular),
-              ),
+              border: OutlineInputBorder(borderSide: BorderSide(width: 2)),
             ),
             onChanged: (v) {
               final n = int.tryParse(v);
@@ -420,13 +384,11 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
 
   Widget _buildHistorialCard(List<ReglaTenantHistorialItem> historial) {
     return Container(
-      padding: const EdgeInsets.all(ManiSpace.xl),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: ManiColors.surfaceMuted,
-        border: Border.all(width: ManiBorder.regular, color: ManiColors.border),
-        boxShadow: const [
-          BoxShadow(color: ManiColors.ink, offset: Offset(4, 4)),
-        ],
+        color: Colors.grey[100],
+        border: Border.all(width: 2, color: Colors.black),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,10 +398,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
             children: [
               const Text(
                 'HISTORIAL DE VERSIONES',
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: ManiFontSize.bodyLg,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
               ),
               Text(
                 '${historial.length} versión(es)',
@@ -447,7 +406,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
               ),
             ],
           ),
-          const Divider(thickness: 2, color: ManiColors.ink, height: 24),
+          const Divider(thickness: 2, color: Colors.black, height: 24),
           if (historial.isEmpty)
             const Text('No hay versiones históricas registradas todavía.')
           else
@@ -455,20 +414,15 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: historial.length,
-              separatorBuilder: (_, _) => ManiGap.vMd,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final item = historial[index];
                 final esVigente = item.estado == 'VIGENTE';
                 return Container(
-                  padding: const EdgeInsets.all(ManiSpace.md),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: esVigente
-                        ? ManiColors.successContainer
-                        : ManiColors.surface,
-                    border: Border.all(
-                      width: ManiBorder.thin,
-                      color: ManiColors.border,
-                    ),
+                    color: esVigente ? Colors.lightGreen[100] : Colors.white,
+                    border: Border.all(width: 1.5, color: Colors.black),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -486,16 +440,14 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                                       .toString()
                                       .substring(0, 10)
                                 : '',
-                            style: const TextStyle(
-                              fontSize: ManiFontSize.caption,
-                            ),
+                            style: const TextStyle(fontSize: 12),
                           ),
                         ],
                       ),
-                      ManiGap.vSm,
+                      const SizedBox(height: 6),
                       Text(
                         'Criterio: ${item.reglas.criterioOrden} | Tolerancia: ${item.reglas.toleranciaTarifa.round()}% | Comisión: ${item.reglas.comisionPorcentaje.round()}% | Oferta: ${item.reglas.minutosParaAceptarOferta} min',
-                        style: const TextStyle(fontSize: ManiFontSize.caption),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
