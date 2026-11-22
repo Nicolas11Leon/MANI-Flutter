@@ -461,7 +461,12 @@ void main() {
         expect(find.text('Hola, ¿a qué hora?'), findsOneWidget);
         expect(
           tester
-              .widget<TextField>(find.byKey(const Key('campo-mensaje')))
+              .widget<TextField>(
+                find.descendant(
+                  of: find.byKey(const Key('campo-mensaje')),
+                  matching: find.byType(TextField),
+                ),
+              )
               .controller!
               .text,
           isEmpty,
@@ -483,7 +488,12 @@ void main() {
         expect(find.textContaining('Sin conexión'), findsOneWidget);
         expect(
           tester
-              .widget<TextField>(find.byKey(const Key('campo-mensaje')))
+              .widget<TextField>(
+                find.descendant(
+                  of: find.byKey(const Key('campo-mensaje')),
+                  matching: find.byType(TextField),
+                ),
+              )
               .controller!
               .text,
           'Hola',
@@ -585,7 +595,12 @@ void main() {
       await montar(tester);
       expect(
         tester
-            .widget<TextField>(find.byKey(const Key('campo-mensaje')))
+            .widget<TextField>(
+              find.descendant(
+                of: find.byKey(const Key('campo-mensaje')),
+                matching: find.byType(TextField),
+              ),
+            )
             .maxLength,
         1000,
       );

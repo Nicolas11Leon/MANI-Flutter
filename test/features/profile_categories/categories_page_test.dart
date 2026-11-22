@@ -30,7 +30,7 @@ void main() {
       expect(find.text('Cerrajería'), findsOneWidget);
       expect(_check('c-ele'), findsOneWidget);
       expect(_check('c-plo'), findsNothing);
-      expect(find.text('1 categoría(s) seleccionada(s)'), findsOneWidget);
+      expect(find.text('1 seleccionada'), findsOneWidget);
     },
   );
 
@@ -45,31 +45,32 @@ void main() {
     await t.tap(find.byKey(const ValueKey('categoria-c-cer')));
     await t.pump();
     expect(_check('c-plo'), findsOneWidget);
-    expect(find.text('2 categoría(s) seleccionada(s)'), findsOneWidget);
+    expect(find.text('2 seleccionadas'), findsOneWidget);
 
     await t.tap(find.byKey(const ValueKey('btn-guardar-categorias')));
     await t.pumpAndSettle();
 
     expect(repo.ultimoEnvio, {'c-plo', 'c-cer'});
-    expect(find.text('Categorías guardadas'), findsOneWidget);
+    expect(find.text('Especialidades guardadas'), findsOneWidget);
   });
 
-  testWidgets('guardar sin selección muestra el error y no llama al backend', (
-    t,
-  ) async {
-    final repo = FakeCategoriesRepository();
-    await t.pumpWidget(_app(repo));
-    await t.pumpAndSettle();
+  testWidgets(
+    'sin selección el botón queda deshabilitado, se indica qué falta y no se llama al backend',
+    (t) async {
+      final repo = FakeCategoriesRepository();
+      await t.pumpWidget(_app(repo));
+      await t.pumpAndSettle();
 
-    await t.tap(find.byKey(const ValueKey('btn-guardar-categorias')));
-    await t.pump();
+      await t.tap(
+        find.byKey(const ValueKey('btn-guardar-categorias')),
+        warnIfMissed: false,
+      );
+      await t.pump();
 
-    expect(
-      find.text('Selecciona al menos una categoría para continuar.'),
-      findsOneWidget,
-    );
-    expect(repo.llamadasGuardar, 0);
-  });
+      expect(find.text('Elige al menos una para continuar.'), findsOneWidget);
+      expect(repo.llamadasGuardar, 0);
+    },
+  );
 
   // SCRUM-1632: antes se exigía que la categoría rechazada quedara marcada.
   // Eso hacía creer al aliado que la había declarado y al recargar desaparecía.
@@ -85,6 +86,7 @@ void main() {
       await t.pumpAndSettle();
 
       await t.tap(find.byKey(const ValueKey('categoria-c-plo')));
+      await t.pump();
       await t.tap(find.byKey(const ValueKey('btn-guardar-categorias')));
       await t.pumpAndSettle();
 
@@ -103,6 +105,7 @@ void main() {
     await t.pumpAndSettle();
 
     await t.tap(find.byKey(const ValueKey('categoria-c-plo')));
+    await t.pump();
     await t.tap(find.byKey(const ValueKey('btn-guardar-categorias')));
     await t.pumpAndSettle();
 
@@ -124,5 +127,23 @@ void main() {
     await t.pumpAndSettle();
 
     expect(find.text('Plomería'), findsOneWidget);
+  });
+
+  testWidgets('al tocar una ficha cambia su estado semántico', (t) async {
+    final sem = t.ensureSemantics();
+    await t.pumpWidget(_app(FakeCategoriesRepository()));
+    await t.pumpAndSettle();
+
+    expect(
+      t.getSemantics(find.bySemanticsLabel('Plomería')),
+      isSemantics(isChecked: false, hasCheckedState: true),
+    );
+    await t.tap(find.byKey(const ValueKey('categoria-c-plo')));
+    await t.pump();
+    expect(
+      t.getSemantics(find.bySemanticsLabel('Plomería')),
+      isSemantics(isChecked: true, hasCheckedState: true),
+    );
+    sem.dispose();
   });
 }

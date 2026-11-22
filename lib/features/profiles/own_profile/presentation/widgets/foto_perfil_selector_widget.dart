@@ -1,8 +1,9 @@
+import 'package:mani/core/widgets/mani_button.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:mani/core/widgets/mani_avatar.dart';
 import 'package:mani/features/profiles/own_profile/data/datasources/perfil_propio_remote_datasource.dart';
-import 'package:mani/core/theme/app_theme.dart';
 
 typedef SelectorArchivoImagen =
     Future<({String nombre, Uint8List bytes})?> Function();
@@ -24,16 +25,6 @@ class FotoPerfilSelectorWidget extends StatelessWidget {
   final Future<void> Function(String nombreArchivo, Uint8List bytes)
   onFotoSeleccionada;
   final SelectorArchivoImagen? selectorImagen;
-
-  String get _iniciales {
-    final partes = fullName
-        .trim()
-        .split(RegExp(r'\s+'))
-        .where((p) => p.isNotEmpty)
-        .take(2);
-    if (partes.isEmpty) return 'U';
-    return partes.map((p) => p[0].toUpperCase()).join();
-  }
 
   Future<void> _seleccionar(BuildContext context) async {
     if (selectorImagen == null) return;
@@ -60,31 +51,27 @@ class FotoPerfilSelectorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CircleAvatar(
+        ManiAvatar(
           key: const Key('avatar-perfil-propio'),
-          radius: 42,
-          child: Text(
-            _iniciales,
-            style: const TextStyle(
-              fontSize: ManiFontSize.h2,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          nombre: fullName,
+          foto: photoUrl,
+          tamano: 104,
         ),
         if (photoUrl != null && photoUrl!.isNotEmpty) ...[
-          ManiGap.vSm,
+          const SizedBox(height: 6),
           Text(
             photoUrl!,
             key: const Key('texto-foto-actual'),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
-        ManiGap.vSm,
-        OutlinedButton.icon(
+        const SizedBox(height: 8),
+        ManiButton(
           key: const Key('btn-cambiar-foto-perfil'),
+          variante: ManiButtonVariante.secundario,
+          icono: Icons.photo_camera_outlined,
+          etiqueta: subiendo ? 'Subiendo foto...' : 'Cambiar foto de perfil',
           onPressed: subiendo ? null : () => _seleccionar(context),
-          icon: const Icon(Icons.photo_camera_outlined),
-          label: Text(subiendo ? 'Subiendo foto...' : 'Cambiar foto de perfil'),
         ),
       ],
     );

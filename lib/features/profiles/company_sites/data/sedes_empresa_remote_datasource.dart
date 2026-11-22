@@ -126,6 +126,7 @@ class SedesEmpresaRepositoryImpl implements ISedesEmpresaRepository {
         throw const SedeEmpresaFailure(
           'Las sedes son para clientes empresa. Tu cuenta no tiene una '
           'empresa registrada.',
+          soloClientesEmpresa: true,
         );
       }
       if (code == 'SITE_NOT_FOUND') {

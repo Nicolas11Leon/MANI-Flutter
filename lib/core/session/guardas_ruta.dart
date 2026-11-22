@@ -29,6 +29,10 @@ const _todosLosRoles = {
 /// verificado (T4, T7), y esa es la barrera que cuenta.
 const _rolesPorPrefijo = <String, Set<RolUsuario>>{
   rutaInicio: _todosLosRoles,
+  // Servicios y Perfil, las pantallas de agrupación de la barra inferior del celular (SCRUM-1647): solo listan las
+  // entradas del propio rol, así que las abren todos. Sin esta entrada el guardián las niega y llevan al inicio.
+  rutaServicios: _todosLosRoles,
+  rutaCuenta: _todosLosRoles,
   '/admin/': {RolUsuario.adminTenant, RolUsuario.adminPlataforma},
   // Administración global de tenants (SCRUM-901): solo el permiso de plataforma.
   '/plataforma/': {RolUsuario.adminPlataforma},

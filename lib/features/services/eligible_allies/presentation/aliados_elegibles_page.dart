@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_avatar.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_estado.dart'
+    hide ManiEstadoVacio, ManiEstadoError;
+import 'package:mani/core/widgets/mani_estados.dart';
+import 'package:mani/core/widgets/mani_personaje.dart';
 
 import '../domain/aliado_elegible.dart';
 import 'aliados_elegibles_cubit.dart';
-import 'package:mani/core/widgets/mani_estado.dart';
-import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Aliados elegibles de la solicitud (SCRUM-1398, 1400 y 1401). Filtra por
 /// tipo con chips y muestra la lista en el orden exacto que entrega
@@ -20,83 +24,77 @@ class AliadosElegiblesPage extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<AliadosElegiblesCubit>();
         final lista = state.lista;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ManiEncabezadoPantalla(
-              ancho: ManiAncho.formulario,
-              icono: Icons.engineering_rounded,
-              titulo: 'Aliados para tu solicitud',
-            ),
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: ManiAncho.formulario,
-                  ),
-                  child: RefreshIndicator(
-                    color: ManiColors.ink,
-                    backgroundColor: ManiColors.brand,
-                    onRefresh: cubit.cargar,
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: ManiSpace.xl,
-                        vertical: ManiSpace.xxl,
-                      ),
-                      children: [
-                        _FiltroTipo(
-                          seleccionado: state.tipo,
-                          onCambiar: state.cargando ? null : cubit.filtrar,
-                        ),
-                        ManiGap.vLg,
-                        if (state.error != null)
-                          _Error(
-                            mensaje: state.error!,
-                            onReintentar: cubit.cargar,
-                          ),
-                        if (state.cargando && lista == null)
-                          const Padding(
-                            key: Key('elegibles-cargando'),
-                            padding: EdgeInsets.all(ManiSpace.xxxl),
-                            child: ManiCargando(),
-                          )
-                        else if (lista != null) ...[
-                          _AvisoOrden(lista),
-                          ManiGap.vMd,
-                          if (lista.aliados.isEmpty)
-                            _Vacio(filtrado: state.tipo != null)
-                          else ...[
-                            for (final (i, a) in lista.aliados.indexed) ...[
-                              _TarjetaAliado(
-                                a,
-                                puesto: lista.ordenAplicado
-                                    ? (a.posicion ?? i + 1)
-                                    : null,
-                              ),
-                              ManiGap.vSm,
-                            ],
-                            if (lista.total > lista.aliados.length)
-                              Padding(
-                                padding: const EdgeInsets.all(ManiSpace.sm),
-                                child: Text(
-                                  'Mostrando ${lista.aliados.length} de ${lista.total} aliados.',
-                                  key: const Key('elegibles-parcial'),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: ManiColors.inkMuted,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ],
-                      ],
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: RefreshIndicator(
+              color: ManiColors.ink,
+              backgroundColor: ManiColors.brand,
+              onRefresh: cubit.cargar,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
+                children: [
+                  const Text(
+                    'Aliados para tu solicitud',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: ManiColors.ink,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  _FiltroTipo(
+                    seleccionado: state.tipo,
+                    onCambiar: state.cargando ? null : cubit.filtrar,
+                  ),
+                  const SizedBox(height: 16),
+                  if (state.error != null)
+                    _Error(mensaje: state.error!, onReintentar: cubit.cargar),
+                  if (state.cargando && lista == null)
+                    const Padding(
+                      key: Key('elegibles-cargando'),
+                      padding: EdgeInsets.all(32),
+                      child: Center(
+                        child: CircularProgressIndicator(color: ManiColors.ink),
+                      ),
+                    )
+                  else if (lista != null) ...[
+                    _AvisoOrden(lista),
+                    const SizedBox(height: 12),
+                    if (lista.aliados.isEmpty)
+                      _Vacio(filtrado: state.tipo != null)
+                    else ...[
+                      for (final (i, a) in lista.aliados.indexed) ...[
+                        _TarjetaAliado(
+                          a,
+                          puesto: lista.ordenAplicado
+                              ? (a.posicion ?? i + 1)
+                              : null,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                      if (lista.total > lista.aliados.length)
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            'Mostrando ${lista.aliados.length} de ${lista.total} aliados.',
+                            key: const Key('elegibles-parcial'),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: ManiColors.inkMuted,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ],
+                ],
               ),
             ),
-          ],
+          ),
         );
       },
     );
@@ -120,23 +118,23 @@ class _FiltroTipo extends StatelessWidget {
           style: TextStyle(
             fontWeight: FontWeight.w700,
             color: ManiColors.ink,
-            fontSize: ManiFontSize.bodySm,
+            fontSize: 13,
           ),
         ),
         selected: activo,
         selectedColor: ManiColors.brand,
         backgroundColor: ManiColors.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: ManiRadius.brSm,
-          side: ManiBorder.sideThin,
+          borderRadius: BorderRadius.circular(ManiRadius.lg),
+          side: const BorderSide(color: ManiColors.ink, width: 1.5),
         ),
         onSelected: onCambiar == null ? null : (_) => onCambiar!(tipo),
       );
     }
 
     return Wrap(
-      spacing: ManiSpace.sm,
-      runSpacing: ManiSpace.sm,
+      spacing: 8,
+      runSpacing: 8,
       children: [
         chip(null, 'Todos'),
         for (final t in TipoAliado.values) chip(t, t.etiqueta),
@@ -155,11 +153,10 @@ class _AvisoOrden extends StatelessWidget {
   Widget build(BuildContext context) {
     final aplicado = lista.ordenAplicado;
     return Container(
-      padding: const EdgeInsets.all(ManiSpace.md),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: aplicado ? ManiColors.infoContainer : ManiColors.surfaceMuted,
-        borderRadius: ManiRadius.brSm,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
+        color: aplicado ? ManiColors.brandSoft : ManiColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(ManiRadius.md),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +166,7 @@ class _AvisoOrden extends StatelessWidget {
             size: 18,
             color: ManiColors.ink,
           ),
-          ManiGap.hSm,
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               aplicado
@@ -178,7 +175,7 @@ class _AvisoOrden extends StatelessWidget {
               key: Key(aplicado ? 'elegibles-orden' : 'elegibles-sin-orden'),
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
-                fontSize: ManiFontSize.bodySm,
+                fontSize: 13,
                 color: ManiColors.ink,
               ),
             ),
@@ -201,35 +198,45 @@ class _TarjetaAliado extends StatelessWidget {
   Widget build(BuildContext context) {
     return ManiCard(
       key: Key('elegible-${aliado.id}'),
-      padding: const EdgeInsets.all(ManiSpace.lg),
-      sombra: ManiShadow.sm,
+      padding: const EdgeInsets.all(16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: puesto != null ? ManiColors.brand : ManiColors.surface,
-              borderRadius: ManiRadius.brSm,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.regular,
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              ManiAvatar(
+                nombre: aliado.nombre.isEmpty ? 'Aliado' : aliado.nombre,
               ),
-            ),
-            child: puesto != null
-                ? Text(
-                    '$puesto',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: ManiFontSize.bodyLg,
-                      color: ManiColors.ink,
+              if (puesto != null)
+                Positioned(
+                  right: -6,
+                  bottom: -6,
+                  child: Container(
+                    width: 22,
+                    height: 22,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: ManiColors.brand,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: ManiColors.ink,
+                        width: ManiBorder.thin,
+                      ),
                     ),
-                  )
-                : const Icon(Icons.person_outline, color: ManiColors.ink),
+                    child: Text(
+                      '$puesto',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12,
+                        color: ManiColors.ink,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
-          ManiGap.hMd,
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,58 +247,40 @@ class _TarjetaAliado extends StatelessWidget {
                       child: Text(
                         aliado.nombre.isEmpty ? 'Aliado' : aliado.nombre,
                         style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: ManiFontSize.bodyLg,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
                         ),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: ManiSpace.sm,
-                        vertical: ManiSpace.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: ManiColors.successContainer,
-                        borderRadius: ManiRadius.brXs,
-                        border: Border.all(color: ManiColors.border, width: 1),
-                      ),
-                      child: const Text(
-                        'Verificado',
-                        style: TextStyle(
-                          fontSize: ManiFontSize.micro,
-                          fontWeight: FontWeight.w800,
-                          color: ManiColors.success,
-                        ),
-                      ),
-                    ),
+                    const ManiEstado(texto: 'Verificado', tono: ManiTono.listo),
                   ],
                 ),
-                ManiGap.vXs,
+                const SizedBox(height: 4),
                 Text(
                   aliado.etiquetaTipo,
                   style: const TextStyle(
-                    fontSize: ManiFontSize.bodySm,
+                    fontSize: 13,
                     color: ManiColors.inkMuted,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                ManiGap.vXs,
+                const SizedBox(height: 4),
                 Text(
                   aliado.textoCalificacionAgregada,
                   key: Key('elegible-calificacion-${aliado.id}'),
                   style: const TextStyle(
-                    fontSize: ManiFontSize.bodySm,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: ManiColors.ink,
                   ),
                 ),
                 if (puesto != null && aliado.razones.isNotEmpty) ...[
-                  ManiGap.vSm,
+                  const SizedBox(height: 6),
                   for (final r in aliado.razones)
                     Text(
                       '• $r',
                       style: const TextStyle(
-                        fontSize: ManiFontSize.caption,
+                        fontSize: 12,
                         color: ManiColors.inkMuted,
                       ),
                     ),
@@ -311,13 +300,18 @@ class _Vacio extends StatelessWidget {
   final bool filtrado;
 
   @override
-  Widget build(BuildContext context) => ManiEstadoVacio(
-    icono: Icons.engineering_outlined,
-    tituloKey: const Key('elegibles-vacio'),
-    titulo: filtrado
-        ? 'No hay aliados de este tipo para tu solicitud. Prueba con otro filtro.'
-        : 'Todavía no hay aliados disponibles para tu solicitud.',
-  );
+  Widget build(BuildContext context) {
+    return KeyedSubtree(
+      key: const Key('elegibles-vacio'),
+      child: ManiEstadoVacio(
+        pose: PoseMani.buscando,
+        titulo: 'Aún no hay aliados para esta solicitud',
+        texto: filtrado
+            ? 'No hay aliados de este tipo para tu solicitud. Prueba con otro filtro.'
+            : 'Todavía no hay aliados disponibles para tu solicitud. Te avisaremos cuando alguno la tome.',
+      ),
+    );
+  }
 }
 
 class _Error extends StatelessWidget {
@@ -327,10 +321,40 @@ class _Error extends StatelessWidget {
   final Future<void> Function() onReintentar;
 
   @override
-  Widget build(BuildContext context) => ManiEstadoError(
-    key: const Key('elegibles-error'),
-    botonKey: const Key('elegibles-reintentar'),
-    mensaje: mensaje,
-    onReintentar: onReintentar,
-  );
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('elegibles-error'),
+      padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+      decoration: BoxDecoration(
+        color: ManiColors.dangerContainer,
+        borderRadius: BorderRadius.circular(ManiRadius.md),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            size: 20,
+            color: ManiColors.dangerText,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              mensaje,
+              style: const TextStyle(
+                color: ManiColors.dangerText,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ManiButton(
+            key: const Key('elegibles-reintentar'),
+            etiqueta: 'Reintentar',
+            variante: ManiButtonVariante.texto,
+            onPressed: onReintentar,
+          ),
+        ],
+      ),
+    );
+  }
 }

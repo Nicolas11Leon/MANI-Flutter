@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/features/catalog/map/data/mapa_remote_datasource.dart';
 import 'package:mani/features/catalog/map/domain/entities/geometria_zona.dart';
 import 'package:mani/features/catalog/map/presentation/bloc/mapa_cubit.dart';
@@ -319,7 +320,7 @@ void main() {
 
     expect(find.text('No se pudo cargar el mapa'), findsOneWidget);
     expect(find.text('Gateway caído'), findsOneWidget);
-    expect(find.widgetWithText(FilledButton, 'Reintentar'), findsOneWidget);
+    expect(find.widgetWithText(ManiButton, 'Reintentar'), findsOneWidget);
   });
 
   testWidgets('con varias localidades el selector cambia la que se pinta', (

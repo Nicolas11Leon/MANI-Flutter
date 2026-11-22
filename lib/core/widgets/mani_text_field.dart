@@ -30,6 +30,10 @@ class ManiTextField extends StatelessWidget {
     this.inputFormatters,
     this.style,
     this.decoration,
+    this.focusNode,
+    this.minLines,
+    this.textCapitalization = TextCapitalization.none,
+    this.buildCounter,
   });
 
   final TextEditingController? controller;
@@ -52,6 +56,10 @@ class ManiTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final TextStyle? style;
   final InputDecoration? decoration;
+  final FocusNode? focusNode;
+  final int? minLines;
+  final TextCapitalization textCapitalization;
+  final InputCounterWidgetBuilder? buildCounter;
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +89,10 @@ class ManiTextField extends StatelessWidget {
       autofillHints: autofillHints,
       validator: validator,
       maxLines: maxLines,
+      minLines: minLines,
+      focusNode: focusNode,
+      textCapitalization: textCapitalization,
+      buildCounter: buildCounter,
       maxLength: maxLength,
       inputFormatters: inputFormatters,
       style:
