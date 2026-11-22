@@ -5,6 +5,7 @@ import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_confirmacion.dart';
 import 'package:mani/core/widgets/mani_layout.dart';
 
 /// Las dos pantallas de agrupación de la barra inferior del celular (SCRUM-1647).
@@ -15,6 +16,8 @@ enum TipoSeccion { servicios, cuenta }
 ///
 /// No tiene lógica ni permisos propios: muestra las mismas entradas que el menú del escritorio, repartidas. Ocultar una
 /// entrada no protege la ruta; la autorización la aplica el servidor.
+const _textoCerrarSesion = 'Cerrar sesión';
+
 class SeccionMenuPage extends StatelessWidget {
   const SeccionMenuPage({
     super.key,
@@ -37,6 +40,17 @@ class SeccionMenuPage extends StatelessWidget {
       rol == RolUsuario.adminPlataforma && contextoPlataforma != null
       ? contextoPlataforma!.rolEfectivo
       : rol;
+
+  /// Cierre pedido por el usuario: pide confirmación como el del menú superior (SCRUM-1650, QAS-39).
+  Future<void> _cerrarSesion(BuildContext context) async {
+    final confirmado = await confirmarAccion(
+      context,
+      titulo: '¿Cerrar sesión?',
+      etiquetaConfirmar: _textoCerrarSesion,
+    );
+    if (!confirmado) return;
+    await onCerrarSesion!();
+  }
 
   String _titulo(bool gestion) {
     if (tipo == TipoSeccion.cuenta) return 'Tu cuenta';
@@ -132,12 +146,12 @@ class SeccionMenuPage extends StatelessWidget {
                 const SizedBox(height: 32),
                 ManiButton(
                   key: const Key('seccion-cerrar-sesion'),
-                  etiqueta: 'Cerrar sesión',
+                  etiqueta: _textoCerrarSesion,
                   icono: Icons.logout,
                   variante: ManiButtonVariante.secundario,
                   colorTexto: ManiColors.dangerText,
                   expandir: true,
-                  onPressed: () async => onCerrarSesion!(),
+                  onPressed: () => _cerrarSesion(context),
                 ),
               ],
             ],

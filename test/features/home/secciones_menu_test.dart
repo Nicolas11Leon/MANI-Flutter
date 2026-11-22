@@ -170,7 +170,28 @@ void main() {
       );
 
       await tester.tap(find.byKey(const Key('seccion-cerrar-sesion')));
+      await tester.pumpAndSettle();
+      // Pide confirmación antes de cerrar (SCRUM-1650, QAS-39).
+      expect(cerro, isFalse);
+      expect(find.text('¿Cerrar sesión?'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('confirmacion-confirmar')));
+      await tester.pumpAndSettle();
       expect(cerro, isTrue);
+    });
+
+    testWidgets('cancelar la confirmación no cierra la sesión', (tester) async {
+      var cerro = false;
+      await montar(
+        tester,
+        TipoSeccion.cuenta,
+        onCerrarSesion: () async => cerro = true,
+      );
+      await tester.tap(find.byKey(const Key('seccion-cerrar-sesion')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('confirmacion-cancelar')));
+      await tester.pumpAndSettle();
+      expect(cerro, isFalse);
+      expect(find.text('Tu cuenta'), findsOneWidget);
     });
 
     testWidgets('sin cerrar sesión disponible, Perfil no lo muestra', (
