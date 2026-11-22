@@ -328,6 +328,34 @@ class _AppShellState extends State<AppShell> {
     return estado.conVolver ? 0 : 16;
   }
 
+  PreferredSizeWidget _barraSuperior(
+    BuildContext context,
+    _EstadoBarra estado,
+    List<EntradaMenu> entradas,
+  ) {
+    final expandido = estado.expandido;
+    return AppBar(
+      key: const Key('menu-superior'),
+      automaticallyImplyLeading: false,
+      backgroundColor: expandido ? ManiColors.surface : ManiColors.background,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      toolbarHeight: expandido ? 68 : 60,
+      shape: Border(
+        bottom: BorderSide(
+          color: ManiColors.ink,
+          width: expandido ? 2 : ManiBorder.thin,
+        ),
+      ),
+      leading: estado.conVolver ? _botonAtras(entradas) : null,
+      titleSpacing: _espacioTitulo(estado),
+      title: _tituloBarra(estado, entradas),
+      actions: _accionesBarra(context, expandido),
+      bottom: expandido ? _barraEntradas(context, entradas) : null,
+    );
+  }
+
   Widget _armazon(BuildContext context) {
     final entradas = _entradas();
     final cuerpo = _cuerpoConContexto();
@@ -345,28 +373,7 @@ class _AppShellState extends State<AppShell> {
           child: Scaffold(
             key: const Key('app-shell'),
             backgroundColor: ManiColors.background,
-            appBar: AppBar(
-              key: const Key('menu-superior'),
-              automaticallyImplyLeading: false,
-              backgroundColor: expandido
-                  ? ManiColors.surface
-                  : ManiColors.background,
-              surfaceTintColor: Colors.transparent,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              toolbarHeight: expandido ? 68 : 60,
-              shape: Border(
-                bottom: BorderSide(
-                  color: ManiColors.ink,
-                  width: expandido ? 2 : ManiBorder.thin,
-                ),
-              ),
-              leading: estado.conVolver ? _botonAtras(entradas) : null,
-              titleSpacing: _espacioTitulo(estado),
-              title: _tituloBarra(estado, entradas),
-              actions: _accionesBarra(context, expandido),
-              bottom: expandido ? _barraEntradas(context, entradas) : null,
-            ),
+            appBar: _barraSuperior(context, estado, entradas),
             body: conDeslizar ? _conDeslizar(cuerpo) : cuerpo,
             bottomNavigationBar: expandido || estado.enFlujo
                 ? null
