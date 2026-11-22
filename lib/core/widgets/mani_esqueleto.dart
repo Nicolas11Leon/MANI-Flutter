@@ -98,7 +98,7 @@ class _Bloque extends StatelessWidget {
       width: ancho ?? double.infinity,
       height: alto,
       decoration: BoxDecoration(
-        color: ManiColors.surfaceMuted,
+        color: context.mani.surfaceMuted,
         borderRadius: BorderRadius.circular(ManiRadius.sm),
       ),
     );

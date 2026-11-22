@@ -74,11 +74,11 @@ class SaludoInicio extends StatelessWidget {
           children: [
             Text(
               antetituloPorHora(reloj()),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.6,
-                color: ManiColors.ink,
+                color: context.mani.onBrand,
               ),
             ),
             const SizedBox(height: 2),
@@ -92,17 +92,17 @@ class SaludoInicio extends StatelessWidget {
                 style: AppTheme.titulo(
                   size: 26,
                   height: 1.2,
-                  color: ManiColors.ink,
+                  color: context.mani.onBrand,
                 ),
               ),
             ),
             const SizedBox(height: 4),
             Text(
               subtitulo,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: ManiColors.ink,
+                color: context.mani.onBrand,
               ),
             ),
           ],
@@ -110,7 +110,7 @@ class SaludoInicio extends StatelessWidget {
         return ManiCard(
           enfasis: ManiEnfasis.protagonista,
           sombra: ManiShadow.md,
-          color: ManiColors.brand,
+          color: context.mani.brand,
           padding: const EdgeInsets.all(16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,

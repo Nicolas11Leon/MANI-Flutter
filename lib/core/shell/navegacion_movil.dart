@@ -210,11 +210,11 @@ class BarraInferiorMovil extends StatelessWidget {
               left: 0,
               right: 0,
               bottom: 0,
-              child: const DecoratedBox(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: ManiColors.surface,
+                  color: context.mani.surface,
                   border: Border(
-                    top: BorderSide(color: ManiColors.ink, width: 2),
+                    top: BorderSide(color: context.mani.border, width: 2),
                   ),
                 ),
               ),
@@ -273,14 +273,18 @@ class _Destino extends StatelessWidget {
                 width: 48,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: activo ? ManiColors.brand : Colors.transparent,
+                  color: activo ? context.mani.brand : Colors.transparent,
                   borderRadius: BorderRadius.circular(ManiRadius.pill),
                   border: Border.all(
-                    color: activo ? ManiColors.ink : Colors.transparent,
+                    color: activo ? context.mani.border : Colors.transparent,
                     width: ManiBorder.thick,
                   ),
                 ),
-                child: Icon(icono, size: 22, color: ManiColors.ink),
+                child: Icon(
+                  icono,
+                  size: 22,
+                  color: activo ? context.mani.onBrand : context.mani.ink,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
@@ -290,7 +294,7 @@ class _Destino extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                 ),
               ),
             ],
@@ -327,10 +331,10 @@ class _Centro extends StatelessWidget {
               height: 44,
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: activo ? ManiColors.brand : ManiColors.brandSoft,
+                color: activo ? context.mani.brand : context.mani.brandSoft,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: ManiColors.ink,
+                  color: context.mani.border,
                   width: ManiBorder.thick,
                 ),
               ),
@@ -345,7 +349,7 @@ class _Centro extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
           ],
@@ -376,9 +380,12 @@ class CampanaAvisos extends StatelessWidget {
       excludeSemantics: true,
       child: Container(
         decoration: BoxDecoration(
-          color: ManiColors.surface,
+          color: context.mani.surface,
           borderRadius: BorderRadius.circular(ManiRadius.lg),
-          border: Border.all(color: ManiColors.ink, width: ManiBorder.thin),
+          border: Border.all(
+            color: context.mani.border,
+            width: ManiBorder.thin,
+          ),
         ),
         child: InkWell(
           key: const Key('menu-avisos'),
@@ -391,9 +398,9 @@ class CampanaAvisos extends StatelessWidget {
               clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.notifications_none,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                   size: 24,
                 ),
                 if (sinLeer > 0)
@@ -410,7 +417,7 @@ class CampanaAvisos extends StatelessWidget {
                         color: ManiColors.danger,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: ManiColors.background,
+                          color: context.mani.background,
                           width: 2,
                         ),
                       ),
