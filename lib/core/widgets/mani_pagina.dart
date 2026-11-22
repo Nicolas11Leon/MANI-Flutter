@@ -117,97 +117,108 @@ class ManiEncabezadoPantalla extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, c) {
           final angosta = c.maxWidth < 600;
-          final identidad = Row(
-            children: [
-              if (puedeVolver) ...[
-                IconButton(
-                  tooltip: 'Volver',
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  icon: Icon(Icons.arrow_back_rounded, color: t.ink),
-                ),
-                ManiGap.hXs,
-              ],
-              ExcludeSemantics(
-                child: Container(
-                  width: 42,
-                  height: 42,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: t.brand,
-                    borderRadius: ManiRadius.brSm,
-                    border: Border.all(
-                      color: t.border,
-                      width: ManiBorder.regular,
-                    ),
-                    boxShadow: [t.shadowSm],
-                  ),
-                  child: Icon(icono, color: t.onBrand, size: 22),
-                ),
-              ),
-              ManiGap.hMd,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        titulo,
-                        key: tituloKey,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: ManiText.h3.copyWith(color: t.ink),
-                      ),
-                    ),
-                    if (descripcion != null) ...[
-                      ManiGap.vXxs,
-                      Text(
-                        descripcion!,
-                        key: descripcionKey,
-                        maxLines: angosta ? 3 : 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: ManiText.bodySm.copyWith(color: t.inkMuted),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (!angosta && acciones.isNotEmpty) ...[
-                ManiGap.hLg,
-                Wrap(
-                  spacing: ManiSpace.sm,
-                  runSpacing: ManiSpace.sm,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: acciones,
-                ),
-              ],
-            ],
-          );
+          final identidad = _identidad(context, puedeVolver, angosta);
           return Padding(
-            padding: EdgeInsets.fromLTRB(
-              angosta ? ManiSpace.lg : ManiSpace.xxl,
-              angosta ? ManiSpace.md : ManiSpace.lg,
-              angosta ? ManiSpace.lg : ManiSpace.xxl,
-              angosta ? ManiSpace.md : ManiSpace.lg,
+            padding: EdgeInsets.symmetric(
+              horizontal: angosta ? ManiSpace.lg : ManiSpace.xxl,
+              vertical: angosta ? ManiSpace.md : ManiSpace.lg,
             ),
+            // En pantalla angosta las acciones bajan debajo del título.
             child: angosta && acciones.isNotEmpty
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      identidad,
-                      ManiGap.vMd,
-                      Wrap(
-                        spacing: ManiSpace.sm,
-                        runSpacing: ManiSpace.sm,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: acciones,
-                      ),
-                    ],
+                    children: [identidad, ManiGap.vMd, _accionesEnFila()],
                   )
                 : identidad,
           );
         },
+      ),
+    );
+  }
+
+  /// Volver (si hay a dónde), icono, título y descripción; en pantalla ancha
+  /// también las acciones, a la derecha.
+  Widget _identidad(BuildContext context, bool puedeVolver, bool angosta) {
+    final t = context.mani;
+    return Row(
+      children: [
+        if (puedeVolver) ...[
+          IconButton(
+            tooltip: 'Volver',
+            onPressed: () => Navigator.of(context).maybePop(),
+            icon: Icon(Icons.arrow_back_rounded, color: t.ink),
+          ),
+          ManiGap.hXs,
+        ],
+        _IconoEncabezado(icono: icono),
+        ManiGap.hMd,
+        Expanded(child: _textos(t, angosta)),
+        if (!angosta && acciones.isNotEmpty) ...[
+          ManiGap.hLg,
+          _accionesEnFila(),
+        ],
+      ],
+    );
+  }
+
+  Widget _textos(ManiTokens t, bool angosta) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(
+            titulo,
+            key: tituloKey,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: ManiText.h3.copyWith(color: t.ink),
+          ),
+        ),
+        if (descripcion != null) ...[
+          ManiGap.vXxs,
+          Text(
+            descripcion!,
+            key: descripcionKey,
+            maxLines: angosta ? 3 : 2,
+            overflow: TextOverflow.ellipsis,
+            style: ManiText.bodySm.copyWith(color: t.inkMuted),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _accionesEnFila() => Wrap(
+    spacing: ManiSpace.sm,
+    runSpacing: ManiSpace.sm,
+    crossAxisAlignment: WrapCrossAlignment.center,
+    children: acciones,
+  );
+}
+
+/// Icono de la pantalla sobre un cuadro del color de marca.
+class _IconoEncabezado extends StatelessWidget {
+  const _IconoEncabezado({required this.icono});
+
+  final IconData icono;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.mani;
+    return ExcludeSemantics(
+      child: Container(
+        width: 42,
+        height: 42,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: t.brand,
+          borderRadius: ManiRadius.brSm,
+          border: Border.all(color: t.border, width: ManiBorder.regular),
+          boxShadow: [t.shadowSm],
+        ),
+        child: Icon(icono, color: t.onBrand, size: 22),
       ),
     );
   }

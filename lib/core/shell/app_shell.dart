@@ -139,30 +139,8 @@ class _AppShellState extends State<AppShell> {
 
   Widget _armazon(BuildContext context) {
     final t = context.mani;
-    final esOscuro = context.esModoOscuro;
     final entradas = _entradas();
-    final contexto = widget._conContexto ? widget.contextoPlataforma : null;
-    final cuerpo = contexto == null
-        ? widget.child
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SelectorContextoPlataforma(
-                contexto: contexto,
-                fuenteTenants: widget.fuenteTenants!,
-                fuenteUsuarios: widget.fuenteUsuarios!,
-                alCambiar: () => widget.onNavegar('/inicio'),
-              ),
-              Expanded(
-                // Pantallas nuevas con el contexto nuevo: sus cubits vuelven a
-                // consultar con las cabeceras actualizadas.
-                child: KeyedSubtree(
-                  key: ValueKey('contexto-${contexto.version}'),
-                  child: widget.child,
-                ),
-              ),
-            ],
-          );
+    final cuerpo = _cuerpo();
     return LayoutBuilder(
       builder: (context, constraints) {
         final expandido = constraints.maxWidth >= anchoMenuExpandido;
@@ -182,94 +160,125 @@ class _AppShellState extends State<AppShell> {
             ),
             leading: expandido ? null : _menuCompacto(context, entradas),
             titleSpacing: expandido ? ManiSpace.xl : 0,
-            title: Row(
-              children: [
-                const ManiLogo(size: 40),
-                ManiGap.hMd,
-                if (expandido) ...[
-                  Expanded(child: _entradasEnLinea(context, entradas)),
-                  ManiGap.hMd,
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: ManiSpace.md,
-                      vertical: ManiSpace.xs,
-                    ),
-                    constraints: const BoxConstraints(maxWidth: 210),
-                    decoration: BoxDecoration(
-                      color: t.surfaceMuted,
-                      borderRadius: ManiRadius.brSm,
-                      border: Border.all(
-                        color: t.borderSubtle,
-                        width: ManiBorder.thin,
-                      ),
-                    ),
-                    child: _CabeceraSesion(datos: _datos, rol: widget.rol),
-                  ),
-                ] else
-                  Expanded(
-                    child: _CabeceraSesion(datos: _datos, rol: widget.rol),
-                  ),
-              ],
-            ),
-            actions: [
-              Center(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: esOscuro ? t.brandSoft : t.surfaceMuted,
-                    borderRadius: ManiRadius.brSm,
-                    border: Border.all(
-                      color: t.border,
-                      width: ManiBorder.regular,
-                    ),
-                    boxShadow: [t.shadowSm],
-                  ),
-                  child: IconButton(
-                    key: const Key('menu-tema'),
-                    tooltip: esOscuro
-                        ? 'Cambiar a modo claro'
-                        : 'Cambiar a modo oscuro',
-                    icon: Icon(
-                      esOscuro
-                          ? Icons.light_mode_rounded
-                          : Icons.dark_mode_outlined,
-                      color: t.ink,
-                      size: 19,
-                    ),
-                    onPressed: maniThemeController.alternar,
-                  ),
-                ),
-              ),
-              ManiGap.hSm,
-              Padding(
-                padding: EdgeInsets.only(
-                  right: expandido ? ManiSpace.xl : ManiSpace.lg,
-                ),
-                child: Center(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: t.surface,
-                      borderRadius: ManiRadius.brSm,
-                      border: Border.all(
-                        color: t.border,
-                        width: ManiBorder.regular,
-                      ),
-                      boxShadow: [t.shadowSm],
-                    ),
-                    child: IconButton(
-                      key: const Key('menu-cerrar-sesion'),
-                      tooltip: _textoCerrarSesion,
-                      icon: Icon(Icons.logout_rounded, color: t.ink, size: 20),
-                      onPressed: _cerrarSesion,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            title: _tituloBarra(context, expandido, entradas),
+            actions: _acciones(context, expandido),
           ),
           body: cuerpo,
         );
       },
     );
+  }
+
+  /// La pantalla de la ruta; con contexto de plataforma, bajo su selector.
+  Widget _cuerpo() {
+    final contexto = widget._conContexto ? widget.contextoPlataforma : null;
+    if (contexto == null) return widget.child;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SelectorContextoPlataforma(
+          contexto: contexto,
+          fuenteTenants: widget.fuenteTenants!,
+          fuenteUsuarios: widget.fuenteUsuarios!,
+          alCambiar: () => widget.onNavegar('/inicio'),
+        ),
+        Expanded(
+          // Pantallas nuevas con el contexto nuevo: sus cubits vuelven a
+          // consultar con las cabeceras actualizadas.
+          child: KeyedSubtree(
+            key: ValueKey('contexto-${contexto.version}'),
+            child: widget.child,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Logo, entradas en línea (escritorio) y datos de la sesión.
+  Widget _tituloBarra(
+    BuildContext context,
+    bool expandido,
+    List<EntradaMenu> entradas,
+  ) {
+    final t = context.mani;
+    return Row(
+      children: [
+        const ManiLogo(size: 40),
+        ManiGap.hMd,
+        if (expandido) ...[
+          Expanded(child: _entradasEnLinea(context, entradas)),
+          ManiGap.hMd,
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: ManiSpace.md,
+              vertical: ManiSpace.xs,
+            ),
+            constraints: const BoxConstraints(maxWidth: 210),
+            decoration: BoxDecoration(
+              color: t.surfaceMuted,
+              borderRadius: ManiRadius.brSm,
+              border: Border.all(color: t.borderSubtle, width: ManiBorder.thin),
+            ),
+            child: _CabeceraSesion(datos: _datos, rol: widget.rol),
+          ),
+        ] else
+          Expanded(
+            child: _CabeceraSesion(datos: _datos, rol: widget.rol),
+          ),
+      ],
+    );
+  }
+
+  /// Botones de modo claro/oscuro y de cerrar sesión.
+  List<Widget> _acciones(BuildContext context, bool expandido) {
+    final t = context.mani;
+    final esOscuro = context.esModoOscuro;
+    return [
+      Center(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: esOscuro ? t.brandSoft : t.surfaceMuted,
+            borderRadius: ManiRadius.brSm,
+            border: Border.all(color: t.border, width: ManiBorder.regular),
+            boxShadow: [t.shadowSm],
+          ),
+          child: IconButton(
+            key: const Key('menu-tema'),
+            tooltip: esOscuro
+                ? 'Cambiar a modo claro'
+                : 'Cambiar a modo oscuro',
+            icon: Icon(
+              esOscuro ? Icons.light_mode_rounded : Icons.dark_mode_outlined,
+              color: t.ink,
+              size: 19,
+            ),
+            onPressed: maniThemeController.alternar,
+          ),
+        ),
+      ),
+      ManiGap.hSm,
+      Padding(
+        padding: EdgeInsets.only(
+          right: expandido ? ManiSpace.xl : ManiSpace.lg,
+        ),
+        child: Center(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: t.surface,
+              borderRadius: ManiRadius.brSm,
+              border: Border.all(color: t.border, width: ManiBorder.regular),
+              boxShadow: [t.shadowSm],
+            ),
+            child: IconButton(
+              key: const Key('menu-cerrar-sesion'),
+              tooltip: _textoCerrarSesion,
+              icon: Icon(Icons.logout_rounded, color: t.ink, size: 20),
+              onPressed: _cerrarSesion,
+            ),
+          ),
+        ),
+      ),
+    ];
   }
 
   Widget _menuCompacto(BuildContext context, List<EntradaMenu> entradas) {
@@ -341,6 +350,21 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
+  /// La rueda del ratón (vertical u horizontal) desplaza la barra de entradas.
+  void _desplazarConRueda(PointerSignalEvent senal) {
+    if (senal is! PointerScrollEvent || !_menuScrollController.hasClients) {
+      return;
+    }
+    final delta = senal.scrollDelta.dy != 0
+        ? senal.scrollDelta.dy
+        : senal.scrollDelta.dx;
+    final destino = (_menuScrollController.offset + delta).clamp(
+      0.0,
+      _menuScrollController.position.maxScrollExtent,
+    );
+    _menuScrollController.jumpTo(destino);
+  }
+
   /// Entradas del menú en la barra, con desplazamiento horizontal (rueda,
   /// arrastre o flechas) cuando no caben.
   Widget _entradasEnLinea(BuildContext context, List<EntradaMenu> entradas) {
@@ -358,19 +382,7 @@ class _AppShellState extends State<AppShell> {
         ),
         Expanded(
           child: Listener(
-            onPointerSignal: (pointerSignal) {
-              if (pointerSignal is PointerScrollEvent &&
-                  _menuScrollController.hasClients) {
-                final delta = pointerSignal.scrollDelta.dy != 0
-                    ? pointerSignal.scrollDelta.dy
-                    : pointerSignal.scrollDelta.dx;
-                final target = (_menuScrollController.offset + delta).clamp(
-                  0.0,
-                  _menuScrollController.position.maxScrollExtent,
-                );
-                _menuScrollController.jumpTo(target);
-              }
-            },
+            onPointerSignal: _desplazarConRueda,
             child: ScrollConfiguration(
               behavior: ScrollConfiguration.of(context).copyWith(
                 dragDevices: {
@@ -396,55 +408,10 @@ class _AppShellState extends State<AppShell> {
                   child: Row(
                     children: [
                       for (final e in entradas)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: ManiSpace.xs,
-                          ),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: _esActiva(e) ? t.brand : t.surface,
-                              borderRadius: ManiRadius.brMd,
-                              border: Border.all(
-                                color: _esActiva(e) ? t.border : t.borderSubtle,
-                                width: _esActiva(e)
-                                    ? ManiBorder.regular
-                                    : ManiBorder.thin,
-                              ),
-                              boxShadow: _esActiva(e) ? [t.shadowSm] : const [],
-                            ),
-                            child: TextButton.icon(
-                              key: Key('menu-entrada-${e.ruta}'),
-                              onPressed: () => widget.onNavegar(e.ruta),
-                              icon: Icon(
-                                e.icono,
-                                size: 18,
-                                color: _esActiva(e) ? t.onBrand : t.inkMuted,
-                              ),
-                              label: Text(
-                                e.etiqueta,
-                                style: TextStyle(
-                                  fontSize: ManiFontSize.bodySm,
-                                  fontWeight: _esActiva(e)
-                                      ? FontWeight.w900
-                                      : FontWeight.w700,
-                                  color: _esActiva(e) ? t.onBrand : t.ink,
-                                ),
-                              ),
-                              style: TextButton.styleFrom(
-                                foregroundColor: _esActiva(e)
-                                    ? t.onBrand
-                                    : t.ink,
-                                backgroundColor: _esActiva(e) ? t.brand : null,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: ManiSpace.md,
-                                  vertical: ManiSpace.sm,
-                                ),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: ManiRadius.brMd,
-                                ),
-                              ),
-                            ),
-                          ),
+                        _EntradaEnLinea(
+                          entrada: e,
+                          activa: _esActiva(e),
+                          onTap: () => widget.onNavegar(e.ruta),
                         ),
                     ],
                   ),
@@ -463,6 +430,65 @@ class _AppShellState extends State<AppShell> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Una entrada del menú en la barra; la activa va con el color de marca.
+class _EntradaEnLinea extends StatelessWidget {
+  const _EntradaEnLinea({
+    required this.entrada,
+    required this.activa,
+    required this.onTap,
+  });
+
+  final EntradaMenu entrada;
+  final bool activa;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.mani;
+    final colorTexto = activa ? t.onBrand : t.ink;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: ManiSpace.xs),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: activa ? t.brand : t.surface,
+          borderRadius: ManiRadius.brMd,
+          border: Border.all(
+            color: activa ? t.border : t.borderSubtle,
+            width: activa ? ManiBorder.regular : ManiBorder.thin,
+          ),
+          boxShadow: activa ? [t.shadowSm] : const [],
+        ),
+        child: TextButton.icon(
+          key: Key('menu-entrada-${entrada.ruta}'),
+          onPressed: onTap,
+          icon: Icon(
+            entrada.icono,
+            size: 18,
+            color: activa ? t.onBrand : t.inkMuted,
+          ),
+          label: Text(
+            entrada.etiqueta,
+            style: TextStyle(
+              fontSize: ManiFontSize.bodySm,
+              fontWeight: activa ? FontWeight.w900 : FontWeight.w700,
+              color: colorTexto,
+            ),
+          ),
+          style: TextButton.styleFrom(
+            foregroundColor: colorTexto,
+            backgroundColor: activa ? t.brand : null,
+            padding: const EdgeInsets.symmetric(
+              horizontal: ManiSpace.md,
+              vertical: ManiSpace.sm,
+            ),
+            shape: const RoundedRectangleBorder(borderRadius: ManiRadius.brMd),
+          ),
+        ),
+      ),
     );
   }
 }

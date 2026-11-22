@@ -62,35 +62,7 @@ class _ManiButtonState extends State<ManiButton> {
     final (fondo, texto) = _colores(t);
     final hundido = _presionado || !_habilitado;
     final rapido = ManiMotion.duracion(context, ManiMotion.fast);
-    final estilo = ManiText.label.copyWith(
-      color: texto,
-      fontWeight: FontWeight.w900,
-      letterSpacing: 0.3,
-    );
-
-    final contenido = Row(
-      mainAxisSize: widget.expandir ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (widget.cargando)
-          SizedBox.square(
-            dimension: ManiSpace.lg,
-            child: CircularProgressIndicator(strokeWidth: 2.5, color: texto),
-          )
-        else if (widget.icono != null)
-          Icon(widget.icono, size: 18, color: texto),
-        if (widget.cargando || widget.icono != null) ManiGap.hSm,
-        Flexible(
-          child: Text(
-            widget.etiqueta,
-            style: estilo,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-
-    const d = ManiShadow.hundimiento;
+    final desplazamiento = _desplazamiento(hundido);
     return Semantics(
       button: true,
       enabled: _habilitado,
@@ -128,8 +100,8 @@ class _ManiButtonState extends State<ManiButton> {
               duration: rapido,
               curve: ManiMotion.entrada,
               transform: Matrix4.translationValues(
-                hundido ? d : (_hover ? -1 : 0),
-                hundido ? d : (_hover ? -1 : 0),
+                desplazamiento,
+                desplazamiento,
                 0,
               ),
               padding: const EdgeInsets.symmetric(
@@ -140,18 +112,56 @@ class _ManiButtonState extends State<ManiButton> {
                 color: fondo,
                 borderRadius: ManiRadius.brMd,
                 border: Border.all(color: t.border, width: ManiBorder.regular),
-                boxShadow: [
-                  if (!hundido) _hover ? t.shadow : t.shadowSm,
-                  // Anillo de foco: un contorno extra fuera de la sombra.
-                  if (_enfocado) BoxShadow(color: t.border, spreadRadius: 3),
-                  if (_enfocado) BoxShadow(color: t.brand, spreadRadius: 1.5),
-                ],
+                boxShadow: _sombras(t, hundido),
               ),
-              child: contenido,
+              child: _contenido(texto),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Hundido baja a la posición de la sombra; con el cursor encima sube 1 px.
+  double _desplazamiento(bool hundido) {
+    if (hundido) return ManiShadow.hundimiento;
+    return _hover ? -1 : 0;
+  }
+
+  List<BoxShadow> _sombras(ManiTokens t, bool hundido) => [
+    if (!hundido) _hover ? t.shadow : t.shadowSm,
+    // Anillo de foco: un contorno extra fuera de la sombra.
+    if (_enfocado) BoxShadow(color: t.border, spreadRadius: 3),
+    if (_enfocado) BoxShadow(color: t.brand, spreadRadius: 1.5),
+  ];
+
+  /// Indicador de carga o icono, y la etiqueta.
+  Widget _contenido(Color texto) {
+    final conIcono = widget.cargando || widget.icono != null;
+    return Row(
+      mainAxisSize: widget.expandir ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (widget.cargando)
+          SizedBox.square(
+            dimension: ManiSpace.lg,
+            child: CircularProgressIndicator(strokeWidth: 2.5, color: texto),
+          )
+        else if (widget.icono != null)
+          Icon(widget.icono, size: 18, color: texto),
+        if (conIcono) ManiGap.hSm,
+        Flexible(
+          child: Text(
+            widget.etiqueta,
+            style: ManiText.label.copyWith(
+              color: texto,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.3,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }

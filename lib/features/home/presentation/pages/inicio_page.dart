@@ -10,6 +10,15 @@ import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/features/home/data/resumen_inicio.dart';
 
+// Rutas que el inicio usa en varios sitios (acción primaria, accesos
+// principales, descripciones y grupos).
+const _rutaNuevaSolicitud = '/cliente/solicitudes/nueva';
+const _rutaMisSolicitudes = '/cliente/solicitudes';
+const _rutaBandejaAliado = '/aliado/solicitudes';
+const _rutaCobrosAliado = '/aliado/cobros';
+const _rutaVerificacion = '/admin/verificacion-aliados';
+const _rutaTenants = '/plataforma/tenants';
+
 /// Pantalla de inicio neo-brutalista por tipo de usuario (US-11.2.3 / SCRUM-1446).
 ///
 /// Organiza el tablero con jerarquía visual clara:
@@ -232,41 +241,41 @@ class _InicioPageState extends State<InicioPage> {
   ) => switch (rol) {
     RolUsuario.cliente => (
       etiqueta: 'Publicar solicitud',
-      ruta: '/cliente/solicitudes/nueva',
+      ruta: _rutaNuevaSolicitud,
       icono: Icons.add_circle_outline_rounded,
     ),
     RolUsuario.aliado => (
       etiqueta: 'Revisar bandeja',
-      ruta: '/aliado/solicitudes',
+      ruta: _rutaBandejaAliado,
       icono: Icons.inbox_rounded,
     ),
     RolUsuario.adminTenant => (
       etiqueta: 'Revisar verificaciones',
-      ruta: '/admin/verificacion-aliados',
+      ruta: _rutaVerificacion,
       icono: Icons.verified_user_outlined,
     ),
     RolUsuario.adminPlataforma => (
       etiqueta: 'Administrar tenants',
-      ruta: '/plataforma/tenants',
+      ruta: _rutaTenants,
       icono: Icons.domain_outlined,
     ),
     RolUsuario.desconocido => null,
   };
 
   static bool _esRutaPrincipal(String ruta) => const {
-    '/cliente/solicitudes/nueva',
-    '/cliente/solicitudes',
-    '/aliado/solicitudes',
-    '/aliado/cobros',
-    '/admin/verificacion-aliados',
+    _rutaNuevaSolicitud,
+    _rutaMisSolicitudes,
+    _rutaBandejaAliado,
+    _rutaCobrosAliado,
+    _rutaVerificacion,
     '/admin/metricas',
-    '/plataforma/tenants',
+    _rutaTenants,
   }.contains(ruta);
 
   static String _descripcionAcceso(String ruta) => switch (ruta) {
-    '/cliente/solicitudes/nueva' =>
+    _rutaNuevaSolicitud =>
       'Describe tu requerimiento y adjunta evidencia fotográfica.',
-    '/cliente/solicitudes' =>
+    _rutaMisSolicitudes =>
       'Sigue el estado, cotizaciones y pagos de tus servicios activos.',
     '/cliente/historial' =>
       'Consulta trabajos finalizados y califica la atención recibida.',
@@ -274,18 +283,18 @@ class _InicioPageState extends State<InicioPage> {
       'Administra direcciones, contactos y reglas de acceso por sede.',
     '/cliente/quejas' =>
       'Revisa el estado y las respuestas a tus reclamaciones.',
-    '/aliado/solicitudes' =>
+    _rutaBandejaAliado =>
       'Acepta solicitudes disponibles en tu zona y gestiona tus trabajos.',
     '/aliado/historial' =>
       'Revisa servicios concluidos y calificaciones de clientes.',
     '/aliado/cobertura' =>
       'Declara los municipios, localidades y barrios donde trabajas.',
     '/categories' => 'Elige las especialidades técnicas que ofreces en la red.',
-    '/aliado/cobros' =>
+    _rutaCobrosAliado =>
       'Consulta pagos retenidos, comisiones y liquidaciones netas.',
     '/aliado/disponibilidad' =>
       'Activa o pausa tu disponibilidad y programa ausencias.',
-    '/admin/verificacion-aliados' =>
+    _rutaVerificacion =>
       'Valida documentos y aprueba o rechaza candidatos de tu red.',
     '/admin/categorias' =>
       'Define el catálogo de especialidades activas de tu empresa.',
@@ -307,7 +316,7 @@ class _InicioPageState extends State<InicioPage> {
       'Inspecciona la bitácora inmutable de eventos de pago.',
     '/admin/conversaciones' =>
       'Revisa el historial de mensajes asociado a una queja.',
-    '/plataforma/tenants' =>
+    _rutaTenants =>
       'Habilita, suspende o inactiva empresas registradas en MANI.',
     '/catalogo/mapa' =>
       'Explora los límites geográficos de zonas y barrios del catálogo.',
@@ -330,15 +339,15 @@ class _InicioPageState extends State<InicioPage> {
     }
 
     const rutasOperacion = {
-      '/plataforma/tenants',
-      '/admin/verificacion-aliados',
+      _rutaTenants,
+      _rutaVerificacion,
       '/admin/categorias',
       '/admin/empleados/nuevo',
       '/catalogo/mapa',
-      '/cliente/solicitudes/nueva',
-      '/cliente/solicitudes',
+      _rutaNuevaSolicitud,
+      _rutaMisSolicitudes,
       '/cliente/sedes',
-      '/aliado/solicitudes',
+      _rutaBandejaAliado,
       '/aliado/cobertura',
       '/categories',
       '/aliado/disponibilidad',
@@ -348,7 +357,7 @@ class _InicioPageState extends State<InicioPage> {
       '/admin/reportes/cotizaciones-fuera-de-rango',
       '/admin/reglas',
       '/admin/politica-cancelacion',
-      '/aliado/cobros',
+      _rutaCobrosAliado,
     };
 
     final operacion = <EntradaMenu>[];
