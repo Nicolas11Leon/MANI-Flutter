@@ -38,7 +38,7 @@ abstract final class ManiColors {
   static const Color inkMuted = Color(0xFF536485);
 
   /// Texto terciario y marcadores (≥ 4.6:1 sobre superficie hundida y crema).
-  static const Color inkSubtle = Color(0xFF5B6A8A);
+  static const Color inkSubtle = Color(0xFF576687);
 
   /// Texto e íconos sobre fondos oscuros ([ink], [danger]).
   static const Color onInk = Color(0xFFFFFFFF);
