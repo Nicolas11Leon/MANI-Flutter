@@ -217,6 +217,7 @@ void main() {
       required RolUsuario rol,
       required FuenteResumenInicio resumen,
       ValueChanged<String>? onNavegar,
+      Future<void> Function()? onCerrarSesion,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -225,6 +226,7 @@ void main() {
             fuenteSesion: _SesionFija(),
             fuenteResumen: resumen,
             onNavegar: onNavegar ?? (_) {},
+            onCerrarSesion: onCerrarSesion,
           ),
         ),
       );
@@ -336,5 +338,37 @@ void main() {
       expect(find.byKey(const Key('inicio-card-sesion')), findsNothing);
       expect(find.byKey(const Key('inicio-cerrar-sesion')), findsNothing);
     });
+
+    testWidgets(
+      'en escritorio, la tarjeta de cerrar sesión pide confirmación (QAS-39)',
+      (tester) async {
+        tester.view.physicalSize = const Size(1400, 1600);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        var cerro = 0;
+        await montar(
+          tester,
+          rol: RolUsuario.cliente,
+          resumen: _ResumenFijo(const []),
+          onCerrarSesion: () async => cerro++,
+        );
+        await tester.pumpAndSettle();
+
+        final tarjeta = find.byKey(const Key('inicio-cerrar-sesion'));
+        await tester.ensureVisible(tarjeta);
+        await tester.tap(tarjeta);
+        await tester.pumpAndSettle();
+        expect(find.text('¿Cerrar sesión?'), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('confirmacion-cancelar')));
+        await tester.pumpAndSettle();
+        expect(cerro, 0);
+
+        await tester.tap(tarjeta);
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('confirmacion-confirmar')));
+        await tester.pumpAndSettle();
+        expect(cerro, 1);
+      },
+    );
   });
 }
