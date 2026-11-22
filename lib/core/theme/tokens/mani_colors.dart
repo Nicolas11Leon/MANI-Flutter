@@ -109,23 +109,23 @@ abstract final class ManiColors {
 /// bordes crema de alto contraste y sellos en durazno (`#FED1B0`) con tinta
 /// oscura (`#1C1613`).
 abstract final class ManiDarkColors {
-  static const Color background = Color(0xFF0F192E);
-  static const Color surface = Color(0xFF16233F);
-  static const Color surfaceMuted = Color(0xFF1F2F52);
-  static const Color surfaceWarm = Color(0xFF243760);
+  static const Color background = Color(0xFF121212);
+  static const Color surface = Color(0xFF1C1C1C);
+  static const Color surfaceMuted = Color(0xFF262626);
+  static const Color surfaceWarm = Color(0xFF2A2616);
 
-  static const Color ink = Color(0xFFFBF3E4);
-  static const Color inkMuted = Color(0xFFB7C1D8);
-  static const Color inkSubtle = Color(0xFF9AA7C4);
-  static const Color onInk = Color(0xFF0F192E);
+  static const Color ink = Color(0xFFF5F2EA);
+  static const Color inkMuted = Color(0xFFBDB9AE);
+  static const Color inkSubtle = Color(0xFF9C988C);
+  static const Color onInk = Color(0xFF121212);
 
-  static const Color border = Color(0xFFD9D2BF);
-  static const Color borderSubtle = Color(0xFF2F4170);
+  static const Color border = Color(0xFFD9D5C7);
+  static const Color borderSubtle = Color(0xFF3A3A3A);
 
   static const Color brand = Color(0xFFF2B705);
-  static const Color onBrand = Color(0xFF1B2A4A);
+  static const Color onBrand = Color(0xFF1A1A1A);
   static const Color onBrandMuted = Color(0xFF4A3B00);
-  static const Color brandSoft = Color(0xFF3A3010);
+  static const Color brandSoft = Color(0xFF33290A);
 
-  static const Color shadow = Color(0xFF05080F);
+  static const Color shadow = Color(0xFF000000);
 }
