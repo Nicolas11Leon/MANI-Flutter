@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/utils/formato_fecha.dart';
 
@@ -64,10 +65,11 @@ class AvisosView extends StatelessWidget {
                               textAlign: TextAlign.center,
                             ),
                             ManiGap.vMd,
-                            OutlinedButton(
+                            ManiButton(
                               key: const Key('reintentar-avisos'),
+                              variante: ManiButtonVariante.secundario,
+                              etiqueta: 'Reintentar',
                               onPressed: context.read<AvisosCubit>().cargar,
-                              child: const Text('Reintentar'),
                             ),
                           ],
                         ),

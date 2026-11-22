@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 
 import '../data/politica_cancelacion_datasource.dart';
@@ -147,9 +148,10 @@ class PoliticaCancelacionPage extends StatelessWidget {
                           child: ListTile(
                             leading: const Icon(Icons.error_outline),
                             title: Text(state.error!),
-                            trailing: TextButton(
+                            trailing: ManiButton(
+                              variante: ManiButtonVariante.enlace,
+                              etiqueta: 'Reintentar',
                               onPressed: cubit.cargar,
-                              child: const Text('Reintentar'),
                             ),
                           ),
                         )
@@ -239,16 +241,14 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
                   : (v) => setState(() => _activa = v),
             ),
             ManiGap.vSm,
-            TextField(
+            ManiTextField(
               key: const Key('politica-ventana'),
               controller: _ventana,
               enabled: !widget.guardando,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(
-                labelText: 'Ventana gratuita (minutos desde la asignación)',
-                helperText: 'De 0 a 1440',
-              ),
+              label: 'Ventana gratuita (minutos desde la asignación)',
+              helperText: 'De 0 a 1440',
             ),
             ManiGap.vMd,
             DropdownButtonFormField<TipoCobroPenalizacion>(
@@ -264,7 +264,7 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
                   : (t) => setState(() => _tipo = t ?? _tipo),
             ),
             ManiGap.vMd,
-            TextField(
+            ManiTextField(
               key: const Key('politica-valor'),
               controller: _valor,
               enabled: !widget.guardando,
@@ -274,11 +274,9 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
               ],
-              decoration: InputDecoration(
-                labelText: _tipo == TipoCobroPenalizacion.porcentaje
-                    ? 'Porcentaje (0 a 100)'
-                    : 'Monto en pesos',
-              ),
+              label: _tipo == TipoCobroPenalizacion.porcentaje
+                  ? 'Porcentaje (0 a 100)'
+                  : 'Monto en pesos',
             ),
             ManiGap.vLg,
             ManiButton(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/utils/formato_fecha.dart';
@@ -102,21 +104,19 @@ class _AuditoriaViewState extends State<AuditoriaView> {
                       Row(
                         children: [
                           Expanded(
-                            child: TextField(
+                            child: ManiTextField(
                               key: const Key('filtro-pago'),
                               controller: _filtro,
-                              decoration: const InputDecoration(
-                                labelText: 'Filtrar por id de pago (opcional)',
-                                prefixIcon: Icon(Icons.search_rounded),
-                              ),
-                              onSubmitted: (v) => cubit.cargar(pagoId: v),
+                              label: 'Filtrar por id de pago (opcional)',
+                              prefixIcon: const Icon(Icons.search_rounded),
+                              onFieldSubmitted: (v) => cubit.cargar(pagoId: v),
                             ),
                           ),
                           ManiGap.hSm,
-                          FilledButton(
+                          ManiButton(
                             key: const Key('btn-filtrar'),
+                            etiqueta: 'Buscar',
                             onPressed: () => cubit.cargar(pagoId: _filtro.text),
-                            child: const Text('Buscar'),
                           ),
                         ],
                       ),
@@ -132,11 +132,12 @@ class _AuditoriaViewState extends State<AuditoriaView> {
                               style: TextStyle(color: t.ink),
                             ),
                             ManiGap.vSm,
-                            OutlinedButton(
+                            ManiButton(
                               key: const Key('reintentar-auditoria'),
+                              variante: ManiButtonVariante.secundario,
+                              etiqueta: 'Reintentar',
                               onPressed: () =>
                                   cubit.cargar(pagoId: state.filtroPago),
-                              child: const Text('Reintentar'),
                             ),
                           ],
                         ),
@@ -154,14 +155,15 @@ class _AuditoriaViewState extends State<AuditoriaView> {
                       ],
                       if (state.hayMas)
                         Center(
-                          child: OutlinedButton(
+                          child: ManiButton(
                             key: const Key('cargar-mas'),
+                            variante: ManiButtonVariante.secundario,
+                            etiqueta: state.cargandoMas
+                                ? 'Cargando…'
+                                : 'Cargar más',
                             onPressed: state.cargandoMas
                                 ? null
                                 : cubit.cargarMas,
-                            child: Text(
-                              state.cargandoMas ? 'Cargando…' : 'Cargar más',
-                            ),
                           ),
                         ),
                     ],

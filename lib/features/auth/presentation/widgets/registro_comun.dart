@@ -2,6 +2,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_pulsable.dart';
 import 'package:mani/features/auth/presentation/widgets/auth_layout.dart';
@@ -437,7 +439,7 @@ class RegistroCampoCorreo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    return ManiTextField(
       controller: controller,
       keyboardType: TextInputType.emailAddress,
       style: estiloCampoRegistro,
@@ -474,23 +476,18 @@ class _RegistroCampoContrasenaState extends State<RegistroCampoContrasena> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    return ManiTextField(
       controller: widget.controller,
       obscureText: !_visible,
       style: estiloCampoRegistro,
       decoration: decoracionCampoRegistro(
         hint: '••••••••',
         prefixIcon: Icons.key_outlined,
-        suffixIcon: TextButton(
+        suffixIcon: ManiButton(
+          variante: ManiButtonVariante.enlace,
+          etiqueta: _visible ? 'OCULTAR' : 'VER',
+          etiquetaAccesible: _visible ? 'Ocultar contraseña' : 'Ver contraseña',
           onPressed: () => setState(() => _visible = !_visible),
-          child: Text(
-            _visible ? 'OCULTAR' : 'VER',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.micro,
-              fontWeight: FontWeight.w800,
-              color: ManiColors.inkMuted,
-            ),
-          ),
         ),
       ),
       validator: (v) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:mani/core/session/guardas_ruta.dart';
 import 'package:mani/core/session/rol_usuario.dart';
 import 'package:mani/core/widgets/mani_mano.dart';
@@ -151,7 +152,7 @@ class _LoginViewState extends State<_LoginView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const ManiEtiquetaCampo('CORREO ELECTRÓNICO'),
-        TextFormField(
+        ManiTextField(
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
@@ -171,7 +172,7 @@ class _LoginViewState extends State<_LoginView> {
         ),
         ManiGap.vLg,
         const ManiEtiquetaCampo('CONTRASEÑA'),
-        TextFormField(
+        ManiTextField(
           controller: _passwordController,
           obscureText: !_showPassword,
           textInputAction: TextInputAction.done,
@@ -183,18 +184,13 @@ class _LoginViewState extends State<_LoginView> {
             prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
             suffixIcon: Padding(
               padding: const EdgeInsets.only(right: ManiSpace.xs),
-              child: TextButton(
+              child: ManiButton(
+                variante: ManiButtonVariante.enlace,
+                etiqueta: _showPassword ? 'OCULTAR' : 'VER',
+                etiquetaAccesible: _showPassword
+                    ? 'Ocultar contraseña'
+                    : 'Ver contraseña',
                 onPressed: () => setState(() => _showPassword = !_showPassword),
-                child: Text(
-                  _showPassword ? 'OCULTAR' : 'VER',
-                  semanticsLabel: _showPassword
-                      ? 'Ocultar contraseña'
-                      : 'Ver contraseña',
-                  style: ManiText.caption.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: ManiColors.inkMuted,
-                  ),
-                ),
               ),
             ),
           ),
@@ -206,16 +202,10 @@ class _LoginViewState extends State<_LoginView> {
         ),
         Align(
           alignment: Alignment.centerRight,
-          child: TextButton(
+          child: ManiButton(
+            variante: ManiButtonVariante.enlace,
+            etiqueta: '¿Olvidaste tu contraseña?',
             onPressed: () => context.go('/forgot-password'),
-            child: Text(
-              '¿Olvidaste tu contraseña?',
-              style: ManiText.bodySm.copyWith(
-                fontWeight: FontWeight.w700,
-                color: ManiColors.ink,
-                decoration: TextDecoration.underline,
-              ),
-            ),
           ),
         ),
       ],
