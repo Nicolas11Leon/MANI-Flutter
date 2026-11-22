@@ -5,12 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mani/core/widgets/mani_pulsable.dart';
 import 'package:mani/core/config/tenant_config.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/features/auth/presentation/widgets/auth_layout.dart';
+import 'package:mani/features/auth/presentation/widgets/registro_comun.dart';
 import 'package:mani/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mani/features/auth/presentation/widgets/selector_categoria_catalogo.dart';
 import 'package:mani/features/auth/presentation/widgets/terminos_condiciones_section.dart';
@@ -51,7 +50,6 @@ class _RegistroAliadoEmpresaViewState
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _showPassword = false;
   bool _aceptaTerminos = false;
   bool _mostrarErrorTerminos = false;
 
@@ -169,153 +167,19 @@ class _RegistroAliadoEmpresaViewState
     'contenido_base64': base64Encode(_contenidos[docType] ?? const <int>[]),
   };
 
-  void _mostrarExitoEmpresaDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: ManiColors.background,
-          shape: RoundedRectangleBorder(
-            borderRadius: ManiRadius.brLg,
-            side: const BorderSide(color: ManiColors.ink, width: 3),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(ManiSpace.sm),
-                decoration: BoxDecoration(
-                  color: ManiColors.brand,
-                  borderRadius: ManiRadius.brSm,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.regular,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.apartment_rounded,
-                  color: ManiColors.ink,
-                ),
-              ),
-              ManiGap.hMd,
-              Expanded(
-                child: Text(
-                  '¡Registro Empresarial Enviado!',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.h3,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: ManiAncho.estrecho),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Tu solicitud para operar como Empresa Aliada ha sido enviada a validación de Backoffice.',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.body,
-                    fontWeight: FontWeight.w600,
-                    color: ManiColors.ink,
-                  ),
-                ),
-                ManiGap.vMd,
-                Container(
-                  padding: const EdgeInsets.all(ManiSpace.md),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: ManiRadius.brMd,
-                    border: Border.all(
-                      color: ManiColors.border,
-                      width: ManiBorder.thin,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '📋 Estado: PENDIENTE DE REVISIÓN',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: ManiFontSize.bodySm,
-                          fontWeight: FontWeight.w800,
-                          color: ManiColors.ink,
-                        ),
-                      ),
-                      ManiGap.vSm,
-                      Text(
-                        'El Backoffice revisará la Cámara de Comercio y el RUT. Recibirás una notificación en el correo corporativo cuando tu empresa esté habilitada para recibir solicitudes empresariales.',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: ManiFontSize.caption,
-                          color: ManiColors.inkMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            ManiPulsable(
-              onTap: () {
-                Navigator.of(ctx).pop();
-                context.go('/login');
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: ManiSpace.xxl,
-                  vertical: ManiSpace.md,
-                ),
-                decoration: BoxDecoration(
-                  color: ManiColors.brand,
-                  borderRadius: ManiRadius.brMd,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.regular,
-                  ),
-                  boxShadow: const [ManiShadow.sm],
-                ),
-                child: Text(
-                  'IR AL INICIO DE SESIÓN',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.bodySm,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  void _mostrarExitoEmpresaDialog() => mostrarRegistroExitoso(
+    context,
+    icono: Icons.apartment_rounded,
+    titulo: '¡Registro Empresarial Enviado!',
+    mensaje:
+        'Tu solicitud para operar como Empresa Aliada ha sido enviada a validación de Backoffice.',
+    tituloDetalle: '📋 Estado: PENDIENTE DE REVISIÓN',
+    detalle:
+        'El Backoffice revisará la Cámara de Comercio y el RUT. Recibirás una notificación en el correo corporativo cuando tu empresa esté habilitada para recibir solicitudes empresariales.',
+  );
 
-  void _showNotification(String message, {bool isError = true}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.plusJakartaSans(
-            color: isError ? Colors.white : ManiColors.ink,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        backgroundColor: isError ? ManiColors.danger : ManiColors.brand,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: ManiRadius.brMd,
-          side: ManiBorder.side,
-        ),
-        margin: const EdgeInsets.all(ManiSpace.lg),
-      ),
-    );
-  }
+  void _showNotification(String message, {bool isError = true}) =>
+      mostrarAvisoRegistro(context, message, esError: isError);
 
   @override
   Widget build(BuildContext context) {
@@ -327,174 +191,36 @@ class _RegistroAliadoEmpresaViewState
           _showNotification(state.message);
         }
       },
-      builder: (context, state) {
-        final isLoading = state is AuthLoading;
-        return Scaffold(
-          backgroundColor: ManiColors.background,
-          body: SafeArea(
-            child: Column(
-              children: [
-                // ── Top Navigation Bar ─────────────────────────────────────
-                _buildTopNavBar(),
-
-                // ── Contenido Principal ──────────────────────────────────
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 36,
-                      vertical: ManiSpace.xxl,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: ManiAncho.panel,
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Banner Hero de Empresa
-                              _buildHeroBanner(),
-                              ManiGap.vXxl,
-
-                              // Layout en 2 columnas Web
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final isDesktop = constraints.maxWidth >= 850;
-                                  if (isDesktop) {
-                                    return Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          flex: 5,
-                                          child: _buildLeftColumn(),
-                                        ),
-                                        ManiGap.hXxl,
-                                        Expanded(
-                                          flex: 5,
-                                          child: _buildRightColumn(),
-                                        ),
-                                      ],
-                                    );
-                                  } else {
-                                    return Column(
-                                      children: [
-                                        _buildLeftColumn(),
-                                        ManiGap.vXxl,
-                                        _buildRightColumn(),
-                                      ],
-                                    );
-                                  }
-                                },
-                              ),
-                              ManiGap.vXxl,
-
-                              // Sección obligatoria de Términos y Condiciones (SCRUM-856)
-                              TerminosCondicionesSection(
-                                aceptaTerminos: _aceptaTerminos,
-                                mostrarError: _mostrarErrorTerminos,
-                                onChanged: (val) => setState(() {
-                                  _aceptaTerminos = val;
-                                  if (val) _mostrarErrorTerminos = false;
-                                }),
-                              ),
-                              ManiGap.vXxl,
-
-                              // Barra de acción inferior
-                              _buildBottomAction(isLoading),
-                              ManiGap.vHuge,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      builder: (context, state) => RegistroEstructura(
+        formKey: _formKey,
+        banner: _buildHeroBanner(),
+        izquierda: _buildLeftColumn(),
+        derecha: _buildRightColumn(),
+        // Sección obligatoria de Términos y Condiciones (SCRUM-856)
+        terminos: TerminosCondicionesSection(
+          aceptaTerminos: _aceptaTerminos,
+          mostrarError: _mostrarErrorTerminos,
+          onChanged: (val) => setState(() {
+            _aceptaTerminos = val;
+            if (val) _mostrarErrorTerminos = false;
+          }),
+        ),
+        accion: _buildBottomAction(state is AuthLoading),
+      ),
     );
   }
-
-  // ── Top Navigation Bar ───────────────────────────────────────────────────────
-  Widget _buildTopNavBar() => const AuthBarraSuperior();
 
   // ── Hero Banner de Empresa ──────────────────────────────────────────────────
-  Widget _buildHeroBanner() {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.xxl,
-        vertical: ManiSpace.lg,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: ManiRadius.brLg,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
-        boxShadow: const [ManiShadow.md],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(ManiSpace.md),
-            decoration: BoxDecoration(
-              color: ManiColors.brand,
-              borderRadius: ManiRadius.brMd,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.regular,
-              ),
-            ),
-            child: const Icon(
-              Icons.domain_rounded,
-              color: ManiColors.ink,
-              size: 26,
-            ),
-          ),
-          ManiGap.hLg,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Registro de Empresa de Servicios',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.h3,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                    letterSpacing: -0.4,
-                  ),
-                ),
-                ManiGap.vXs,
-                Text(
-                  'Registra tu empresa para operar formalmente en la plataforma y recibir solicitudes de mantenimiento corporativo.',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.bodySm,
-                    color: ManiColors.inkMuted,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildHeroBanner() => RegistroBanner(
+    icono: Icons.domain_rounded,
+    titulo: 'Registro de Empresa de Servicios',
+    descripcion:
+        'Registra tu empresa para operar formalmente en la plataforma y recibir solicitudes de mantenimiento corporativo.',
+  );
 
   // ── Columna Izquierda: Información Legal de la Empresa ─────────────────────
   Widget _buildLeftColumn() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: ManiRadius.brLg,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
-        boxShadow: const [ManiShadow.md],
-      ),
-      padding: const EdgeInsets.all(ManiSpace.xxl),
+    return RegistroTarjeta(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -509,11 +235,7 @@ class _RegistroAliadoEmpresaViewState
           ManiGap.vSm,
           TextFormField(
             controller: _razonSocialController,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.body,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: 'Ej: Redes y Mantenimientos Industriales S.A.S.',
               prefixIcon: Icons.apartment_rounded,
@@ -529,11 +251,7 @@ class _RegistroAliadoEmpresaViewState
           ManiGap.vSm,
           TextFormField(
             controller: _nitController,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.body,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: 'Ej: 900.123.456-7',
               prefixIcon: Icons.pin_outlined,
@@ -549,11 +267,7 @@ class _RegistroAliadoEmpresaViewState
           ManiGap.vSm,
           TextFormField(
             controller: _nombreRepController,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.body,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: 'Ej: Claudia Marcela Restrepo López',
               prefixIcon: Icons.badge_outlined,
@@ -569,11 +283,7 @@ class _RegistroAliadoEmpresaViewState
           ManiGap.vSm,
           TextFormField(
             controller: _docRepController,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.body,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: 'Ej: C.C. 52.345.678',
               prefixIcon: Icons.credit_card_outlined,
@@ -587,11 +297,7 @@ class _RegistroAliadoEmpresaViewState
           TextFormField(
             controller: _telefonoController,
             keyboardType: TextInputType.phone,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.body,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: '+57 (601) 745 0000 / +57 310 987 6543',
               prefixIcon: Icons.phone_outlined,
@@ -614,17 +320,7 @@ class _RegistroAliadoEmpresaViewState
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Tarjeta de Credenciales
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: ManiRadius.brLg,
-            border: Border.all(
-              color: ManiColors.border,
-              width: ManiBorder.regular,
-            ),
-            boxShadow: const [ManiShadow.md],
-          ),
-          padding: const EdgeInsets.all(ManiSpace.xxl),
+        RegistroTarjeta(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -637,84 +333,23 @@ class _RegistroAliadoEmpresaViewState
               // Correo
               _buildFieldLabel('CORREO ELECTRÓNICO CORPORATIVO'),
               ManiGap.vSm,
-              TextFormField(
+              RegistroCampoCorreo(
                 controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: ManiFontSize.body,
-                  fontWeight: FontWeight.w600,
-                  color: ManiColors.ink,
-                ),
-                decoration: _inputDecoration(
-                  hint: 'contacto@empresa.com',
-                  prefixIcon: Icons.email_outlined,
-                ),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return 'El correo corporativo es obligatorio';
-                  }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim())) {
-                    return 'Ingresa un correo electrónico válido';
-                  }
-                  return null;
-                },
+                hint: 'contacto@empresa.com',
               ),
               ManiGap.vLg,
 
               // Contraseña
               _buildFieldLabel('CONTRASEÑA'),
               ManiGap.vSm,
-              TextFormField(
-                controller: _passwordController,
-                obscureText: !_showPassword,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: ManiFontSize.body,
-                  fontWeight: FontWeight.w600,
-                  color: ManiColors.ink,
-                ),
-                decoration: _inputDecoration(
-                  hint: '••••••••',
-                  prefixIcon: Icons.key_outlined,
-                  suffixIcon: TextButton(
-                    onPressed: () =>
-                        setState(() => _showPassword = !_showPassword),
-                    child: Text(
-                      _showPassword ? 'OCULTAR' : 'VER',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: ManiFontSize.micro,
-                        fontWeight: FontWeight.w800,
-                        color: ManiColors.inkMuted,
-                      ),
-                    ),
-                  ),
-                ),
-                validator: (v) {
-                  if (v == null || v.isEmpty) {
-                    return 'La contraseña es obligatoria';
-                  }
-                  if (v.length < 6) {
-                    return 'Mínimo 6 caracteres';
-                  }
-                  return null;
-                },
-              ),
+              RegistroCampoContrasena(controller: _passwordController),
             ],
           ),
         ),
         ManiGap.vXxl,
 
         // Documentos KYC Corporativos
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: ManiRadius.brLg,
-            border: Border.all(
-              color: ManiColors.border,
-              width: ManiBorder.regular,
-            ),
-            boxShadow: const [ManiShadow.md],
-          ),
-          padding: const EdgeInsets.all(ManiSpace.xxl),
+        RegistroTarjeta(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -780,36 +415,10 @@ class _RegistroAliadoEmpresaViewState
   }
 
   // ── Helpers de diseño ────────────────────────────────────────────────────────
-  Widget _buildCardTitle(IconData icon, String title) {
-    return Row(
-      children: [
-        Icon(icon, color: ManiColors.ink, size: 20),
-        ManiGap.hSm,
-        Expanded(
-          child: Text(
-            title,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.bodyLg,
-              fontWeight: FontWeight.w900,
-              color: ManiColors.ink,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildCardTitle(IconData icon, String title) =>
+      RegistroTituloTarjeta(icono: icon, titulo: title);
 
-  Widget _buildFieldLabel(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.plusJakartaSans(
-        fontSize: ManiFontSize.micro,
-        fontWeight: FontWeight.w800,
-        color: ManiColors.ink,
-        letterSpacing: 0.5,
-      ),
-    );
-  }
+  Widget _buildFieldLabel(String text) => RegistroEtiquetaCampo(text);
 
   Widget _buildCategoriaDropdown() {
     return SelectorCategoriaCatalogo(
@@ -825,151 +434,20 @@ class _RegistroAliadoEmpresaViewState
     required String subtitle,
     required PlatformFile? file,
     required VoidCallback onTap,
-  }) {
-    final isSelected = file != null;
-
-    return ManiPulsable(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(ManiSpace.md),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? ManiColors.successContainer
-              : ManiColors.background,
-          borderRadius: ManiRadius.brMd,
-          border: Border.all(
-            color: isSelected ? ManiColors.success : ManiColors.ink,
-            width: isSelected ? 2 : 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(ManiSpace.sm),
-              decoration: BoxDecoration(
-                color: isSelected ? ManiColors.successContainer : Colors.white,
-                borderRadius: ManiRadius.brSm,
-                border: Border.all(
-                  color: isSelected ? ManiColors.success : ManiColors.ink,
-                  width: ManiBorder.thin,
-                ),
-              ),
-              child: Icon(
-                isSelected
-                    ? Icons.check_circle_rounded
-                    : Icons.upload_file_rounded,
-                color: isSelected ? ManiColors.success : ManiColors.ink,
-                size: 22,
-              ),
-            ),
-            ManiGap.hMd,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: ManiFontSize.bodySm,
-                      fontWeight: FontWeight.w800,
-                      color: ManiColors.ink,
-                    ),
-                  ),
-                  ManiGap.vXxs,
-                  Text(
-                    isSelected
-                        ? '${file.name}${file.lengthSync() != null ? " · ${(file.lengthSync()! / 1024).toStringAsFixed(1)} KB" : ""}'
-                        : subtitle,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: ManiFontSize.micro,
-                      fontWeight: isSelected
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                      color: isSelected
-                          ? ManiColors.success
-                          : ManiColors.inkMuted,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: ManiSpace.md,
-                vertical: ManiSpace.sm,
-              ),
-              decoration: BoxDecoration(
-                color: isSelected ? ManiColors.success : ManiColors.brand,
-                borderRadius: ManiRadius.brSm,
-                border: Border.all(
-                  color: ManiColors.border,
-                  width: ManiBorder.thin,
-                ),
-              ),
-              child: Text(
-                isSelected ? 'CAMBIAR' : 'SELECCIONAR',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: ManiFontSize.micro,
-                  fontWeight: FontWeight.w900,
-                  color: isSelected ? Colors.white : ManiColors.ink,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  }) => RegistroCargadorArchivo(
+    titulo: title,
+    subtitulo: subtitle,
+    archivo: file,
+    onTap: onTap,
+  );
 
   InputDecoration _inputDecoration({
     required String hint,
     IconData? prefixIcon,
     Widget? suffixIcon,
-  }) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.plusJakartaSans(
-        color: ManiColors.inkSubtle,
-        fontSize: ManiFontSize.body,
-        fontWeight: FontWeight.w500,
-      ),
-      prefixIcon: prefixIcon != null
-          ? Icon(prefixIcon, color: ManiColors.ink, size: 18)
-          : null,
-      suffixIcon: suffixIcon,
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.lg,
-        vertical: ManiSpace.md,
-      ),
-      border: OutlineInputBorder(
-        borderRadius: ManiRadius.brMd,
-        borderSide: ManiBorder.side,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: ManiRadius.brMd,
-        borderSide: ManiBorder.side,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: ManiRadius.brMd,
-        borderSide: ManiBorder.sideThick,
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: ManiRadius.brMd,
-        borderSide: const BorderSide(
-          color: ManiColors.danger,
-          width: ManiBorder.regular,
-        ),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: ManiRadius.brMd,
-        borderSide: const BorderSide(
-          color: ManiColors.danger,
-          width: ManiBorder.thick,
-        ),
-      ),
-    );
-  }
+  }) => decoracionCampoRegistro(
+    hint: hint,
+    prefixIcon: prefixIcon,
+    suffixIcon: suffixIcon,
+  );
 }

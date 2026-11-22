@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mani/core/widgets/mani_pulsable.dart';
 import 'package:mani/core/config/tenant_config.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/features/auth/presentation/widgets/auth_layout.dart';
+import 'package:mani/features/auth/presentation/widgets/registro_comun.dart';
 import 'package:mani/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mani/features/auth/presentation/widgets/terminos_condiciones_section.dart';
 
@@ -43,7 +42,6 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _showPassword = false;
   bool _aceptaTerminos = false;
   bool _mostrarErrorTerminos = false;
 
@@ -78,153 +76,19 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
     );
   }
 
-  void _mostrarExitoClienteDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: ManiColors.background,
-          shape: RoundedRectangleBorder(
-            borderRadius: ManiRadius.brLg,
-            side: const BorderSide(color: ManiColors.ink, width: 3),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(ManiSpace.sm),
-                decoration: BoxDecoration(
-                  color: ManiColors.brand,
-                  borderRadius: ManiRadius.brSm,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.regular,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.home_repair_service_rounded,
-                  color: ManiColors.ink,
-                ),
-              ),
-              ManiGap.hMd,
-              Expanded(
-                child: Text(
-                  '¡Cuenta de Cliente Creada!',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.h3,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: ManiAncho.estrecho),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '¡Bienvenido a MANI! Tu cuenta ha sido creada y se encuentra ACTIVA.',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.body,
-                    fontWeight: FontWeight.w600,
-                    color: ManiColors.ink,
-                  ),
-                ),
-                ManiGap.vMd,
-                Container(
-                  padding: const EdgeInsets.all(ManiSpace.md),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: ManiRadius.brMd,
-                    border: Border.all(
-                      color: ManiColors.border,
-                      width: ManiBorder.thin,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '🏠 Mantenimientos para tu Hogar:',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: ManiFontSize.bodySm,
-                          fontWeight: FontWeight.w800,
-                          color: ManiColors.ink,
-                        ),
-                      ),
-                      ManiGap.vSm,
-                      Text(
-                        'Ya puedes iniciar sesión para solicitar servicios de plomería, electricidad y cerrajería con técnicos aliados verificados.',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: ManiFontSize.caption,
-                          color: ManiColors.inkMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            ManiPulsable(
-              onTap: () {
-                Navigator.of(ctx).pop();
-                context.go('/login');
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: ManiSpace.xxl,
-                  vertical: ManiSpace.md,
-                ),
-                decoration: BoxDecoration(
-                  color: ManiColors.brand,
-                  borderRadius: ManiRadius.brMd,
-                  border: Border.all(
-                    color: ManiColors.border,
-                    width: ManiBorder.regular,
-                  ),
-                  boxShadow: const [ManiShadow.sm],
-                ),
-                child: Text(
-                  'IR AL INICIO DE SESIÓN',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.bodySm,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  void _mostrarExitoClienteDialog() => mostrarRegistroExitoso(
+    context,
+    icono: Icons.home_repair_service_rounded,
+    titulo: '¡Cuenta de Cliente Creada!',
+    mensaje:
+        '¡Bienvenido a MANI! Tu cuenta ha sido creada y se encuentra ACTIVA.',
+    tituloDetalle: '🏠 Mantenimientos para tu Hogar:',
+    detalle:
+        'Ya puedes iniciar sesión para solicitar servicios de plomería, electricidad y cerrajería con técnicos aliados verificados.',
+  );
 
-  void _showNotification(String message, {bool isError = true}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.plusJakartaSans(
-            color: isError ? Colors.white : ManiColors.ink,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        backgroundColor: isError ? ManiColors.danger : ManiColors.brand,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: ManiRadius.brMd,
-          side: ManiBorder.side,
-        ),
-        margin: const EdgeInsets.all(ManiSpace.lg),
-      ),
-    );
-  }
+  void _showNotification(String message, {bool isError = true}) =>
+      mostrarAvisoRegistro(context, message, esError: isError);
 
   @override
   Widget build(BuildContext context) {
@@ -236,174 +100,36 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
           _showNotification(state.message);
         }
       },
-      builder: (context, state) {
-        final isLoading = state is AuthLoading;
-        return Scaffold(
-          backgroundColor: ManiColors.background,
-          body: SafeArea(
-            child: Column(
-              children: [
-                // ── Top Navigation Bar ─────────────────────────────────────
-                _buildTopNavBar(),
-
-                // ── Contenido Principal ──────────────────────────────────
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 36,
-                      vertical: ManiSpace.xxl,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: ManiAncho.panel,
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Banner Hero de Cliente
-                              _buildHeroBanner(),
-                              ManiGap.vXxl,
-
-                              // Layout en 2 columnas Web
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final isDesktop = constraints.maxWidth >= 850;
-                                  if (isDesktop) {
-                                    return Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          flex: 5,
-                                          child: _buildLeftColumn(),
-                                        ),
-                                        ManiGap.hXxl,
-                                        Expanded(
-                                          flex: 5,
-                                          child: _buildRightColumn(),
-                                        ),
-                                      ],
-                                    );
-                                  } else {
-                                    return Column(
-                                      children: [
-                                        _buildLeftColumn(),
-                                        ManiGap.vXxl,
-                                        _buildRightColumn(),
-                                      ],
-                                    );
-                                  }
-                                },
-                              ),
-                              ManiGap.vXxl,
-
-                              // Sección obligatoria de Términos y Condiciones (SCRUM-856)
-                              TerminosCondicionesSection(
-                                aceptaTerminos: _aceptaTerminos,
-                                mostrarError: _mostrarErrorTerminos,
-                                onChanged: (val) => setState(() {
-                                  _aceptaTerminos = val;
-                                  if (val) _mostrarErrorTerminos = false;
-                                }),
-                              ),
-                              ManiGap.vXxl,
-
-                              // Barra de acción inferior
-                              _buildBottomAction(isLoading),
-                              ManiGap.vHuge,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      builder: (context, state) => RegistroEstructura(
+        formKey: _formKey,
+        banner: _buildHeroBanner(),
+        izquierda: _buildLeftColumn(),
+        derecha: _buildRightColumn(),
+        // Sección obligatoria de Términos y Condiciones (SCRUM-856)
+        terminos: TerminosCondicionesSection(
+          aceptaTerminos: _aceptaTerminos,
+          mostrarError: _mostrarErrorTerminos,
+          onChanged: (val) => setState(() {
+            _aceptaTerminos = val;
+            if (val) _mostrarErrorTerminos = false;
+          }),
+        ),
+        accion: _buildBottomAction(state is AuthLoading),
+      ),
     );
   }
-
-  // ── Top Navigation Bar ───────────────────────────────────────────────────────
-  Widget _buildTopNavBar() => const AuthBarraSuperior();
 
   // ── Hero Banner de Cliente ──────────────────────────────────────────────────
-  Widget _buildHeroBanner() {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.xxl,
-        vertical: ManiSpace.lg,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: ManiRadius.brLg,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
-        boxShadow: const [ManiShadow.md],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(ManiSpace.md),
-            decoration: BoxDecoration(
-              color: ManiColors.brand,
-              borderRadius: ManiRadius.brMd,
-              border: Border.all(
-                color: ManiColors.border,
-                width: ManiBorder.regular,
-              ),
-            ),
-            child: const Icon(
-              Icons.home_repair_service_rounded,
-              color: ManiColors.ink,
-              size: 26,
-            ),
-          ),
-          ManiGap.hLg,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Registro de Cliente',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.h3,
-                    fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
-                    letterSpacing: -0.4,
-                  ),
-                ),
-                ManiGap.vXs,
-                Text(
-                  'Crea tu cuenta para solicitar servicios de plomería, electricidad y cerrajería para tu hogar.',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: ManiFontSize.bodySm,
-                    color: ManiColors.inkMuted,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildHeroBanner() => RegistroBanner(
+    icono: Icons.home_repair_service_rounded,
+    titulo: 'Registro de Cliente',
+    descripcion:
+        'Crea tu cuenta para solicitar servicios de plomería, electricidad y cerrajería para tu hogar.',
+  );
 
   // ── Columna Izquierda: Datos Personales y del Hogar ─────────────────────────
   Widget _buildLeftColumn() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: ManiRadius.brLg,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
-        boxShadow: const [ManiShadow.md],
-      ),
-      padding: const EdgeInsets.all(ManiSpace.xxl),
+    return RegistroTarjeta(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -415,11 +141,7 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
           ManiGap.vSm,
           TextFormField(
             controller: _nombreController,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.body,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: 'Ej: Carlos Alberto Gómez Mendoza',
               prefixIcon: Icons.person_outline,
@@ -436,11 +158,7 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
           TextFormField(
             controller: _telefonoController,
             keyboardType: TextInputType.phone,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.body,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: '+57 300 123 4567',
               prefixIcon: Icons.phone_outlined,
@@ -453,11 +171,7 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
           ManiGap.vSm,
           TextFormField(
             controller: _direccionHogarController,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.body,
-              fontWeight: FontWeight.w600,
-              color: ManiColors.ink,
-            ),
+            style: estiloCampoRegistro,
             decoration: _inputDecoration(
               hint: 'Ej: Cra 15 # 85-30, Apto 402, Chapinero',
               prefixIcon: Icons.location_on_outlined,
@@ -474,17 +188,7 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Tarjeta de Credenciales
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: ManiRadius.brLg,
-            border: Border.all(
-              color: ManiColors.border,
-              width: ManiBorder.regular,
-            ),
-            boxShadow: const [ManiShadow.md],
-          ),
-          padding: const EdgeInsets.all(ManiSpace.xxl),
+        RegistroTarjeta(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -494,84 +198,23 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
               // Correo
               _buildFieldLabel('CORREO ELECTRÓNICO'),
               ManiGap.vSm,
-              TextFormField(
+              RegistroCampoCorreo(
                 controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: ManiFontSize.body,
-                  fontWeight: FontWeight.w600,
-                  color: ManiColors.ink,
-                ),
-                decoration: _inputDecoration(
-                  hint: 'cliente@ejemplo.com',
-                  prefixIcon: Icons.email_outlined,
-                ),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return 'El correo es obligatorio';
-                  }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim())) {
-                    return 'Ingresa un correo electrónico válido';
-                  }
-                  return null;
-                },
+                hint: 'cliente@ejemplo.com',
               ),
               ManiGap.vLg,
 
               // Contraseña
               _buildFieldLabel('CONTRASEÑA'),
               ManiGap.vSm,
-              TextFormField(
-                controller: _passwordController,
-                obscureText: !_showPassword,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: ManiFontSize.body,
-                  fontWeight: FontWeight.w600,
-                  color: ManiColors.ink,
-                ),
-                decoration: _inputDecoration(
-                  hint: '••••••••',
-                  prefixIcon: Icons.key_outlined,
-                  suffixIcon: TextButton(
-                    onPressed: () =>
-                        setState(() => _showPassword = !_showPassword),
-                    child: Text(
-                      _showPassword ? 'OCULTAR' : 'VER',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: ManiFontSize.micro,
-                        fontWeight: FontWeight.w800,
-                        color: ManiColors.inkMuted,
-                      ),
-                    ),
-                  ),
-                ),
-                validator: (v) {
-                  if (v == null || v.isEmpty) {
-                    return 'La contraseña es obligatoria';
-                  }
-                  if (v.length < 6) {
-                    return 'Mínimo 6 caracteres';
-                  }
-                  return null;
-                },
-              ),
+              RegistroCampoContrasena(controller: _passwordController),
             ],
           ),
         ),
         ManiGap.vXxl,
 
         // Beneficios para el Cliente
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: ManiRadius.brLg,
-            border: Border.all(
-              color: ManiColors.border,
-              width: ManiBorder.regular,
-            ),
-            boxShadow: const [ManiShadow.md],
-          ),
-          padding: const EdgeInsets.all(ManiSpace.xxl),
+        RegistroTarjeta(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -660,85 +303,18 @@ class _RegistroClienteViewState extends State<_RegistroClienteView> {
   }
 
   // ── Helpers de diseño ────────────────────────────────────────────────────────
-  Widget _buildCardTitle(IconData icon, String title) {
-    return Row(
-      children: [
-        Icon(icon, color: ManiColors.ink, size: 20),
-        ManiGap.hSm,
-        Expanded(
-          child: Text(
-            title,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: ManiFontSize.bodyLg,
-              fontWeight: FontWeight.w900,
-              color: ManiColors.ink,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildCardTitle(IconData icon, String title) =>
+      RegistroTituloTarjeta(icono: icon, titulo: title);
 
-  Widget _buildFieldLabel(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.plusJakartaSans(
-        fontSize: ManiFontSize.micro,
-        fontWeight: FontWeight.w800,
-        color: ManiColors.ink,
-        letterSpacing: 0.5,
-      ),
-    );
-  }
+  Widget _buildFieldLabel(String text) => RegistroEtiquetaCampo(text);
 
   InputDecoration _inputDecoration({
     required String hint,
     IconData? prefixIcon,
     Widget? suffixIcon,
-  }) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.plusJakartaSans(
-        color: ManiColors.inkSubtle,
-        fontSize: ManiFontSize.body,
-        fontWeight: FontWeight.w500,
-      ),
-      prefixIcon: prefixIcon != null
-          ? Icon(prefixIcon, color: ManiColors.ink, size: 18)
-          : null,
-      suffixIcon: suffixIcon,
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: ManiSpace.lg,
-        vertical: ManiSpace.md,
-      ),
-      border: OutlineInputBorder(
-        borderRadius: ManiRadius.brMd,
-        borderSide: ManiBorder.side,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: ManiRadius.brMd,
-        borderSide: ManiBorder.side,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: ManiRadius.brMd,
-        borderSide: ManiBorder.sideThick,
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: ManiRadius.brMd,
-        borderSide: const BorderSide(
-          color: ManiColors.danger,
-          width: ManiBorder.regular,
-        ),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: ManiRadius.brMd,
-        borderSide: const BorderSide(
-          color: ManiColors.danger,
-          width: ManiBorder.thick,
-        ),
-      ),
-    );
-  }
+  }) => decoracionCampoRegistro(
+    hint: hint,
+    prefixIcon: prefixIcon,
+    suffixIcon: suffixIcon,
+  );
 }
