@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mani/core/theme/app_theme.dart';
 
-enum ManiButtonVariante { primario, peligro, secundario }
+/// `enlace` es la acción de menor jerarquía (texto subrayado, sin borde ni
+/// sombra): ver u ocultar contraseña, «¿Olvidaste tu contraseña?», reintentar
+/// dentro de una fila.
+enum ManiButtonVariante { primario, peligro, secundario, enlace }
 
 /// Botón neo-brutalista MANI. Al presionarlo "se hunde": la sombra dura
 /// desaparece y el botón se desplaza a su lugar, como un botón físico. El
@@ -19,6 +22,7 @@ class ManiButton extends StatefulWidget {
     this.variante = ManiButtonVariante.primario,
     this.cargando = false,
     this.expandir = false,
+    this.etiquetaAccesible,
   });
 
   final String etiqueta;
@@ -27,6 +31,10 @@ class ManiButton extends StatefulWidget {
   final ManiButtonVariante variante;
   final bool cargando;
   final bool expandir;
+
+  /// Texto para lectores de pantalla cuando la etiqueta visible es corta
+  /// (por ejemplo «VER» → «Ver contraseña»).
+  final String? etiquetaAccesible;
 
   @override
   State<ManiButton> createState() => _ManiButtonState();
@@ -44,6 +52,7 @@ class _ManiButtonState extends State<ManiButton> {
         ManiButtonVariante.primario => (t.brand, t.onBrand),
         ManiButtonVariante.peligro => (ManiColors.danger, ManiColors.onInk),
         ManiButtonVariante.secundario => (t.surface, t.ink),
+        ManiButtonVariante.enlace => (Colors.transparent, t.ink),
       };
 
   void _presionar(bool valor) {
@@ -59,6 +68,7 @@ class _ManiButtonState extends State<ManiButton> {
   @override
   Widget build(BuildContext context) {
     final t = context.mani;
+    if (widget.variante == ManiButtonVariante.enlace) return _enlace(t);
     final (fondo, texto) = _colores(t);
     final hundido = _presionado || !_habilitado;
     final rapido = ManiMotion.duracion(context, ManiMotion.fast);
@@ -66,7 +76,7 @@ class _ManiButtonState extends State<ManiButton> {
     return Semantics(
       button: true,
       enabled: _habilitado,
-      label: widget.etiqueta,
+      label: widget.etiquetaAccesible ?? widget.etiqueta,
       onTap: _habilitado ? widget.onPressed : null,
       excludeSemantics: true,
       child: FocusableActionDetector(
@@ -162,6 +172,36 @@ class _ManiButtonState extends State<ManiButton> {
           ),
         ),
       ],
+    );
+  }
+
+  /// Variante `enlace`: texto subrayado con foco y teclado del botón nativo.
+  Widget _enlace(ManiTokens t) {
+    return Semantics(
+      button: true,
+      enabled: _habilitado,
+      label: widget.etiquetaAccesible ?? widget.etiqueta,
+      excludeSemantics: true,
+      child: TextButton(
+        onPressed: _habilitado ? widget.onPressed : null,
+        style: TextButton.styleFrom(
+          foregroundColor: t.ink,
+          padding: const EdgeInsets.symmetric(
+            horizontal: ManiSpace.sm,
+            vertical: ManiSpace.xs,
+          ),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.padded,
+        ),
+        child: Text(
+          widget.etiqueta,
+          style: ManiText.bodySm.copyWith(
+            color: t.ink,
+            fontWeight: FontWeight.w700,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ),
     );
   }
 }

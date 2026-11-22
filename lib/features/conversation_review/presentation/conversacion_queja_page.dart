@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/utils/formato_fecha.dart';
 
@@ -74,32 +76,30 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
                         key: Key('aviso-auditoria'),
                       ),
                       ManiGap.vMd,
-                      TextField(
+                      ManiTextField(
                         key: const Key('campo-solicitud'),
                         controller: _solicitud,
-                        decoration: const InputDecoration(
-                          labelText: 'Id de la solicitud',
-                        ),
+                        label: 'Id de la solicitud',
                       ),
-                      TextField(
+                      ManiTextField(
                         key: const Key('campo-queja'),
                         controller: _queja,
-                        decoration: const InputDecoration(
-                          labelText: 'Referencia de la queja (opcional)',
-                        ),
+                        label: 'Referencia de la queja (opcional)',
                       ),
-                      TextField(
+                      ManiTextField(
                         key: const Key('campo-motivo'),
                         controller: _motivo,
                         maxLines: 3,
                         maxLength: 500,
-                        decoration: const InputDecoration(
-                          labelText: 'Motivo de la consulta',
-                        ),
+                        label: 'Motivo de la consulta',
                       ),
                       ManiGap.vSm,
-                      FilledButton(
+                      ManiButton(
                         key: const Key('btn-consultar'),
+                        etiqueta: consultando
+                            ? 'Consultando…'
+                            : 'Ver conversación',
+                        cargando: consultando,
                         onPressed: consultando
                             ? null
                             : () => context
@@ -109,9 +109,6 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
                                     motivo: _motivo.text,
                                     quejaRef: _queja.text,
                                   ),
-                        child: Text(
-                          consultando ? 'Consultando…' : 'Ver conversación',
-                        ),
                       ),
                       ManiGap.vLg,
                       if (state.fase == FaseConversacion.error)

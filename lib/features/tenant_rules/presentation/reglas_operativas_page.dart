@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../domain/regla_tenant.dart';
 import 'tenant_rules_cubit.dart';
+import 'package:mani/core/widgets/mani_text_field.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
@@ -94,10 +96,10 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                                 textAlign: TextAlign.center,
                               ),
                               ManiGap.vLg,
-                              ElevatedButton(
+                              ManiButton(
+                                etiqueta: 'Reintentar',
                                 onPressed: () =>
                                     context.read<TenantRulesCubit>().cargar(),
-                                child: const Text('Reintentar'),
                               ),
                             ],
                           ),
@@ -124,20 +126,11 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                             ManiGap.vXxxl,
 
                             // Botón guardar
-                            ElevatedButton(
+                            ManiButton(
                               key: const Key('btn_guardar_reglas'),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: ManiSpace.lg,
-                                ),
-                                backgroundColor: ManiColors.brand,
-                                foregroundColor: ManiColors.ink,
-                                side: ManiBorder.side,
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: ManiRadius.brXs,
-                                ),
-                              ),
+                              etiqueta: 'GUARDAR NUEVA VERSIÓN',
+                              expandir: true,
+                              cargando: loaded.guardando,
                               onPressed: loaded.guardando
                                   ? null
                                   : () {
@@ -161,17 +154,6 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                                             );
                                       }
                                     },
-                              child: loaded.guardando
-                                  ? const CircularProgressIndicator(
-                                      color: ManiColors.ink,
-                                    )
-                                  : const Text(
-                                      'GUARDAR NUEVA VERSIÓN',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: ManiFontSize.bodyLg,
-                                      ),
-                                    ),
                             ),
                             ManiGap.vHuge,
 
@@ -354,7 +336,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
           Row(
             children: [
               Expanded(
-                child: TextFormField(
+                child: ManiTextField(
                   key: const Key('input_ventana_cancelacion'),
                   initialValue: _ventanaHoras.toString(),
                   keyboardType: TextInputType.number,
@@ -377,7 +359,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
               ),
               ManiGap.hLg,
               Expanded(
-                child: TextFormField(
+                child: ManiTextField(
                   key: const Key('input_penalizacion_cancelacion'),
                   initialValue: _penalizacion.toString(),
                   keyboardType: TextInputType.number,
@@ -411,7 +393,7 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           ManiGap.vSm,
-          TextFormField(
+          ManiTextField(
             key: const Key('input_minutos_oferta'),
             initialValue: _minutosOferta.toString(),
             keyboardType: TextInputType.number,
