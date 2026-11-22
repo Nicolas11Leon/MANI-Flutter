@@ -79,106 +79,134 @@ class _SelectorContextoPlataformaState
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Container(
       key: const Key('selector-contexto-plataforma'),
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-      decoration: const BoxDecoration(
-        color: Color(0xFFFEF9C3),
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.xxl,
+        vertical: ManiSpace.sm,
       ),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 8,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          const Row(
-            mainAxisSize: MainAxisSize.min,
+      decoration: BoxDecoration(
+        color: t.surfaceWarm,
+        border: Border(
+          bottom: BorderSide(color: t.border, width: ManiBorder.regular),
+        ),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: ManiAncho.pagina),
+          child: Wrap(
+            spacing: ManiSpace.md,
+            runSpacing: ManiSpace.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Icon(Icons.admin_panel_settings_outlined, color: AppTheme.dark),
-              SizedBox(width: 8),
-              Text(
-                'ADMINISTRACIÓN DE PLATAFORMA',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.6,
-                  color: AppTheme.dark,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: ManiSpace.sm,
+                  vertical: ManiSpace.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: t.brand,
+                  borderRadius: ManiRadius.brSm,
+                  border: Border.all(color: t.border, width: ManiBorder.thin),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.admin_panel_settings_outlined,
+                      size: 16,
+                      color: t.onBrand,
+                    ),
+                    ManiGap.hXs,
+                    Text(
+                      'ADMINISTRACIÓN DE PLATAFORMA',
+                      style: TextStyle(
+                        fontSize: ManiFontSize.micro,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.6,
+                        color: t.onBrand,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-          _Pildora(
-            clave: const Key('selector-tenant'),
-            icono: Icons.domain_outlined,
-            titulo: 'Tenant',
-            valor: _etiquetaTenant,
-            menu: () async => [
-              for (final t in _tenants ?? const <TenantPlataforma>[])
-                PopupMenuItem<VoidCallback>(
-                  key: Key('selector-tenant-${t.id}'),
-                  value: () {
-                    widget.contexto.elegirTenant(t.id, t.nombre);
-                    _cambio();
-                  },
-                  child: Text('${t.nombre} (${t.estado.etiqueta})'),
-                ),
-            ],
-          ),
-          _Pildora(
-            clave: const Key('selector-actuar-como'),
-            icono: Icons.switch_account_outlined,
-            titulo: 'Actuar como',
-            valor: _etiquetaActuar,
-            menu: () async {
-              final tenantId = widget.contexto.tenantId;
-              if (tenantId == null) {
-                return [
-                  const PopupMenuItem<VoidCallback>(
-                    enabled: false,
-                    child: Text('Elige primero un tenant'),
-                  ),
-                ];
-              }
-              final usuarios = await _usuariosDelTenant(tenantId);
-              return [
-                PopupMenuItem<VoidCallback>(
-                  key: const Key('selector-actuar-admin'),
-                  value: () {
-                    widget.contexto.actuarComoUsuario(null);
-                    _cambio();
-                  },
-                  child: const Text('Administrador del tenant'),
-                ),
-                const PopupMenuDivider(),
-                for (final u in usuarios)
-                  PopupMenuItem<VoidCallback>(
-                    key: Key('selector-actuar-${u.id}'),
-                    value: () {
-                      widget.contexto.actuarComoUsuario(u);
-                      _cambio();
-                    },
-                    child: Text('${u.email} · ${_rolLegible(u.rolApp.name)}'),
-                  ),
-              ];
-            },
-          ),
-          if (_error != null)
-            Text(
-              _error!,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFFB91C1C),
+              _Pildora(
+                clave: const Key('selector-tenant'),
+                icono: Icons.domain_outlined,
+                titulo: 'Tenant',
+                valor: _etiquetaTenant,
+                menu: () async => [
+                  for (final tn in _tenants ?? const <TenantPlataforma>[])
+                    PopupMenuItem<VoidCallback>(
+                      key: Key('selector-tenant-${tn.id}'),
+                      value: () {
+                        widget.contexto.elegirTenant(tn.id, tn.nombre);
+                        _cambio();
+                      },
+                      child: Text('${tn.nombre} (${tn.estado.etiqueta})'),
+                    ),
+                ],
               ),
-            ),
-        ],
+              _Pildora(
+                clave: const Key('selector-actuar-como'),
+                icono: Icons.switch_account_outlined,
+                titulo: 'Actuar como',
+                valor: _etiquetaActuar,
+                menu: () async {
+                  final tenantId = widget.contexto.tenantId;
+                  if (tenantId == null) {
+                    return [
+                      const PopupMenuItem<VoidCallback>(
+                        enabled: false,
+                        child: Text('Elige primero un tenant'),
+                      ),
+                    ];
+                  }
+                  final usuarios = await _usuariosDelTenant(tenantId);
+                  return [
+                    PopupMenuItem<VoidCallback>(
+                      key: const Key('selector-actuar-admin'),
+                      value: () {
+                        widget.contexto.actuarComoUsuario(null);
+                        _cambio();
+                      },
+                      child: const Text('Administrador del tenant'),
+                    ),
+                    const PopupMenuDivider(),
+                    for (final u in usuarios)
+                      PopupMenuItem<VoidCallback>(
+                        key: Key('selector-actuar-${u.id}'),
+                        value: () {
+                          widget.contexto.actuarComoUsuario(u);
+                          _cambio();
+                        },
+                        child: Text(
+                          '${u.email} · ${_rolLegible(u.rolApp.name)}',
+                        ),
+                      ),
+                  ];
+                },
+              ),
+              if (_error != null)
+                Text(
+                  _error!,
+                  style: const TextStyle(
+                    fontSize: ManiFontSize.caption,
+                    fontWeight: FontWeight.w700,
+                    color: ManiColors.dangerText,
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
-/// Botón en píldora con borde negro que abre un menú cuyas opciones son
+/// Botón en píldora con borde que abre un menú cuyas opciones son
 /// acciones (se ejecuta la elegida).
 class _Pildora extends StatelessWidget {
   const _Pildora({
@@ -220,32 +248,36 @@ class _Pildora extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Builder(
       builder: (context) => DecoratedBox(
         decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          border: Border.all(color: AppTheme.dark, width: 2),
-          boxShadow: const [AppTheme.hardShadowSm],
+          color: t.surface,
+          borderRadius: ManiRadius.brMd,
+          border: Border.all(color: t.border, width: ManiBorder.regular),
+          boxShadow: [t.shadowSm],
         ),
         child: TextButton(
           key: clave,
           onPressed: () => _abrir(context),
           style: TextButton.styleFrom(
-            foregroundColor: AppTheme.dark,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            foregroundColor: t.ink,
+            padding: const EdgeInsets.symmetric(
+              horizontal: ManiSpace.md,
+              vertical: ManiSpace.sm,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icono, size: 18),
-              const SizedBox(width: 8),
+              Icon(icono, size: 18, color: t.ink),
+              ManiGap.hSm,
               Text(
                 '$titulo: ',
-                style: const TextStyle(
-                  fontSize: 12,
+                style: TextStyle(
+                  fontSize: ManiFontSize.caption,
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.textSecondary,
+                  color: t.inkMuted,
                 ),
               ),
               ConstrainedBox(
@@ -253,14 +285,15 @@ class _Pildora extends StatelessWidget {
                 child: Text(
                   valor,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
+                  style: TextStyle(
+                    fontSize: ManiFontSize.bodySm,
                     fontWeight: FontWeight.w900,
+                    color: t.ink,
                   ),
                 ),
               ),
-              const SizedBox(width: 4),
-              const Icon(Icons.expand_more, size: 18),
+              ManiGap.hXs,
+              Icon(Icons.expand_more, size: 18, color: t.ink),
             ],
           ),
         ),

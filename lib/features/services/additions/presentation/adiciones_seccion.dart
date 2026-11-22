@@ -7,6 +7,7 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 
 import '../data/adiciones_datasource.dart';
 import 'adiciones_cubit.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Importe de la adición: no negativo, hasta diez enteros y dos decimales, el
 /// mismo formato que valida Core (DECIMAL(12,2)).
@@ -62,7 +63,7 @@ class AdicionesSeccion extends StatelessWidget {
         return Card(
           key: const Key('seccion-adiciones'),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(ManiSpace.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -70,7 +71,7 @@ class AdicionesSeccion extends StatelessWidget {
                   'Adiciones',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const SizedBox(height: 8),
+                ManiGap.vSm,
                 if (state.cargando && datos == null)
                   const LinearProgressIndicator()
                 else if (state.error != null && datos == null)
@@ -111,7 +112,7 @@ class _Resumen extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget renglon(String etiqueta, double valor, {bool negrita = false}) =>
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
+          padding: const EdgeInsets.symmetric(vertical: ManiSpace.xxs),
           child: Row(
             children: [
               Expanded(child: Text(etiqueta)),
@@ -163,7 +164,7 @@ class _AdicionTile extends StatelessWidget {
     final tiempo = adicion.tiempoAdicionalMinutos;
     return Padding(
       key: Key('adicion-${adicion.id}'),
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: ManiSpace.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -184,7 +185,7 @@ class _AdicionTile extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           if (!esAliado && adicion.pendiente) ...[
-            const SizedBox(height: 8),
+            ManiGap.vSm,
             Row(
               children: [
                 Expanded(
@@ -198,7 +199,7 @@ class _AdicionTile extends StatelessWidget {
                         : () => _decidir(context, DecisionAdicion.aceptar),
                   ),
                 ),
-                const SizedBox(width: 8),
+                ManiGap.hSm,
                 Expanded(
                   child: ManiButton(
                     key: const Key('btn-rechazar-adicion'),
@@ -264,7 +265,7 @@ class _DialogoDecisionState extends State<_DialogoDecision> {
                 ? 'Se sumarán ${formatearPesos(widget.total)} al total del servicio.'
                 : 'El servicio sigue en ejecución con el valor pactado.',
           ),
-          const SizedBox(height: 8),
+          ManiGap.vSm,
           TextField(
             key: const Key('campo-comentario-adicion'),
             controller: _comentario,
@@ -301,7 +302,7 @@ class _AccionAliado extends StatelessWidget {
     if (!puedePedir || datos.resumen == null) return const SizedBox.shrink();
     if (datos.hayPendiente) {
       return const Padding(
-        padding: EdgeInsets.only(top: 8),
+        padding: EdgeInsets.only(top: ManiSpace.sm),
         child: Text(
           'Hay una adición esperando la decisión del cliente.',
           key: Key('adicion-pendiente-aliado'),
@@ -309,7 +310,7 @@ class _AccionAliado extends StatelessWidget {
       );
     }
     return Padding(
-      padding: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.only(top: ManiSpace.sm),
       child: ManiButton(
         key: const Key('btn-pedir-adicion'),
         etiqueta: 'Pedir adición por imprevisto',
@@ -433,7 +434,7 @@ class _FormularioAdicionState extends State<_FormularioAdicion> {
                 'Disponible para adiciones: ${formatearPesos(widget.disponible)}',
                 key: const Key('disponible-adicion'),
               ),
-              const SizedBox(height: 8),
+              ManiGap.vSm,
               TextFormField(
                 key: const Key('campo-motivo-adicion'),
                 controller: _motivo,
@@ -480,7 +481,7 @@ class _FormularioAdicionState extends State<_FormularioAdicion> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: _validarTiempo,
               ),
-              const SizedBox(height: 8),
+              ManiGap.vSm,
               Text(
                 'Total de la adición: ${formatearPesos(_total)}',
                 key: const Key('total-adicion'),

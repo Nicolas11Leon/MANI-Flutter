@@ -34,7 +34,7 @@ class PasoUbicacion extends StatelessWidget {
               'Los aliados solo ven el barrio. La dirección exacta la recibe '
               'únicamente el aliado que tome tu solicitud.',
         ),
-        const SizedBox(height: 16),
+        ManiGap.vLg,
         for (final s in state.catalogo.sitios) ...[
           _Opcion(
             clave: ValueKey('sitio-${s.id}'),
@@ -44,7 +44,7 @@ class PasoUbicacion extends StatelessWidget {
             subtitulo: s.ubicacion,
             onTap: () => cubit.elegirSitio(s.id),
           ),
-          const SizedBox(height: 10),
+          ManiGap.vSm,
         ],
         _Opcion(
           clave: const ValueKey('opcion-nueva-direccion'),
@@ -57,7 +57,7 @@ class PasoUbicacion extends StatelessWidget {
           onTap: cubit.usarNuevaDireccion,
         ),
         if (nueva) ...[
-          const SizedBox(height: 14),
+          ManiGap.vMd,
           TextField(
             key: const ValueKey('campo-direccion'),
             controller: direccion,
@@ -72,7 +72,7 @@ class PasoUbicacion extends StatelessWidget {
               icono: Icons.signpost_outlined,
             ),
           ),
-          const SizedBox(height: 4),
+          ManiGap.vXs,
           if (state.zona != null)
             _ZonaElegida(
               etiqueta: state.zona!.etiqueta,
@@ -94,16 +94,16 @@ class PasoUbicacion extends StatelessWidget {
                 icono: Icons.search_rounded,
               ),
             ),
-            const SizedBox(height: 8),
+            ManiGap.vSm,
             if (state.buscandoZonas)
               const Padding(
-                padding: EdgeInsets.all(12),
+                padding: EdgeInsets.all(ManiSpace.md),
                 child: Center(
                   child: SizedBox.square(
                     dimension: 22,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
-                      color: AppTheme.dark,
+                      color: ManiColors.ink,
                     ),
                   ),
                 ),
@@ -111,11 +111,11 @@ class PasoUbicacion extends StatelessWidget {
             else if (state.zonasEncontradas.isNotEmpty)
               // Material propio: los ListTile pintan ahí su efecto de toque.
               Material(
-                color: AppTheme.surface,
+                color: ManiColors.surface,
                 clipBehavior: Clip.antiAlias,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  side: const BorderSide(color: AppTheme.dark, width: 1.5),
+                  borderRadius: ManiRadius.brMd,
+                  side: ManiBorder.sideThin,
                 ),
                 child: Column(
                   children: [
@@ -138,10 +138,10 @@ class PasoUbicacion extends StatelessWidget {
               )
             else if (busquedaZona.text.trim().length >= 2)
               const Padding(
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.all(ManiSpace.sm),
                 child: Text(
                   'No encontramos ese barrio. Prueba con otro nombre.',
-                  style: TextStyle(color: AppTheme.textSecondary),
+                  style: TextStyle(color: ManiColors.inkMuted),
                 ),
               ),
           ],
@@ -156,15 +156,15 @@ class PasoUbicacion extends StatelessWidget {
     required IconData icono,
   }) {
     OutlineInputBorder borde(double ancho) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-      borderSide: BorderSide(color: AppTheme.dark, width: ancho),
+      borderRadius: ManiRadius.brMd,
+      borderSide: BorderSide(color: ManiColors.ink, width: ancho),
     );
     return InputDecoration(
       labelText: etiqueta,
       hintText: hint,
-      prefixIcon: Icon(icono, color: AppTheme.dark),
+      prefixIcon: Icon(icono, color: ManiColors.ink),
       filled: true,
-      fillColor: AppTheme.surface,
+      fillColor: ManiColors.surface,
       enabledBorder: borde(2),
       focusedBorder: borde(2.5),
     );
@@ -190,7 +190,7 @@ class _Opcion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radio = BorderRadius.circular(AppTheme.radiusXl);
+    final radio = ManiRadius.brMd;
     return Semantics(
       inMutuallyExclusiveGroup: true,
       checked: seleccionada,
@@ -198,15 +198,15 @@ class _Opcion extends StatelessWidget {
       label: '$titulo, $subtitulo',
       excludeSemantics: true,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+        duration: ManiMotion.fast,
         decoration: BoxDecoration(
-          color: seleccionada ? const Color(0xFFFEF9C3) : AppTheme.surface,
+          color: seleccionada ? ManiColors.brandSoft : ManiColors.surface,
           borderRadius: radio,
           border: Border.all(
-            color: AppTheme.dark,
+            color: ManiColors.border,
             width: seleccionada ? 2.5 : 1.5,
           ),
-          boxShadow: [if (seleccionada) AppTheme.hardShadowSm],
+          boxShadow: [if (seleccionada) ManiShadow.sm],
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -215,11 +215,11 @@ class _Opcion extends StatelessWidget {
             borderRadius: radio,
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(ManiSpace.md),
               child: Row(
                 children: [
-                  Icon(icono, color: AppTheme.dark),
-                  const SizedBox(width: 12),
+                  Icon(icono, color: ManiColors.ink),
+                  ManiGap.hMd,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,8 +235,8 @@ class _Opcion extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
+                            fontSize: ManiFontSize.caption,
+                            color: ManiColors.inkMuted,
                           ),
                         ),
                       ],
@@ -246,7 +246,7 @@ class _Opcion extends StatelessWidget {
                     seleccionada
                         ? Icons.radio_button_checked_rounded
                         : Icons.radio_button_off_rounded,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ],
               ),
@@ -268,16 +268,21 @@ class _ZonaElegida extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       key: const ValueKey('zona-elegida'),
-      padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
+      padding: const EdgeInsets.fromLTRB(
+        ManiSpace.md,
+        ManiSpace.sm,
+        ManiSpace.sm,
+        ManiSpace.sm,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFFDCFCE7),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 1.5),
+        color: ManiColors.successContainer,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
       ),
       child: Row(
         children: [
-          const Icon(Icons.place_rounded, color: AppTheme.dark),
-          const SizedBox(width: 8),
+          const Icon(Icons.place_rounded, color: ManiColors.ink),
+          ManiGap.hSm,
           Expanded(
             child: Text(
               etiqueta,
@@ -290,7 +295,7 @@ class _ZonaElegida extends StatelessWidget {
             child: const Text(
               'Cambiar',
               style: TextStyle(
-                color: AppTheme.dark,
+                color: ManiColors.ink,
                 fontWeight: FontWeight.w800,
               ),
             ),

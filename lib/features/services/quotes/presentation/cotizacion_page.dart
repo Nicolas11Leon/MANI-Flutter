@@ -7,6 +7,8 @@ import 'package:mani/core/widgets/mani_card.dart';
 
 import '../domain/cotizacion.dart';
 import 'cotizacion_cubit.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Importe de la cotización: no negativo, hasta diez enteros y dos decimales,
 /// el mismo formato que valida Core (DECIMAL(12,2)).
@@ -103,21 +105,16 @@ class CotizacionPage extends StatelessWidget {
         final pagos = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (encabezado != null) ...[
-              encabezado!,
-              const SizedBox(height: 16),
-            ],
+            if (encabezado != null) ...[encabezado!, ManiGap.vLg],
             if (state.cargando && state.cotizaciones.isEmpty)
-              const Center(
-                child: CircularProgressIndicator(color: AppTheme.dark),
-              )
+              const ManiCargando()
             else if (state.error != null)
               _Error(mensaje: state.error!, onReintentar: cubit.cargar)
             else ...[
               if (state.vigente != null) ...[
                 _TarjetaCotizacion(state.vigente!, vigente: true),
                 if (alertaTarifa != null) ...[
-                  const SizedBox(height: 8),
+                  ManiGap.vSm,
                   alertaTarifa!(state.vigente!.id),
                 ],
               ],
@@ -126,7 +123,7 @@ class CotizacionPage extends StatelessWidget {
               else
                 _SeccionCliente(state: state, alPagar: alPagar),
               if (state.cotizaciones.length > 1) ...[
-                const SizedBox(height: 16),
+                ManiGap.vLg,
                 Text(
                   'Versiones anteriores',
                   style: Theme.of(context).textTheme.titleSmall,
@@ -135,11 +132,8 @@ class CotizacionPage extends StatelessWidget {
                   _TarjetaCotizacion(c, vigente: false),
               ],
             ],
-            if (pagosExtra != null) ...[
-              const SizedBox(height: 16),
-              pagosExtra!,
-            ],
-            if (pie != null) ...[const SizedBox(height: 16), pie!],
+            if (pagosExtra != null) ...[ManiGap.vLg, pagosExtra!],
+            if (pie != null) ...[ManiGap.vLg, pie!],
           ],
         );
         final columnas = <Widget>[
@@ -164,110 +158,79 @@ class CotizacionPage extends StatelessWidget {
               child: calificacion!,
             ),
         ];
-        return RefreshIndicator(
-          color: AppTheme.dark,
-          backgroundColor: AppTheme.primary,
-          onRefresh: () async {
-            await Future.wait([cubit.cargar(), ?alRefrescar?.call()]);
-          },
-          child: LayoutBuilder(
-            builder: (context, c) {
-              final enColumnas =
-                  columnas.length > 1 && c.maxWidth >= anchoTresColumnas;
-              // Scroll que construye todo (no perezoso): cada columna es un
-              // bloque alto que debe existir completo aunque quede fuera de vista.
-              return SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(
-                  horizontal: c.maxWidth >= 600 ? 32 : 16,
-                  vertical: 24,
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1400),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _encabezado(),
-                        const SizedBox(height: 24),
-                        if (enColumnas)
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _encabezado(),
+            Expanded(
+              child: RefreshIndicator(
+                color: ManiColors.ink,
+                backgroundColor: ManiColors.brand,
+                onRefresh: () async {
+                  await Future.wait([cubit.cargar(), ?alRefrescar?.call()]);
+                },
+                child: LayoutBuilder(
+                  builder: (context, c) {
+                    final enColumnas =
+                        columnas.length > 1 && c.maxWidth >= anchoTresColumnas;
+                    // Scroll que construye todo (no perezoso): cada columna es un
+                    // bloque alto que debe existir completo aunque quede fuera de vista.
+                    return SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: c.maxWidth >= 600
+                            ? ManiSpace.xxxl
+                            : ManiSpace.lg,
+                        vertical: ManiSpace.xxl,
+                      ),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: ManiAncho.pagina,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              for (var k = 0; k < columnas.length; k++) ...[
-                                if (k > 0) const SizedBox(width: 24),
-                                Expanded(child: columnas[k]),
-                              ],
+                              if (enColumnas)
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    for (
+                                      var k = 0;
+                                      k < columnas.length;
+                                      k++
+                                    ) ...[
+                                      if (k > 0) ManiGap.hXxl,
+                                      Expanded(child: columnas[k]),
+                                    ],
+                                  ],
+                                )
+                              else
+                                for (var k = 0; k < columnas.length; k++) ...[
+                                  if (k > 0) ManiGap.vXxl,
+                                  columnas[k],
+                                ],
                             ],
-                          )
-                        else
-                          for (var k = 0; k < columnas.length; k++) ...[
-                            if (k > 0) const SizedBox(height: 28),
-                            columnas[k],
-                          ],
-                      ],
-                    ),
-                  ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
   Widget _encabezado() {
-    return ManiCard(
-      padding: const EdgeInsets.all(20),
-      child: LayoutBuilder(
-        builder: (context, c) {
-          final titulo = Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  border: Border.all(color: AppTheme.dark, width: 2),
-                  boxShadow: const [AppTheme.hardShadowSm],
-                ),
-                child: const Icon(
-                  Icons.request_quote_outlined,
-                  color: AppTheme.dark,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  esAliado ? 'Cotizar el servicio' : 'Cotización del servicio',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
-                  ),
-                ),
-              ),
-            ],
-          );
-          // En escritorio el botón va a la derecha del título; en móvil, debajo.
-          if (accionEncabezado == null) return titulo;
-          if (c.maxWidth < 600) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [titulo, const SizedBox(height: 14), accionEncabezado!],
-            );
-          }
-          return Row(
-            children: [
-              Expanded(child: titulo),
-              const SizedBox(width: 16),
-              accionEncabezado!,
-            ],
-          );
-        },
-      ),
+    return ManiEncabezadoPantalla(
+      ancho: ManiAncho.pagina,
+      icono: Icons.request_quote_outlined,
+      titulo: esAliado ? 'Cotizar el servicio' : 'Cotización del servicio',
+      acciones: [?accionEncabezado],
     );
   }
 }
@@ -292,37 +255,40 @@ class _Columna extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          padding: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.only(bottom: ManiSpace.sm),
           decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+            border: Border(bottom: ManiBorder.side),
           ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(ManiSpace.sm),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  border: Border.all(color: AppTheme.dark, width: 2),
+                  color: ManiColors.brand,
+                  borderRadius: ManiRadius.brSm,
+                  border: Border.all(
+                    color: ManiColors.border,
+                    width: ManiBorder.regular,
+                  ),
                 ),
-                child: Icon(icono, color: AppTheme.dark, size: 18),
+                child: Icon(icono, color: ManiColors.ink, size: 18),
               ),
-              const SizedBox(width: 10),
+              ManiGap.hSm,
               Expanded(
                 child: Text(
                   titulo.toUpperCase(),
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: ManiFontSize.bodySm,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.6,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        ManiGap.vLg,
         child,
       ],
     );
@@ -339,7 +305,7 @@ class _TarjetaCotizacion extends StatelessWidget {
   Widget build(BuildContext context) {
     return ManiCard(
       key: Key('cotizacion-v${c.version}'),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(ManiSpace.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -351,37 +317,40 @@ class _TarjetaCotizacion extends StatelessWidget {
                   style: TextStyle(
                     fontSize: vigente ? 16 : 14,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
+                  horizontal: ManiSpace.sm,
+                  vertical: ManiSpace.xs,
                 ),
                 decoration: BoxDecoration(
                   color: vigente
-                      ? const Color(0xFFDCFCE7)
-                      : AppTheme.background,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                  border: Border.all(color: AppTheme.dark, width: 1.5),
+                      ? ManiColors.successContainer
+                      : ManiColors.background,
+                  borderRadius: ManiRadius.brXs,
+                  border: Border.all(
+                    color: ManiColors.border,
+                    width: ManiBorder.thin,
+                  ),
                 ),
                 child: Text(
                   c.etiquetaEstado,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: ManiFontSize.caption,
                     fontWeight: FontWeight.w700,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          ManiGap.vMd,
           _Renglon('Mano de obra', formatearPesos(c.valorManoObra)),
           _Renglon('Materiales', formatearPesos(c.valorMateriales)),
-          const Divider(color: AppTheme.dark, thickness: 1.5, height: 24),
+          const Divider(color: ManiColors.ink, thickness: 1.5, height: 24),
           _Renglon('Total', formatearPesos(c.total), negrita: true),
         ],
       ),
@@ -402,7 +371,7 @@ class _Renglon extends StatelessWidget {
         ? const TextStyle(fontWeight: FontWeight.w800)
         : null;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: ManiSpace.xxs),
       child: Row(
         children: [
           Expanded(child: Text(etiqueta, style: estilo)),
@@ -442,7 +411,7 @@ class _SeccionAliado extends StatelessWidget {
       _ => 'Esta cotización ya no admite cambios.',
     };
     return Padding(
-      padding: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.only(top: ManiSpace.sm),
       child: Text(texto, key: const Key('estado-cotizacion-aliado')),
     );
   }
@@ -505,39 +474,42 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
     return Form(
       key: _form,
       child: ManiCard(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(ManiSpace.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(ManiSpace.sm),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                    border: Border.all(color: AppTheme.dark, width: 1.5),
+                    color: ManiColors.brand,
+                    borderRadius: ManiRadius.brXs,
+                    border: Border.all(
+                      color: ManiColors.border,
+                      width: ManiBorder.thin,
+                    ),
                   ),
                   child: const Icon(
                     Icons.edit_note_rounded,
                     size: 18,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
-                const SizedBox(width: 10),
+                ManiGap.hSm,
                 Expanded(
                   child: Text(
                     widget.titulo,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: ManiFontSize.bodyLg,
                       fontWeight: FontWeight.w800,
-                      color: AppTheme.dark,
+                      color: ManiColors.ink,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             LayoutBuilder(
               builder: (context, constraints) {
                 final enFila = constraints.maxWidth > 460;
@@ -575,27 +547,29 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(child: campoManoObra),
-                      const SizedBox(width: 16),
+                      ManiGap.hLg,
                       Expanded(child: campoMateriales),
                     ],
                   );
                 }
                 return Column(
-                  children: [
-                    campoManoObra,
-                    const SizedBox(height: 12),
-                    campoMateriales,
-                  ],
+                  children: [campoManoObra, ManiGap.vMd, campoMateriales],
                 );
               },
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: ManiSpace.lg,
+                vertical: ManiSpace.md,
+              ),
               decoration: BoxDecoration(
-                color: AppTheme.background,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppTheme.dark, width: 1.5),
+                color: ManiColors.background,
+                borderRadius: ManiRadius.brSm,
+                border: Border.all(
+                  color: ManiColors.border,
+                  width: ManiBorder.thin,
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -603,24 +577,24 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                   const Text(
                     'Total calculado:',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: ManiFontSize.body,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.dark,
+                      color: ManiColors.ink,
                     ),
                   ),
                   Text(
                     'Total: ${formatearPesos((_valor(_manoObra.text) ?? 0) + (_valor(_materiales.text) ?? 0))}',
                     key: const Key('total-calculado'),
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: ManiFontSize.bodyLg,
                       fontWeight: FontWeight.w900,
-                      color: AppTheme.dark,
+                      color: ManiColors.ink,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             Align(
               alignment: Alignment.centerLeft,
               child: ConstrainedBox(
@@ -669,14 +643,14 @@ class _SeccionCliente extends StatelessWidget {
         _ => 'Esta cotización ya no admite respuesta.',
       };
       return Padding(
-        padding: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.only(top: ManiSpace.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(texto, key: const Key('estado-cotizacion-cliente')),
             if (vigente.estado == EstadoCotizacion.aceptada &&
                 alPagar != null) ...[
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               Align(
                 alignment: Alignment.centerLeft,
                 child: ConstrainedBox(
@@ -701,10 +675,10 @@ class _SeccionCliente extends StatelessWidget {
     final cubit = context.read<CotizacionCubit>();
     final habilitado = !state.enviando;
     return Padding(
-      padding: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.only(top: ManiSpace.md),
       child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
+        spacing: ManiSpace.md,
+        runSpacing: ManiSpace.md,
         children: [
           ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 160, maxWidth: 230),
@@ -846,11 +820,14 @@ class _Error extends StatelessWidget {
   Widget build(BuildContext context) {
     return ManiCard(
       key: const Key('error-cotizacion'),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.lg,
+        vertical: ManiSpace.md,
+      ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: AppTheme.error, size: 22),
-          const SizedBox(width: 12),
+          const Icon(Icons.error_outline, color: ManiColors.danger, size: 22),
+          ManiGap.hMd,
           Expanded(
             child: Text(
               mensaje,

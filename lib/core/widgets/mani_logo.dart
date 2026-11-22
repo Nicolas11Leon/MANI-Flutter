@@ -6,11 +6,7 @@ import '../theme/app_theme.dart';
 ///
 /// Reemplaza al cuadro amarillo con la letra «M» que se repetía en el login, el menú y los registros.
 class ManiLogo extends StatelessWidget {
-  const ManiLogo({
-    super.key,
-    this.size = 40,
-    this.sombra = AppTheme.hardShadowSm,
-  });
+  const ManiLogo({super.key, this.size = 40, this.sombra = ManiShadow.sm});
 
   /// Diámetro en píxeles lógicos.
   final double size;
@@ -36,9 +32,9 @@ class ManiLogo extends StatelessWidget {
             fit: BoxFit.cover,
             filterQuality: FilterQuality.high,
             excludeFromSemantics: true,
-            // Si la imagen no carga queda un círculo amarillo con la «M», nunca un hueco vacío.
+            // Si la imagen no carga queda un círculo de marca con la «M», nunca un hueco vacío.
             errorBuilder: (context, error, stack) => ColoredBox(
-              color: AppTheme.primary,
+              color: ManiColors.brand,
               child: SizedBox.square(
                 dimension: size,
                 child: Center(
@@ -47,7 +43,7 @@ class ManiLogo extends StatelessWidget {
                     style: TextStyle(
                       fontSize: size * 0.45,
                       fontWeight: FontWeight.w900,
-                      color: AppTheme.dark,
+                      color: ManiColors.onBrand,
                     ),
                   ),
                 ),

@@ -51,18 +51,19 @@ class ManiConfirmacion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navegador = Navigator.of(context);
+    final t = context.mani;
     return Dialog(
       key: const ValueKey('mani-confirmacion'),
-      backgroundColor: AppTheme.surface,
+      backgroundColor: t.surface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        side: const BorderSide(color: AppTheme.dark, width: 2),
+        borderRadius: ManiRadius.brLg,
+        side: BorderSide(color: t.border, width: ManiBorder.regular),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420),
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(ManiSpace.xxl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,21 +72,18 @@ class ManiConfirmacion extends StatelessWidget {
                 titulo,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: AppTheme.dark,
+                  color: t.ink,
                 ),
               ),
               if (mensaje != null) ...[
-                const SizedBox(height: 10),
-                Text(
-                  mensaje!,
-                  style: const TextStyle(color: AppTheme.textSecondary),
-                ),
+                ManiGap.vSm,
+                Text(mensaje!, style: TextStyle(color: t.inkMuted)),
               ],
-              const SizedBox(height: 24),
+              ManiGap.vXxl,
               Wrap(
                 alignment: WrapAlignment.end,
-                spacing: 12,
-                runSpacing: 12,
+                spacing: ManiSpace.md,
+                runSpacing: ManiSpace.md,
                 children: [
                   ManiButton(
                     key: const ValueKey('confirmacion-cancelar'),

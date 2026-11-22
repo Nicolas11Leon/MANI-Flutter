@@ -67,7 +67,7 @@ class _SelectorCategoriaCatalogoState extends State<SelectorCategoriaCatalogo> {
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                SizedBox(width: 10),
+                ManiGap.hSm,
                 Text('Cargando especialidades...'),
               ],
             ),
@@ -84,7 +84,7 @@ class _SelectorCategoriaCatalogoState extends State<SelectorCategoriaCatalogo> {
                     error is GatewayException
                         ? 'No pudimos cargar las especialidades. ${error.message}'
                         : 'No pudimos cargar las especialidades.',
-                    style: _estilo(color: AppTheme.error),
+                    style: _estilo(color: ManiColors.danger),
                   ),
                 ),
                 TextButton(
@@ -116,7 +116,7 @@ class _SelectorCategoriaCatalogoState extends State<SelectorCategoriaCatalogo> {
               value: valor,
               hint: Text('Selecciona tu especialidad', style: _estilo()),
               isExpanded: true,
-              icon: const Icon(Icons.arrow_drop_down, color: AppTheme.dark),
+              icon: const Icon(Icons.arrow_drop_down, color: ManiColors.ink),
               style: _estilo(),
               items: [
                 for (final c in categorias)
@@ -130,9 +130,9 @@ class _SelectorCategoriaCatalogoState extends State<SelectorCategoriaCatalogo> {
     );
   }
 
-  TextStyle _estilo({Color color = AppTheme.dark}) =>
+  TextStyle _estilo({Color color = ManiColors.ink}) =>
       GoogleFonts.plusJakartaSans(
-        fontSize: 13,
+        fontSize: ManiFontSize.bodySm,
         fontWeight: FontWeight.w700,
         color: color,
       );
@@ -141,11 +141,11 @@ class _SelectorCategoriaCatalogoState extends State<SelectorCategoriaCatalogo> {
     constraints: const BoxConstraints(minHeight: 48),
     alignment: Alignment.centerLeft,
     decoration: BoxDecoration(
-      color: AppTheme.surface,
-      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-      border: Border.all(color: AppTheme.dark, width: 2),
+      color: ManiColors.surface,
+      borderRadius: ManiRadius.brMd,
+      border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
     ),
-    padding: const EdgeInsets.symmetric(horizontal: 14),
+    padding: const EdgeInsets.symmetric(horizontal: ManiSpace.md),
     child: child,
   );
 }

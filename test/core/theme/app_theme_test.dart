@@ -2,80 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mani/core/theme/app_theme.dart';
 
-/// El sistema de diseño comparte valores con la landing (SCRUM-1646): si alguien los cambia, que sea a propósito.
+/// Los valores del sistema de diseño viven en los tokens de
+/// `lib/core/theme/tokens/` (DESIGN.md): si alguien los cambia, que sea a
+/// propósito. El contraste de cada par texto/fondo lo cubre `contrast_test`.
 void main() {
-  group('tokens de la landing', () {
+  group('tokens', () {
     test('colores de marca', () {
-      expect(AppTheme.background, const Color(0xFFFBF3E4));
-      expect(AppTheme.primary, const Color(0xFFF2B705));
-      expect(AppTheme.dark, const Color(0xFF1B2A4A));
-      expect(AppTheme.surface, const Color(0xFFFFFFFF));
-      expect(AppTheme.errorLight, const Color(0xFFFDE5DE));
+      expect(ManiColors.background, const Color(0xFFFAF6F2));
+      expect(ManiColors.brand, const Color(0xFFFED1B0));
+      expect(ManiColors.ink, const Color(0xFF1C1613));
+      expect(ManiColors.surface, const Color(0xFFFFFFFF));
+      expect(ManiColors.border, ManiColors.ink);
     });
 
-    test('sombras duras de 3, 5 y 8 px, sin desenfoque', () {
-      expect(AppTheme.hardShadowSm.offset, const Offset(3, 3));
-      expect(AppTheme.hardShadowMd.offset, const Offset(5, 5));
-      expect(AppTheme.hardShadowLg.offset, const Offset(8, 8));
-      for (final s in [
-        AppTheme.hardShadowSm,
-        AppTheme.hardShadowMd,
-        AppTheme.hardShadowLg,
-        AppTheme.hardShadowHover,
-      ]) {
+    test('sombras duras de 2, 4 y 6 px, sin desenfoque', () {
+      expect(ManiShadow.sm.offset, const Offset(2, 2));
+      expect(ManiShadow.md.offset, const Offset(4, 4));
+      expect(ManiShadow.lg.offset, const Offset(6, 6));
+      for (final s in [ManiShadow.sm, ManiShadow.md, ManiShadow.lg]) {
         expect(s.blurRadius, 0);
-        expect(s.color, AppTheme.dark);
+        expect(s.color, ManiColors.ink);
       }
     });
 
-    test('radios, bordes y movimiento', () {
+    test('bordes y movimiento', () {
       expect(
-        [AppTheme.radiusSm, AppTheme.radiusMd, AppTheme.radiusLg],
-        [8, 16, 24],
+        [ManiBorder.thin, ManiBorder.regular, ManiBorder.thick],
+        [1.5, 2, 2.5],
       );
-      // Los nombres anteriores siguen apuntando a la escala nueva.
-      expect(AppTheme.radiusXl, AppTheme.radiusMd);
-      expect(AppTheme.radius2xl, AppTheme.radiusLg);
-      expect(
-        [AppTheme.borderThin, AppTheme.borderMedium, AppTheme.borderThick],
-        [1.5, 2.5, 3.0],
-      );
-      expect(AppTheme.motionFast, const Duration(milliseconds: 150));
-      expect(AppTheme.motionBase, const Duration(milliseconds: 220));
-      expect(AppTheme.motionSlow, const Duration(milliseconds: 250));
-      expect(AppTheme.motionBounce.transform(1), closeTo(1, 1e-9));
+      expect(ManiMotion.fast, const Duration(milliseconds: 120));
+      expect(ManiMotion.base, const Duration(milliseconds: 200));
+      expect(ManiMotion.slow, const Duration(milliseconds: 320));
     });
   });
 
   group('ThemeData', () {
-    late ThemeData tema;
-    setUp(() => tema = AppTheme.light);
+    for (final (nombre, tema, tokens) in [
+      ('claro', AppTheme.light, ManiTokens.claro),
+      ('oscuro', AppTheme.dark, ManiTokens.oscuro),
+    ]) {
+      test('$nombre: Material 3 y fondo, primario y campos de sus tokens', () {
+        expect(tema.useMaterial3, isTrue);
+        expect(tema.scaffoldBackgroundColor, tokens.background);
+        expect(tema.colorScheme.primary, tokens.brand);
+        expect(tema.inputDecorationTheme.filled, isTrue);
+        expect(tema.inputDecorationTheme.fillColor, tokens.surface);
+      });
+    }
 
-    test('usa Material 3 y el crema como fondo', () {
-      expect(tema.useMaterial3, isTrue);
-      expect(tema.scaffoldBackgroundColor, AppTheme.background);
-      expect(tema.colorScheme.primary, AppTheme.primary);
-      expect(tema.colorScheme.onPrimary, AppTheme.textPrimary);
-    });
-
-    test('la barra superior es crema-blanca con borde inferior grueso', () {
-      final barra = tema.appBarTheme;
+    test('la barra superior no tiene elevación y usa la tinta', () {
+      final barra = AppTheme.light.appBarTheme;
       expect(barra.elevation, 0);
-      expect(barra.foregroundColor, AppTheme.dark);
-      final borde = barra.shape! as Border;
-      expect(borde.bottom.width, AppTheme.borderThick);
-      expect(borde.bottom.color, AppTheme.dark);
-    });
-
-    test('las tarjetas y los campos usan la escala de radios y bordes', () {
-      final tarjeta = tema.cardTheme.shape! as RoundedRectangleBorder;
-      expect(tarjeta.borderRadius, BorderRadius.circular(AppTheme.radiusMd));
-
-      final campo = tema.inputDecorationTheme;
-      expect(campo.filled, isTrue);
-      expect(campo.fillColor, AppTheme.surface);
-      final reposo = campo.enabledBorder! as OutlineInputBorder;
-      expect(reposo.borderSide.color, AppTheme.dark);
+      expect(barra.foregroundColor, ManiTokens.claro.ink);
     });
   });
 }

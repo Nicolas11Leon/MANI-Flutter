@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mani/core/theme/app_theme.dart';
 
 enum ManiButtonVariante { primario, peligro, secundario }
 
 /// Botón neo-brutalista MANI. Al presionarlo "se hunde": la sombra dura
-/// desaparece y el botón se desplaza a su posición, como un botón físico.
+/// desaparece y el botón se desplaza a su lugar, como un botón físico. El
+/// hundimiento es una transformación, así que no mueve el layout vecino.
+///
+/// Es alcanzable con teclado (Tab), se activa con Enter o Espacio y muestra
+/// un anillo de foco visible.
 class ManiButton extends StatefulWidget {
   const ManiButton({
     super.key,
@@ -29,14 +34,17 @@ class ManiButton extends StatefulWidget {
 
 class _ManiButtonState extends State<ManiButton> {
   bool _presionado = false;
+  bool _enfocado = false;
+  bool _hover = false;
 
   bool get _habilitado => widget.onPressed != null && !widget.cargando;
 
-  (Color fondo, Color texto) get _colores => switch (widget.variante) {
-    ManiButtonVariante.primario => (AppTheme.primary, AppTheme.dark),
-    ManiButtonVariante.peligro => (AppTheme.error, Colors.white),
-    ManiButtonVariante.secundario => (AppTheme.surface, AppTheme.dark),
-  };
+  (Color fondo, Color texto) _colores(ManiTokens t) =>
+      switch (widget.variante) {
+        ManiButtonVariante.primario => (t.brand, t.onBrand),
+        ManiButtonVariante.peligro => (ManiColors.danger, ManiColors.onInk),
+        ManiButtonVariante.secundario => (t.surface, t.ink),
+      };
 
   void _presionar(bool valor) {
     if (_habilitado && _presionado != valor) {
@@ -44,75 +52,116 @@ class _ManiButtonState extends State<ManiButton> {
     }
   }
 
+  void _activar() {
+    if (_habilitado) widget.onPressed!();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final (fondo, texto) = _colores;
+    final t = context.mani;
+    final (fondo, texto) = _colores(t);
     final hundido = _presionado || !_habilitado;
-    final estilo = Theme.of(context).textTheme.labelLarge?.copyWith(
-      color: texto,
-      fontWeight: FontWeight.w900,
-      letterSpacing: 0.3,
-    );
-
-    final contenido = Row(
-      mainAxisSize: widget.expandir ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (widget.cargando)
-          SizedBox.square(
-            dimension: 16,
-            child: CircularProgressIndicator(strokeWidth: 2.5, color: texto),
-          )
-        else if (widget.icono != null)
-          Icon(widget.icono, size: 18, color: texto),
-        if (widget.cargando || widget.icono != null) const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            widget.etiqueta,
-            style: estilo,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-
+    final rapido = ManiMotion.duracion(context, ManiMotion.fast);
+    final desplazamiento = _desplazamiento(hundido);
     return Semantics(
       button: true,
       enabled: _habilitado,
       label: widget.etiqueta,
       onTap: _habilitado ? widget.onPressed : null,
       excludeSemantics: true,
-      child: GestureDetector(
-        onTapDown: (_) => _presionar(true),
-        onTapUp: (_) => _presionar(false),
-        onTapCancel: () => _presionar(false),
-        onTap: _habilitado ? widget.onPressed : null,
-        child: MouseRegion(
-          cursor: _habilitado
-              ? SystemMouseCursors.click
-              : SystemMouseCursors.forbidden,
+      child: FocusableActionDetector(
+        enabled: _habilitado,
+        mouseCursor: _habilitado
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.forbidden,
+        onShowFocusHighlight: (v) => setState(() => _enfocado = v),
+        onShowHoverHighlight: (v) => setState(() => _hover = v),
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+          SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+        },
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              _activar();
+              return null;
+            },
+          ),
+        },
+        child: GestureDetector(
+          onTapDown: (_) => _presionar(true),
+          onTapUp: (_) => _presionar(false),
+          onTapCancel: () => _presionar(false),
+          onTap: _habilitado ? widget.onPressed : null,
           child: AnimatedOpacity(
-            duration: const Duration(milliseconds: 120),
+            duration: rapido,
             opacity: _habilitado || widget.cargando ? 1 : 0.45,
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 90),
+              duration: rapido,
+              curve: ManiMotion.entrada,
               transform: Matrix4.translationValues(
-                hundido ? 3 : 0,
-                hundido ? 3 : 0,
+                desplazamiento,
+                desplazamiento,
                 0,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+              padding: const EdgeInsets.symmetric(
+                horizontal: ManiSpace.xl,
+                vertical: 13,
+              ),
               decoration: BoxDecoration(
                 color: fondo,
-                borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                border: Border.all(color: AppTheme.dark, width: 2),
-                boxShadow: [if (!hundido) AppTheme.hardShadowSm],
+                borderRadius: ManiRadius.brMd,
+                border: Border.all(color: t.border, width: ManiBorder.regular),
+                boxShadow: _sombras(t, hundido),
               ),
-              child: contenido,
+              child: _contenido(texto),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Hundido baja a la posición de la sombra; con el cursor encima sube 1 px.
+  double _desplazamiento(bool hundido) {
+    if (hundido) return ManiShadow.hundimiento;
+    return _hover ? -1 : 0;
+  }
+
+  List<BoxShadow> _sombras(ManiTokens t, bool hundido) => [
+    if (!hundido) _hover ? t.shadow : t.shadowSm,
+    // Anillo de foco: un contorno extra fuera de la sombra.
+    if (_enfocado) BoxShadow(color: t.border, spreadRadius: 3),
+    if (_enfocado) BoxShadow(color: t.brand, spreadRadius: 1.5),
+  ];
+
+  /// Indicador de carga o icono, y la etiqueta.
+  Widget _contenido(Color texto) {
+    final conIcono = widget.cargando || widget.icono != null;
+    return Row(
+      mainAxisSize: widget.expandir ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (widget.cargando)
+          SizedBox.square(
+            dimension: ManiSpace.lg,
+            child: CircularProgressIndicator(strokeWidth: 2.5, color: texto),
+          )
+        else if (widget.icono != null)
+          Icon(widget.icono, size: 18, color: texto),
+        if (conIcono) ManiGap.hSm,
+        Flexible(
+          child: Text(
+            widget.etiqueta,
+            style: ManiText.label.copyWith(
+              color: texto,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.3,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }

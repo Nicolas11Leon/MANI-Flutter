@@ -40,16 +40,16 @@ class ManiTextField extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted,
       autofillHints: autofillHints,
       validator: validator,
-      style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15),
+      style: const TextStyle(
+        color: ManiColors.ink,
+        fontSize: ManiFontSize.bodyLg,
+      ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         prefixIcon: prefixIcon != null
             ? IconTheme(
-                data: const IconThemeData(
-                  color: AppTheme.textSecondary,
-                  size: 20,
-                ),
+                data: const IconThemeData(color: ManiColors.inkMuted, size: 20),
                 child: prefixIcon!,
               )
             : null,

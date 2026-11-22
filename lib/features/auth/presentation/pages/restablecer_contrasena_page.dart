@@ -7,6 +7,7 @@ import 'package:mani/features/auth/domain/entities/enlace_recuperacion.dart';
 import 'package:mani/features/auth/presentation/bloc/recuperacion_contrasena_cubit.dart';
 import 'package:mani/features/auth/presentation/validators/credenciales_validators.dart';
 import 'package:mani/features/auth/presentation/widgets/recuperacion_layout.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Paso 2 de la recuperación (HU-M02-10): la persona llega desde el enlace del
 /// correo y elige su contraseña nueva.
@@ -134,7 +135,7 @@ class _RestablecerContrasenaViewState extends State<RestablecerContrasenaView> {
                   ),
                   validator: CredencialesValidators.password,
                 ),
-                const SizedBox(height: 16),
+                ManiGap.vLg,
                 TextFormField(
                   key: const Key('confirmacion'),
                   controller: _confirmacionController,
@@ -155,7 +156,7 @@ class _RestablecerContrasenaViewState extends State<RestablecerContrasenaView> {
                     child: Text(_mostrar ? 'OCULTAR' : 'VER'),
                   ),
                 ),
-                const SizedBox(height: 8),
+                ManiGap.vSm,
                 BotonRecuperacion(
                   key: const Key('guardarContrasena'),
                   texto: 'GUARDAR CONTRASEÑA',

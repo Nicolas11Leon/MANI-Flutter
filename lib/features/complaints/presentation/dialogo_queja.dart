@@ -4,6 +4,7 @@ import 'package:mani/core/widgets/mani_button.dart';
 
 import '../data/quejas_datasource.dart';
 import '../domain/queja.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// El cliente presenta una queja sobre un servicio propio (HU-M12-01 /
 /// SCRUM-895). Motivo obligatorio y descripción de 10 a 1000 caracteres; Core
@@ -93,7 +94,7 @@ class _DialogoQuejaState extends State<DialogoQueja> {
                     ? null
                     : (m) => setState(() => _motivo = m),
               ),
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               TextField(
                 key: const Key('queja-descripcion'),
                 controller: _descripcion,
