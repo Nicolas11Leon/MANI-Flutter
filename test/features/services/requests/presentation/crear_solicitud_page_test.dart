@@ -15,6 +15,7 @@ Future<void> _montar(
   WidgetTester t,
   FakeSolicitudesClienteRepository repo, {
   FakeSelectorFotos? selector,
+  VoidCallback? onIrAMisSolicitudes,
   Size tamano = _movil,
 }) async {
   t.view.physicalSize = tamano;
@@ -29,6 +30,7 @@ Future<void> _montar(
         value: cubit,
         child: CrearSolicitudPage(
           selectorFotos: selector ?? FakeSelectorFotos(),
+          onIrAMisSolicitudes: onIrAMisSolicitudes,
           esperaBusqueda: Duration.zero,
         ),
       ),
@@ -260,6 +262,26 @@ void main() {
       expect(find.text('BUSCANDO ALIADO'), findsOneWidget);
     },
   );
+
+  testWidgets('"Ir a Mis solicitudes" redirige a la bandeja de solicitudes', (
+    t,
+  ) async {
+    var redirigido = false;
+    await _montar(
+      t,
+      FakeSolicitudesClienteRepository(),
+      onIrAMisSolicitudes: () => redirigido = true,
+    );
+    await _tocar(t, const ValueKey('categoria-cat-plo'));
+    await _escribir(t, const ValueKey('campo-descripcion'), descripcionValida);
+    await _tocar(t, const ValueKey('btn-continuar'));
+    await _tocar(t, const ValueKey('btn-continuar'));
+    await _tocar(t, const ValueKey('btn-publicar'));
+
+    await _tocar(t, const ValueKey('btn-mis-solicitudes'));
+
+    expect(redirigido, isTrue);
+  });
 
   testWidgets('"Publicar otra solicitud" reinicia el asistente', (t) async {
     await _montar(t, FakeSolicitudesClienteRepository());

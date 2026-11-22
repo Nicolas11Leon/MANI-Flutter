@@ -217,7 +217,6 @@ void main() {
       required RolUsuario rol,
       required FuenteResumenInicio resumen,
       ValueChanged<String>? onNavegar,
-      Future<void> Function()? onCerrarSesion,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -226,7 +225,6 @@ void main() {
             fuenteSesion: _SesionFija(),
             fuenteResumen: resumen,
             onNavegar: onNavegar ?? (_) {},
-            onCerrarSesion: onCerrarSesion,
           ),
         ),
       );
@@ -325,32 +323,18 @@ void main() {
       );
     });
 
-    testWidgets(
-      'muestra tarjeta de cerrar sesión cuando onCerrarSesion está configurado y lo ejecuta',
-      (tester) async {
-        var cerro = false;
-        await montar(
-          tester,
-          rol: RolUsuario.cliente,
-          resumen: _ResumenFijo(const []),
-          onCerrarSesion: () async => cerro = true,
-        );
-        await tester.pumpAndSettle();
+    testWidgets('no duplica el botón de cerrar sesión al final del dashboard', (
+      tester,
+    ) async {
+      await montar(
+        tester,
+        rol: RolUsuario.cliente,
+        resumen: _ResumenFijo(const []),
+      );
+      await tester.pumpAndSettle();
 
-        final cardSesion = find.byKey(const Key('inicio-card-sesion'));
-        await tester.scrollUntilVisible(cardSesion, 200);
-        expect(cardSesion, findsOneWidget);
-        // La pantalla pinta una tarjeta por entrada del menú del rol, así que
-        // al crecer el menú el botón queda por debajo del pliegue y un toque
-        // a ciegas no aterriza. Se asegura la visibilidad antes de tocar.
-        await tester.ensureVisible(
-          find.byKey(const Key('inicio-cerrar-sesion')),
-        );
-        await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const Key('inicio-cerrar-sesion')));
-        await tester.pumpAndSettle();
-        expect(cerro, isTrue);
-      },
-    );
+      expect(find.byKey(const Key('inicio-card-sesion')), findsNothing);
+      expect(find.byKey(const Key('inicio-cerrar-sesion')), findsNothing);
+    });
   });
 }

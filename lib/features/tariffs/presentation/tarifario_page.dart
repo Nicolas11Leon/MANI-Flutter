@@ -9,6 +9,9 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 
 import '../domain/tarifa.dart';
 import 'tarifario_cubit.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 final _importeRe = RegExp(r'^\d{1,10}([.,]\d{1,2})?$');
 final _fechaRe = RegExp(r'^\d{4}-\d{2}-\d{2}$');
@@ -46,51 +49,61 @@ class TarifarioPage extends StatelessWidget {
       },
       builder: (context, state) {
         final cubit = context.read<TarifarioCubit>();
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 820),
-            child: RefreshIndicator(
-              onRefresh: cubit.cargar,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Text(
-                    'Tarifario de referencia',
-                    style: Theme.of(context).textTheme.headlineSmall,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ManiEncabezadoPantalla(
+              ancho: ManiAncho.lista,
+              icono: Icons.sell_rounded,
+              titulo: 'Tarifario de referencia',
+              descripcion:
+                  'Rango de precios por categoría que el motor de reglas usa '
+                  'para contrastar las cotizaciones. Editar crea una versión '
+                  'nueva y conserva la anterior.',
+            ),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: ManiAncho.lista),
+                  child: RefreshIndicator(
+                    onRefresh: cubit.cargar,
+                    child: ListView(
+                      padding: const EdgeInsets.all(ManiSpace.lg),
+                      children: [
+                        if (state.cargando && state.categorias.isEmpty)
+                          const ManiCargando()
+                        else if (state.error != null)
+                          _Error(
+                            mensaje: state.error!,
+                            onReintentar: cubit.cargar,
+                          )
+                        else if (state.categorias.isEmpty)
+                          const Card(
+                            key: Key('tarifario-sin-categorias'),
+                            child: ListTile(
+                              leading: Icon(Icons.info_outline),
+                              title: Text(
+                                'Aún no hay categorías en el catálogo',
+                              ),
+                              subtitle: Text(
+                                'Crea una categoría para poder cargar su tarifa.',
+                              ),
+                            ),
+                          )
+                        else
+                          for (final c in state.categorias)
+                            _TarjetaCategoria(
+                              categoria: c,
+                              tarifas: state.tarifasDe(c.id),
+                              guardando: state.guardando,
+                            ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Rango de precios por categoría que el motor de reglas usa '
-                    'para contrastar las cotizaciones. Editar crea una versión '
-                    'nueva y conserva la anterior.',
-                  ),
-                  const SizedBox(height: 16),
-                  if (state.cargando && state.categorias.isEmpty)
-                    const Center(child: CircularProgressIndicator())
-                  else if (state.error != null)
-                    _Error(mensaje: state.error!, onReintentar: cubit.cargar)
-                  else if (state.categorias.isEmpty)
-                    const Card(
-                      key: Key('tarifario-sin-categorias'),
-                      child: ListTile(
-                        leading: Icon(Icons.info_outline),
-                        title: Text('Aún no hay categorías en el catálogo'),
-                        subtitle: Text(
-                          'Crea una categoría para poder cargar su tarifa.',
-                        ),
-                      ),
-                    )
-                  else
-                    for (final c in state.categorias)
-                      _TarjetaCategoria(
-                        categoria: c,
-                        tarifas: state.tarifasDe(c.id),
-                        guardando: state.guardando,
-                      ),
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         );
       },
     );
@@ -115,7 +128,7 @@ class _TarjetaCategoria extends StatelessWidget {
     return Card(
       key: Key('tarifa-categoria-${categoria.id}'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(ManiSpace.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -127,7 +140,7 @@ class _TarjetaCategoria extends StatelessWidget {
                 if (!categoria.activa) const Chip(label: Text('Inactiva')),
               ],
             ),
-            const SizedBox(height: 8),
+            ManiGap.vSm,
             if (tarifas.isEmpty)
               const Text('Sin tarifa de referencia.')
             else
@@ -158,7 +171,7 @@ class _TarjetaCategoria extends StatelessWidget {
               ],
             Wrap(
               alignment: WrapAlignment.end,
-              spacing: 8,
+              spacing: ManiSpace.sm,
               children: [
                 TextButton.icon(
                   key: Key('historial-tarifa-${categoria.id}'),
@@ -217,10 +230,7 @@ Future<void> _verHistorial(
         future: cubit.historial(categoria.id),
         builder: (context, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const SizedBox(
-              height: 80,
-              child: Center(child: CircularProgressIndicator()),
-            );
+            return const SizedBox(height: 80, child: ManiCargando());
           }
           if (snap.hasError) return Text(mensajeErrorGateway(snap.error!));
           final versiones = snap.data!;
@@ -343,7 +353,7 @@ class _DialogoTarifaState extends State<DialogoTarifa> {
     String? ayuda,
     int? maxLength,
   }) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
+    padding: const EdgeInsets.only(bottom: ManiSpace.sm),
     child: TextField(
       key: Key(clave),
       controller: c,

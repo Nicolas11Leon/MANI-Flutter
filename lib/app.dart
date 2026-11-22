@@ -7,12 +7,19 @@ class ManiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      // Mismo título que web/index.html: Flutter reemplaza el de la pestaña al navegar (SCRUM-1645).
-      title: 'MANI | Servicios a domicilio para tu hogar',
-      theme: AppTheme.light, // Usando el tema centralizado del core
-      routerConfig: appRouter, // Usando go_router
-      debugShowCheckedModeBanner: false,
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: maniThemeController,
+      builder: (context, modo, _) {
+        return MaterialApp.router(
+          // Mismo título que web/index.html: Flutter reemplaza el de la pestaña al navegar (SCRUM-1645).
+          title: 'MANI | Servicios a domicilio para tu hogar',
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: modo,
+          routerConfig: appRouter,
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }

@@ -63,21 +63,21 @@ class DetalleAliadoPanel extends StatelessWidget {
             if (state.cargandoDetalleId == aliadoId)
               const LinearProgressIndicator(
                 minHeight: 3,
-                color: AppTheme.dark,
-                backgroundColor: AppTheme.primary,
+                color: ManiColors.ink,
+                backgroundColor: ManiColors.brand,
               ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(ManiSpace.xxl),
                 children: [
                   _Encabezado(aliado: aliado, onCerrar: onCerrar),
-                  const SizedBox(height: 20),
+                  ManiGap.vXl,
                   _Seccion(
                     titulo: 'Datos del registro',
                     icono: Icons.person_search_outlined,
                     child: _DatosRegistro(aliado: aliado),
                   ),
-                  const SizedBox(height: 20),
+                  ManiGap.vXl,
                   _Seccion(
                     titulo: 'Documentos KYC (${aliado.documentos.length})',
                     icono: Icons.folder_open_rounded,
@@ -95,17 +95,17 @@ class DetalleAliadoPanel extends StatelessWidget {
                           )
                         : const _Aviso(
                             icono: Icons.report_gmailerrorred,
-                            color: AppTheme.error,
+                            color: ManiColors.danger,
                             texto:
                                 'Este aliado no adjuntó documentos. No puedes aprobarlo; '
                                 'recházalo indicando qué debe cargar.',
                           ),
                   ),
-                  const SizedBox(height: 20),
+                  ManiGap.vXl,
                   if (aliado.estaPendiente)
                     const _Aviso(
                       icono: Icons.lightbulb_outline_rounded,
-                      color: Color(0xFFB45309),
+                      color: ManiColors.warning,
                       texto:
                           'Antes de decidir, verifica que los documentos sean legibles, '
                           'estén vigentes y que el nombre coincida con el registro.',
@@ -140,12 +140,12 @@ class _Encabezado extends StatelessWidget {
   Widget build(BuildContext context) {
     final tema = Theme.of(context).textTheme;
     return ManiCard(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(ManiSpace.xl),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AliadoAvatar(aliado: aliado, tamano: 64),
-          const SizedBox(width: 16),
+          ManiGap.hLg,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,14 +157,12 @@ class _Encabezado extends StatelessWidget {
                     letterSpacing: -0.4,
                   ),
                 ),
-                const SizedBox(height: 4),
+                ManiGap.vXs,
                 Text(
                   aliado.email,
-                  style: tema.bodyMedium?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+                  style: tema.bodyMedium?.copyWith(color: ManiColors.inkMuted),
                 ),
-                const SizedBox(height: 10),
+                ManiGap.vSm,
                 EstadoVerificacionBadge(estado: aliado.estado),
               ],
             ),
@@ -173,7 +171,7 @@ class _Encabezado extends StatelessWidget {
             IconButton(
               tooltip: 'Cerrar detalle',
               onPressed: onCerrar,
-              icon: const Icon(Icons.close_rounded, color: AppTheme.dark),
+              icon: const Icon(Icons.close_rounded, color: ManiColors.ink),
             ),
         ],
       ),
@@ -202,27 +200,30 @@ class _DatosRegistro extends StatelessWidget {
           child: aliado.categorias.isEmpty
               ? const Text(
                   'Sin especialidad declarada',
-                  style: TextStyle(color: AppTheme.textSecondary),
+                  style: TextStyle(color: ManiColors.inkMuted),
                 )
               : Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
+                  spacing: ManiSpace.sm,
+                  runSpacing: ManiSpace.sm,
                   children: [
                     for (final c in aliado.categorias)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
+                          horizontal: ManiSpace.sm,
+                          vertical: ManiSpace.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary,
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: AppTheme.dark, width: 1.5),
+                          color: ManiColors.brand,
+                          borderRadius: ManiRadius.brPill,
+                          border: Border.all(
+                            color: ManiColors.border,
+                            width: ManiBorder.thin,
+                          ),
                         ),
                         child: Text(
                           c,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: ManiFontSize.caption,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -245,26 +246,26 @@ class _Dato extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: ManiSpace.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             etiqueta.toUpperCase(),
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: ManiFontSize.micro,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
-              color: AppTheme.textTertiary,
+              color: ManiColors.inkSubtle,
             ),
           ),
-          const SizedBox(height: 4),
+          ManiGap.vXs,
           child ??
               Text(
                 valor ?? '',
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
               ),
         ],
@@ -291,15 +292,18 @@ class _Seccion extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icono, size: 18, color: AppTheme.dark),
-            const SizedBox(width: 8),
+            Icon(icono, size: 18, color: ManiColors.ink),
+            ManiGap.hSm,
             Text(
               titulo,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+              style: const TextStyle(
+                fontSize: ManiFontSize.body,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        ManiGap.vSm,
         child,
       ],
     );
@@ -316,21 +320,24 @@ class _Aviso extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: color, width: 1.5),
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: color, width: ManiBorder.thin),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icono, color: color, size: 20),
-          const SizedBox(width: 10),
+          ManiGap.hSm,
           Expanded(
             child: Text(
               texto,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: ManiFontSize.bodySm,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -351,11 +358,11 @@ class _Resultado extends StatelessWidget {
     final aprobado = estado == EstadoVerificacion.aprobado;
     return Container(
       key: const ValueKey('resultado-verificacion'),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(ManiSpace.lg),
       decoration: BoxDecoration(
         color: estado.fondo,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,7 +370,7 @@ class _Resultado extends StatelessWidget {
           Row(
             children: [
               Icon(estado.icono, color: estado.acento),
-              const SizedBox(width: 8),
+              ManiGap.hSm,
               Expanded(
                 child: Text(
                   [
@@ -379,12 +386,15 @@ class _Resultado extends StatelessWidget {
             ],
           ),
           if (!aprobado && (aliado.motivoRechazo ?? '').isNotEmpty) ...[
-            const SizedBox(height: 10),
+            ManiGap.vSm,
             const Text(
               'Motivo enviado al aliado:',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+              style: TextStyle(
+                fontSize: ManiFontSize.caption,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-            const SizedBox(height: 4),
+            ManiGap.vXs,
             Text(aliado.motivoRechazo!),
           ],
         ],
@@ -411,10 +421,15 @@ class _BarraAcciones extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      padding: const EdgeInsets.fromLTRB(
+        ManiSpace.xxl,
+        ManiSpace.lg,
+        ManiSpace.xxl,
+        ManiSpace.lg,
+      ),
       decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(top: BorderSide(color: AppTheme.dark, width: 2)),
+        color: ManiColors.surface,
+        border: Border(top: ManiBorder.side),
       ),
       child: SafeArea(
         top: false,
@@ -429,10 +444,10 @@ class _BarraAcciones extends StatelessWidget {
                       dimension: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: AppTheme.dark,
+                        color: ManiColors.ink,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    ManiGap.hMd,
                     Text(
                       'Guardando decisión…',
                       style: TextStyle(fontWeight: FontWeight.w800),
@@ -452,7 +467,7 @@ class _BarraAcciones extends StatelessWidget {
                       onPressed: puedeRechazar ? onRechazar : null,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  ManiGap.hMd,
                   Expanded(
                     child: ManiButton(
                       key: const ValueKey('btn-aprobar'),

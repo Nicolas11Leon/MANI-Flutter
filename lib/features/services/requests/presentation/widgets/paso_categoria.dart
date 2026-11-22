@@ -22,7 +22,7 @@ class PasoCategoria extends StatelessWidget {
           titulo: '¿Qué servicio necesitas?',
           subtitulo: 'Elige la categoría que mejor describe tu problema.',
         ),
-        const SizedBox(height: 16),
+        ManiGap.vLg,
         if (categorias.isEmpty)
           const _SinCategorias()
         else
@@ -33,18 +33,18 @@ class PasoCategoria extends StatelessWidget {
                 crossAxisCount: columnas,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
+                mainAxisSpacing: ManiSpace.md,
+                crossAxisSpacing: ManiSpace.md,
                 childAspectRatio: columnas == 2 ? 2.6 : 4.2,
                 children: [
                   for (final cat in categorias)
                     ManiCard(
                       key: ValueKey('categoria-${cat.id}'),
                       seleccionada: cat.id == state.categoriaId,
-                      sombra: AppTheme.hardShadowSm,
+                      sombra: ManiShadow.sm,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
+                        horizontal: ManiSpace.md,
+                        vertical: ManiSpace.sm,
                       ),
                       onTap: () => context
                           .read<CrearSolicitudCubit>()
@@ -56,21 +56,19 @@ class PasoCategoria extends StatelessWidget {
                             height: 44,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: AppTheme.primary,
-                              borderRadius: BorderRadius.circular(
-                                AppTheme.radiusXl,
-                              ),
+                              color: ManiColors.brand,
+                              borderRadius: ManiRadius.brMd,
                               border: Border.all(
-                                color: AppTheme.dark,
-                                width: 2,
+                                color: ManiColors.border,
+                                width: ManiBorder.regular,
                               ),
                             ),
                             child: Icon(
                               iconoCategoria(cat.nombre),
-                              color: AppTheme.dark,
+                              color: ManiColors.ink,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          ManiGap.hMd,
                           Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -81,18 +79,18 @@ class PasoCategoria extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    fontSize: 15,
+                                    fontSize: ManiFontSize.body,
                                     fontWeight: FontWeight.w900,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
+                                ManiGap.vXxs,
                                 Text(
                                   textoModalidad(cat.modalidad),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    fontSize: 12,
-                                    color: AppTheme.textSecondary,
+                                    fontSize: ManiFontSize.caption,
+                                    color: ManiColors.inkMuted,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -101,7 +99,7 @@ class PasoCategoria extends StatelessWidget {
                           ),
                           const Icon(
                             Icons.chevron_right_rounded,
-                            color: AppTheme.textTertiary,
+                            color: ManiColors.inkSubtle,
                           ),
                         ],
                       ),
@@ -121,26 +119,29 @@ class _SinCategorias extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(ManiSpace.xl),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
+        color: ManiColors.surface,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
       ),
       child: const Column(
         children: [
-          Icon(Icons.inventory_2_outlined, size: 36, color: AppTheme.dark),
-          SizedBox(height: 10),
+          Icon(Icons.inventory_2_outlined, size: 36, color: ManiColors.ink),
+          ManiGap.vSm,
           Text(
             'Aún no hay servicios disponibles',
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: ManiFontSize.bodyLg,
+            ),
           ),
-          SizedBox(height: 4),
+          ManiGap.vXs,
           Text(
             'Tu empresa de servicios todavía no publicó categorías. '
             'Vuelve a intentarlo más tarde.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppTheme.textSecondary),
+            style: TextStyle(color: ManiColors.inkMuted),
           ),
         ],
       ),

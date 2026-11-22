@@ -405,7 +405,7 @@ void main() {
       () {
         expect(
           entradasMenuPara(RolUsuario.cliente).map((e) => e.ruta),
-          contains('/cliente/historial'),
+          contains('/cliente/solicitudes'),
         );
         expect(
           entradasMenuPara(RolUsuario.aliado).map((e) => e.ruta),

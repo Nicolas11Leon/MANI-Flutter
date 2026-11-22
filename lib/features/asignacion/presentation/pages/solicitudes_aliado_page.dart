@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 import 'package:mani/features/services/ratings/data/calificacion_cierre_datasource.dart';
 import 'package:mani/features/services/ratings/presentation/calificacion_cierre_cubit.dart';
@@ -70,6 +72,7 @@ class _SolicitudesAliadoPageState extends State<SolicitudesAliadoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return BlocListener<SolicitudesAliadoCubit, SolicitudesAliadoState>(
       listenWhen: (antes, ahora) =>
           ahora.aviso != null && antes.aviso != ahora.aviso,
@@ -79,7 +82,7 @@ class _SolicitudesAliadoPageState extends State<SolicitudesAliadoPage> {
         esError: state.aviso!.tipo == TipoAviso.error,
       ),
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: t.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -92,24 +95,30 @@ class _SolicitudesAliadoPageState extends State<SolicitudesAliadoPage> {
                 child:
                     BlocBuilder<SolicitudesAliadoCubit, SolicitudesAliadoState>(
                       buildWhen: (a, b) => a.carga != b.carga,
-                      builder: (context, state) => switch (state.carga) {
-                        CargaSolicitudes.inicial ||
-                        CargaSolicitudes.cargando => const Center(
-                          child: CircularProgressIndicator(
-                            color: AppTheme.dark,
+                      // Esqueleto mientras carga y transición suave al
+                      // contenido o al error (sin saltos de layout).
+                      builder: (context, state) => ManiTransicionEstado(
+                        child: switch (state.carga) {
+                          CargaSolicitudes.inicial ||
+                          CargaSolicitudes.cargando => const Padding(
+                            key: ValueKey('carga'),
+                            padding: EdgeInsets.all(ManiSpace.lg),
+                            child: ManiSkeletonLista(),
                           ),
-                        ),
-                        CargaSolicitudes.error => _ErrorCarga(
-                          falla: state.error,
-                          onReintentar: () =>
-                              context.read<SolicitudesAliadoCubit>().cargar(),
-                        ),
-                        CargaSolicitudes.listo => _Bandeja(
-                          onAbrirCobertura: widget.onAbrirCobertura,
-                          onAbrirCategorias: widget.onAbrirCategorias,
-                          onCotizar: widget.onCotizar,
-                        ),
-                      },
+                          CargaSolicitudes.error => _ErrorCarga(
+                            key: const ValueKey('error'),
+                            falla: state.error,
+                            onReintentar: () =>
+                                context.read<SolicitudesAliadoCubit>().cargar(),
+                          ),
+                          CargaSolicitudes.listo => _Bandeja(
+                            key: const ValueKey('listo'),
+                            onAbrirCobertura: widget.onAbrirCobertura,
+                            onAbrirCategorias: widget.onAbrirCategorias,
+                            onCotizar: widget.onCotizar,
+                          ),
+                        },
+                      ),
                     ),
               ),
             ],
@@ -122,6 +131,7 @@ class _SolicitudesAliadoPageState extends State<SolicitudesAliadoPage> {
 
 class _Bandeja extends StatelessWidget {
   const _Bandeja({
+    super.key,
     this.onAbrirCobertura,
     this.onAbrirCategorias,
     this.onCotizar,
@@ -149,22 +159,28 @@ class _Bandeja extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final cubit = context.read<SolicitudesAliadoCubit>();
     return BlocBuilder<SolicitudesAliadoCubit, SolicitudesAliadoState>(
       builder: (context, state) {
         final visibles = state.visibles;
         final enDisponibles = state.pestana == PestanaSolicitudes.disponibles;
         return RefreshIndicator(
-          color: AppTheme.dark,
-          backgroundColor: AppTheme.primary,
+          color: t.onBrand,
+          backgroundColor: t.brand,
           onRefresh: () => cubit.cargar(silencioso: true),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 760),
+              constraints: const BoxConstraints(maxWidth: ManiAncho.formulario),
               child: ListView(
                 key: PageStorageKey('solicitudes-${state.pestana.name}'),
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                padding: const EdgeInsets.fromLTRB(
+                  ManiSpace.xl,
+                  ManiSpace.xl,
+                  ManiSpace.xl,
+                  ManiSpace.xxxl,
+                ),
                 children: [
                   _Pestanas(
                     seleccionada: state.pestana,
@@ -172,10 +188,10 @@ class _Bandeja extends StatelessWidget {
                     misTrabajos: state.bandeja.misTrabajos.length,
                     onCambiar: cubit.cambiarPestana,
                   ),
-                  const SizedBox(height: 14),
+                  ManiGap.vMd,
                   if (enDisponibles && visibles.isNotEmpty) ...[
                     const _ComoFunciona(),
-                    const SizedBox(height: 14),
+                    ManiGap.vMd,
                   ],
                   if (visibles.isEmpty)
                     enDisponibles
@@ -199,7 +215,7 @@ class _Bandeja extends StatelessWidget {
                             ? null
                             : () => onCotizar!(s.id),
                       ),
-                      const SizedBox(height: 14),
+                      ManiGap.vMd,
                     ],
                 ],
               ),
@@ -226,6 +242,7 @@ class _Pestanas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     Widget pestana(PestanaSolicitudes p, String etiqueta, int n) {
       final activa = p == seleccionada;
       return Expanded(
@@ -238,9 +255,9 @@ class _Pestanas extends StatelessWidget {
             key: ValueKey('tab-${p.name}'),
             onTap: () => onCambiar(p),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
+              duration: ManiMotion.fast,
               height: 50,
-              color: activa ? AppTheme.primary : AppTheme.surface,
+              color: activa ? t.brand : t.surface,
               alignment: Alignment.center,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -250,28 +267,28 @@ class _Pestanas extends StatelessWidget {
                       etiqueta,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: ManiFontSize.bodySm,
                         fontWeight: FontWeight.w800,
-                        color: activa ? AppTheme.dark : AppTheme.textSecondary,
+                        color: activa ? t.onBrand : t.inkMuted,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  ManiGap.hSm,
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
+                      horizontal: ManiSpace.sm,
                       vertical: 1,
                     ),
                     decoration: BoxDecoration(
-                      color: activa ? AppTheme.dark : AppTheme.background,
-                      borderRadius: BorderRadius.circular(999),
+                      color: activa ? t.onBrand : t.background,
+                      borderRadius: ManiRadius.brPill,
                     ),
                     child: Text(
                       '$n',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: ManiFontSize.caption,
                         fontWeight: FontWeight.w900,
-                        color: activa ? AppTheme.primary : AppTheme.dark,
+                        color: activa ? t.brand : t.ink,
                       ),
                     ),
                   ),
@@ -285,16 +302,16 @@ class _Pestanas extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowSm],
+        color: t.surface,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: t.border, width: ManiBorder.regular),
+        boxShadow: [t.shadowSm],
       ),
       clipBehavior: Clip.antiAlias,
       child: Row(
         children: [
           pestana(PestanaSolicitudes.disponibles, 'Disponibles', disponibles),
-          Container(width: 2, height: 50, color: AppTheme.dark),
+          Container(width: 2, height: 50, color: t.border),
           pestana(PestanaSolicitudes.misTrabajos, 'Mis trabajos', misTrabajos),
         ],
       ),
@@ -308,22 +325,27 @@ class _ComoFunciona extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF9C3),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 1.5),
+        color: t.surfaceWarm,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: t.border, width: ManiBorder.thin),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.bolt_rounded, color: AppTheme.dark),
-          SizedBox(width: 8),
+          Icon(Icons.bolt_rounded, color: t.ink),
+          ManiGap.hSm,
           Expanded(
             child: Text(
               'Estas solicitudes se ofrecen a varios aliados a la vez: '
               'el primero en aceptar se queda con el trabajo.',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: ManiFontSize.bodySm,
+                fontWeight: FontWeight.w600,
+                color: t.ink,
+              ),
             ),
           ),
         ],
@@ -393,40 +415,12 @@ class _Vacio extends StatelessWidget {
   final List<Widget> acciones;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 12),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
-            ),
-            child: Icon(icono, size: 32, color: AppTheme.dark),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            titulo,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            texto,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.textSecondary),
-          ),
-          if (acciones.isNotEmpty) ...[
-            const SizedBox(height: 18),
-            Wrap(spacing: 12, runSpacing: 12, children: acciones),
-          ],
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => ManiEstadoVacio(
+    icono: icono,
+    titulo: titulo,
+    texto: texto,
+    acciones: acciones,
+  );
 }
 
 class _BarraSuperior extends StatelessWidget {
@@ -442,136 +436,87 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final puedeVolver = Navigator.of(context).canPop();
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        children: [
-          if (puedeVolver) ...[
-            IconButton(
-              tooltip: 'Volver',
-              onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.dark),
-            ),
-            const SizedBox(width: 4),
-          ],
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
-            ),
-            child: const Icon(
-              Icons.handyman_rounded,
-              color: AppTheme.dark,
-              size: 22,
-            ),
+    final t = context.mani;
+    return ManiEncabezadoPantalla(
+      ancho: ManiAncho.formulario,
+      icono: Icons.handyman_rounded,
+      titulo: 'Solicitudes de servicio',
+      descripcion: 'Panel del aliado',
+      acciones: [
+        if (onAbrirCobertura != null)
+          IconButton(
+            key: const ValueKey('btn-ir-cobertura'),
+            tooltip: 'Mis zonas de cobertura',
+            onPressed: onAbrirCobertura,
+            icon: Icon(Icons.map_outlined, color: t.ink),
           ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Solicitudes de servicio',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
-                  ),
-                ),
-                Text(
-                  'Panel del aliado',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ],
-            ),
+        if (onAbrirCategorias != null)
+          IconButton(
+            key: const ValueKey('btn-ir-especialidades'),
+            tooltip: 'Mis especialidades',
+            onPressed: onAbrirCategorias,
+            icon: Icon(Icons.handyman_outlined, color: t.ink),
           ),
-          if (onAbrirCobertura != null)
-            IconButton(
-              key: const ValueKey('btn-ir-cobertura'),
-              tooltip: 'Mis zonas de cobertura',
-              onPressed: onAbrirCobertura,
-              icon: const Icon(Icons.map_outlined, color: AppTheme.dark),
-            ),
-          if (onAbrirCategorias != null)
-            IconButton(
-              key: const ValueKey('btn-ir-especialidades'),
-              tooltip: 'Mis especialidades',
-              onPressed: onAbrirCategorias,
-              icon: const Icon(Icons.handyman_outlined, color: AppTheme.dark),
-            ),
-          if (onAbrirDisponibilidad != null)
-            IconButton(
-              key: const ValueKey('btn-ir-disponibilidad'),
-              tooltip: 'Mi disponibilidad',
-              onPressed: onAbrirDisponibilidad,
-              icon: const Icon(Icons.event_busy_outlined, color: AppTheme.dark),
-            ),
-          if (sl.isRegistered<FuenteModuloM08>())
-            IconButton(
-              key: const ValueKey('btn-ir-historial-aliado'),
-              tooltip: 'Historial de trabajos',
-              onPressed: () => showDialog<void>(
-                context: context,
-                builder: (_) => Dialog(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 720,
-                      maxHeight: 620,
-                    ),
-                    child: BlocProvider(
-                      create: (_) => HistorialServiciosCubit(
-                        sl<FuenteModuloM08>(),
-                        esAliado: true,
-                      )..cargar(),
-                      child: const HistorialServiciosPage(),
-                    ),
+        if (onAbrirDisponibilidad != null)
+          IconButton(
+            key: const ValueKey('btn-ir-disponibilidad'),
+            tooltip: 'Mi disponibilidad',
+            onPressed: onAbrirDisponibilidad,
+            icon: Icon(Icons.event_busy_outlined, color: t.ink),
+          ),
+        if (sl.isRegistered<FuenteModuloM08>())
+          IconButton(
+            key: const ValueKey('btn-ir-historial-aliado'),
+            tooltip: 'Historial de trabajos',
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (_) => Dialog(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: ManiAncho.formulario,
+                    maxHeight: 620,
+                  ),
+                  child: BlocProvider(
+                    create: (_) => HistorialServiciosCubit(
+                      sl<FuenteModuloM08>(),
+                      esAliado: true,
+                    )..cargar(),
+                    child: const HistorialServiciosPage(),
                   ),
                 ),
               ),
-              icon: const Icon(Icons.history_rounded, color: AppTheme.dark),
             ),
-          IconButton(
-            key: const ValueKey('btn-actualizar-solicitudes'),
-            tooltip: 'Actualizar',
-            onPressed: () =>
-                context.read<SolicitudesAliadoCubit>().cargar(silencioso: true),
-            icon: const Icon(Icons.refresh_rounded, color: AppTheme.dark),
+            icon: Icon(Icons.history_rounded, color: t.ink),
           ),
-        ],
-      ),
+        IconButton(
+          key: const ValueKey('btn-actualizar-solicitudes'),
+          tooltip: 'Actualizar',
+          onPressed: () =>
+              context.read<SolicitudesAliadoCubit>().cargar(silencioso: true),
+          icon: Icon(Icons.refresh_rounded, color: t.ink),
+        ),
+      ],
     );
   }
 }
 
 class _ErrorCarga extends StatelessWidget {
-  const _ErrorCarga({required this.falla, required this.onReintentar});
+  const _ErrorCarga({
+    super.key,
+    required this.falla,
+    required this.onReintentar,
+  });
 
   final AsignacionFailure? falla;
   final VoidCallback onReintentar;
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final enRevision = falla?.tipo == AsignacionErrorTipo.aliadoNoVerificado;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(ManiSpace.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -580,15 +525,15 @@ class _ErrorCarga extends StatelessWidget {
                   ? Icons.hourglass_top_rounded
                   : Icons.cloud_off_rounded,
               size: 48,
-              color: AppTheme.dark,
+              color: t.ink,
             ),
-            const SizedBox(height: 12),
+            ManiGap.vMd,
             Text(
               falla?.mensajeUsuario ?? 'No pudimos cargar tus solicitudes.',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: TextStyle(fontWeight: FontWeight.w600, color: t.ink),
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             ManiButton(
               key: const ValueKey('btn-reintentar-solicitudes'),
               etiqueta: 'Reintentar',

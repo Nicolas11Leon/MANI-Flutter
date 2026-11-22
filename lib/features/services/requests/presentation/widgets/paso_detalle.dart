@@ -42,31 +42,45 @@ class PasoDetalle extends StatelessWidget {
               : '${state.categoria!.nombre}: entre más detalle, mejores '
                     'cotizaciones recibirás.',
         ),
-        const SizedBox(height: 16),
+        ManiGap.vLg,
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(ManiSpace.md),
           decoration: BoxDecoration(
-            color: const Color(0xFFFEF9C3),
-            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-            border: Border.all(color: AppTheme.dark, width: 1.5),
+            color: ManiColors.brandSoft,
+            borderRadius: ManiRadius.brMd,
+            border: Border.all(
+              color: ManiColors.border,
+              width: ManiBorder.thin,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Una buena descripción responde:',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                style: TextStyle(
+                  fontSize: ManiFontSize.caption,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
-              const SizedBox(height: 6),
+              ManiGap.vSm,
               for (final c in _consejos)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 2),
+                  padding: const EdgeInsets.only(bottom: ManiSpace.xxs),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('•  ', style: TextStyle(fontSize: 12)),
+                      const Text(
+                        '•  ',
+                        style: TextStyle(fontSize: ManiFontSize.caption),
+                      ),
                       Expanded(
-                        child: Text(c, style: const TextStyle(fontSize: 12)),
+                        child: Text(
+                          c,
+                          style: const TextStyle(
+                            fontSize: ManiFontSize.caption,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -74,7 +88,7 @@ class PasoDetalle extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 14),
+        ManiGap.vMd,
         TextField(
           key: const ValueKey('campo-descripcion'),
           controller: descripcion,
@@ -92,24 +106,25 @@ class PasoDetalle extends StatelessWidget {
                 ? 'Escribe al menos $falta caracteres más.'
                 : '¡Bien! Tu descripción está completa.',
             helperStyle: TextStyle(
-              color: falta > 0
-                  ? AppTheme.textSecondary
-                  : const Color(0xFF15803D),
+              color: falta > 0 ? ManiColors.inkMuted : ManiColors.success,
               fontWeight: FontWeight.w700,
             ),
             filled: true,
-            fillColor: AppTheme.surface,
+            fillColor: ManiColors.surface,
             enabledBorder: _borde(2),
             focusedBorder: _borde(2.5),
           ),
         ),
-        const SizedBox(height: 20),
+        ManiGap.vXl,
         Row(
           children: [
             const Expanded(
               child: Text(
                 'Fotos del problema (opcional)',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                style: TextStyle(
+                  fontSize: ManiFontSize.body,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
             Text(
@@ -117,21 +132,24 @@ class PasoDetalle extends StatelessWidget {
               key: const ValueKey('contador-fotos'),
               style: const TextStyle(
                 fontWeight: FontWeight.w800,
-                color: AppTheme.textSecondary,
+                color: ManiColors.inkMuted,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        ManiGap.vXs,
         const Text(
           'Ayudan a que el aliado cotice sin visitar primero. JPG, PNG o WEBP '
           'de hasta 5 MB.',
-          style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+          style: TextStyle(
+            fontSize: ManiFontSize.caption,
+            color: ManiColors.inkMuted,
+          ),
         ),
-        const SizedBox(height: 10),
+        ManiGap.vSm,
         Wrap(
-          spacing: 10,
-          runSpacing: 10,
+          spacing: ManiSpace.sm,
+          runSpacing: ManiSpace.sm,
           children: [
             for (var i = 0; i < state.fotos.length; i++)
               _Miniatura(
@@ -148,8 +166,8 @@ class PasoDetalle extends StatelessWidget {
   }
 
   static OutlineInputBorder _borde(double ancho) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-    borderSide: BorderSide(color: AppTheme.dark, width: ancho),
+    borderRadius: ManiRadius.brMd,
+    borderSide: BorderSide(color: ManiColors.ink, width: ancho),
   );
 }
 
@@ -167,23 +185,29 @@ class _AgregarFoto extends StatelessWidget {
       child: InkWell(
         key: const ValueKey('btn-agregar-fotos'),
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+        borderRadius: ManiRadius.brMd,
         child: Container(
           width: 96,
           height: 96,
           decoration: BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-            border: Border.all(color: AppTheme.dark, width: 2),
+            color: ManiColors.surface,
+            borderRadius: ManiRadius.brMd,
+            border: Border.all(
+              color: ManiColors.border,
+              width: ManiBorder.regular,
+            ),
           ),
           child: const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_a_photo_outlined, color: AppTheme.dark),
-              SizedBox(height: 4),
+              Icon(Icons.add_a_photo_outlined, color: ManiColors.ink),
+              ManiGap.vXs,
               Text(
                 'Agregar',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                  fontSize: ManiFontSize.caption,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
@@ -217,19 +241,19 @@ class _Miniatura extends StatelessWidget {
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: AppTheme.background,
-                borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                border: Border.all(color: AppTheme.dark, width: 2),
+                color: ManiColors.background,
+                borderRadius: ManiRadius.brMd,
+                border: Border.all(
+                  color: ManiColors.border,
+                  width: ManiBorder.regular,
+                ),
               ),
               child: Image.memory(
                 bytes,
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
                 errorBuilder: (_, _, _) => const Center(
-                  child: Icon(
-                    Icons.image_outlined,
-                    color: AppTheme.textSecondary,
-                  ),
+                  child: Icon(Icons.image_outlined, color: ManiColors.inkMuted),
                 ),
               ),
             ),
@@ -249,9 +273,12 @@ class _Miniatura extends StatelessWidget {
                   width: 26,
                   height: 26,
                   decoration: BoxDecoration(
-                    color: AppTheme.error,
+                    color: ManiColors.danger,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.dark, width: 2),
+                    border: Border.all(
+                      color: ManiColors.border,
+                      width: ManiBorder.regular,
+                    ),
                   ),
                   child: const Icon(
                     Icons.close_rounded,

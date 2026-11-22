@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mani/core/theme/app_theme.dart';
 
 import '../widgets/detalle_aliado_panel.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Detalle de un aliado en pantallas angostas. Requiere que el
 /// `BandejaVerificacionCubit` de la bandeja esté disponible en el contexto.
@@ -13,20 +14,26 @@ class DetalleAliadoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: AppTheme.surface,
-        surfaceTintColor: AppTheme.surface,
-        foregroundColor: AppTheme.dark,
-        shape: const Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
-        title: const Text(
-          'Perfil del aliado',
-          style: TextStyle(fontWeight: FontWeight.w900),
-        ),
-      ),
-      body: DetalleAliadoPanel(
-        aliadoId: aliadoId,
-        onResuelto: () => Navigator.of(context).maybePop(),
+      backgroundColor: ManiColors.background,
+
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.panel,
+            icono: Icons.person_rounded,
+            titulo: 'Perfil del aliado',
+          ),
+          Expanded(
+            child: ManiAnchoContenido(
+              ancho: ManiAncho.panel,
+              child: DetalleAliadoPanel(
+                aliadoId: aliadoId,
+                onResuelto: () => Navigator.of(context).maybePop(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

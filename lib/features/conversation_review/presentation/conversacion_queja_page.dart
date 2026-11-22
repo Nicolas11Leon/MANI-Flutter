@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/utils/formato_fecha.dart';
 
 import 'conversacion_queja_cubit.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Conversación de una queja (SCRUM-883): el administrador abre el hilo de un
 /// servicio indicando el motivo. La consulta queda registrada en la auditoría.
@@ -48,84 +52,101 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Conversación de una queja')),
-      body: BlocBuilder<ConversacionQuejaCubit, ConversacionQuejaState>(
-        builder: (context, state) {
-          final consultando = state.fase == FaseConversacion.consultando;
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              const Text(
-                'Cada consulta queda registrada con quién la hizo, el motivo y '
-                'cuántos mensajes se vieron.',
-                key: Key('aviso-auditoria'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                key: const Key('campo-solicitud'),
-                controller: _solicitud,
-                decoration: const InputDecoration(
-                  labelText: 'Id de la solicitud',
-                ),
-              ),
-              TextField(
-                key: const Key('campo-queja'),
-                controller: _queja,
-                decoration: const InputDecoration(
-                  labelText: 'Referencia de la queja (opcional)',
-                ),
-              ),
-              TextField(
-                key: const Key('campo-motivo'),
-                controller: _motivo,
-                maxLines: 3,
-                maxLength: 500,
-                decoration: const InputDecoration(
-                  labelText: 'Motivo de la consulta',
-                ),
-              ),
-              const SizedBox(height: 8),
-              FilledButton(
-                key: const Key('btn-consultar'),
-                onPressed: consultando
-                    ? null
-                    : () => context.read<ConversacionQuejaCubit>().consultar(
-                        solicitudId: _solicitud.text,
-                        motivo: _motivo.text,
-                        quejaRef: _queja.text,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.formulario,
+            icono: Icons.forum_rounded,
+            titulo: 'Conversación de una queja',
+          ),
+          Expanded(
+            child: ManiAnchoContenido(
+              ancho: ManiAncho.formulario,
+              child: BlocBuilder<ConversacionQuejaCubit, ConversacionQuejaState>(
+                builder: (context, state) {
+                  final consultando =
+                      state.fase == FaseConversacion.consultando;
+                  return ListView(
+                    padding: const EdgeInsets.all(ManiSpace.lg),
+                    children: [
+                      const Text(
+                        'Cada consulta queda registrada con quién la hizo, el motivo y '
+                        'cuántos mensajes se vieron.',
+                        key: Key('aviso-auditoria'),
                       ),
-                child: Text(consultando ? 'Consultando…' : 'Ver conversación'),
-              ),
-              const SizedBox(height: 16),
-              if (state.fase == FaseConversacion.error)
-                Text(state.error!, key: const Key('error-conversacion')),
-              if (state.fase == FaseConversacion.listo) ...[
-                Text(
-                  'Mensajes vistos: ${state.resultado!.consulta.mensajesVistos}',
-                  key: const Key('mensajes-vistos'),
-                ),
-                const SizedBox(height: 8),
-                if (state.resultado!.mensajes.isEmpty)
-                  const Text(
-                    'Este servicio no tiene mensajes.',
-                    key: Key('conversacion-vacia'),
-                  ),
-                for (final m in state.resultado!.mensajes)
-                  Card(
-                    key: Key('mensaje-${m.id}'),
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      title: Text(m.contenido),
-                      subtitle: Text(
-                        '${m.etiquetaRemitente.isEmpty ? 'Participante' : m.etiquetaRemitente}'
-                        ' · ${formatearFechaHora(m.creadoEn)}',
+                      ManiGap.vMd,
+                      ManiTextField(
+                        key: const Key('campo-solicitud'),
+                        controller: _solicitud,
+                        label: 'Id de la solicitud',
                       ),
-                    ),
-                  ),
-              ],
-            ],
-          );
-        },
+                      ManiTextField(
+                        key: const Key('campo-queja'),
+                        controller: _queja,
+                        label: 'Referencia de la queja (opcional)',
+                      ),
+                      ManiTextField(
+                        key: const Key('campo-motivo'),
+                        controller: _motivo,
+                        maxLines: 3,
+                        maxLength: 500,
+                        label: 'Motivo de la consulta',
+                      ),
+                      ManiGap.vSm,
+                      ManiButton(
+                        key: const Key('btn-consultar'),
+                        etiqueta: consultando
+                            ? 'Consultando…'
+                            : 'Ver conversación',
+                        cargando: consultando,
+                        onPressed: consultando
+                            ? null
+                            : () => context
+                                  .read<ConversacionQuejaCubit>()
+                                  .consultar(
+                                    solicitudId: _solicitud.text,
+                                    motivo: _motivo.text,
+                                    quejaRef: _queja.text,
+                                  ),
+                      ),
+                      ManiGap.vLg,
+                      if (state.fase == FaseConversacion.error)
+                        Text(
+                          state.error!,
+                          key: const Key('error-conversacion'),
+                        ),
+                      if (state.fase == FaseConversacion.listo) ...[
+                        Text(
+                          'Mensajes vistos: ${state.resultado!.consulta.mensajesVistos}',
+                          key: const Key('mensajes-vistos'),
+                        ),
+                        ManiGap.vSm,
+                        if (state.resultado!.mensajes.isEmpty)
+                          const Text(
+                            'Este servicio no tiene mensajes.',
+                            key: Key('conversacion-vacia'),
+                          ),
+                        for (final m in state.resultado!.mensajes)
+                          Card(
+                            key: Key('mensaje-${m.id}'),
+                            margin: const EdgeInsets.only(bottom: ManiSpace.sm),
+                            child: ListTile(
+                              title: Text(m.contenido),
+                              subtitle: Text(
+                                '${m.etiquetaRemitente.isEmpty ? 'Participante' : m.etiquetaRemitente}'
+                                ' · ${formatearFechaHora(m.creadoEn)}',
+                              ),
+                            ),
+                          ),
+                      ],
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

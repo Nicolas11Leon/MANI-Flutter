@@ -297,6 +297,7 @@ void main() {
       expect(find.text('1 visible para clientes · 1 oculta'), findsOneWidget);
 
       await _tocar(t, const ValueKey('toggle-estado-categoria-cat-plomería'));
+      await _tocar(t, const ValueKey('confirmacion-confirmar'));
 
       expect(find.text('0 visibles para clientes · 2 ocultas'), findsOneWidget);
       expect(
@@ -313,4 +314,68 @@ void main() {
       );
     },
   );
+
+  group('SCRUM-1650 — confirmación al desactivar', () {
+    const togglePlomeria = ValueKey('toggle-estado-categoria-cat-plomería');
+    const toggleCerrajeria = ValueKey('toggle-estado-categoria-cat-cerrajería');
+
+    testWidgets('desactivar pide confirmación con nombre y consecuencias', (
+      t,
+    ) async {
+      final repo = _repoBase();
+      await _montar(t, repo);
+
+      await _tocar(t, togglePlomeria);
+
+      expect(find.text('¿Desactivar Plomería?'), findsOneWidget);
+      expect(
+        find.text(
+          'Los clientes dejarán de verla en Nueva solicitud. '
+          'Los servicios en curso no se afectan.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Cancelar'), findsOneWidget);
+      expect(find.text('Desactivar'), findsOneWidget);
+      expect(repo.llamadasCambiarEstado, 0, reason: 'aún no se confirma');
+    });
+
+    testWidgets('confirmar desactiva la categoría', (t) async {
+      final repo = _repoBase();
+      await _montar(t, repo);
+
+      await _tocar(t, togglePlomeria);
+      await _tocar(t, const ValueKey('confirmacion-confirmar'));
+
+      expect(repo.llamadasCambiarEstado, 1);
+      expect(find.text('¿Desactivar Plomería?'), findsNothing);
+      expect(find.text('0 visibles para clientes · 2 ocultas'), findsOneWidget);
+    });
+
+    testWidgets('cancelar no llama a Core y deja la categoría visible', (
+      t,
+    ) async {
+      final repo = _repoBase();
+      await _montar(t, repo);
+
+      await _tocar(t, togglePlomeria);
+      await _tocar(t, const ValueKey('confirmacion-cancelar'));
+
+      expect(repo.llamadasCambiarEstado, 0);
+      expect(find.text('¿Desactivar Plomería?'), findsNothing);
+      expect(find.text('1 visible para clientes · 1 oculta'), findsOneWidget);
+      expect(find.text('Visible para clientes'), findsOneWidget);
+    });
+
+    testWidgets('activar una categoría oculta no muestra diálogo', (t) async {
+      final repo = _repoBase();
+      await _montar(t, repo);
+
+      await _tocar(t, toggleCerrajeria);
+
+      expect(find.byKey(const ValueKey('mani-confirmacion')), findsNothing);
+      expect(repo.llamadasCambiarEstado, 1);
+      expect(find.text('2 visibles para clientes'), findsOneWidget);
+    });
+  });
 }

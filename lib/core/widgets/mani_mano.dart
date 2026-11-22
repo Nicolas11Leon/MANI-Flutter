@@ -22,12 +22,12 @@ class ManiMano extends StatelessWidget {
         fit: BoxFit.contain,
         filterQuality: FilterQuality.high,
         excludeFromSemantics: true,
-        // Si la imagen no carga queda un círculo amarillo con la «M», nunca un hueco vacío.
+        // Si la imagen no carga queda un círculo de marca con la «M», nunca un hueco vacío.
         errorBuilder: (context, error, stack) => SizedBox.square(
           dimension: alto * 0.6,
           child: DecoratedBox(
             decoration: const BoxDecoration(
-              color: AppTheme.primary,
+              color: ManiColors.brand,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -36,7 +36,7 @@ class ManiMano extends StatelessWidget {
                 style: TextStyle(
                   fontSize: alto * 0.28,
                   fontWeight: FontWeight.w900,
-                  color: AppTheme.dark,
+                  color: ManiColors.onBrand,
                 ),
               ),
             ),

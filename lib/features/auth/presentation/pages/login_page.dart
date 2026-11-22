@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:mani/core/session/guardas_ruta.dart';
 import 'package:mani/core/session/rol_usuario.dart';
 import 'package:mani/core/widgets/mani_mano.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/di/injection_container.dart';
+import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_layout.dart';
+import 'package:mani/core/widgets/mani_snackbar.dart';
 import 'package:mani/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:mani/features/auth/presentation/widgets/auth_layout.dart';
 
 /// Pantalla de inicio de sesión de MANI.
-/// Replicada con diseño limpio y robusto (RBAC Puro):
-/// - Fondo crema: #FDFBF7
-/// - Logo amarillo con M gruesa y hard-shadow
-/// - Título MANI con tracking tight
-/// - Inputs con bordes negros 2px, fondo blanco y placeholder gris
-/// - Botón "INGRESAR A MANI" amarillo con sombra dura de 4px
-/// - Enlaces inferiores: "¿Olvidaste tu contraseña?" • Registros independientes
+/// - Escritorio: panel de marca a la izquierda y formulario a la derecha
+///   ([AuthSplitScaffold]); móvil: solo el formulario.
+/// - Formulario: correo y contraseña con autocompletado, "INGRESAR A MANI",
+///   recuperación de contraseña y las cuatro opciones de registro.
 ///
 /// HU-M02-01 / RF-03: Autenticación por RBAC (Role-Based Access Control).
 /// El usuario ingresa credenciales directas (correo y contraseña); el rol y
@@ -78,26 +79,8 @@ class _LoginViewState extends State<_LoginView> {
   /// Saludo tras iniciar sesión (RBAC).
   String _bienvenida(RolUsuario rolDelToken) => '¡Bienvenido a MANI!';
 
-  void _showNotification(String message, {bool isError = true}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.plusJakartaSans(
-            color: isError ? Colors.white : AppTheme.dark,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        backgroundColor: isError ? AppTheme.error : AppTheme.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          side: const BorderSide(color: AppTheme.dark, width: 2),
-        ),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
-  }
+  void _showNotification(String message, {bool isError = true}) =>
+      showManiSnackBar(context, message, esError: isError);
 
   @override
   Widget build(BuildContext context) {
@@ -113,40 +96,27 @@ class _LoginViewState extends State<_LoginView> {
       },
       builder: (context, state) {
         final isLoading = state is AuthLoading;
-        return Scaffold(
-          backgroundColor: AppTheme.background,
-          body: SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 32,
-                ),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 380),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // ── Header (Logo + Títulos) ───────────────────────
-                        _buildLogoHeader(),
-                        const SizedBox(height: 28),
-
-                        // ── Inputs (Email y Contraseña) ───────────────────
-                        _buildInputs(),
-                        const SizedBox(height: 24),
-
-                        // ── Botón INGRESAR A MANI ──────────────────────────
-                        _buildSubmitButton(isLoading),
-                        const SizedBox(height: 20),
-
-                        // ── Enlaces inferiores ─────────────────────────────
-                        _buildFooterLinks(),
-                      ],
-                    ),
+        return AuthSplitScaffold(
+          child: Form(
+            key: _formKey,
+            child: AutofillGroup(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildLogoHeader(),
+                  ManiGap.vXxxl,
+                  _buildInputs(),
+                  ManiGap.vXl,
+                  ManiButton(
+                    etiqueta: 'INGRESAR A MANI',
+                    onPressed: _handleLogin,
+                    cargando: isLoading,
+                    expandir: true,
                   ),
-                ),
+                  ManiGap.vXxl,
+                  _buildFooterLinks(),
+                ],
               ),
             ),
           ),
@@ -160,23 +130,17 @@ class _LoginViewState extends State<_LoginView> {
       children: [
         // El muñequito de MANI, grande y sin círculo ni letras; el nombre va en el título de abajo.
         const ManiMano(alto: 140),
-        const SizedBox(height: 12),
-        Text(
-          'MANI',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 34,
-            fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
-            letterSpacing: -0.5,
-          ),
+        ManiGap.vLg,
+        Semantics(
+          header: true,
+          child: Text('MANI', style: ManiText.h1.copyWith(letterSpacing: -0.5)),
         ),
-        const SizedBox(height: 4),
+        ManiGap.vXs,
         Text(
           'Plataforma Digital de Servicios',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 14,
+          style: ManiText.body.copyWith(
             fontWeight: FontWeight.w600,
-            color: AppTheme.textSecondary,
+            color: ManiColors.inkMuted,
           ),
         ),
       ],
@@ -185,53 +149,18 @@ class _LoginViewState extends State<_LoginView> {
 
   Widget _buildInputs() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Correo electrónico
-        Text(
-          'CORREO ELECTRÓNICO',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            color: AppTheme.dark,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
+        const ManiEtiquetaCampo('CORREO ELECTRÓNICO'),
+        ManiTextField(
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.dark,
-          ),
-          decoration: InputDecoration(
+          autofillHints: const [AutofillHints.email],
+          style: ManiText.body.copyWith(fontWeight: FontWeight.w600),
+          decoration: const InputDecoration(
             hintText: 'hola@mani.app',
-            hintStyle: GoogleFonts.plusJakartaSans(
-              color: AppTheme.textTertiary,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-            filled: true,
-            fillColor: AppTheme.surface,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              borderSide: const BorderSide(color: AppTheme.dark, width: 2),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              borderSide: const BorderSide(color: AppTheme.dark, width: 2),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              borderSide: const BorderSide(color: AppTheme.dark, width: 2.5),
-            ),
+            prefixIcon: Icon(Icons.alternate_email_rounded, size: 20),
           ),
           validator: (v) {
             if (v == null || v.trim().isEmpty) return 'El correo es requerido';
@@ -241,64 +170,28 @@ class _LoginViewState extends State<_LoginView> {
             return null;
           },
         ),
-        const SizedBox(height: 14),
-
-        // Contraseña
-        Text(
-          'CONTRASEÑA',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            color: AppTheme.dark,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
+        ManiGap.vLg,
+        const ManiEtiquetaCampo('CONTRASEÑA'),
+        ManiTextField(
           controller: _passwordController,
           obscureText: !_showPassword,
           textInputAction: TextInputAction.done,
+          autofillHints: const [AutofillHints.password],
           onFieldSubmitted: (_) => _handleLogin(),
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.dark,
-          ),
+          style: ManiText.body.copyWith(fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             hintText: '••••••••',
-            hintStyle: GoogleFonts.plusJakartaSans(
-              color: AppTheme.textTertiary,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-            filled: true,
-            fillColor: AppTheme.surface,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-            suffixIcon: TextButton(
-              onPressed: () => setState(() => _showPassword = !_showPassword),
-              child: Text(
-                _showPassword ? 'OCULTAR' : 'VER',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.textSecondary,
-                ),
+            prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.only(right: ManiSpace.xs),
+              child: ManiButton(
+                variante: ManiButtonVariante.enlace,
+                etiqueta: _showPassword ? 'OCULTAR' : 'VER',
+                etiquetaAccesible: _showPassword
+                    ? 'Ocultar contraseña'
+                    : 'Ver contraseña',
+                onPressed: () => setState(() => _showPassword = !_showPassword),
               ),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              borderSide: const BorderSide(color: AppTheme.dark, width: 2),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              borderSide: const BorderSide(color: AppTheme.dark, width: 2),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              borderSide: const BorderSide(color: AppTheme.dark, width: 2.5),
             ),
           ),
           validator: (v) {
@@ -307,214 +200,64 @@ class _LoginViewState extends State<_LoginView> {
             return null;
           },
         ),
-      ],
-    );
-  }
-
-  Widget _buildSubmitButton(bool isLoading) {
-    return GestureDetector(
-      onTap: isLoading ? null : _handleLogin,
-      child: Container(
-        width: double.infinity,
-        height: 52,
-        decoration: BoxDecoration(
-          color: isLoading ? AppTheme.textTertiary : AppTheme.primary,
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          border: Border.all(color: AppTheme.dark, width: 2),
-          boxShadow: isLoading ? [] : const [AppTheme.hardShadowMd],
+        Align(
+          alignment: Alignment.centerRight,
+          child: ManiButton(
+            variante: ManiButtonVariante.enlace,
+            etiqueta: '¿Olvidaste tu contraseña?',
+            onPressed: () => context.go('/forgot-password'),
+          ),
         ),
-        alignment: Alignment.center,
-        child: isLoading
-            ? const SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: AppTheme.dark,
-                ),
-              )
-            : Text(
-                'INGRESAR A MANI',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.2,
-                  color: AppTheme.dark,
-                ),
-              ),
-      ),
+      ],
     );
   }
 
   Widget _buildFooterLinks() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GestureDetector(
-          onTap: () => context.go('/forgot-password'),
-          child: Text(
-            '¿Olvidaste tu contraseña?',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textSecondary,
-              decoration: TextDecoration.underline,
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // Divisor "¿NO TIENES CUENTA?"
         Row(
           children: [
-            const Expanded(
-              child: Divider(color: AppTheme.dark, thickness: 1.5),
-            ),
+            const Expanded(child: Divider()),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: ManiSpace.md),
               child: Text(
                 '¿NO TIENES CUENTA?',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.5,
-                  color: AppTheme.textSecondary,
-                ),
+                style: ManiText.overline.copyWith(color: ManiColors.inkMuted),
               ),
             ),
-            const Expanded(
-              child: Divider(color: AppTheme.dark, thickness: 1.5),
-            ),
+            const Expanded(child: Divider()),
           ],
         ),
-        const SizedBox(height: 16),
-
-        // Botón 1: Registrarme como Cliente
-        GestureDetector(
+        ManiGap.vLg,
+        AuthOpcion(
+          icono: Icons.home_outlined,
+          texto: 'REGISTRARME COMO CLIENTE',
+          destacada: true,
           onTap: () => context.go('/register-cliente'),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.home_outlined, color: AppTheme.dark, size: 18),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'REGISTRARME COMO CLIENTE',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.4,
-                      color: AppTheme.dark,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
-        const SizedBox(height: 10),
-
-        // Botón 1b: Registrar mi empresa como cliente (HU-M02-07)
-        _botonRegistroSecundario(
+        ManiGap.vSm,
+        // HU-M02-07
+        AuthOpcion(
           icono: Icons.apartment_outlined,
           texto: 'REGISTRAR MI EMPRESA COMO CLIENTE',
-          ruta: '/register-cliente-empresa',
+          onTap: () => context.go('/register-cliente-empresa'),
         ),
-        const SizedBox(height: 10),
-
-        // Botón 2: Registrarme como Aliado Técnico
-        GestureDetector(
+        ManiGap.vSm,
+        AuthOpcion(
+          icono: Icons.handyman_outlined,
+          texto: 'REGISTRARME COMO ALIADO TÉCNICO',
+          destacada: true,
           onTap: () => context.go('/register-aliado'),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              border: Border.all(color: AppTheme.dark, width: 1.5),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.handyman_outlined,
-                  color: AppTheme.dark,
-                  size: 18,
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'REGISTRARME COMO ALIADO TÉCNICO',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.4,
-                      color: AppTheme.dark,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
-        const SizedBox(height: 10),
-
-        // Botón 3: Registrar Empresa de Servicios (US-02.1.2)
-        _botonRegistroSecundario(
+        ManiGap.vSm,
+        // US-02.1.2
+        AuthOpcion(
           icono: Icons.business_outlined,
           texto: 'REGISTRAR MI EMPRESA DE SERVICIOS',
-          ruta: '/register-empresa',
+          onTap: () => context.go('/register-empresa'),
         ),
       ],
-    );
-  }
-
-  /// Botón de registro sin resaltar (empresa cliente y empresa de servicios).
-  Widget _botonRegistroSecundario({
-    required IconData icono,
-    required String texto,
-    required String ruta,
-  }) {
-    return GestureDetector(
-      onTap: () => context.go(ruta),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          border: Border.all(color: AppTheme.dark, width: 1.5),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icono, color: AppTheme.dark, size: 18),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                texto,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.4,
-                  color: AppTheme.dark,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

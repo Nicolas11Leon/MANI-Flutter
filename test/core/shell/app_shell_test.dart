@@ -10,6 +10,7 @@ import 'package:mani/core/session/rol_usuario.dart';
 import 'package:mani/core/shell/app_shell.dart';
 import 'package:mani/core/shell/datos_sesion.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Arma un JWT sin firma válida: el shell solo lee el payload para pintar.
 String _token(Map<String, dynamic> payload) {
@@ -116,7 +117,11 @@ void main() {
 
     test('cliente ve sus pantallas y ninguna de aliado ni de admin', () {
       final r = rutas(RolUsuario.cliente);
-      expect(r, containsAll(['/cliente/solicitudes/nueva', '/cliente/sedes']));
+      expect(
+        r,
+        containsAll(['/cliente/solicitudes/nueva', '/cliente/solicitudes']),
+      );
+      expect(r, isNot(contains('/cliente/sedes')));
       expect(r.any((x) => x.startsWith('/aliado')), isFalse);
       expect(r.any((x) => x.startsWith('/admin')), isFalse);
     });
@@ -354,7 +359,12 @@ void main() {
         onNavegar: (r) => destino = r,
       );
 
-      await tester.tap(find.byKey(const Key('menu-entrada-/admin/categorias')));
+      // Las entradas comparten la barra con la marca y la sesión: si no
+      // caben, la franja se desplaza hasta la entrada antes de tocarla.
+      final entrada = find.byKey(const Key('menu-entrada-/admin/categorias'));
+      await tester.ensureVisible(entrada);
+      await tester.pumpAndSettle();
+      await tester.tap(entrada);
 
       expect(destino, '/admin/categorias');
     });
@@ -372,6 +382,8 @@ void main() {
 
       await tester.tap(find.byKey(const Key('menu-cerrar-sesion')));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('confirmacion-confirmar')));
+      await tester.pumpAndSettle();
 
       expect(cerro, isTrue);
     });
@@ -388,16 +400,16 @@ void main() {
       );
 
       expect(find.byKey(const Key('menu-compacto')), findsOneWidget);
-      expect(find.text('Mis sedes'), findsNothing);
+      expect(find.text('Mis solicitudes'), findsNothing);
       expect(find.byKey(const Key('menu-cerrar-sesion')), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('menu-compacto')));
       await tester.pumpAndSettle();
-      expect(find.text('Mis sedes'), findsOneWidget);
+      expect(find.text('Mis solicitudes'), findsOneWidget);
 
-      await tester.tap(find.text('Mis sedes'));
+      await tester.tap(find.text('Mis solicitudes'));
       await tester.pumpAndSettle();
-      expect(destino, '/cliente/sedes');
+      expect(destino, '/cliente/solicitudes');
     });
 
     testWidgets(
@@ -419,6 +431,8 @@ void main() {
         );
 
         await tester.tap(find.byKey(const Key('menu-compacto-cerrar-sesion')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('confirmacion-confirmar')));
         await tester.pumpAndSettle();
         expect(cerro, isTrue);
       },
@@ -447,11 +461,11 @@ void main() {
         tester,
         ancho: 1024,
         rol: RolUsuario.cliente,
-        ubicacion: '/cliente/sedes',
+        ubicacion: '/cliente/solicitudes',
       );
 
       final activa = tester.widget<TextButton>(
-        find.byKey(const Key('menu-entrada-/cliente/sedes')),
+        find.byKey(const Key('menu-entrada-/cliente/solicitudes')),
       );
       final inactiva = tester.widget<TextButton>(
         find.byKey(const Key('menu-entrada-/perfil/editar')),
@@ -478,6 +492,108 @@ void main() {
       expect(fondo('/cliente/solicitudes/nueva'), isNotNull);
       // "Mis solicitudes" es prefijo de la ruta pero no debe resaltarse.
       expect(fondo('/cliente/solicitudes'), isNull);
+    });
+
+    testWidgets('botón de tema alterna entre modo claro y modo oscuro', (
+      tester,
+    ) async {
+      maniThemeController.fijar(ThemeMode.light);
+      addTearDown(() => maniThemeController.fijar(ThemeMode.light));
+
+      await _montar(tester, ancho: 1024, rol: RolUsuario.cliente);
+
+      expect(maniThemeController.esOscuro, isFalse);
+      expect(find.byKey(const Key('menu-tema')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('menu-tema')));
+      await tester.pumpAndSettle();
+      expect(maniThemeController.esOscuro, isTrue);
+
+      await tester.tap(find.byKey(const Key('menu-tema')));
+      await tester.pumpAndSettle();
+      expect(maniThemeController.esOscuro, isFalse);
+    });
+  });
+
+  group('SCRUM-1650 — confirmación antes de cerrar sesión', () {
+    final variantes = {
+      'botón de escritorio': (ancho: 1024.0, menu: false),
+      'ícono de móvil': (ancho: 390.0, menu: false),
+      'opción del menú desplegable': (ancho: 390.0, menu: true),
+    };
+
+    Future<void> pedirCierre(WidgetTester tester, {required bool menu}) async {
+      if (menu) {
+        await tester.tap(find.byKey(const Key('menu-compacto')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('menu-compacto-cerrar-sesion')));
+      } else {
+        await tester.tap(find.byKey(const Key('menu-cerrar-sesion')));
+      }
+      await tester.pumpAndSettle();
+    }
+
+    for (final MapEntry(key: nombre, value: v) in variantes.entries) {
+      testWidgets('$nombre: muestra el diálogo y confirmar cierra la sesión', (
+        tester,
+      ) async {
+        var cierres = 0;
+        await _montar(
+          tester,
+          ancho: v.ancho,
+          rol: RolUsuario.cliente,
+          onCerrarSesion: () async => cierres++,
+        );
+
+        await pedirCierre(tester, menu: v.menu);
+
+        expect(find.text('¿Cerrar sesión?'), findsOneWidget);
+        expect(cierres, 0, reason: 'no cierra antes de confirmar');
+
+        await tester.tap(find.byKey(const ValueKey('confirmacion-confirmar')));
+        await tester.pumpAndSettle();
+
+        expect(cierres, 1);
+        expect(find.text('¿Cerrar sesión?'), findsNothing);
+      });
+
+      testWidgets('$nombre: cancelar no cierra y deja la pantalla igual', (
+        tester,
+      ) async {
+        var cierres = 0;
+        await _montar(
+          tester,
+          ancho: v.ancho,
+          rol: RolUsuario.cliente,
+          onCerrarSesion: () async => cierres++,
+        );
+
+        await pedirCierre(tester, menu: v.menu);
+        await tester.tap(find.byKey(const ValueKey('confirmacion-cancelar')));
+        await tester.pumpAndSettle();
+
+        expect(cierres, 0);
+        expect(find.text('¿Cerrar sesión?'), findsNothing);
+        expect(find.text('contenido de la pantalla'), findsOneWidget);
+        expect(find.byKey(const Key('menu-cerrar-sesion')), findsOneWidget);
+      });
+    }
+
+    testWidgets('tocar fuera del diálogo equivale a cancelar', (tester) async {
+      var cierres = 0;
+      await _montar(
+        tester,
+        ancho: 1024,
+        rol: RolUsuario.cliente,
+        onCerrarSesion: () async => cierres++,
+      );
+
+      await pedirCierre(tester, menu: false);
+      await tester.tapAt(const Offset(5, 795));
+      await tester.pumpAndSettle();
+
+      expect(find.text('¿Cerrar sesión?'), findsNothing);
+      expect(cierres, 0);
     });
   });
 }

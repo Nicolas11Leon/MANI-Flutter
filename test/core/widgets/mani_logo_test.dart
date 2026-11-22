@@ -52,7 +52,7 @@ void main() {
               as BoxDecoration;
 
       await tester.pumpWidget(_en(const ManiLogo()));
-      expect(decoracion().boxShadow, [AppTheme.hardShadowSm]);
+      expect(decoracion().boxShadow, [ManiShadow.sm]);
 
       await tester.pumpWidget(_en(const ManiLogo(sombra: null)));
       expect(decoracion().boxShadow, isNull);

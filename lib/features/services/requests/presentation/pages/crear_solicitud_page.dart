@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mani/core/platform/selector_fotos.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
@@ -15,6 +17,7 @@ import '../widgets/paso_detalle.dart';
 import '../widgets/paso_revision.dart';
 import '../widgets/paso_ubicacion.dart';
 import '../widgets/solicitud_publicada_vista.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 
 /// US-04.1.1 — El cliente publica su problema locativo (descripción + fotos)
 /// para que los aliados le envíen sus cotizaciones. Asistente de 4 pasos.
@@ -23,10 +26,14 @@ class CrearSolicitudPage extends StatefulWidget {
   const CrearSolicitudPage({
     super.key,
     required this.selectorFotos,
-    this.esperaBusqueda = const Duration(milliseconds: 300),
+    this.onIrAMisSolicitudes,
+    this.esperaBusqueda = ManiMotion.slow,
   });
 
   final SelectorFotos selectorFotos;
+
+  /// Redirige a la bandeja de «Mis solicitudes» (`/cliente/solicitudes`).
+  final VoidCallback? onIrAMisSolicitudes;
 
   /// Pausa antes de buscar barrios mientras el usuario escribe.
   final Duration esperaBusqueda;
@@ -71,8 +78,17 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
     await _cubit.nuevaSolicitud();
   }
 
+  void _irAMisSolicitudes() {
+    if (widget.onIrAMisSolicitudes != null) {
+      widget.onIrAMisSolicitudes!();
+      return;
+    }
+    GoRouter.maybeOf(context)?.go('/cliente/solicitudes');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return MultiBlocListener(
       listeners: [
         BlocListener<CrearSolicitudCubit, CrearSolicitudState>(
@@ -82,7 +98,12 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
             context,
             state.aviso!.mensaje,
             esError: state.aviso!.esError,
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+            margin: const EdgeInsets.fromLTRB(
+              ManiSpace.lg,
+              0,
+              ManiSpace.lg,
+              96,
+            ),
           ),
         ),
         // Al publicar, ningún aviso viejo debe tapar la confirmación.
@@ -94,7 +115,7 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: t.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -111,15 +132,14 @@ class _CrearSolicitudPageState extends State<CrearSolicitudPage> {
                       return SolicitudPublicadaVista(
                         solicitud: state.publicada!,
                         onNueva: _nuevaSolicitud,
+                        onIrAMisSolicitudes: _irAMisSolicitudes,
                         avisando: state.avisando,
                         onReintentarAviso: _cubit.reintentarAviso,
                       );
                     }
                     return switch (state.carga) {
                       CargaFormulario.inicial ||
-                      CargaFormulario.cargando => const Center(
-                        child: CircularProgressIndicator(color: AppTheme.dark),
-                      ),
+                      CargaFormulario.cargando => const ManiCargando(),
                       CargaFormulario.error => _ErrorCarga(
                         mensaje:
                             state.error?.mensajeUsuario ??
@@ -167,17 +187,24 @@ class _Asistente extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             key: PageStorageKey('paso-${paso.name}'),
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            padding: const EdgeInsets.fromLTRB(
+              ManiSpace.xl,
+              ManiSpace.xl,
+              ManiSpace.xl,
+              ManiSpace.xxl,
+            ),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 720),
+                constraints: const BoxConstraints(
+                  maxWidth: ManiAncho.formulario,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     IndicadorPasos(actual: paso),
-                    const SizedBox(height: 24),
+                    ManiGap.vXxl,
                     ManiCard(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(ManiSpace.xxl),
                       child: pasoActual,
                     ),
                   ],
@@ -215,17 +242,25 @@ class _BarraAcciones extends StatelessWidget {
       _ => null,
     };
 
+    final t = context.mani;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(top: BorderSide(color: AppTheme.dark, width: 2)),
+      padding: const EdgeInsets.fromLTRB(
+        ManiSpace.xl,
+        ManiSpace.md,
+        ManiSpace.xl,
+        ManiSpace.lg,
+      ),
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border(
+          top: BorderSide(color: t.border, width: ManiBorder.regular),
+        ),
       ),
       child: SafeArea(
         top: false,
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
+            constraints: const BoxConstraints(maxWidth: ManiAncho.formulario),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -235,13 +270,13 @@ class _BarraAcciones extends StatelessWidget {
                     pista,
                     key: const ValueKey('pista-paso'),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 13,
+                    style: TextStyle(
+                      fontSize: ManiFontSize.bodySm,
                       fontWeight: FontWeight.w700,
-                      color: AppTheme.textSecondary,
+                      color: t.inkMuted,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  ManiGap.vSm,
                 ],
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -262,7 +297,7 @@ class _BarraAcciones extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    ManiGap.hLg,
                     Flexible(
                       flex: 3,
                       child: ConstrainedBox(
@@ -307,68 +342,11 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final puedeVolver = Navigator.of(context).canPop();
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        children: [
-          if (puedeVolver) ...[
-            IconButton(
-              tooltip: 'Volver',
-              onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.dark),
-            ),
-            const SizedBox(width: 4),
-          ],
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
-            ),
-            child: const Icon(
-              Icons.home_repair_service_rounded,
-              color: AppTheme.dark,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Nueva solicitud',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
-                  ),
-                ),
-                Text(
-                  'Cuéntanos qué necesitas reparar',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return ManiEncabezadoPantalla(
+      ancho: ManiAncho.formulario,
+      icono: Icons.home_repair_service_rounded,
+      titulo: 'Nueva solicitud',
+      descripcion: 'Cuéntanos qué necesitas reparar',
     );
   }
 }
@@ -383,18 +361,22 @@ class _ErrorCarga extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(ManiSpace.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.dark),
-            const SizedBox(height: 12),
+            const Icon(
+              Icons.cloud_off_rounded,
+              size: 48,
+              color: ManiColors.ink,
+            ),
+            ManiGap.vMd,
             Text(
               mensaje,
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             ManiButton(
               key: const ValueKey('btn-reintentar-formulario'),
               etiqueta: 'Reintentar',

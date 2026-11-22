@@ -5,6 +5,7 @@ import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
 import 'package:mani/features/profiles/company_sites/domain/entities/sede_empresa.dart';
 import 'package:mani/features/profiles/company_sites/presentation/bloc/sedes_empresa_cubit.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 /// Pantalla de gestión de múltiples sedes (`sitio`) del cliente empresa de la
 /// sesión (US-02.2.2 / SCRUM-852, SCRUM-1387): alta y edición, cada sede con
@@ -90,110 +91,118 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'Mis Sedes y Sucursales Corporativas',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
+      backgroundColor: ManiColors.background,
+
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ManiEncabezadoPantalla(
+            ancho: ManiAncho.lista,
+            icono: Icons.apartment_rounded,
+            titulo: 'Mis sedes y sucursales corporativas',
           ),
-        ),
-      ),
-      body: BlocBuilder<SedesEmpresaCubit, SedesEmpresaState>(
-        builder: (context, state) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 880),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (state.error != null) ...[
-                      _Banner(
-                        key: const Key('banner_error_sedes'),
-                        texto: state.error!,
-                        color: AppTheme.error,
+          Expanded(
+            child: BlocBuilder<SedesEmpresaCubit, SedesEmpresaState>(
+              builder: (context, state) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(ManiSpace.xxl),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: ManiAncho.lista,
                       ),
-                      const SizedBox(height: 16),
-                    ],
-                    if (state.aviso != null) ...[
-                      _Banner(
-                        key: const Key('banner_aviso_sedes'),
-                        texto: state.aviso!,
-                        color: AppTheme.dark,
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    _Tarjeta(
-                      child: FormularioSede(
-                        key: ValueKey(
-                          'formulario_nueva_sede_$_versionFormulario',
-                        ),
-                        titulo: 'Registrar Nueva Sede / Sucursal',
-                        zonas: state.zonasElegibles,
-                        nombreZona: state.nombreZona,
-                        guardando: state.cargando,
-                        textoBoton: 'AGREGAR SEDE',
-                        onGuardar: _agregar,
-                      ),
-                    ),
-                    if (widget.conMapa) ...[
-                      const SizedBox(height: 24),
-                      _Tarjeta(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              'Dónde quedan tus sedes',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: AppTheme.dark,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (state.error != null) ...[
+                            _Banner(
+                              key: const Key('banner_error_sedes'),
+                              texto: state.error!,
+                              color: ManiColors.danger,
+                            ),
+                            ManiGap.vLg,
+                          ],
+                          if (state.aviso != null) ...[
+                            _Banner(
+                              key: const Key('banner_aviso_sedes'),
+                              texto: state.aviso!,
+                              color: ManiColors.ink,
+                            ),
+                            ManiGap.vLg,
+                          ],
+                          _Tarjeta(
+                            child: FormularioSede(
+                              key: ValueKey(
+                                'formulario_nueva_sede_$_versionFormulario',
+                              ),
+                              titulo: 'Registrar Nueva Sede / Sucursal',
+                              zonas: state.zonasElegibles,
+                              nombreZona: state.nombreZona,
+                              guardando: state.cargando,
+                              textoBoton: 'AGREGAR SEDE',
+                              onGuardar: _agregar,
+                            ),
+                          ),
+                          if (widget.conMapa) ...[
+                            ManiGap.vXxl,
+                            _Tarjeta(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    'Dónde quedan tus sedes',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: ManiFontSize.bodyLg,
+                                      fontWeight: FontWeight.w900,
+                                      color: ManiColors.ink,
+                                    ),
+                                  ),
+                                  ManiGap.vXs,
+                                  Text(
+                                    'Comprueba que la dirección que registraste cae donde esperas. '
+                                    'Las sedes sin ubicación capturada se informan abajo y no se marcan.',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
+                                  ),
+                                  ManiGap.vMd,
+                                  // Alto fijo: la pantalla ya hace scroll, así que el
+                                  // mapa no puede pedir el espacio disponible.
+                                  const MapaZonas(
+                                    key: Key('sedes_mapa'),
+                                    alto: 320,
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Comprueba que la dirección que registraste cae donde esperas. '
-                              'Las sedes sin ubicación capturada se informan abajo y no se marcan.',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            const SizedBox(height: 12),
-                            // Alto fijo: la pantalla ya hace scroll, así que el
-                            // mapa no puede pedir el espacio disponible.
-                            const MapaZonas(key: Key('sedes_mapa'), alto: 320),
                           ],
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 24),
-                    Text(
-                      'Sedes Registradas (${state.sedes.length})',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
+                          ManiGap.vXxl,
+                          Text(
+                            'Sedes Registradas (${state.sedes.length})',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: ManiFontSize.bodyLg,
+                              fontWeight: FontWeight.w900,
+                              color: ManiColors.ink,
+                            ),
+                          ),
+                          ManiGap.vMd,
+                          for (final sede in state.sedes)
+                            _SedeCard(
+                              sede: sede,
+                              zona: state.nombreZona(sede.zonaId),
+                              onEditar: state.zonas.isEmpty
+                                  ? null
+                                  : () => _editar(sede),
+                            ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    for (final sede in state.sedes)
-                      _SedeCard(
-                        sede: sede,
-                        zona: state.nombreZona(sede.zonaId),
-                        onEditar: state.zonas.isEmpty
-                            ? null
-                            : () => _editar(sede),
-                      ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
@@ -279,12 +288,12 @@ class _FormularioSedeState extends State<FormularioSede> {
             Text(
               widget.titulo!,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 15,
+                fontSize: ManiFontSize.body,
                 fontWeight: FontWeight.w900,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
-            const SizedBox(height: 12),
+            ManiGap.vMd,
           ],
           if (widget.error != null) ...[
             Text(
@@ -292,10 +301,10 @@ class _FormularioSedeState extends State<FormularioSede> {
               key: const Key('error_formulario_sede'),
               style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w700,
-                color: AppTheme.error,
+                color: ManiColors.danger,
               ),
             ),
-            const SizedBox(height: 12),
+            ManiGap.vMd,
           ],
           TextFormField(
             key: const Key('input_nombre_sede'),
@@ -307,7 +316,7 @@ class _FormularioSedeState extends State<FormularioSede> {
                 ? 'El nombre de la sede es obligatorio'
                 : null,
           ),
-          const SizedBox(height: 12),
+          ManiGap.vMd,
           TextFormField(
             key: const Key('input_direccion_sede'),
             controller: _direccion,
@@ -318,7 +327,7 @@ class _FormularioSedeState extends State<FormularioSede> {
                 ? 'La dirección es obligatoria'
                 : null,
           ),
-          const SizedBox(height: 12),
+          ManiGap.vMd,
           FormField<String>(
             initialValue: _zonaId,
             validator: (_) =>
@@ -364,7 +373,7 @@ class _FormularioSedeState extends State<FormularioSede> {
                   ),
             ),
           ),
-          const SizedBox(height: 12),
+          ManiGap.vMd,
           TextFormField(
             key: const Key('input_contacto_sede'),
             controller: _contactoNombre,
@@ -372,7 +381,7 @@ class _FormularioSedeState extends State<FormularioSede> {
               labelText: 'Encargado en sitio (opcional)',
             ),
           ),
-          const SizedBox(height: 12),
+          ManiGap.vMd,
           TextFormField(
             key: const Key('input_telefono_sede'),
             controller: _contactoTelefono,
@@ -381,7 +390,7 @@ class _FormularioSedeState extends State<FormularioSede> {
               labelText: 'Teléfono del encargado (opcional)',
             ),
           ),
-          const SizedBox(height: 16),
+          ManiGap.vLg,
           ElevatedButton(
             key: const Key('btn_guardar_sede'),
             onPressed: widget.guardando || sinZonas ? null : _guardar,
@@ -401,12 +410,12 @@ class _Tarjeta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(ManiSpace.xl),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowSm],
+        borderRadius: ManiRadius.brLg,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        boxShadow: const [ManiShadow.sm],
       ),
       child: child,
     );
@@ -422,11 +431,11 @@ class _Banner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: color, width: 2),
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: color, width: ManiBorder.regular),
       ),
       child: Text(
         texto,
@@ -452,17 +461,17 @@ class _SedeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       key: Key('sede_card_${sede.id}'),
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: ManiSpace.md),
+      padding: const EdgeInsets.all(ManiSpace.lg),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
       ),
       child: Row(
         children: [
-          const Icon(Icons.business_rounded, color: AppTheme.dark, size: 28),
-          const SizedBox(width: 12),
+          const Icon(Icons.business_rounded, color: ManiColors.ink, size: 28),
+          ManiGap.hMd,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -470,16 +479,16 @@ class _SedeCard extends StatelessWidget {
                 Text(
                   sede.nombre,
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15,
+                    fontSize: ManiFontSize.body,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.dark,
+                    color: ManiColors.ink,
                   ),
                 ),
                 Text(
                   '${sede.direccion} · Zona: $zona',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
+                    fontSize: ManiFontSize.caption,
+                    color: ManiColors.inkMuted,
                   ),
                 ),
               ],
