@@ -19,26 +19,26 @@ import 'package:flutter/material.dart';
 abstract final class ManiColors {
   // ── Superficies (Modo Claro) ────────────────────────────────────────────
   /// Papel crema cálido de fondo de página.
-  static const Color background = Color(0xFFFAF6F2);
+  static const Color background = Color(0xFFFBF3E4);
 
   /// Tarjetas, campos y diálogos (`#FFFFFF` de la paleta).
   static const Color surface = Color(0xFFFFFFFF);
 
   /// Superficie hundida (fondos de grupo, filas alternas, chips neutros).
-  static const Color surfaceMuted = Color(0xFFF3ECE6);
+  static const Color surfaceMuted = Color(0xFFF3E5CD);
 
   /// Fondo cálido de secciones destacadas.
-  static const Color surfaceWarm = Color(0xFFFCE6D4);
+  static const Color surfaceWarm = Color(0xFFFFF9EE);
 
   // ── Tinta (Modo Claro) ──────────────────────────────────────────────────
   /// Texto principal, bordes y sombras duras (carbón espresso cálido).
-  static const Color ink = Color(0xFF1C1613);
+  static const Color ink = Color(0xFF1B2A4A);
 
   /// Texto secundario (≥ 5.5:1 sobre todas las superficies claras).
-  static const Color inkMuted = Color(0xFF5C5049);
+  static const Color inkMuted = Color(0xFF536485);
 
   /// Texto terciario y marcadores (≥ 4.6:1 sobre superficie hundida y crema).
-  static const Color inkSubtle = Color(0xFF665A52);
+  static const Color inkSubtle = Color(0xFF5B6A8A);
 
   /// Texto e íconos sobre fondos oscuros ([ink], [danger]).
   static const Color onInk = Color(0xFFFFFFFF);
@@ -48,23 +48,23 @@ abstract final class ManiColors {
   static const Color border = ink;
 
   /// Separadores suaves y estados deshabilitados.
-  static const Color borderSubtle = Color(0xFFE4DAD1);
+  static const Color borderSubtle = Color(0xFFE6D9C0);
 
   // ── Marca (`#FED1B0` + `#894C2F`) ───────────────────────────────────────
   /// Color de marca MANI (`#FED1B0`, crema durazno cálido).
   /// Un relleno de marca siempre lleva borde carbón para distinguirse,
   /// nunca se apoya solo en el color.
-  static const Color brand = Color(0xFFFED1B0);
+  static const Color brand = Color(0xFFF2B705);
 
   /// Texto e íconos sobre [brand] (11.9:1).
   static const Color onBrand = ink;
 
   /// Texto secundario sobre [brand] o [brandSoft], derivado del café maní
   /// (`#894C2F` oscurecido a `#63341E` para ≥ 4.8:1 sobre `#FED1B0`).
-  static const Color onBrandMuted = Color(0xFF63341E);
+  static const Color onBrandMuted = Color(0xFF4A3B00);
 
   /// Tinte tenue de la marca para selección y resaltado.
-  static const Color brandSoft = Color(0xFFFFF2E8);
+  static const Color brandSoft = Color(0xFFFDE896);
 
   // ── Estados ─────────────────────────────────────────────────────────────
   static const Color success = Color(0xFF15803D);
@@ -109,23 +109,23 @@ abstract final class ManiColors {
 /// bordes crema de alto contraste y sellos en durazno (`#FED1B0`) con tinta
 /// oscura (`#1C1613`).
 abstract final class ManiDarkColors {
-  static const Color background = Color(0xFF14110F);
-  static const Color surface = Color(0xFF1F1A17);
-  static const Color surfaceMuted = Color(0xFF2B2420);
-  static const Color surfaceWarm = Color(0xFF362A22);
+  static const Color background = Color(0xFF0F192E);
+  static const Color surface = Color(0xFF16233F);
+  static const Color surfaceMuted = Color(0xFF1F2F52);
+  static const Color surfaceWarm = Color(0xFF243760);
 
-  static const Color ink = Color(0xFFF7F2ED);
-  static const Color inkMuted = Color(0xFFC4B5AA);
-  static const Color inkSubtle = Color(0xFF9E8E83);
-  static const Color onInk = Color(0xFF14110F);
+  static const Color ink = Color(0xFFFBF3E4);
+  static const Color inkMuted = Color(0xFFB7C1D8);
+  static const Color inkSubtle = Color(0xFF9AA7C4);
+  static const Color onInk = Color(0xFF0F192E);
 
-  static const Color border = Color(0xFFD6C2B2);
-  static const Color borderSubtle = Color(0xFF3D332D);
+  static const Color border = Color(0xFFD9D2BF);
+  static const Color borderSubtle = Color(0xFF2F4170);
 
-  static const Color brand = Color(0xFFFED1B0);
-  static const Color onBrand = Color(0xFF1C1613);
-  static const Color onBrandMuted = Color(0xFF63341E);
-  static const Color brandSoft = Color(0xFF3A291F);
+  static const Color brand = Color(0xFFF2B705);
+  static const Color onBrand = Color(0xFF1B2A4A);
+  static const Color onBrandMuted = Color(0xFF4A3B00);
+  static const Color brandSoft = Color(0xFF3A3010);
 
-  static const Color shadow = Color(0xFF050403);
+  static const Color shadow = Color(0xFF05080F);
 }
