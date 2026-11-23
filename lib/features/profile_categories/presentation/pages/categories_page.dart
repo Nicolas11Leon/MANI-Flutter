@@ -33,7 +33,7 @@ class CategoriesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ManiColors.background,
+      backgroundColor: context.mani.background,
       body: SafeArea(
         child: BlocConsumer<CategoriesCubit, CategoriesState>(
           listenWhen: (prev, curr) =>
@@ -96,10 +96,10 @@ class CategoriesView extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     _contador(state.selectedIds.length),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: ManiColors.inkMuted,
+                      color: context.mani.inkMuted,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -202,8 +202,8 @@ class _Ficha extends StatelessWidget {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: seleccionada
-                            ? ManiColors.surface
-                            : ManiColors.brandSoft,
+                            ? context.mani.surface
+                            : context.mani.brandSoft,
                         borderRadius: BorderRadius.circular(ManiRadius.md),
                       ),
                       child: Text(
@@ -217,10 +217,10 @@ class _Ficha extends StatelessWidget {
                         categoria.label,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: ManiColors.ink,
+                          color: context.mani.ink,
                         ),
                       ),
                     ),
@@ -235,8 +235,8 @@ class _Ficha extends StatelessWidget {
                 child: Container(
                   width: 20,
                   height: 20,
-                  decoration: const BoxDecoration(
-                    color: ManiColors.ink,
+                  decoration: BoxDecoration(
+                    color: context.mani.ink,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.check, size: 14, color: Colors.white),
@@ -296,10 +296,10 @@ class _BarraGuardar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      decoration: const BoxDecoration(
-        color: ManiColors.surface,
+      decoration: BoxDecoration(
+        color: context.mani.surface,
         border: Border(
-          top: BorderSide(color: ManiColors.ink, width: ManiBorder.thin),
+          top: BorderSide(color: context.mani.ink, width: ManiBorder.thin),
         ),
       ),
       child: Center(

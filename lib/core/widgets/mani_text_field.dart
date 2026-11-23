@@ -68,10 +68,7 @@ class ManiTextField extends StatelessWidget {
         InputDecoration(
           prefixIcon: prefixIcon != null
               ? IconTheme(
-                  data: const IconThemeData(
-                    color: ManiColors.inkMuted,
-                    size: 20,
-                  ),
+                  data: IconThemeData(color: context.mani.inkMuted, size: 20),
                   child: prefixIcon!,
                 )
               : null,
@@ -97,7 +94,7 @@ class ManiTextField extends StatelessWidget {
       inputFormatters: inputFormatters,
       style:
           style ??
-          const TextStyle(color: ManiColors.ink, fontSize: ManiFontSize.bodyLg),
+          TextStyle(color: context.mani.ink, fontSize: ManiFontSize.bodyLg),
       decoration: base.copyWith(
         labelText: label ?? base.labelText,
         hintText: hint ?? base.hintText,

@@ -58,10 +58,10 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: ManiColors.background,
+      backgroundColor: context.mani.background,
       shape: RoundedRectangleBorder(
         borderRadius: ManiRadius.brLg,
-        side: const BorderSide(color: ManiColors.ink, width: 3),
+        side: BorderSide(color: context.mani.ink, width: 3),
       ),
       titlePadding: const EdgeInsets.fromLTRB(
         ManiSpace.xxl,
@@ -118,8 +118,8 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
                     selected: _motivo == m,
                     onSelected: (sel) =>
                         setState(() => _motivo = sel ? m : null),
-                    selectedColor: ManiColors.brand,
-                    backgroundColor: ManiColors.surface,
+                    selectedColor: context.mani.brand,
+                    backgroundColor: context.mani.surface,
                     side: ManiBorder.sideThin,
                     shape: RoundedRectangleBorder(
                       borderRadius: ManiRadius.brSm,
@@ -147,12 +147,12 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
               ),
             ] else if (_motivo == null) ...[
               ManiGap.vSm,
-              const Text(
+              Text(
                 'Elige un motivo para continuar.',
                 key: ValueKey('rechazo-sin-motivo'),
                 style: TextStyle(
                   fontSize: ManiFontSize.caption,
-                  color: ManiColors.inkMuted,
+                  color: context.mani.inkMuted,
                 ),
               ),
             ],

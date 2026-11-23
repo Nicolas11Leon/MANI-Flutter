@@ -73,7 +73,9 @@ class SolicitudAliadoCard extends StatelessWidget {
                     aliado.email,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: tema.bodySmall?.copyWith(color: ManiColors.inkMuted),
+                    style: tema.bodySmall?.copyWith(
+                      color: context.mani.inkMuted,
+                    ),
                   ),
                   ManiGap.vSm,
                   Wrap(
@@ -110,7 +112,7 @@ class SolicitudAliadoCard extends StatelessWidget {
                         size: 14,
                         color: urgente
                             ? ManiColors.danger
-                            : ManiColors.inkSubtle,
+                            : context.mani.inkSubtle,
                       ),
                       ManiGap.hXs,
                       Flexible(
@@ -123,7 +125,7 @@ class SolicitudAliadoCard extends StatelessWidget {
                           style: tema.labelSmall?.copyWith(
                             color: urgente
                                 ? ManiColors.danger
-                                : ManiColors.inkSubtle,
+                                : context.mani.inkSubtle,
                             fontWeight: urgente
                                 ? FontWeight.w800
                                 : FontWeight.w600,
@@ -136,10 +138,7 @@ class SolicitudAliadoCard extends StatelessWidget {
               ),
             ),
             ManiGap.hXs,
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: ManiColors.inkSubtle,
-            ),
+            Icon(Icons.chevron_right_rounded, color: context.mani.inkSubtle),
           ],
         ),
       ),
@@ -160,17 +159,17 @@ class _Etiqueta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = alerta ? ManiColors.danger : ManiColors.inkMuted;
+    final color = alerta ? ManiColors.danger : context.mani.inkMuted;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: ManiSpace.sm,
         vertical: ManiSpace.xs,
       ),
       decoration: BoxDecoration(
-        color: alerta ? ManiColors.dangerContainer : ManiColors.background,
+        color: alerta ? ManiColors.dangerContainer : context.mani.background,
         borderRadius: ManiRadius.brXs,
         border: Border.all(
-          color: alerta ? ManiColors.danger : ManiColors.borderSubtle,
+          color: alerta ? ManiColors.danger : context.mani.borderSubtle,
         ),
       ),
       child: Row(

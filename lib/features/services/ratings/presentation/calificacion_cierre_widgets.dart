@@ -88,17 +88,17 @@ class _CalificacionCierreSeccionState extends State<CalificacionCierreSeccion> {
                   Container(
                     padding: const EdgeInsets.all(ManiSpace.sm),
                     decoration: BoxDecoration(
-                      color: ManiColors.brand,
+                      color: context.mani.brand,
                       borderRadius: ManiRadius.brSm,
                       border: Border.all(
-                        color: ManiColors.border,
+                        color: context.mani.border,
                         width: ManiBorder.regular,
                       ),
                       boxShadow: const [ManiShadow.sm],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.star_rounded,
-                      color: ManiColors.ink,
+                      color: context.mani.onBrand,
                       size: 20,
                     ),
                   ),
@@ -108,10 +108,10 @@ class _CalificacionCierreSeccionState extends State<CalificacionCierreSeccion> {
                       widget.esAliado
                           ? 'Calificar al cliente y estado de cierre'
                           : 'Calificar al aliado y estado de cierre',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: ManiFontSize.bodyLg,
                         fontWeight: FontWeight.w900,
-                        color: ManiColors.ink,
+                        color: context.mani.ink,
                       ),
                     ),
                   ),
@@ -146,19 +146,19 @@ class _CalificacionCierreSeccionState extends State<CalificacionCierreSeccion> {
                       ? 'm08-otra-calificacion-registrada'
                       : 'm08-otra-calificacion-pendiente',
                 ),
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w800,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                 ),
               ),
               ManiGap.vXs,
-              const Text(
+              Text(
                 'Las calificaciones son privadas: ni tú ves la que te dan ni '
                 'la otra parte ve la tuya. Solo el administrador puede verlas.',
                 key: Key('m08-aviso-calificacion-privada'),
                 style: TextStyle(
                   fontSize: ManiFontSize.caption,
-                  color: ManiColors.inkMuted,
+                  color: context.mani.inkMuted,
                 ),
               ),
               ManiGap.vMd,
@@ -187,9 +187,12 @@ class _BannerEstadoCierre extends StatelessWidget {
       key: const Key('m08-estado-cierre-banner'),
       padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: completo ? ManiColors.successContainer : ManiColors.brandSoft,
+        color: completo ? ManiColors.successContainer : context.mani.brandSoft,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        border: Border.all(
+          color: context.mani.border,
+          width: ManiBorder.regular,
+        ),
       ),
       child: Row(
         children: [
@@ -197,16 +200,16 @@ class _BannerEstadoCierre extends StatelessWidget {
             completo
                 ? Icons.verified_outlined
                 : Icons.hourglass_bottom_outlined,
-            color: ManiColors.ink,
+            color: context.mani.ink,
           ),
           ManiGap.hSm,
           Expanded(
             child: Text(
               cierre.etiquetaEstadoCierre,
               key: const Key('m08-estado-cierre-texto'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w800,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
           ),
@@ -243,8 +246,8 @@ class _MensajesFeedback extends StatelessWidget {
           Text(
             mensajeExito!,
             key: const Key('m08-calificacion-exito'),
-            style: const TextStyle(
-              color: ManiColors.ink,
+            style: TextStyle(
+              color: context.mani.ink,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -279,9 +282,12 @@ class _CuerpoCalificacionPropia extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(ManiSpace.md),
         decoration: BoxDecoration(
-          color: ManiColors.background,
+          color: context.mani.background,
           borderRadius: ManiRadius.brMd,
-          border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
+          border: Border.all(
+            color: context.mani.border,
+            width: ManiBorder.thin,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,9 +295,9 @@ class _CuerpoCalificacionPropia extends StatelessWidget {
             Text(
               'Tu calificación enviada: ★ ${calif.puntaje}/5',
               key: const Key('m08-mi-calificacion-registrada'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w900,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
             if (comentario.isNotEmpty) ...[
@@ -306,9 +312,12 @@ class _CuerpoCalificacionPropia extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Selecciona un puntaje de 1 a 5 estrellas:',
-          style: TextStyle(fontWeight: FontWeight.w700, color: ManiColors.ink),
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: context.mani.ink,
+          ),
         ),
         ManiGap.vSm,
         Row(
@@ -318,7 +327,7 @@ class _CuerpoCalificacionPropia extends StatelessWidget {
                 key: Key('m08-estrella-$i'),
                 icon: Icon(
                   i <= puntajeSeleccionado ? Icons.star : Icons.star_border,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                   size: 28,
                 ),
                 onPressed: enviando ? null : () => onSeleccionarPuntaje(i),
@@ -608,19 +617,19 @@ class ResumenPenalizacionCancelacionBanner extends StatelessWidget {
       padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
         color: preview.aplicaPenalizacion
-            ? ManiColors.brandSoft
-            : ManiColors.surface,
+            ? context.mani.brandSoft
+            : context.mani.surface,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        border: Border.all(
+          color: context.mani.border,
+          width: ManiBorder.regular,
+        ),
         boxShadow: const [ManiShadow.sm],
       ),
       child: Text(
         preview.resumenUsuario,
         key: const Key('m08-penalizacion-preview-texto'),
-        style: const TextStyle(
-          fontWeight: FontWeight.w800,
-          color: ManiColors.ink,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w800, color: context.mani.ink),
       ),
     );
   }

@@ -31,8 +31,8 @@ class ManiMano extends StatelessWidget {
         errorBuilder: (context, error, stack) => SizedBox.square(
           dimension: alto * 0.6,
           child: DecoratedBox(
-            decoration: const BoxDecoration(
-              color: ManiColors.brand,
+            decoration: BoxDecoration(
+              color: context.mani.brand,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -41,7 +41,7 @@ class ManiMano extends StatelessWidget {
                 style: TextStyle(
                   fontSize: alto * 0.28,
                   fontWeight: FontWeight.w900,
-                  color: ManiColors.onBrand,
+                  color: context.mani.onBrand,
                 ),
               ),
             ),

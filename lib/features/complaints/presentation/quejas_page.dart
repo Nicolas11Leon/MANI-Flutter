@@ -204,14 +204,14 @@ class _TarjetaQueja extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: _colorEstado(queja.estado),
                   borderRadius: BorderRadius.circular(ManiRadius.lg),
-                  border: Border.all(color: ManiColors.ink, width: 1.5),
+                  border: Border.all(color: context.mani.ink, width: 1.5),
                 ),
                 child: Text(
                   queja.estado.etiqueta,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ),

@@ -48,33 +48,33 @@ class EjecucionSeccion extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(ManiSpace.sm),
                     decoration: BoxDecoration(
-                      color: ManiColors.brand,
+                      color: context.mani.brand,
                       borderRadius: ManiRadius.brXs,
                       border: Border.all(
-                        color: ManiColors.border,
+                        color: context.mani.border,
                         width: ManiBorder.thin,
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.play_circle_outline,
                       size: 18,
-                      color: ManiColors.ink,
+                      color: context.mani.onBrand,
                     ),
                   ),
                   ManiGap.hSm,
                   Text(
                     'Ejecución',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: ManiFontSize.bodyLg,
                       fontWeight: FontWeight.w800,
-                      color: ManiColors.ink,
+                      color: context.mani.ink,
                     ),
                   ),
                 ],
               ),
               ManiGap.vMd,
               if (state.cargando && e == null)
-                const LinearProgressIndicator(color: ManiColors.ink)
+                LinearProgressIndicator(color: context.mani.ink)
               else if (state.error != null && e == null)
                 Row(
                   children: [
