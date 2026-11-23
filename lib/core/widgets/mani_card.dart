@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_anillo_foco.dart';
 
 /// Tarjeta neo-brutalista MANI: borde definido, esquinas redondeadas y sombra
 /// dura sin desenfoque. Si [seleccionada], resalta con fondo de marca tenue y
@@ -88,12 +89,18 @@ class _ManiCardState extends State<ManiCard> {
       ),
       child: Material(
         type: MaterialType.transparency,
-        child: InkWell(
-          onTap: widget.onTap,
-          onHover: interactiva ? (v) => setState(() => _hover = v) : null,
-          onFocusChange: interactiva ? (v) => setState(() => _foco = v) : null,
-          borderRadius: ManiRadius.brLg,
-          child: Padding(padding: widget.padding, child: widget.child),
+        // El anillo de foco va siempre (con o sin onTap) para no recrear el InkWell al cambiar de estado.
+        child: ManiAnilloFoco(
+          radio: ManiRadius.brLg,
+          child: InkWell(
+            onTap: widget.onTap,
+            onHover: interactiva ? (v) => setState(() => _hover = v) : null,
+            onFocusChange: interactiva
+                ? (v) => setState(() => _foco = v)
+                : null,
+            borderRadius: ManiRadius.brLg,
+            child: Padding(padding: widget.padding, child: widget.child),
+          ),
         ),
       ),
     );

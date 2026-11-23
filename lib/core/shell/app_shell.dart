@@ -809,40 +809,42 @@ class _ItemInferior extends StatelessWidget {
       selected: activo,
       label: etiqueta,
       excludeSemantics: true,
-      child: InkWell(
-        onTap: alTocar,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: ManiMotion.fast,
-              width: 52,
-              height: 30,
-              decoration: BoxDecoration(
-                color: activo ? ManiColors.brand : Colors.transparent,
-                borderRadius: BorderRadius.circular(ManiRadius.pill),
-                border: Border.all(
-                  color: activo ? ManiColors.ink : Colors.transparent,
-                  width: ManiBorder.thick,
+      child: ManiAnilloFoco(
+        child: InkWell(
+          onTap: alTocar,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: ManiMotion.fast,
+                width: 52,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: activo ? ManiColors.brand : Colors.transparent,
+                  borderRadius: BorderRadius.circular(ManiRadius.pill),
+                  border: Border.all(
+                    color: activo ? ManiColors.ink : Colors.transparent,
+                    width: ManiBorder.thick,
+                  ),
+                ),
+                child: Icon(icono, size: 22, color: ManiColors.ink),
+              ),
+              const SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: Text(
+                  etiqueta,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
+                    color: ManiColors.ink,
+                  ),
                 ),
               ),
-              child: Icon(icono, size: 22, color: ManiColors.ink),
-            ),
-            const SizedBox(height: 2),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: Text(
-                etiqueta,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
-                  color: ManiColors.ink,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
