@@ -371,7 +371,8 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/login',
       name: 'login',
-      builder: (context, state) => const LoginPage(),
+      builder: (context, state) =>
+          LoginPage(rol: state.uri.queryParameters['rol']),
     ),
     // Ruta independiente: Registro de Cliente (US-02.2.1)
     GoRoute(
