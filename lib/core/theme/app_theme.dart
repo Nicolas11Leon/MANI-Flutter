@@ -14,10 +14,12 @@ class AppTheme {
 
   /// Fuente de títulos (Fredoka a 600), usada por las pantallas de la
   /// navegación móvil y el inicio (SCRUM-1646/1647, trabajo de Nicolás).
+  /// Sin [color], el título toma el del tema (tinta clara en modo oscuro): una
+  /// tinta fija lo dejaba azul sobre fondo oscuro.
   static TextStyle titulo({
     double size = 18,
     double height = 24 / 18,
-    Color color = ManiColors.ink,
+    Color? color,
   }) => GoogleFonts.fredoka(
     fontSize: size,
     height: height,

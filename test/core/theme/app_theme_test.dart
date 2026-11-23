@@ -15,6 +15,14 @@ void main() {
       expect(ManiColors.border, ManiColors.ink);
     });
 
+    test('titulo() sin color toma el del tema, no una tinta fija', () {
+      expect(AppTheme.titulo().color, isNull);
+      expect(
+        AppTheme.titulo(color: ManiColors.inkMuted).color,
+        ManiColors.inkMuted,
+      );
+    });
+
     test('sombras duras de 2, 4 y 6 px, sin desenfoque', () {
       expect(ManiShadow.sm.offset, const Offset(2, 2));
       expect(ManiShadow.md.offset, const Offset(4, 4));
