@@ -154,6 +154,16 @@ void main() {
       expect(AuthRemoteDataSource.tipoContenidoDocumento('a.docx'), isNull);
     });
 
+    test('envía acceptsTerms, que Core exige (TERMS_NOT_ACCEPTED)', () async {
+      await registrar(datasource());
+
+      final cuerpo = alGateway.single.body;
+      expect(cuerpo, contains('name="acceptsTerms"'));
+      expect(cuerpo, contains('\r\n\r\ntrue\r\n'));
+      // Core registra el consentimiento: no hay segunda llamada a /legal/consents.
+      expect(alGateway, hasLength(1));
+    });
+
     test('mantiene la forma de respuesta que espera la UI', () async {
       final res = await registrar(datasource());
 
