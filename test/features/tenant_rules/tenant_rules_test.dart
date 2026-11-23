@@ -120,6 +120,33 @@ void main() {
       );
     });
 
+    test(
+      'SCRUM-1722: el 503 MANI-RGL-503 de las reglas del tenant también dice '
+      'que el motor de reglas no está disponible',
+      () async {
+        final fuente = MockFuenteReglasTenant()
+          ..excepcionCargar = const GatewayException(
+            statusCode: 503,
+            message: 'No disponible',
+            cuerpo: {
+              'code': 'MANI-RGL-503',
+              'error':
+                  'MANI-RGL-503: el motor de reglas no está disponible; '
+                  'no se guardaron las reglas',
+            },
+          );
+        final cubit = TenantRulesCubit(fuente);
+
+        await cubit.cargar();
+        final errorState = cubit.state as TenantRulesError;
+        expect(
+          errorState.mensaje,
+          'El motor de reglas no está disponible en este momento. '
+          'Inténtalo más tarde.',
+        );
+      },
+    );
+
     test('TenantRulesCubit guarda nueva versión y actualiza estado', () async {
       final fuente = MockFuenteReglasTenant();
       final cubit = TenantRulesCubit(fuente);
