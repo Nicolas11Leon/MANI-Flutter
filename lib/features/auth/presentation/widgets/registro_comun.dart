@@ -271,12 +271,27 @@ class RegistroEstructura extends StatelessWidget {
                           ManiGap.vXxl,
                           terminos,
                           ManiGap.vXxl,
-                          accion,
-                          ManiGap.vHuge,
                         ],
                       ),
                     ),
                   ),
+                ),
+              ),
+            ),
+            // La acción de envío queda fija al pie, fuera de la zona que se desplaza: con 2 o 3 secciones de
+            // formulario el botón quedaba bajo el pliegue y no se reconocía la acción principal (SCRUM-1717, QAS-30).
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                ManiSpace.paginaAncha,
+                ManiSpace.md,
+                ManiSpace.paginaAncha,
+                ManiSpace.md,
+              ),
+              child: Center(
+                heightFactor: 1,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: ManiAncho.panel),
+                  child: accion,
                 ),
               ),
             ),

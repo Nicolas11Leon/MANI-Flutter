@@ -385,7 +385,7 @@ class AuthBarraEnvio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final garantia = Row(
+    Widget garantia({required bool conDescripcion}) => Row(
       children: [
         Icon(icono, color: ManiColors.ink, size: 24),
         ManiGap.hMd,
@@ -394,8 +394,10 @@ class AuthBarraEnvio extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(titulo, style: ManiText.label),
-              ManiGap.vXxs,
-              Text(descripcion, style: ManiText.caption),
+              if (conDescripcion) ...[
+                ManiGap.vXxs,
+                Text(descripcion, style: ManiText.caption),
+              ],
             ],
           ),
         ),
@@ -407,26 +409,32 @@ class AuthBarraEnvio extends StatelessWidget {
       cargando: cargando,
       expandir: true,
     );
-    return Container(
-      padding: const EdgeInsets.all(ManiSpace.xxl),
-      decoration: maniDecoracion(),
-      child: LayoutBuilder(
-        builder: (context, c) {
-          if (c.maxWidth < 680) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [garantia, ManiGap.vLg, boton],
-            );
-          }
-          return Row(
-            children: [
-              Expanded(child: garantia),
-              ManiGap.hXxl,
-              SizedBox(width: 320, child: boton),
-            ],
-          );
-        },
-      ),
+    // La barra va fija al pie del registro (SCRUM-1717): en un teléfono se compacta (menos relleno y sin la
+    // descripción) para no quitarle alto al formulario.
+    return LayoutBuilder(
+      builder: (context, c) {
+        final angosta = c.maxWidth < 680;
+        return Container(
+          padding: EdgeInsets.all(angosta ? ManiSpace.md : ManiSpace.lg),
+          decoration: maniDecoracion(),
+          child: angosta
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    garantia(conDescripcion: false),
+                    ManiGap.vSm,
+                    boton,
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: garantia(conDescripcion: true)),
+                    ManiGap.hXxl,
+                    SizedBox(width: 320, child: boton),
+                  ],
+                ),
+        );
+      },
     );
   }
 }
