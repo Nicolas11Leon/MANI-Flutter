@@ -1,9 +1,12 @@
 import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/barra_accion_principal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../domain/regla_tenant.dart';
 import 'tenant_rules_cubit.dart';
+
 import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 class ReglasOperativasPage extends StatefulWidget {
@@ -35,10 +38,41 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
     _inicializado = true;
   }
 
+  void _guardar(BuildContext context) {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    context.read<TenantRulesCubit>().guardar(
+      ReglasOperativas(
+        criterioOrden: _criterioOrden,
+        toleranciaTarifa: _toleranciaTarifa,
+        comisionPorcentaje: _comision,
+        ventanaCancelacionHoras: _ventanaHoras,
+        penalizacionCancelacion: _penalizacion,
+        minutosParaAceptarOferta: _minutosOferta,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: barraDePantalla(context, titulo: 'Reglas de operación'),
+      // La acción principal queda fija abajo y visible sin desplazarse, aunque el formulario tenga 5 parámetros
+      // (SCRUM-1717, QAS-30). Solo aparece con las reglas cargadas.
+      bottomNavigationBar: BlocBuilder<TenantRulesCubit, TenantRulesState>(
+        builder: (context, state) {
+          if (state is! TenantRulesLoaded) return const SizedBox.shrink();
+          return BarraAccionPrincipal(
+            anchoMaximo: 800 - 48,
+            child: ManiButton(
+              key: const Key('btn_guardar_reglas'),
+              etiqueta: 'GUARDAR NUEVA VERSIÓN',
+              expandir: true,
+              cargando: state.guardando,
+              onPressed: state.guardando ? null : () => _guardar(context),
+            ),
+          );
+        },
+      ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
@@ -108,34 +142,8 @@ class _ReglasOperativasPageState extends State<ReglasOperativasPage> {
                       _buildHeaderCard(loaded.vigente),
                       const SizedBox(height: 24),
 
-                      // Formulario de reglas
+                      // Formulario de reglas. «Guardar nueva versión» va en la franja fija del pie (QAS-30).
                       _buildFormCard(loaded.guardando),
-                      const SizedBox(height: 32),
-
-                      // Botón guardar
-                      ManiButton(
-                        key: const Key('btn_guardar_reglas'),
-                        etiqueta: 'GUARDAR NUEVA VERSIÓN',
-                        expandir: true,
-                        cargando: loaded.guardando,
-                        onPressed: loaded.guardando
-                            ? null
-                            : () {
-                                if (_formKey.currentState?.validate() ??
-                                    false) {
-                                  context.read<TenantRulesCubit>().guardar(
-                                    ReglasOperativas(
-                                      criterioOrden: _criterioOrden,
-                                      toleranciaTarifa: _toleranciaTarifa,
-                                      comisionPorcentaje: _comision,
-                                      ventanaCancelacionHoras: _ventanaHoras,
-                                      penalizacionCancelacion: _penalizacion,
-                                      minutosParaAceptarOferta: _minutosOferta,
-                                    ),
-                                  );
-                                }
-                              },
-                      ),
                       const SizedBox(height: 40),
 
                       // Historial
