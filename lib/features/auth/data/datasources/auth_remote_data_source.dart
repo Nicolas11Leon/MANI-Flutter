@@ -269,11 +269,15 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
     // Tenant solo en X-Tenant-Slug y rutas de Storage construidas por Core
     // (ADR-0013, ADR-0018). Nombres de campo en camelCase: así los define el contrato
     // OpenAPI de CFG-16 (fullName/categoriaId), no snake_case español.
+    // Core exige acceptsTerms en este registro (SCRUM-856, TERMS_NOT_ACCEPTED)
+    // y registra él mismo la aceptación: el cubit ya exige la casilla y no se
+    // llama después a /legal/consents, que la duplicaría.
     final campos = <String, String>{
       'email': email.trim(),
       'password': password,
       'fullName': nombreCompleto.trim(),
       'categoriaId': categoriaId.trim(),
+      'acceptsTerms': 'true',
     };
 
     final respuesta = await gateway.postMultipart(
@@ -282,8 +286,6 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
       archivos: [for (final doc in documentosKYC) _archivo(doc)],
       headers: {headerTenantSlug: tenantId},
     );
-
-    await _registrarConsentimientoSeguro(respuesta);
 
     return {
       ...respuesta,
