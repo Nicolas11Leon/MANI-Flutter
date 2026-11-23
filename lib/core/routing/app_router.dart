@@ -6,7 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:mani/features/platform/data/tenants_datasource.dart';
-import 'package:mani/features/audit/presentation/auditoria_page.dart';
+import 'package:mani/core/routing/carga_diferida.dart';
+import 'package:mani/features/audit/presentation/auditoria_page.dart'
+    deferred as auditoria;
 import 'package:mani/features/conversation_review/presentation/conversacion_queja_page.dart';
 import 'package:mani/features/notifications/domain/aviso.dart';
 import 'package:mani/features/notifications/presentation/avisos_page.dart';
@@ -843,7 +845,11 @@ final appRouter = GoRouter(
             GoRoute(
               path: '/admin/auditoria-transacciones',
               name: 'auditoria-transacciones',
-              builder: (context, state) => const AuditoriaPage(),
+              // Diferida (SCRUM-1647): la auditoría solo la usa el administrador; no se descarga al abrir la app.
+              builder: (context, state) => CargaDiferida(
+                cargar: auditoria.loadLibrary,
+                builder: (_) => auditoria.AuditoriaPage(),
+              ),
             ),
             // Conversación de una queja (SCRUM-883): solo el administrador. Acepta
             // `?solicitudId=` y `?quejaRef=` para llegar desde una queja concreta.
