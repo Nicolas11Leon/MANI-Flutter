@@ -10,6 +10,7 @@ import 'package:mani/core/widgets/mani_confirmacion.dart';
 import 'package:mani/features/home/data/resumen_inicio.dart';
 import 'package:mani/features/home/presentation/widgets/inicio_movil.dart';
 import 'package:mani/features/home/presentation/widgets/saludo_inicio.dart';
+import 'package:mani/core/widgets/mani_anillo_foco.dart';
 
 /// Pantalla de inicio neo-brutalista por tipo de usuario (US-11.2.3 / SCRUM-1446).
 ///
@@ -328,44 +329,47 @@ class _TarjetaIndicador extends StatelessWidget {
       child: ManiCard(
         padding: EdgeInsets.zero,
         sombra: ManiShadow.sm,
-        child: InkWell(
-          key: Key('inicio-indicador-${indicador.etiqueta}'),
-          borderRadius: BorderRadius.circular(24.0),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+        child: ManiAnilloFoco(
+          radio: BorderRadius.circular(24.0),
+          child: InkWell(
+            key: Key('inicio-indicador-${indicador.etiqueta}'),
+            borderRadius: BorderRadius.circular(24.0),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: ManiColors.brand,
+                      borderRadius: BorderRadius.circular(ManiRadius.lg),
+                      border: Border.all(color: ManiColors.ink, width: 1.5),
+                    ),
+                    child: Text(
+                      indicador.valor ?? '—',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: ManiColors.ink,
+                      ),
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: ManiColors.brand,
-                    borderRadius: BorderRadius.circular(ManiRadius.lg),
-                    border: Border.all(color: ManiColors.ink, width: 1.5),
-                  ),
-                  child: Text(
-                    indicador.valor ?? '—',
+                  const SizedBox(height: 10),
+                  Text(
+                    indicador.etiqueta,
                     style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
                       color: ManiColors.ink,
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  indicador.etiqueta,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: ManiColors.ink,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
