@@ -374,9 +374,13 @@ class AuthBarraEnvio extends StatelessWidget {
     required this.cargando,
     required this.onPressed,
     this.icono = Icons.security_rounded,
+    this.claveBoton,
   });
 
   final IconData icono;
+
+  /// Clave del botón de envío, para que las pruebas lo ubiquen y lo toquen.
+  final Key? claveBoton;
   final String titulo;
   final String descripcion;
   final String etiquetaBoton;
@@ -404,6 +408,7 @@ class AuthBarraEnvio extends StatelessWidget {
       ],
     );
     final boton = ManiButton(
+      key: claveBoton,
       etiqueta: etiquetaBoton,
       onPressed: onPressed,
       cargando: cargando,

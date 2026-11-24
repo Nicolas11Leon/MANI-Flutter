@@ -14,6 +14,7 @@ import 'package:mani/features/auth/domain/usecases/register_empresa_usecase.dart
 import 'package:mani/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mani/features/auth/presentation/pages/registro_aliado_empresa_page.dart';
 import 'package:mani/features/auth/presentation/pages/registro_aliado_page.dart';
+import 'package:mani/features/auth/presentation/pages/registro_cliente_empresa_page.dart';
 import 'package:mani/features/auth/presentation/pages/registro_cliente_page.dart';
 import 'package:mani/features/tenant_rules/presentation/reglas_operativas_page.dart';
 import 'package:mani/features/tenant_rules/presentation/tenant_rules_cubit.dart';
@@ -41,6 +42,7 @@ AuthCubit _authCubit() {
 /// que el botón queda completo dentro de la ventana en escritorio pequeño (800x600, el tamaño de T-45) y en celular.
 void main() {
   const tamanos = <String, Size>{
+    'escritorio 1710x931': Size(1710, 931),
     'escritorio 800x600': Size(800, 600),
     'celular 390x844': Size(390, 844),
   };
@@ -97,6 +99,11 @@ void main() {
       'registro de empresa aliada': (
         () => const RegistroAliadoEmpresaPage(),
         'ENVIAR REGISTRO DE EMPRESA A REVISIÓN',
+      ),
+      // QA lo encontró bajo el pliegue a cualquier alto de ventana (comentario 11400 de SCRUM-1717).
+      'registro de cliente empresa': (
+        () => const RegistroClienteEmpresaPage(),
+        'CREAR LA CUENTA DE MI EMPRESA',
       ),
     };
 
