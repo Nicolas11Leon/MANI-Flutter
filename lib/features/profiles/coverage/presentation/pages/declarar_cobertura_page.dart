@@ -3,7 +3,7 @@ import 'package:mani/core/widgets/mani_button.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
+import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas_diferido.dart';
 
 import '../../domain/entities/zona.dart';
 import '../controllers/cobertura_controller.dart';
@@ -254,7 +254,7 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
               // El mapa es otra forma de marcar lo mismo: toca la zona y se
               // alterna, igual que su casilla en la lista. Se elige una zona
               // del catálogo en los dos casos; lo que cambia es el gesto.
-              final mapa = MapaZonas(
+              final mapa = MapaZonasDiferido(
                 key: const Key('cobertura_mapa'),
                 coberturaResaltada: c.seleccion.ids,
                 leyendaCobertura:

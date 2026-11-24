@@ -15,6 +15,7 @@ import 'package:mani/core/widgets/mani_confirmacion.dart';
 import 'package:mani/core/widgets/mani_logo.dart';
 import 'package:mani/features/notifications/data/avisos_datasource.dart';
 import 'package:mani/features/platform/data/tenants_datasource.dart';
+import 'package:mani/core/widgets/mani_anillo_foco.dart';
 
 const _textoCerrarSesion = 'Cerrar sesión';
 const _rutaInicio = '/inicio';
@@ -204,15 +205,18 @@ class _AppShellState extends State<AppShell> {
   /// Conmutador de modo claro/oscuro (SCRUM-1646, #152).
   Widget _botonTema(BuildContext context) {
     final esOscuro = context.esModoOscuro;
-    return IconButton(
-      key: const Key('menu-tema'),
-      tooltip: esOscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro',
-      icon: Icon(
-        esOscuro ? Icons.light_mode_rounded : Icons.dark_mode_outlined,
-        color: context.mani.ink,
-        size: 19,
+    return ManiAnilloFoco(
+      radio: BorderRadius.circular(ManiRadius.pill),
+      child: IconButton(
+        key: const Key('menu-tema'),
+        tooltip: esOscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro',
+        icon: Icon(
+          esOscuro ? Icons.light_mode_rounded : Icons.dark_mode_outlined,
+          color: context.mani.ink,
+          size: 19,
+        ),
+        onPressed: maniThemeController.alternar,
       ),
-      onPressed: maniThemeController.alternar,
     );
   }
 
@@ -805,40 +809,42 @@ class _ItemInferior extends StatelessWidget {
       selected: activo,
       label: etiqueta,
       excludeSemantics: true,
-      child: InkWell(
-        onTap: alTocar,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: ManiMotion.fast,
-              width: 52,
-              height: 30,
-              decoration: BoxDecoration(
-                color: activo ? ManiColors.brand : Colors.transparent,
-                borderRadius: BorderRadius.circular(ManiRadius.pill),
-                border: Border.all(
-                  color: activo ? ManiColors.ink : Colors.transparent,
-                  width: ManiBorder.thick,
+      child: ManiAnilloFoco(
+        child: InkWell(
+          onTap: alTocar,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: ManiMotion.fast,
+                width: 52,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: activo ? ManiColors.brand : Colors.transparent,
+                  borderRadius: BorderRadius.circular(ManiRadius.pill),
+                  border: Border.all(
+                    color: activo ? ManiColors.ink : Colors.transparent,
+                    width: ManiBorder.thick,
+                  ),
+                ),
+                child: Icon(icono, size: 22, color: ManiColors.ink),
+              ),
+              const SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: Text(
+                  etiqueta,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
+                    color: ManiColors.ink,
+                  ),
                 ),
               ),
-              child: Icon(icono, size: 22, color: ManiColors.ink),
-            ),
-            const SizedBox(height: 2),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: Text(
-                etiqueta,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
-                  color: ManiColors.ink,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

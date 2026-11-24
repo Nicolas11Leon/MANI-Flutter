@@ -7,6 +7,7 @@ import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
 import 'package:mani/core/widgets/mani_confirmacion.dart';
 import 'package:mani/core/widgets/mani_layout.dart';
+import 'package:mani/core/widgets/mani_anillo_foco.dart';
 
 /// Las dos pantallas de agrupación de la barra inferior del celular (SCRUM-1647).
 enum TipoSeccion { servicios, cuenta }
@@ -177,32 +178,34 @@ class _Acceso extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: alTocar,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 60),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Row(
-            children: [
-              ManiIconoCaja(icono: icono),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  etiqueta,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: context.mani.ink,
+    return ManiAnilloFoco(
+      child: InkWell(
+        onTap: alTocar,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 60),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: Row(
+              children: [
+                ManiIconoCaja(icono: icono),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    etiqueta,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: context.mani.ink,
+                    ),
                   ),
                 ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 20,
-                color: context.mani.inkMuted,
-              ),
-            ],
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: context.mani.inkMuted,
+                ),
+              ],
+            ),
           ),
         ),
       ),
