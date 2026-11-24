@@ -76,10 +76,10 @@ class SolicitudCard extends StatelessWidget {
                       s.categoria,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: ManiColors.ink,
+                        color: context.mani.ink,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -183,7 +183,7 @@ class _Dato extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? ManiColors.inkMuted;
+    final c = color ?? context.mani.inkMuted;
     return Row(
       children: [
         Icon(icono, size: 15, color: c),
@@ -225,7 +225,7 @@ class _Problema extends StatelessWidget {
       key: const ValueKey('problema-solicitud'),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: ManiColors.brandSoft,
+        color: context.mani.brandSoft,
         borderRadius: BorderRadius.circular(ManiRadius.md),
       ),
       child: Column(
@@ -266,7 +266,7 @@ class _ModalidadBadge extends StatelessWidget {
       ModalidadServicio.cotizacionPrevia => (
         Icons.request_quote_outlined,
         'Requiere cotización antes de empezar',
-        ManiColors.brandSoft,
+        context.mani.brandSoft,
       ),
       ModalidadServicio.tarifaEstandar => (
         Icons.sell_outlined,
@@ -276,7 +276,7 @@ class _ModalidadBadge extends StatelessWidget {
       ModalidadServicio.desconocida => (
         Icons.help_outline,
         'Modalidad de cobro por confirmar',
-        ManiColors.surfaceMuted,
+        context.mani.surfaceMuted,
       ),
     };
     return Align(
@@ -290,16 +290,16 @@ class _ModalidadBadge extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icono, size: 14, color: ManiColors.ink),
+            Icon(icono, size: 14, color: context.mani.ink),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
                 texto,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                 ),
               ),
             ),
@@ -328,13 +328,13 @@ class _ReglasSitio extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'REGLAS DEL SITIO',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.6,
-            color: ManiColors.inkMuted,
+            color: context.mani.inkMuted,
           ),
         ),
         const SizedBox(height: 6),
@@ -355,13 +355,13 @@ class _ReglasSitio extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: d.advertencia
                           ? ManiColors.warningContainer
-                          : ManiColors.surfaceMuted,
+                          : context.mani.surfaceMuted,
                       borderRadius: BorderRadius.circular(ManiRadius.sm),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(d.icono, size: 13, color: ManiColors.ink),
+                        Icon(d.icono, size: 13, color: context.mani.ink),
                         const SizedBox(width: 4),
                         // Flexible: los textos largos (horario, contacto,
                         // instrucciones) saltan de línea en vez de desbordar.
@@ -373,7 +373,7 @@ class _ReglasSitio extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                               color: d.advertencia
                                   ? ManiColors.warningText
-                                  : ManiColors.ink,
+                                  : context.mani.ink,
                             ),
                           ),
                         ),
@@ -496,16 +496,16 @@ class _Etiqueta extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: ManiColors.ink,
+        color: context.mani.ink,
         borderRadius: BorderRadius.circular(ManiRadius.sm),
       ),
       child: Text(
         texto,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.6,
-          color: ManiColors.brand,
+          color: context.mani.brand,
         ),
       ),
     );

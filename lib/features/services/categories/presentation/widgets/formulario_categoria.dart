@@ -23,10 +23,10 @@ Future<bool> mostrarFormularioCategoria(BuildContext context) async {
     creada = await showDialog<bool>(
       context: context,
       builder: (_) => Dialog(
-        backgroundColor: ManiColors.background,
+        backgroundColor: context.mani.background,
         shape: RoundedRectangleBorder(
           borderRadius: ManiRadius.brLg,
-          side: const BorderSide(color: ManiColors.ink, width: 3),
+          side: BorderSide(color: context.mani.ink, width: 3),
         ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 580, maxHeight: 760),
@@ -39,7 +39,7 @@ Future<bool> mostrarFormularioCategoria(BuildContext context) async {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: ManiColors.background,
+      backgroundColor: context.mani.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(ManiRadius.lg),
@@ -203,12 +203,12 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                     ),
                     if (sugerencias.isNotEmpty) ...[
                       ManiGap.vXs,
-                      const Text(
+                      Text(
                         'Sugerencias',
                         style: TextStyle(
                           fontSize: ManiFontSize.micro,
                           fontWeight: FontWeight.w800,
-                          color: ManiColors.inkSubtle,
+                          color: context.mani.inkSubtle,
                         ),
                       ),
                       ManiGap.vSm,
@@ -229,7 +229,7 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                               onPressed: state.guardando
                                   ? null
                                   : () => _usarSugerencia(s),
-                              backgroundColor: ManiColors.surface,
+                              backgroundColor: context.mani.surface,
                               side: ManiBorder.sideThin,
                               shape: RoundedRectangleBorder(
                                 borderRadius: ManiRadius.brSm,
@@ -244,11 +244,11 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                       titulo: '¿Cómo opera este servicio?',
                     ),
                     ManiGap.vXs,
-                    const Text(
+                    Text(
                       'Define qué pasa cuando un cliente solicita un servicio de esta categoría.',
                       style: TextStyle(
                         fontSize: ManiFontSize.caption,
-                        color: ManiColors.inkMuted,
+                        color: context.mani.inkMuted,
                       ),
                     ),
                     ManiGap.vSm,
@@ -271,7 +271,7 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                     // Material propio: el ListTile pinta ahí su fondo y el
                     // efecto de toque (un Container con color los ocultaría).
                     Material(
-                      color: ManiColors.surface,
+                      color: context.mani.surface,
                       clipBehavior: Clip.antiAlias,
                       shape: RoundedRectangleBorder(
                         borderRadius: ManiRadius.brMd,
@@ -283,8 +283,8 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                         onChanged: state.guardando
                             ? null
                             : (v) => setState(() => _activa = v),
-                        activeThumbColor: ManiColors.ink,
-                        activeTrackColor: ManiColors.brand,
+                        activeThumbColor: context.mani.ink,
+                        activeTrackColor: context.mani.brand,
                         title: const Text(
                           'Visible para clientes de inmediato',
                           style: TextStyle(fontWeight: FontWeight.w800),
@@ -343,11 +343,11 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
       errorText: error,
       errorMaxLines: 2,
       filled: true,
-      fillColor: ManiColors.surface,
-      prefixIcon: const Icon(Icons.category_outlined, color: ManiColors.ink),
-      enabledBorder: borde(ManiColors.ink, 2),
-      focusedBorder: borde(ManiColors.ink, 2.5),
-      disabledBorder: borde(ManiColors.borderSubtle, 2),
+      fillColor: context.mani.surface,
+      prefixIcon: Icon(Icons.category_outlined, color: context.mani.ink),
+      enabledBorder: borde(context.mani.ink, 2),
+      focusedBorder: borde(context.mani.ink, 2.5),
+      disabledBorder: borde(context.mani.borderSubtle, 2),
       errorBorder: borde(ManiColors.danger, 2),
       focusedErrorBorder: borde(ManiColors.danger, 2.5),
     );
@@ -373,20 +373,20 @@ class _Encabezado extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(ManiSpace.sm),
             decoration: BoxDecoration(
-              color: ManiColors.brand,
+              color: context.mani.brand,
               borderRadius: ManiRadius.brSm,
               border: Border.all(
-                color: ManiColors.border,
+                color: context.mani.border,
                 width: ManiBorder.regular,
               ),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.add_business_rounded,
-              color: ManiColors.ink,
+              color: context.mani.onBrand,
             ),
           ),
           ManiGap.hMd,
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -401,7 +401,7 @@ class _Encabezado extends StatelessWidget {
                   'Organiza el catálogo que ven tus clientes.',
                   style: TextStyle(
                     fontSize: ManiFontSize.caption,
-                    color: ManiColors.inkMuted,
+                    color: context.mani.inkMuted,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -411,7 +411,7 @@ class _Encabezado extends StatelessWidget {
           IconButton(
             tooltip: 'Cerrar',
             onPressed: onCerrar,
-            icon: const Icon(Icons.close_rounded, color: ManiColors.ink),
+            icon: Icon(Icons.close_rounded, color: context.mani.ink),
           ),
         ],
       ),
@@ -433,16 +433,16 @@ class _Paso extends StatelessWidget {
           width: 22,
           height: 22,
           alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            color: ManiColors.ink,
+          decoration: BoxDecoration(
+            color: context.mani.ink,
             shape: BoxShape.circle,
           ),
           child: Text(
             '$numero',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: ManiFontSize.caption,
               fontWeight: FontWeight.w900,
-              color: ManiColors.brand,
+              color: context.mani.brand,
             ),
           ),
         ),
@@ -485,10 +485,10 @@ class _OpcionFlujo extends StatelessWidget {
       child: AnimatedContainer(
         duration: ManiMotion.fast,
         decoration: BoxDecoration(
-          color: seleccionado ? flujo.fondo : ManiColors.surface,
+          color: seleccionado ? flujo.fondo : context.mani.surface,
           borderRadius: radio,
           border: Border.all(
-            color: ManiColors.border,
+            color: context.mani.border,
             width: seleccionado ? 2.5 : 1.5,
           ),
           boxShadow: [if (seleccionado) ManiShadow.sm],
@@ -507,10 +507,10 @@ class _OpcionFlujo extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(ManiSpace.sm),
                     decoration: BoxDecoration(
-                      color: seleccionado ? ManiColors.surface : flujo.fondo,
+                      color: seleccionado ? context.mani.surface : flujo.fondo,
                       borderRadius: ManiRadius.brSm,
                       border: Border.all(
-                        color: ManiColors.border,
+                        color: context.mani.border,
                         width: ManiBorder.thin,
                       ),
                     ),
@@ -539,10 +539,10 @@ class _OpcionFlujo extends StatelessWidget {
                         ManiGap.vXs,
                         Text(
                           flujo.ejemplo,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: ManiFontSize.micro,
                             fontStyle: FontStyle.italic,
-                            color: ManiColors.inkMuted,
+                            color: context.mani.inkMuted,
                           ),
                         ),
                       ],
@@ -553,7 +553,7 @@ class _OpcionFlujo extends StatelessWidget {
                     seleccionado
                         ? Icons.radio_button_checked_rounded
                         : Icons.radio_button_off_rounded,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ],
               ),
@@ -583,30 +583,30 @@ class _VistaPrevia extends StatelessWidget {
       key: const ValueKey('vista-previa-categoria'),
       padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: ManiColors.brandSoft,
+        color: context.mani.brandSoft,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
+        border: Border.all(color: context.mani.border, width: ManiBorder.thin),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'ASÍ LA VERÁN TUS CLIENTES',
             style: TextStyle(
               fontSize: ManiFontSize.nano,
               fontWeight: FontWeight.w900,
               letterSpacing: 0.6,
-              color: ManiColors.inkMuted,
+              color: context.mani.inkMuted,
             ),
           ),
           ManiGap.vSm,
           if (!activa)
-            const Row(
+            Row(
               children: [
                 Icon(
                   Icons.visibility_off_outlined,
                   size: 18,
-                  color: ManiColors.inkMuted,
+                  color: context.mani.inkMuted,
                 ),
                 ManiGap.hSm,
                 Expanded(
@@ -621,18 +621,18 @@ class _VistaPrevia extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(ManiSpace.md),
               decoration: BoxDecoration(
-                color: ManiColors.surface,
+                color: context.mani.surface,
                 borderRadius: ManiRadius.brSm,
                 border: Border.all(
-                  color: ManiColors.border,
+                  color: context.mani.border,
                   width: ManiBorder.thin,
                 ),
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.home_repair_service_rounded,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                   ManiGap.hSm,
                   Expanded(
@@ -645,23 +645,23 @@ class _VistaPrevia extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.w900,
                             color: nombre.isEmpty
-                                ? ManiColors.inkSubtle
-                                : ManiColors.ink,
+                                ? context.mani.inkSubtle
+                                : context.mani.ink,
                           ),
                         ),
                         Text(
                           flujo?.textoCliente ?? 'Elige cómo opera el servicio',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: ManiFontSize.caption,
-                            color: ManiColors.inkMuted,
+                            color: context.mani.inkMuted,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right_rounded,
-                    color: ManiColors.inkSubtle,
+                    color: context.mani.inkSubtle,
                   ),
                 ],
               ),
@@ -742,10 +742,10 @@ class _Acciones extends StatelessWidget {
                 pista!,
                 key: const ValueKey('pista-formulario-categoria'),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: ManiFontSize.caption,
                   fontWeight: FontWeight.w600,
-                  color: ManiColors.inkMuted,
+                  color: context.mani.inkMuted,
                 ),
               ),
               ManiGap.vSm,

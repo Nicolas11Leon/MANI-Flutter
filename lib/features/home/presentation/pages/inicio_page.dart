@@ -72,7 +72,7 @@ class _InicioPageState extends State<InicioPage> {
 
     if (compacto) {
       return Scaffold(
-        backgroundColor: ManiColors.background,
+        backgroundColor: context.mani.background,
         body: InicioMovil(
           sesion: _sesion,
           resumen: _resumen,
@@ -85,7 +85,7 @@ class _InicioPageState extends State<InicioPage> {
     }
 
     return Scaffold(
-      backgroundColor: ManiColors.background,
+      backgroundColor: context.mani.background,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -102,11 +102,11 @@ class _InicioPageState extends State<InicioPage> {
 
               if (widget.rol == RolUsuario.desconocido) ...[
                 const SizedBox(height: 18),
-                const Card(
+                Card(
                   key: Key('inicio-sin-rol'),
                   color: Color(0xFFFEF9C3),
                   child: ListTile(
-                    leading: Icon(Icons.info_outline, color: ManiColors.ink),
+                    leading: Icon(Icons.info_outline, color: context.mani.ink),
                     title: Text(
                       'Tu cuenta no tiene un rol asignado',
                       style: TextStyle(fontWeight: FontWeight.w800),
@@ -123,10 +123,12 @@ class _InicioPageState extends State<InicioPage> {
                 future: _resumen,
                 builder: (context, snap) {
                   if (snap.connectionState != ConnectionState.done) {
-                    return const Padding(
+                    return Padding(
                       padding: EdgeInsets.all(24),
                       child: Center(
-                        child: CircularProgressIndicator(color: ManiColors.ink),
+                        child: CircularProgressIndicator(
+                          color: context.mani.ink,
+                        ),
                       ),
                     );
                   }
@@ -152,9 +154,9 @@ class _InicioPageState extends State<InicioPage> {
                     width: 10,
                     height: 22,
                     decoration: BoxDecoration(
-                      color: ManiColors.brand,
+                      color: context.mani.brand,
                       borderRadius: BorderRadius.circular(3),
-                      border: Border.all(color: ManiColors.ink, width: 1.5),
+                      border: Border.all(color: context.mani.ink, width: 1.5),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -163,7 +165,7 @@ class _InicioPageState extends State<InicioPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      color: ManiColors.ink,
+                      color: context.mani.ink,
                     ),
                   ),
                 ],
@@ -188,33 +190,40 @@ class _InicioPageState extends State<InicioPage> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: ManiColors.brand,
+                            color: context.mani.brand,
                             borderRadius: BorderRadius.circular(ManiRadius.lg),
-                            border: Border.all(color: ManiColors.ink, width: 2),
+                            border: Border.all(
+                              color: context.mani.ink,
+                              width: 2,
+                            ),
                           ),
-                          child: Icon(e.icono, color: ManiColors.ink, size: 20),
+                          child: Icon(
+                            e.icono,
+                            color: context.mani.ink,
+                            size: 20,
+                          ),
                         ),
                         title: Text(
                           e.etiqueta,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: ManiColors.ink,
+                            color: context.mani.ink,
                           ),
                         ),
                         trailing: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: ManiColors.background,
+                            color: context.mani.background,
                             borderRadius: BorderRadius.circular(ManiRadius.lg),
                             border: Border.all(
-                              color: ManiColors.ink,
+                              color: context.mani.ink,
                               width: 1.5,
                             ),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.arrow_forward_rounded,
-                            color: ManiColors.ink,
+                            color: context.mani.ink,
                             size: 18,
                           ),
                         ),
@@ -346,26 +355,26 @@ class _TarjetaIndicador extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: ManiColors.brand,
+                      color: context.mani.brand,
                       borderRadius: BorderRadius.circular(ManiRadius.lg),
-                      border: Border.all(color: ManiColors.ink, width: 1.5),
+                      border: Border.all(color: context.mani.ink, width: 1.5),
                     ),
                     child: Text(
                       indicador.valor ?? '—',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
-                        color: ManiColors.ink,
+                        color: context.mani.ink,
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     indicador.etiqueta,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
-                      color: ManiColors.ink,
+                      color: context.mani.ink,
                     ),
                   ),
                 ],

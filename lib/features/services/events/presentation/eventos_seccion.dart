@@ -68,27 +68,27 @@ class EventosSeccion extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(ManiSpace.sm),
                     decoration: BoxDecoration(
-                      color: ManiColors.brand,
+                      color: context.mani.brand,
                       borderRadius: ManiRadius.brXs,
                       border: Border.all(
-                        color: ManiColors.border,
+                        color: context.mani.border,
                         width: ManiBorder.thin,
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.history_rounded,
                       size: 18,
-                      color: ManiColors.ink,
+                      color: context.mani.onBrand,
                     ),
                   ),
                   ManiGap.hSm,
                   Flexible(
                     child: Text(
                       'Bitácora del servicio',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: ManiFontSize.bodyLg,
                         fontWeight: FontWeight.w800,
-                        color: ManiColors.ink,
+                        color: context.mani.ink,
                       ),
                     ),
                   ),
@@ -102,7 +102,7 @@ class EventosSeccion extends StatelessWidget {
                 ),
               if (state.pendientes.isNotEmpty) _Pendientes(state.pendientes),
               if (state.cargando && state.eventos.isEmpty)
-                const LinearProgressIndicator(color: ManiColors.ink)
+                LinearProgressIndicator(color: context.mani.ink)
               else if (state.error != null && state.eventos.isEmpty)
                 Row(
                   children: [

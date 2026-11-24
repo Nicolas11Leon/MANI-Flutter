@@ -46,10 +46,10 @@ class PasoDetalle extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(ManiSpace.md),
           decoration: BoxDecoration(
-            color: ManiColors.brandSoft,
+            color: context.mani.brandSoft,
             borderRadius: ManiRadius.brMd,
             border: Border.all(
-              color: ManiColors.border,
+              color: context.mani.border,
               width: ManiBorder.thin,
             ),
           ),
@@ -106,13 +106,13 @@ class PasoDetalle extends StatelessWidget {
                 ? 'Escribe al menos $falta caracteres más.'
                 : '¡Bien! Tu descripción está completa.',
             helperStyle: TextStyle(
-              color: falta > 0 ? ManiColors.inkMuted : ManiColors.success,
+              color: falta > 0 ? context.mani.inkMuted : ManiColors.success,
               fontWeight: FontWeight.w700,
             ),
             filled: true,
-            fillColor: ManiColors.surface,
-            enabledBorder: _borde(2),
-            focusedBorder: _borde(2.5),
+            fillColor: context.mani.surface,
+            enabledBorder: _borde(context, 2),
+            focusedBorder: _borde(context, 2.5),
           ),
         ),
         ManiGap.vXl,
@@ -130,20 +130,20 @@ class PasoDetalle extends StatelessWidget {
             Text(
               '${state.fotos.length}/${NuevaSolicitud.maxFotos}',
               key: const ValueKey('contador-fotos'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w800,
-                color: ManiColors.inkMuted,
+                color: context.mani.inkMuted,
               ),
             ),
           ],
         ),
         ManiGap.vXs,
-        const Text(
+        Text(
           'Ayudan a que el aliado cotice sin visitar primero. JPG, PNG o WEBP '
           'de hasta 5 MB.',
           style: TextStyle(
             fontSize: ManiFontSize.caption,
-            color: ManiColors.inkMuted,
+            color: context.mani.inkMuted,
           ),
         ),
         ManiGap.vSm,
@@ -165,10 +165,11 @@ class PasoDetalle extends StatelessWidget {
     );
   }
 
-  static OutlineInputBorder _borde(double ancho) => OutlineInputBorder(
-    borderRadius: ManiRadius.brMd,
-    borderSide: BorderSide(color: ManiColors.ink, width: ancho),
-  );
+  static OutlineInputBorder _borde(BuildContext context, double ancho) =>
+      OutlineInputBorder(
+        borderRadius: ManiRadius.brMd,
+        borderSide: BorderSide(color: context.mani.ink, width: ancho),
+      );
 }
 
 class _AgregarFoto extends StatelessWidget {
@@ -190,17 +191,17 @@ class _AgregarFoto extends StatelessWidget {
           width: 96,
           height: 96,
           decoration: BoxDecoration(
-            color: ManiColors.surface,
+            color: context.mani.surface,
             borderRadius: ManiRadius.brMd,
             border: Border.all(
-              color: ManiColors.border,
+              color: context.mani.border,
               width: ManiBorder.regular,
             ),
           ),
-          child: const Column(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_a_photo_outlined, color: ManiColors.ink),
+              Icon(Icons.add_a_photo_outlined, color: context.mani.ink),
               ManiGap.vXs,
               Text(
                 'Agregar',
@@ -241,10 +242,10 @@ class _Miniatura extends StatelessWidget {
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: ManiColors.background,
+                color: context.mani.background,
                 borderRadius: ManiRadius.brMd,
                 border: Border.all(
-                  color: ManiColors.border,
+                  color: context.mani.border,
                   width: ManiBorder.regular,
                 ),
               ),
@@ -252,8 +253,11 @@ class _Miniatura extends StatelessWidget {
                 bytes,
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
-                errorBuilder: (_, _, _) => const Center(
-                  child: Icon(Icons.image_outlined, color: ManiColors.inkMuted),
+                errorBuilder: (_, _, _) => Center(
+                  child: Icon(
+                    Icons.image_outlined,
+                    color: context.mani.inkMuted,
+                  ),
                 ),
               ),
             ),
@@ -276,7 +280,7 @@ class _Miniatura extends StatelessWidget {
                     color: ManiColors.danger,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: ManiColors.border,
+                      color: context.mani.border,
                       width: ManiBorder.regular,
                     ),
                   ),

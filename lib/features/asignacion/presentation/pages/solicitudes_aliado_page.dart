@@ -114,7 +114,7 @@ class _SolicitudesAliadoPageState extends State<SolicitudesAliadoPage> {
         esError: state.aviso!.tipo == TipoAviso.error,
       ),
       child: Scaffold(
-        backgroundColor: ManiColors.background,
+        backgroundColor: context.mani.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -189,8 +189,8 @@ class _Bandeja extends StatelessWidget {
         final visibles = state.visibles;
         final enDisponibles = state.pestana == PestanaSolicitudes.disponibles;
         return RefreshIndicator(
-          color: ManiColors.ink,
-          backgroundColor: ManiColors.brand,
+          color: context.mani.ink,
+          backgroundColor: context.mani.brand,
           onRefresh: () => cubit.cargar(silencioso: true),
           child: Center(
             child: ConstrainedBox(
@@ -276,10 +276,13 @@ class _Pestanas extends StatelessWidget {
               duration: ManiMotion.fast,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: activa ? ManiColors.surface : Colors.transparent,
+                color: activa ? context.mani.surface : Colors.transparent,
                 borderRadius: BorderRadius.circular(ManiRadius.pill),
                 border: activa
-                    ? Border.all(color: ManiColors.ink, width: ManiBorder.thin)
+                    ? Border.all(
+                        color: context.mani.ink,
+                        width: ManiBorder.thin,
+                      )
                     : null,
               ),
               child: Row(
@@ -292,7 +295,9 @@ class _Pestanas extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: activa ? FontWeight.w800 : FontWeight.w600,
-                        color: activa ? ManiColors.ink : ManiColors.inkMuted,
+                        color: activa
+                            ? context.mani.ink
+                            : context.mani.inkMuted,
                       ),
                     ),
                   ),
@@ -302,7 +307,7 @@ class _Pestanas extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: activa ? ManiColors.ink : ManiColors.inkMuted,
+                      color: activa ? context.mani.ink : context.mani.inkMuted,
                     ),
                   ),
                 ],
@@ -317,7 +322,7 @@ class _Pestanas extends StatelessWidget {
       height: 44,
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: ManiColors.surfaceMuted,
+        color: context.mani.surfaceMuted,
         borderRadius: BorderRadius.circular(ManiRadius.pill),
       ),
       child: Row(
@@ -509,9 +514,9 @@ class _BarraSuperior extends StatelessWidget {
     }
     final puedeVolver = Navigator.of(context).canPop();
     return Container(
-      decoration: const BoxDecoration(
-        color: ManiColors.surface,
-        border: Border(bottom: BorderSide(color: ManiColors.ink, width: 2)),
+      decoration: BoxDecoration(
+        color: context.mani.surface,
+        border: Border(bottom: BorderSide(color: context.mani.ink, width: 2)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
@@ -520,7 +525,7 @@ class _BarraSuperior extends StatelessWidget {
             IconButton(
               tooltip: 'Volver',
               onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: ManiColors.ink),
+              icon: Icon(Icons.arrow_back_rounded, color: context.mani.ink),
             ),
             const SizedBox(width: 4),
           ],
@@ -529,19 +534,19 @@ class _BarraSuperior extends StatelessWidget {
             height: 40,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: ManiColors.brand,
+              color: context.mani.brand,
               borderRadius: BorderRadius.circular(ManiRadius.lg),
-              border: Border.all(color: ManiColors.ink, width: 2),
+              border: Border.all(color: context.mani.onBrand, width: 2),
               boxShadow: const [ManiShadow.sm],
             ),
-            child: const Icon(
+            child: Icon(
               Icons.handyman_rounded,
-              color: ManiColors.ink,
+              color: context.mani.onBrand,
               size: 22,
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -552,7 +557,7 @@ class _BarraSuperior extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
                 Text(
@@ -561,7 +566,7 @@ class _BarraSuperior extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: ManiColors.inkMuted,
+                    color: context.mani.inkMuted,
                   ),
                 ),
               ],
@@ -572,38 +577,35 @@ class _BarraSuperior extends StatelessWidget {
               key: const ValueKey('btn-ir-cobertura'),
               tooltip: 'Mis zonas de cobertura',
               onPressed: onAbrirCobertura,
-              icon: const Icon(Icons.map_outlined, color: ManiColors.ink),
+              icon: Icon(Icons.map_outlined, color: context.mani.ink),
             ),
           if (onAbrirCategorias != null)
             IconButton(
               key: const ValueKey('btn-ir-especialidades'),
               tooltip: _textoMisEspecialidades,
               onPressed: onAbrirCategorias,
-              icon: const Icon(Icons.handyman_outlined, color: ManiColors.ink),
+              icon: Icon(Icons.handyman_outlined, color: context.mani.ink),
             ),
           if (onAbrirDisponibilidad != null)
             IconButton(
               key: const ValueKey('btn-ir-disponibilidad'),
               tooltip: 'Mi disponibilidad',
               onPressed: onAbrirDisponibilidad,
-              icon: const Icon(
-                Icons.event_busy_outlined,
-                color: ManiColors.ink,
-              ),
+              icon: Icon(Icons.event_busy_outlined, color: context.mani.ink),
             ),
           if (sl.isRegistered<FuenteModuloM08>())
             IconButton(
               key: const ValueKey('btn-ir-historial-aliado'),
               tooltip: 'Historial de trabajos',
               onPressed: () => _abrirHistorial(context),
-              icon: const Icon(Icons.history_rounded, color: ManiColors.ink),
+              icon: Icon(Icons.history_rounded, color: context.mani.ink),
             ),
           IconButton(
             key: const ValueKey('btn-actualizar-solicitudes'),
             tooltip: 'Actualizar',
             onPressed: () =>
                 context.read<SolicitudesAliadoCubit>().cargar(silencioso: true),
-            icon: const Icon(Icons.refresh_rounded, color: ManiColors.ink),
+            icon: Icon(Icons.refresh_rounded, color: context.mani.ink),
           ),
         ],
       ),

@@ -158,16 +158,16 @@ class _Cifra extends StatelessWidget {
             style: AppTheme.titulo(
               size: 24,
               height: 30 / 24,
-              color: ManiColors.ink,
+              color: context.mani.ink,
             ).copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
           ),
           const SizedBox(height: 2),
           Text(
             etiqueta,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: ManiColors.inkMuted,
+              color: context.mani.inkMuted,
             ),
           ),
         ],
@@ -216,8 +216,8 @@ class _TarjetaCobro extends StatelessWidget {
             ),
             if (l != null) ...[
               const SizedBox(height: 8),
-              const Divider(
-                color: ManiColors.borderSubtle,
+              Divider(
+                color: context.mani.borderSubtle,
                 thickness: 1.0,
                 height: 16,
               ),
@@ -235,13 +235,13 @@ class _TarjetaCobro extends StatelessWidget {
               ),
             ] else ...[
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Se liquida cuando el servicio finaliza.',
                 key: Key('sin-liquidar'),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: ManiColors.inkMuted,
+                  color: context.mani.inkMuted,
                 ),
               ),
             ],
@@ -272,7 +272,7 @@ class _Linea extends StatelessWidget {
             style: TextStyle(
               fontSize: fuerte ? 16 : 14,
               fontWeight: fuerte ? FontWeight.w800 : FontWeight.w500,
-              color: fuerte ? ManiColors.ink : ManiColors.inkMuted,
+              color: fuerte ? context.mani.ink : context.mani.inkMuted,
             ),
           ),
         ),
@@ -281,7 +281,7 @@ class _Linea extends StatelessWidget {
           style: TextStyle(
             fontSize: fuerte ? 16 : 14,
             fontWeight: fuerte ? FontWeight.w800 : FontWeight.w700,
-            color: ManiColors.ink,
+            color: context.mani.ink,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),

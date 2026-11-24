@@ -14,7 +14,7 @@ class DetalleAliadoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ManiColors.background,
+      backgroundColor: context.mani.background,
       appBar: barraDePantalla(context, titulo: 'Perfil del aliado'),
       body: DetalleAliadoPanel(
         aliadoId: aliadoId,

@@ -18,14 +18,17 @@ class AliadoAvatar extends StatelessWidget {
       height: tamano,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: esEmpresa ? ManiColors.infoContainer : ManiColors.brand,
+        color: esEmpresa ? ManiColors.infoContainer : context.mani.brand,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        border: Border.all(
+          color: context.mani.border,
+          width: ManiBorder.regular,
+        ),
       ),
       child: esEmpresa
           ? Icon(
               Icons.apartment_rounded,
-              color: ManiColors.ink,
+              color: context.mani.ink,
               size: tamano * 0.5,
             )
           : Text(
@@ -33,7 +36,7 @@ class AliadoAvatar extends StatelessWidget {
               style: TextStyle(
                 fontSize: tamano * 0.36,
                 fontWeight: FontWeight.w900,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
     );

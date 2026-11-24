@@ -98,23 +98,23 @@ class AvisosView extends StatelessWidget {
                     'de tus servicios.',
               ),
             ),
-          for (final g in grupos) ..._grupo(g.rotulo, g.avisos),
+          for (final g in grupos) ..._grupo(context, g.rotulo, g.avisos),
         ],
       ),
     );
   }
 
-  List<Widget> _grupo(String rotulo, List<Aviso> avisos) {
+  List<Widget> _grupo(BuildContext context, String rotulo, List<Aviso> avisos) {
     return [
       Padding(
         padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
         child: Text(
           rotulo.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.6,
-            color: ManiColors.inkMuted,
+            color: context.mani.inkMuted,
           ),
         ),
       ),
@@ -124,11 +124,11 @@ class AvisosView extends StatelessWidget {
           children: [
             for (var i = 0; i < avisos.length; i++) ...[
               if (i > 0)
-                const Divider(
+                Divider(
                   height: 1,
                   thickness: 1.0,
                   indent: 68,
-                  color: ManiColors.borderSubtle,
+                  color: context.mani.borderSubtle,
                 ),
               _FilaAviso(aviso: avisos[i], onAbrir: onAbrir),
             ],
@@ -218,7 +218,7 @@ class _FilaAviso extends StatelessWidget {
                               fontWeight: aviso.leido
                                   ? FontWeight.w600
                                   : FontWeight.w800,
-                              color: ManiColors.ink,
+                              color: context.mani.ink,
                             ),
                           ),
                         ),
@@ -229,28 +229,28 @@ class _FilaAviso extends StatelessWidget {
                         aviso.detalle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: ManiColors.inkMuted,
+                          color: context.mani.inkMuted,
                         ),
                       ),
                     Text(
                       hora,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: ManiColors.inkMuted,
+                        color: context.mani.inkMuted,
                       ),
                     ),
                   ],
                 ),
               ),
               if (navegable)
-                const Icon(
+                Icon(
                   Icons.chevron_right_rounded,
                   size: 20,
-                  color: ManiColors.inkMuted,
+                  color: context.mani.inkMuted,
                 ),
             ],
           ),

@@ -121,7 +121,7 @@ class _RegistrarEmpleadoDirectoPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ManiColors.background,
+      backgroundColor: context.mani.background,
       appBar: barraDePantalla(context, titulo: 'Registrar empleado directo'),
       body: BlocConsumer<EmpleadoDirectoCubit, EmpleadoDirectoState>(
         listener: (context, state) {
@@ -169,16 +169,16 @@ class _RegistrarEmpleadoDirectoPageState
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: ManiColors.brand,
+        color: context.mani.brand,
         borderRadius: BorderRadius.circular(24.0),
-        border: Border.all(color: ManiColors.ink, width: 2.5),
+        border: Border.all(color: context.mani.ink, width: 2.5),
         boxShadow: const [ManiShadow.sm],
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.verified_user_rounded,
-            color: ManiColors.ink,
+            color: context.mani.onBrand,
             size: 28,
           ),
           const SizedBox(width: 14),
@@ -191,7 +191,7 @@ class _RegistrarEmpleadoDirectoPageState
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
                 Text(
@@ -199,7 +199,7 @@ class _RegistrarEmpleadoDirectoPageState
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ],
@@ -218,7 +218,7 @@ class _RegistrarEmpleadoDirectoPageState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24.0),
-        border: Border.all(color: ManiColors.ink, width: 2.5),
+        border: Border.all(color: context.mani.ink, width: 2.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +228,7 @@ class _RegistrarEmpleadoDirectoPageState
             style: GoogleFonts.plusJakartaSans(
               fontSize: 15,
               fontWeight: FontWeight.w900,
-              color: ManiColors.ink,
+              color: context.mani.ink,
             ),
           ),
           const SizedBox(height: 6),
@@ -237,7 +237,7 @@ class _RegistrarEmpleadoDirectoPageState
             style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: ManiColors.inkMuted,
+              color: context.mani.inkMuted,
             ),
           ),
         ],
@@ -251,7 +251,7 @@ class _RegistrarEmpleadoDirectoPageState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24.0),
-        border: Border.all(color: ManiColors.ink, width: 2),
+        border: Border.all(color: context.mani.ink, width: 2),
         boxShadow: const [ManiShadow.md],
       ),
       child: Column(
@@ -357,7 +357,7 @@ class _RegistrarEmpleadoDirectoPageState
             style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
               fontWeight: FontWeight.w900,
-              color: ManiColors.ink,
+              color: context.mani.ink,
             ),
           ),
           const SizedBox(height: 8),

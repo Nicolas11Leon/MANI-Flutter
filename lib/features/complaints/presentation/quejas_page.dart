@@ -80,9 +80,7 @@ class QuejasPage extends StatelessWidget {
               const SizedBox(height: 20),
             ],
             if (state.cargando && state.quejas.isEmpty)
-              const Center(
-                child: CircularProgressIndicator(color: ManiColors.ink),
-              )
+              Center(child: CircularProgressIndicator(color: context.mani.ink))
             else if (state.error != null)
               ManiAvisoTarjeta(
                 key: const Key('quejas-error'),
@@ -140,9 +138,9 @@ class _Filtro extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: activo ? ManiColors.brand : ManiColors.surface,
+        color: activo ? context.mani.brand : context.mani.surface,
         borderRadius: BorderRadius.circular(ManiRadius.lg),
-        border: Border.all(color: ManiColors.ink, width: 2),
+        border: Border.all(color: context.mani.ink, width: 2),
         boxShadow: activo ? const [ManiShadow.sm] : const [],
       ),
       child: ManiButton(
@@ -189,10 +187,10 @@ class _TarjetaQueja extends StatelessWidget {
               Expanded(
                 child: Text(
                   '${queja.etiquetaMotivo} · ${queja.categoria}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -206,14 +204,14 @@ class _TarjetaQueja extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: _colorEstado(queja.estado),
                   borderRadius: BorderRadius.circular(ManiRadius.lg),
-                  border: Border.all(color: ManiColors.ink, width: 1.5),
+                  border: Border.all(color: context.mani.ink, width: 1.5),
                 ),
                 child: Text(
                   queja.estado.etiqueta,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -222,7 +220,7 @@ class _TarjetaQueja extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             queja.descripcion,
-            style: const TextStyle(fontSize: 14, color: ManiColors.ink),
+            style: TextStyle(fontSize: 14, color: context.mani.ink),
           ),
           const SizedBox(height: 8),
           Text(
@@ -230,10 +228,10 @@ class _TarjetaQueja extends StatelessWidget {
               'Presentada ${_fecha(queja.creadaEn)}',
               if (esAdmin && queja.clienteEmail != null) queja.clienteEmail!,
             ].join(' · '),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: ManiColors.inkMuted,
+              color: context.mani.inkMuted,
             ),
           ),
           if (queja.respuesta != null) ...[
@@ -242,17 +240,17 @@ class _TarjetaQueja extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: ManiColors.background,
+                color: context.mani.background,
                 borderRadius: BorderRadius.circular(ManiRadius.lg),
-                border: Border.all(color: ManiColors.ink, width: 1.5),
+                border: Border.all(color: context.mani.ink, width: 1.5),
               ),
               child: Text(
                 'Respuesta: ${queja.respuesta}',
                 key: Key('queja-respuesta-${queja.id}'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                 ),
               ),
             ),
@@ -270,14 +268,14 @@ class _TarjetaQueja extends StatelessWidget {
                 onPressed: () => _verHistorial(context, cubit, queja),
               ),
               if (esAdmin && actualizando)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(12),
                   child: SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: ManiColors.ink,
+                      color: context.mani.ink,
                     ),
                   ),
                 )

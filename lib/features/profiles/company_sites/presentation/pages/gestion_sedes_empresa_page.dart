@@ -94,7 +94,7 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ManiColors.background,
+      backgroundColor: context.mani.background,
       appBar: barraDePantalla(context, titulo: 'Mis sedes'),
       body: BlocBuilder<SedesEmpresaCubit, SedesEmpresaState>(
         builder: (context, state) {
@@ -121,7 +121,7 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                       _Banner(
                         key: const Key('banner_aviso_sedes'),
                         texto: state.aviso!,
-                        color: ManiColors.ink,
+                        color: context.mani.ink,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -149,7 +149,7 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
-                                color: ManiColors.ink,
+                                color: context.mani.ink,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -175,7 +175,7 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
-                        color: ManiColors.ink,
+                        color: context.mani.ink,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -280,7 +280,7 @@ class _FormularioSedeState extends State<FormularioSede> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 15,
                 fontWeight: FontWeight.w900,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
             const SizedBox(height: 12),
@@ -404,7 +404,7 @@ class _Tarjeta extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24.0),
-        border: Border.all(color: ManiColors.ink, width: 2),
+        border: Border.all(color: context.mani.ink, width: 2),
         boxShadow: const [ManiShadow.sm],
       ),
       child: child,
@@ -456,11 +456,11 @@ class _SedeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(ManiRadius.lg),
-        border: Border.all(color: ManiColors.ink, width: 2),
+        border: Border.all(color: context.mani.ink, width: 2),
       ),
       child: Row(
         children: [
-          const Icon(Icons.business_rounded, color: ManiColors.ink, size: 28),
+          Icon(Icons.business_rounded, color: context.mani.ink, size: 28),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -471,14 +471,14 @@ class _SedeCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
                 Text(
                   '${sede.direccion} · Zona: $zona',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
-                    color: ManiColors.inkMuted,
+                    color: context.mani.inkMuted,
                   ),
                 ),
               ],
@@ -513,10 +513,10 @@ class _SoloClientesEmpresa extends StatelessWidget {
               key: const Key('sedes_solo_empresa'),
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
+                Icon(
                   Icons.apartment_outlined,
                   size: 36,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -524,7 +524,7 @@ class _SoloClientesEmpresa extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
                 const SizedBox(height: 8),

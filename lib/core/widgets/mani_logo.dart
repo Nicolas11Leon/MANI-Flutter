@@ -34,7 +34,7 @@ class ManiLogo extends StatelessWidget {
             excludeFromSemantics: true,
             // Si la imagen no carga queda un círculo de marca con la «M», nunca un hueco vacío.
             errorBuilder: (context, error, stack) => ColoredBox(
-              color: ManiColors.brand,
+              color: context.mani.brand,
               child: SizedBox.square(
                 dimension: size,
                 child: Center(
@@ -43,7 +43,7 @@ class ManiLogo extends StatelessWidget {
                     style: TextStyle(
                       fontSize: size * 0.45,
                       fontWeight: FontWeight.w900,
-                      color: ManiColors.onBrand,
+                      color: context.mani.onBrand,
                     ),
                   ),
                 ),
