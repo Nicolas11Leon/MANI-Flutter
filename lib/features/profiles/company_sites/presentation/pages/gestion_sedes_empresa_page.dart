@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
-import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
+import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas_diferido.dart';
 import 'package:mani/features/profiles/company_sites/domain/entities/sede_empresa.dart';
 import 'package:mani/features/profiles/company_sites/presentation/bloc/sedes_empresa_cubit.dart';
 import 'package:mani/core/shell/titulo_de_pantalla.dart';
@@ -161,7 +161,10 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                             const SizedBox(height: 12),
                             // Alto fijo: la pantalla ya hace scroll, así que el
                             // mapa no puede pedir el espacio disponible.
-                            const MapaZonas(key: Key('sedes_mapa'), alto: 320),
+                            const MapaZonasDiferido(
+                              key: Key('sedes_mapa'),
+                              alto: 320,
+                            ),
                           ],
                         ),
                       ),

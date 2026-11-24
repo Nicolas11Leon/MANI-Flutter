@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_anillo_foco.dart';
 
 /// `enlace` es la acción de menor jerarquía (texto subrayado, sin borde ni
 /// sombra): ver u ocultar contraseña, «¿Olvidaste tu contraseña?», reintentar
@@ -79,7 +80,7 @@ class _ManiButtonState extends State<ManiButton> {
     final t = context.mani;
     if (widget.variante == ManiButtonVariante.enlace ||
         widget.variante == ManiButtonVariante.texto) {
-      return _enlace(t);
+      return ManiAnilloFoco(child: _enlace(t));
     }
     final (fondo, textoVariante) = _colores(t);
     final texto = widget.colorTexto ?? textoVariante;

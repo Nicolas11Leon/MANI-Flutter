@@ -23,8 +23,49 @@ const double _anchoDosColumnas = 840;
 /// El usuario ingresa credenciales directas (correo y contraseña); el rol y
 /// el tenant son derivados criptográficamente desde los claims verificados del
 /// token JWT ES256 (T4), garantizando aislamiento y enrutamiento seguro.
+/// Roles con entrada propia desde la landing (SCRUM-1647): «Soy cliente» y «Soy aliado».
+enum RolDeEntrada {
+  cliente(
+    'cliente',
+    'Ingresas como cliente',
+    Icons.home_outlined,
+    '/register-cliente',
+  ),
+  aliado(
+    'aliado',
+    'Ingresas como aliado técnico',
+    Icons.handyman_outlined,
+    '/register-aliado',
+  );
+
+  const RolDeEntrada(
+    this.parametro,
+    this.titulo,
+    this.icono,
+    this.rutaRegistro,
+  );
+
+  final String parametro;
+  final String titulo;
+  final IconData icono;
+  final String rutaRegistro;
+
+  /// El rol del parámetro `?rol=` de la URL; `null` si falta o no es uno de los dos (un rol no se elige desde la URL).
+  static RolDeEntrada? desdeParametro(String? valor) {
+    final limpio = valor?.trim().toLowerCase();
+    for (final r in values) {
+      if (r.parametro == limpio) return r;
+    }
+    return null;
+  }
+}
+
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key, this.rolDeSesion = rolDeSesionActual});
+  const LoginPage({super.key, this.rolDeSesion = rolDeSesionActual, this.rol});
+
+  /// Rol por el que se llegó desde la landing («Soy cliente» o «Soy aliado»); solo cambia el aviso y el registro
+  /// destacado, nunca los permisos: el rol real sale del token.
+  final String? rol;
 
   /// Rol de la sesión recién abierta, leído del access token. Se inyecta para
   /// probar la pantalla sin Supabase.
@@ -39,15 +80,19 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => sl<AuthCubit>(),
-      child: _LoginView(rolDeSesion: rolDeSesion),
+      child: _LoginView(
+        rolDeSesion: rolDeSesion,
+        rolDeEntrada: RolDeEntrada.desdeParametro(rol),
+      ),
     );
   }
 }
 
 class _LoginView extends StatefulWidget {
-  const _LoginView({required this.rolDeSesion});
+  const _LoginView({required this.rolDeSesion, this.rolDeEntrada});
 
   final RolUsuario Function() rolDeSesion;
+  final RolDeEntrada? rolDeEntrada;
 
   @override
   State<_LoginView> createState() => _LoginViewState();
@@ -190,6 +235,10 @@ class _LoginViewState extends State<_LoginView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (widget.rolDeEntrada != null) ...[
+              _AvisoRol(rol: widget.rolDeEntrada!),
+              const SizedBox(height: 16),
+            ],
             _buildInputs(),
             if (_error != null) ...[
               const SizedBox(height: 16),
@@ -324,7 +373,9 @@ class _LoginViewState extends State<_LoginView> {
               child: ManiButton(
                 etiqueta: 'Soy cliente',
                 icono: Icons.home_outlined,
-                variante: ManiButtonVariante.secundario,
+                variante: widget.rolDeEntrada == RolDeEntrada.cliente
+                    ? ManiButtonVariante.primario
+                    : ManiButtonVariante.secundario,
                 expandir: true,
                 onPressed: () => context.go('/register-cliente'),
               ),
@@ -334,7 +385,9 @@ class _LoginViewState extends State<_LoginView> {
               child: ManiButton(
                 etiqueta: 'Soy aliado',
                 icono: Icons.handyman_outlined,
-                variante: ManiButtonVariante.secundario,
+                variante: widget.rolDeEntrada == RolDeEntrada.aliado
+                    ? ManiButtonVariante.primario
+                    : ManiButtonVariante.secundario,
                 expandir: true,
                 onPressed: () => context.go('/register-aliado'),
               ),
@@ -496,6 +549,45 @@ class _FranjaError extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// «Ingresas como cliente» / «Ingresas como aliado técnico»: confirma por qué entrada llegó la persona (SCRUM-1647).
+class _AvisoRol extends StatelessWidget {
+  const _AvisoRol({required this.rol});
+
+  final RolDeEntrada rol;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.mani;
+    return Semantics(
+      container: true,
+      label: rol.titulo,
+      child: ExcludeSemantics(
+        child: Container(
+          key: const Key('login-aviso-rol'),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: t.brandSoft,
+            borderRadius: ManiRadius.brMd,
+            border: Border.all(color: t.border, width: ManiBorder.thin),
+          ),
+          child: Row(
+            children: [
+              Icon(rol.icono, size: 20, color: t.ink),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  rol.titulo,
+                  style: TextStyle(fontWeight: FontWeight.w800, color: t.ink),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
