@@ -26,11 +26,14 @@ workflows:
             "$SUPABASE_URL" "$SUPABASE_ANON_KEY" "$API_GATEWAY_URL" > .env
       - name: Dependencias de Flutter
         script: flutter pub get
-      - name: Generar Podfile e instalar pods
+      - name: Preparar el proyecto iOS (pods si hacen falta)
         script: |
           flutter build ios --config-only --no-codesign
-          cd ios
-          pod install
+          if [ -f ios/Podfile ]; then
+            (cd ios && pod install)
+          else
+            echo "Sin Podfile: los plugins se resuelven con Swift Package Manager"
+          fi
       - name: Obtener o crear certificado y perfil de firma en App Store Connect
         script: |
           keychain initialize
