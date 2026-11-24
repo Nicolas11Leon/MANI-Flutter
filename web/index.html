@@ -124,6 +124,37 @@
     })();
   </script>
 
+  <!--
+    Zoom en celular (SCRUM-1733, WCAG 1.4.4): el motor de Flutter web, en modo de página completa, reescribe la etiqueta
+    viewport con `maximum-scale=1.0, user-scalable=no` al arrancar, así que quitarla de aquí no basta. Este guardián deja
+    la etiqueta como se declara arriba y la repone si el motor la cambia o la vuelve a insertar.
+  -->
+  <script>
+    (function () {
+      var permitido = 'width=device-width, initial-scale=1';
+      var corrigiendo = false;
+      function corregir() {
+        if (corrigiendo) return;
+        corrigiendo = true;
+        var metas = document.querySelectorAll('meta[name="viewport"]');
+        if (metas.length === 0) {
+          var m = document.createElement('meta');
+          m.name = 'viewport';
+          m.content = permitido;
+          document.head.appendChild(m);
+        }
+        Array.prototype.forEach.call(metas, function (m) {
+          if (m.getAttribute('content') !== permitido) m.setAttribute('content', permitido);
+        });
+        corrigiendo = false;
+      }
+      corregir();
+      new MutationObserver(corregir).observe(document.head, {
+        childList: true, subtree: true, attributes: true, attributeFilter: ['content', 'name']
+      });
+    })();
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
