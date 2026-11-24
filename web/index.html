@@ -45,6 +45,8 @@
   -->
   <style>
     html, body { margin: 0; height: 100%; background: #FDFBF7; }
+    /* Pellizco (SCRUM-1733): gana a la regla con que el motor de Flutter bloquea el gesto en body; ver la nota de más abajo. */
+    body { touch-action: pinch-zoom !important; }
     #mani-arranque {
       position: fixed; inset: 0; z-index: 10;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
@@ -121,6 +123,45 @@
         setTimeout(function () { arranque.remove(); }, 400);
       }
       window.addEventListener('flutter-first-frame', retirar);
+    })();
+  </script>
+
+  <!--
+    Zoom en celular (SCRUM-1733, WCAG 1.4.4): el motor de Flutter web, en modo de página completa, reescribe la etiqueta
+    viewport con `maximum-scale=1.0, user-scalable=no` al arrancar, así que quitarla de aquí no basta. Este guardián deja
+    la etiqueta como se declara arriba y la repone si el motor la cambia o la vuelve a insertar.
+  -->
+  <!--
+    Pellizco (SCRUM-1733): con el viewport permitido no basta. En modo de página completa el motor pone `touch-action: none`
+    en `body`, y el navegador deja de ampliar con dos dedos. `pinch-zoom` devuelve ese gesto y conserva el arrastre de un
+    dedo para Flutter (`manipulation` también amplía, pero le quita el arrastre a la app).
+    Decisión sobre los mapas (Estado de zonas, cobertura del aliado y sedes): el pellizco amplía la PÁGINA, también sobre
+    el mapa. El mapa sigue arrastrándose con un dedo y se amplía con doble toque. Se prefiere así a quitar el zoom de la
+    página en esas pantallas: son formularios que también necesitan ampliarse (WCAG 1.4.4).
+  -->
+  <script>
+    (function () {
+      var permitido = 'width=device-width, initial-scale=1';
+      var corrigiendo = false;
+      function corregir() {
+        if (corrigiendo) return;
+        corrigiendo = true;
+        var metas = document.querySelectorAll('meta[name="viewport"]');
+        if (metas.length === 0) {
+          var m = document.createElement('meta');
+          m.name = 'viewport';
+          m.content = permitido;
+          document.head.appendChild(m);
+        }
+        Array.prototype.forEach.call(metas, function (m) {
+          if (m.getAttribute('content') !== permitido) m.setAttribute('content', permitido);
+        });
+        corrigiendo = false;
+      }
+      corregir();
+      new MutationObserver(corregir).observe(document.head, {
+        childList: true, subtree: true, attributes: true, attributeFilter: ['content', 'name']
+      });
     })();
   </script>
 
