@@ -68,5 +68,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MANI necesita acceder a tus fotos para adjuntar imágenes a tus solicitudes de servicio.</string>
 </dict>
 </plist>
