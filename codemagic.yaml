@@ -7,7 +7,7 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 60
     integrations:
-      app_store_connect: NOMBRE_DE_LA_INTEGRACION   # el nombre exacto en Codemagic > Teams > Integrations
+      app_store_connect: Llave SAMO   # el nombre exacto en Codemagic > Teams > Integrations
     environment:
       groups:
         - mani_env
