@@ -9,6 +9,9 @@ typedef SelectorArchivoImagen =
     Future<({String nombre, Uint8List bytes})?> Function();
 
 /// SCRUM-1030: Componente para cambiar y subir una nueva foto de perfil.
+///
+/// La foto se ve en el avatar; su dirección no se muestra como texto (SCRUM-1634): es una URL firmada que vence y,
+/// antes, era la ruta interna del bucket.
 class FotoPerfilSelectorWidget extends StatelessWidget {
   const FotoPerfilSelectorWidget({
     super.key,
@@ -57,14 +60,6 @@ class FotoPerfilSelectorWidget extends StatelessWidget {
           foto: photoUrl,
           tamano: 104,
         ),
-        if (photoUrl != null && photoUrl!.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          Text(
-            photoUrl!,
-            key: const Key('texto-foto-actual'),
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
         const SizedBox(height: 8),
         ManiButton(
           key: const Key('btn-cambiar-foto-perfil'),
