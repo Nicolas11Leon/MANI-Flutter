@@ -19,18 +19,18 @@ class DocumentoKycTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final tema = Theme.of(context).textTheme;
     final (colorEstado, textoEstado) = switch (documento.estado) {
-      EstadoDocumentoKyc.pendiente => (const Color(0xFFB45309), 'Por revisar'),
-      EstadoDocumentoKyc.verificado => (const Color(0xFF15803D), 'Verificado'),
-      EstadoDocumentoKyc.rechazado => (const Color(0xFFB91C1C), 'Rechazado'),
+      EstadoDocumentoKyc.pendiente => (ManiColors.warning, 'Por revisar'),
+      EstadoDocumentoKyc.verificado => (ManiColors.success, 'Verificado'),
+      EstadoDocumentoKyc.rechazado => (ManiColors.dangerText, 'Rechazado'),
     };
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: ManiSpace.sm),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 1.5),
+        color: context.mani.surface,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: context.mani.border, width: ManiBorder.thin),
       ),
       child: Row(
         children: [
@@ -39,20 +39,23 @@ class DocumentoKycTile extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: documento.esImagen
-                  ? const Color(0xFFE0E7FF)
-                  : const Color(0xFFFEE2E2),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 1.5),
+                  ? ManiColors.accentContainer
+                  : ManiColors.dangerContainer,
+              borderRadius: ManiRadius.brSm,
+              border: Border.all(
+                color: context.mani.border,
+                width: ManiBorder.thin,
+              ),
             ),
             child: Icon(
               documento.esImagen
                   ? Icons.image_outlined
                   : Icons.picture_as_pdf_outlined,
-              color: AppTheme.dark,
+              color: context.mani.ink,
               size: 20,
             ),
           ),
-          const SizedBox(width: 12),
+          ManiGap.hMd,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +64,7 @@ class DocumentoKycTile extends StatelessWidget {
                   documento.tipo.etiqueta,
                   style: tema.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
                 ),
-                const SizedBox(height: 2),
+                ManiGap.vXxs,
                 Text(
                   [
                     documento.nombreArchivo,
@@ -70,11 +73,9 @@ class DocumentoKycTile extends StatelessWidget {
                   ].join(' · '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: tema.bodySmall?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+                  style: tema.bodySmall?.copyWith(color: context.mani.inkMuted),
                 ),
-                const SizedBox(height: 2),
+                ManiGap.vXxs,
                 Text(
                   textoEstado,
                   style: tema.labelSmall?.copyWith(
@@ -85,19 +86,17 @@ class DocumentoKycTile extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          ManiGap.hSm,
           OutlinedButton.icon(
             key: ValueKey('ver-doc-${documento.id}'),
             onPressed: onVer,
             icon: const Icon(Icons.open_in_new_rounded, size: 16),
             label: const Text('Ver'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.dark,
-              side: const BorderSide(color: AppTheme.dark, width: 1.5),
+              foregroundColor: context.mani.ink,
+              side: ManiBorder.sideThin,
               textStyle: const TextStyle(fontWeight: FontWeight.w800),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: ManiRadius.brSm),
             ),
           ),
         ],

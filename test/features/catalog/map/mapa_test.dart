@@ -321,6 +321,43 @@ void main() {
       },
     );
 
+    test(
+      'una localidad con muchos barrios se pide en tandas y se dibuja completa (SCRUM-1396)',
+      () async {
+        // Kennedy tiene más de cien barrios y el contrato topa en 20 por
+        // petición: antes el cliente recortaba la lista y el resto no salía.
+        final datos = _DatosFalsos(
+          zonas: [
+            {
+              'id': 'loc-0',
+              'name': 'Kennedy',
+              'level': 'LOCALIDAD',
+              'parentId': null,
+              'selectable': true,
+            },
+            for (var i = 0; i < 45; i++)
+              {
+                'id': 'barrio-$i',
+                'name': 'Barrio $i',
+                'level': 'BARRIO',
+                'parentId': 'loc-0',
+                'selectable': true,
+              },
+          ],
+        )..unLimitePorId = true;
+        final cubit = MapaCubit(datos);
+
+        await cubit.cargar();
+
+        // 1 localidad + 45 barrios = 46 zonas: tandas de 20, 20 y 6.
+        expect(datos.peticiones.map((p) => p.length), [20, 20, 6]);
+        expect(datos.peticiones.expand((p) => p).toSet().length, 46);
+        expect(cubit.state.geometrias, hasLength(46));
+        expect(cubit.state.atribuciones, ['UAECD, CC BY 4.0']);
+        expect(cubit.state.estado, MapaEstado.listo);
+      },
+    );
+
     test('no pide más zonas de las que Core admite por petición', () {
       expect(GatewayMapaDataSource.maxZonasPorPeticion, 20);
     });

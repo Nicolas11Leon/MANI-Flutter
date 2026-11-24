@@ -42,14 +42,22 @@ class AdicionesCubit extends Cubit<AdicionesState> {
   final FuenteAdiciones _fuente;
   final String solicitudId;
 
-  Future<void> cargar() async {
-    emit(AdicionesState(cargando: true, datos: state.datos));
+  /// Sube con cada acción o carga normal. Un sondeo cuya respuesta llega
+  /// después la descarta: lo que leyó ya puede ser viejo (SCRUM-1644).
+  int _generacion = 0;
+
+  /// Con [silencioso] (sondeo, SCRUM-1644) no muestra cargando, no pisa una
+  /// acción en curso y, si falla, conserva lo que ya se ve sin avisar.
+  Future<void> cargar({bool silencioso = false}) async {
+    if (silencioso && (state.enviando || state.cargando)) return;
+    final generacion = silencioso ? _generacion : ++_generacion;
+    if (!silencioso) emit(AdicionesState(cargando: true, datos: state.datos));
     try {
       final datos = await _fuente.listar(solicitudId);
-      if (isClosed) return;
+      if (isClosed || (silencioso && generacion != _generacion)) return;
       emit(AdicionesState(datos: datos));
     } on CotizacionFailure catch (f) {
-      if (isClosed) return;
+      if (isClosed || silencioso) return;
       emit(AdicionesState(datos: state.datos, error: f.mensajeUsuario));
     }
   }
@@ -86,6 +94,7 @@ class AdicionesCubit extends Cubit<AdicionesState> {
 
   Future<bool> _accion(Future<void> Function() accion, String exito) async {
     if (state.enviando) return false;
+    _generacion++;
     emit(AdicionesState(enviando: true, datos: state.datos));
     try {
       await accion();

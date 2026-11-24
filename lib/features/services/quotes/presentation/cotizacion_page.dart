@@ -1,9 +1,14 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_esqueleto.dart';
+import 'package:mani/core/widgets/mani_estado.dart'
+    hide ManiEstadoVacio, ManiEstadoError;
+import 'package:mani/core/widgets/mani_estados.dart';
 
 import '../domain/cotizacion.dart';
 import 'cotizacion_cubit.dart';
@@ -108,9 +113,7 @@ class CotizacionPage extends StatelessWidget {
               const SizedBox(height: 16),
             ],
             if (state.cargando && state.cotizaciones.isEmpty)
-              const Center(
-                child: CircularProgressIndicator(color: AppTheme.dark),
-              )
+              ManiEsqueleto.detalle()
             else if (state.error != null)
               _Error(mensaje: state.error!, onReintentar: cubit.cargar)
             else ...[
@@ -165,8 +168,8 @@ class CotizacionPage extends StatelessWidget {
             ),
         ];
         return RefreshIndicator(
-          color: AppTheme.dark,
-          backgroundColor: AppTheme.primary,
+          color: context.mani.ink,
+          backgroundColor: context.mani.brand,
           onRefresh: () async {
             await Future.wait([cubit.cargar(), ?alRefrescar?.call()]);
           },
@@ -227,14 +230,14 @@ class CotizacionPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  border: Border.all(color: AppTheme.dark, width: 2),
-                  boxShadow: const [AppTheme.hardShadowSm],
+                  color: context.mani.brand,
+                  borderRadius: BorderRadius.circular(ManiRadius.lg),
+                  border: Border.all(color: context.mani.ink, width: 2),
+                  boxShadow: const [ManiShadow.sm],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.request_quote_outlined,
-                  color: AppTheme.dark,
+                  color: context.mani.onBrand,
                   size: 24,
                 ),
               ),
@@ -242,10 +245,10 @@ class CotizacionPage extends StatelessWidget {
               Expanded(
                 child: Text(
                   esAliado ? 'Cotizar el servicio' : 'Cotización del servicio',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -293,29 +296,31 @@ class _Columna extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.only(bottom: 10),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: context.mani.ink, width: 2),
+            ),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  border: Border.all(color: AppTheme.dark, width: 2),
+                  color: context.mani.brand,
+                  borderRadius: BorderRadius.circular(ManiRadius.lg),
+                  border: Border.all(color: context.mani.ink, width: 2),
                 ),
-                child: Icon(icono, color: AppTheme.dark, size: 18),
+                child: Icon(icono, color: context.mani.onBrand, size: 18),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   titulo.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.6,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -351,37 +356,17 @@ class _TarjetaCotizacion extends StatelessWidget {
                   style: TextStyle(
                     fontSize: vigente ? 16 : 14,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: vigente
-                      ? const Color(0xFFDCFCE7)
-                      : AppTheme.background,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                  border: Border.all(color: AppTheme.dark, width: 1.5),
-                ),
-                child: Text(
-                  c.etiquetaEstado,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.dark,
-                  ),
-                ),
-              ),
+              ManiEstado(texto: c.etiquetaEstado, tono: _tonoDe(c.estado)),
             ],
           ),
           const SizedBox(height: 12),
           _Renglon('Mano de obra', formatearPesos(c.valorManoObra)),
           _Renglon('Materiales', formatearPesos(c.valorMateriales)),
-          const Divider(color: AppTheme.dark, thickness: 1.5, height: 24),
+          Divider(color: context.mani.borderSubtle, thickness: 1.0, height: 24),
           _Renglon('Total', formatearPesos(c.total), negrita: true),
         ],
       ),
@@ -389,6 +374,16 @@ class _TarjetaCotizacion extends StatelessWidget {
   }
 }
 
+ManiTono _tonoDe(EstadoCotizacion estado) => switch (estado) {
+  EstadoCotizacion.aceptada => ManiTono.listo,
+  EstadoCotizacion.rechazada || EstadoCotizacion.expirada => ManiTono.mal,
+  EstadoCotizacion.pendiente ||
+  EstadoCotizacion.ajusteSolicitado => ManiTono.atencion,
+  EstadoCotizacion.otro => ManiTono.neutro,
+};
+
+/// Un renglón del desglose: etiqueta atenuada a la izquierda y valor con cifras tabulares a la derecha. El total, más
+/// grande y en la fuente de títulos; no va en rojo: el rojo en una cifra de dinero se lee como deuda o error.
 class _Renglon extends StatelessWidget {
   const _Renglon(this.etiqueta, this.valor, {this.negrita = false});
 
@@ -398,15 +393,38 @@ class _Renglon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final estilo = negrita
-        ? const TextStyle(fontWeight: FontWeight.w800)
-        : null;
+    const tabular = [FontFeature.tabularFigures()];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
         children: [
-          Expanded(child: Text(etiqueta, style: estilo)),
-          Text(valor, style: estilo),
+          Expanded(
+            child: Text(
+              etiqueta,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: negrita ? FontWeight.w700 : FontWeight.w500,
+                color: negrita ? context.mani.ink : context.mani.inkMuted,
+              ),
+            ),
+          ),
+          Text(
+            valor,
+            style: negrita
+                ? AppTheme.titulo(
+                    size: 22,
+                    height: 28 / 22,
+                    color: context.mani.ink,
+                  ).copyWith(fontFeatures: tabular)
+                : TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: context.mani.ink,
+                    fontFeatures: tabular,
+                  ),
+          ),
         ],
       ),
     );
@@ -514,24 +532,24 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                    border: Border.all(color: AppTheme.dark, width: 1.5),
+                    color: context.mani.brand,
+                    borderRadius: BorderRadius.circular(ManiRadius.sm),
+                    border: Border.all(color: context.mani.ink, width: 1.5),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.edit_note_rounded,
                     size: 18,
-                    color: AppTheme.dark,
+                    color: context.mani.onBrand,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     widget.titulo,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: AppTheme.dark,
+                      color: context.mani.ink,
                     ),
                   ),
                 ),
@@ -541,7 +559,7 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
             LayoutBuilder(
               builder: (context, constraints) {
                 final enFila = constraints.maxWidth > 460;
-                final campoManoObra = TextFormField(
+                final campoManoObra = ManiTextField(
                   key: const Key('campo-mano-obra'),
                   controller: _manoObra,
                   decoration: const InputDecoration(
@@ -555,7 +573,7 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                   validator: _validar,
                   onChanged: (_) => setState(() {}),
                 );
-                final campoMateriales = TextFormField(
+                final campoMateriales = ManiTextField(
                   key: const Key('campo-materiales'),
                   controller: _materiales,
                   decoration: const InputDecoration(
@@ -593,28 +611,28 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppTheme.background,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppTheme.dark, width: 1.5),
+                color: context.mani.background,
+                borderRadius: BorderRadius.circular(ManiRadius.lg),
+                border: Border.all(color: context.mani.ink, width: 1.5),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Total calculado:',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.dark,
+                      color: context.mani.ink,
                     ),
                   ),
                   Text(
                     'Total: ${formatearPesos((_valor(_manoObra.text) ?? 0) + (_valor(_materiales.text) ?? 0))}',
                     key: const Key('total-calculado'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      color: AppTheme.dark,
+                      color: context.mani.ink,
                     ),
                   ),
                 ],
@@ -702,60 +720,61 @@ class _SeccionCliente extends StatelessWidget {
     final habilitado = !state.enviando;
     return Padding(
       padding: const EdgeInsets.only(top: 12),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 160, maxWidth: 230),
-            child: ManiButton(
-              key: const Key('btn-aceptar-cotizacion'),
-              etiqueta: 'Aceptar cotización',
-              icono: Icons.check_rounded,
-              expandir: true,
-              cargando: state.enviando,
-              onPressed: habilitado
-                  ? () => cubit.responder(DecisionCotizacion.aceptar)
-                  : null,
-            ),
+          ManiButton(
+            key: const Key('btn-aceptar-cotizacion'),
+            etiqueta: 'Aceptar cotización',
+            icono: Icons.check_rounded,
+            expandir: true,
+            cargando: state.enviando,
+            onPressed: habilitado
+                ? () => cubit.responder(DecisionCotizacion.aceptar)
+                : null,
           ),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 140, maxWidth: 200),
-            child: ManiButton(
-              key: const Key('btn-ajustar-cotizacion'),
-              etiqueta: 'Pedir ajuste',
-              icono: Icons.edit_note_rounded,
-              variante: ManiButtonVariante.secundario,
-              expandir: true,
-              onPressed: habilitado
-                  ? () => _pedirTexto(
-                      context,
-                      titulo: 'Pedir ajuste',
-                      etiqueta: '¿Qué debe cambiar el aliado?',
-                      minimo: 3,
-                      decision: DecisionCotizacion.ajustar,
-                    )
-                  : null,
-            ),
-          ),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 130, maxWidth: 180),
-            child: ManiButton(
-              key: const Key('btn-rechazar-cotizacion'),
-              etiqueta: 'Rechazar',
-              icono: Icons.close_rounded,
-              variante: ManiButtonVariante.secundario,
-              expandir: true,
-              onPressed: habilitado
-                  ? () => _pedirTexto(
-                      context,
-                      titulo: 'Rechazar cotización',
-                      etiqueta: 'Motivo del rechazo',
-                      minimo: 5,
-                      decision: DecisionCotizacion.rechazar,
-                    )
-                  : null,
-            ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: ManiButton(
+                  key: const Key('btn-ajustar-cotizacion'),
+                  etiqueta: 'Pedir ajuste',
+                  icono: Icons.edit_note_rounded,
+                  variante: ManiButtonVariante.secundario,
+                  expandir: true,
+                  onPressed: habilitado
+                      ? () => _pedirTexto(
+                          context,
+                          titulo: 'Pedir ajuste',
+                          etiqueta: '¿Qué debe cambiar el aliado?',
+                          minimo: 3,
+                          decision: DecisionCotizacion.ajustar,
+                        )
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ManiButton(
+                  key: const Key('btn-rechazar-cotizacion'),
+                  etiqueta: 'Rechazar',
+                  variante: ManiButtonVariante.texto,
+                  colorTexto: ManiColors.dangerText,
+                  expandir: true,
+                  onPressed: habilitado
+                      ? () => _pedirTexto(
+                          context,
+                          titulo: 'Rechazar cotización',
+                          etiqueta: 'Motivo del rechazo',
+                          minimo: 5,
+                          decision: DecisionCotizacion.rechazar,
+                          peligro: true,
+                        )
+                      : null,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -768,12 +787,17 @@ class _SeccionCliente extends StatelessWidget {
     required String etiqueta,
     required int minimo,
     required DecisionCotizacion decision,
+    bool peligro = false,
   }) async {
     final cubit = context.read<CotizacionCubit>();
     final texto = await showDialog<String>(
       context: context,
-      builder: (_) =>
-          _DialogoTexto(titulo: titulo, etiqueta: etiqueta, minimo: minimo),
+      builder: (_) => _DialogoTexto(
+        titulo: titulo,
+        etiqueta: etiqueta,
+        minimo: minimo,
+        peligro: peligro,
+      ),
     );
     if (texto != null) await cubit.responder(decision, texto: texto);
   }
@@ -784,11 +808,15 @@ class _DialogoTexto extends StatefulWidget {
     required this.titulo,
     required this.etiqueta,
     required this.minimo,
+    this.peligro = false,
   });
 
   final String titulo;
   final String etiqueta;
   final int minimo;
+
+  /// La decisión es destructiva (rechazar): el botón de confirmar va en rojo.
+  final bool peligro;
 
   @override
   State<_DialogoTexto> createState() => _DialogoTextoState();
@@ -808,7 +836,7 @@ class _DialogoTextoState extends State<_DialogoTexto> {
     final valido = _texto.text.trim().length >= widget.minimo;
     return AlertDialog(
       title: Text(widget.titulo),
-      content: TextField(
+      content: ManiTextField(
         key: const Key('campo-texto-decision'),
         controller: _texto,
         maxLength: 500,
@@ -820,16 +848,20 @@ class _DialogoTextoState extends State<_DialogoTexto> {
         onChanged: (_) => setState(() {}),
       ),
       actions: [
-        TextButton(
+        ManiButton(
+          etiqueta: 'Cancelar',
+          variante: ManiButtonVariante.secundario,
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
         ),
-        FilledButton(
+        ManiButton(
           key: const Key('btn-confirmar-decision'),
+          etiqueta: 'Confirmar',
+          variante: widget.peligro
+              ? ManiButtonVariante.peligro
+              : ManiButtonVariante.primario,
           onPressed: valido
               ? () => Navigator.of(context).pop(_texto.text.trim())
               : null,
-          child: const Text('Confirmar'),
         ),
       ],
     );
@@ -844,22 +876,9 @@ class _Error extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ManiCard(
+    return KeyedSubtree(
       key: const Key('error-cotizacion'),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline, color: AppTheme.error, size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              mensaje,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-          TextButton(onPressed: onReintentar, child: const Text('Reintentar')),
-        ],
-      ),
+      child: ManiEstadoError(texto: mensaje, alReintentar: onReintentar),
     );
   }
 }

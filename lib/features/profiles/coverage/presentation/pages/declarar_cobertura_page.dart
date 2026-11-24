@@ -1,12 +1,15 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
+import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas_diferido.dart';
 
 import '../../domain/entities/zona.dart';
 import '../controllers/cobertura_controller.dart';
 import '../widgets/resumen_cobertura_bar.dart';
 import '../widgets/zona_tiles.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// US-02.1.4 — Declarar zona de cobertura (SCRUM-849).
 ///
@@ -87,13 +90,15 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
         title: const Text('¿Salir sin guardar?'),
         content: const Text('Tus cambios en la zona de cobertura se perderán.'),
         actions: [
-          TextButton(
+          ManiButton(
+            variante: ManiButtonVariante.enlace,
+            etiqueta: 'Seguir editando',
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Seguir editando'),
           ),
-          TextButton(
+          ManiButton(
+            variante: ManiButtonVariante.enlace,
+            etiqueta: 'Salir',
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Salir'),
           ),
         ],
       ),
@@ -116,7 +121,7 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
           }
         },
         child: Scaffold(
-          appBar: AppBar(title: const Text('Zona de cobertura')),
+          appBar: barraDePantalla(context, titulo: 'Mis zonas'),
           body: _cuerpo(context),
           bottomNavigationBar: c.carga == EstadoCarga.listo
               ? ResumenCoberturaBar(controller: c)
@@ -182,7 +187,7 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
           ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-          child: TextField(
+          child: ManiTextField(
             key: const ValueKey('buscar-zona'),
             controller: _busqueda,
             onChanged: _onBuscar,
@@ -249,7 +254,7 @@ class _DeclararCoberturaPageState extends State<DeclararCoberturaPage> {
               // El mapa es otra forma de marcar lo mismo: toca la zona y se
               // alterna, igual que su casilla en la lista. Se elige una zona
               // del catálogo en los dos casos; lo que cambia es el gesto.
-              final mapa = MapaZonas(
+              final mapa = MapaZonasDiferido(
                 key: const Key('cobertura_mapa'),
                 coberturaResaltada: c.seleccion.ids,
                 leyendaCobertura:
@@ -339,9 +344,10 @@ class _AvisoDesactivadas extends StatelessWidget {
               style: TextStyle(color: cs.onErrorContainer),
             ),
           ),
-          TextButton(
+          ManiButton(
+            variante: ManiButtonVariante.enlace,
+            etiqueta: 'Quitar',
             onPressed: controller.quitarDesactivadas,
-            child: const Text('Quitar'),
           ),
         ],
       ),
@@ -365,10 +371,7 @@ class _ErrorCarga extends StatelessWidget {
           const SizedBox(height: 12),
           Text(mensaje, textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          FilledButton(
-            onPressed: onReintentar,
-            child: const Text('Reintentar'),
-          ),
+          ManiButton(etiqueta: 'Reintentar', onPressed: onReintentar),
         ],
       ),
     ),

@@ -11,13 +11,13 @@ extension EstiloFlujoOperativo on FlujoOperativo {
   };
 
   Color get fondo => switch (this) {
-    FlujoOperativo.cotizacionPrevia => const Color(0xFFE0E7FF),
-    FlujoOperativo.tarifaEstandar => const Color(0xFFDCFCE7),
+    FlujoOperativo.cotizacionPrevia => ManiColors.accentContainer,
+    FlujoOperativo.tarifaEstandar => ManiColors.successContainer,
   };
 
   Color get acento => switch (this) {
-    FlujoOperativo.cotizacionPrevia => const Color(0xFF3730A3),
-    FlujoOperativo.tarifaEstandar => const Color(0xFF15803D),
+    FlujoOperativo.cotizacionPrevia => ManiColors.accent,
+    FlujoOperativo.tarifaEstandar => ManiColors.success,
   };
 
   /// Cómo lo lee el cliente en el catálogo.
@@ -37,24 +37,27 @@ class FlujoOperativoBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final f = flujo;
-    final fondo = f?.fondo ?? AppTheme.borderLight;
-    final acento = f?.acento ?? AppTheme.textSecondary;
+    final fondo = f?.fondo ?? context.mani.borderSubtle;
+    final acento = f?.acento ?? context.mani.inkMuted;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.sm,
+        vertical: ManiSpace.xs,
+      ),
       decoration: BoxDecoration(
         color: fondo,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppTheme.dark, width: 1.5),
+        borderRadius: ManiRadius.brPill,
+        border: Border.all(color: context.mani.border, width: ManiBorder.thin),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(f?.icono ?? Icons.help_outline, size: 13, color: acento),
-          const SizedBox(width: 4),
+          ManiGap.hXs,
           Text(
             f?.etiqueta ?? 'Flujo sin definir',
             style: TextStyle(
-              fontSize: 11,
+              fontSize: ManiFontSize.micro,
               fontWeight: FontWeight.w800,
               color: acento,
             ),

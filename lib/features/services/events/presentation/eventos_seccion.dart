@@ -59,39 +59,42 @@ class EventosSeccion extends StatelessWidget {
       builder: (context, state) {
         return ManiCard(
           key: const Key('seccion-eventos'),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(ManiSpace.xl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(ManiSpace.sm),
                     decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                      border: Border.all(color: AppTheme.dark, width: 1.5),
+                      color: context.mani.brand,
+                      borderRadius: ManiRadius.brXs,
+                      border: Border.all(
+                        color: context.mani.border,
+                        width: ManiBorder.thin,
+                      ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.history_rounded,
                       size: 18,
-                      color: AppTheme.dark,
+                      color: context.mani.onBrand,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  ManiGap.hSm,
                   Flexible(
                     child: Text(
                       'Bitácora del servicio',
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: ManiFontSize.bodyLg,
                         fontWeight: FontWeight.w800,
-                        color: AppTheme.dark,
+                        color: context.mani.ink,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               if (puedeRegistrar && selectorFotos != null)
                 _FormularioEvento(
                   enviando: state.enviando,
@@ -99,7 +102,7 @@ class EventosSeccion extends StatelessWidget {
                 ),
               if (state.pendientes.isNotEmpty) _Pendientes(state.pendientes),
               if (state.cargando && state.eventos.isEmpty)
-                const LinearProgressIndicator(color: AppTheme.dark)
+                LinearProgressIndicator(color: context.mani.ink)
               else if (state.error != null && state.eventos.isEmpty)
                 Row(
                   children: [
@@ -183,11 +186,11 @@ class _Pendientes extends StatelessWidget {
     final colores = Theme.of(context).colorScheme;
     return Container(
       key: const Key('eventos-pendientes'),
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.only(bottom: ManiSpace.sm),
+      padding: const EdgeInsets.all(ManiSpace.sm),
       decoration: BoxDecoration(
         color: colores.secondaryContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: ManiRadius.brSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -198,7 +201,7 @@ class _Pendientes extends StatelessWidget {
                 Icons.cloud_off_outlined,
                 color: colores.onSecondaryContainer,
               ),
-              const SizedBox(width: 8),
+              ManiGap.hSm,
               Expanded(
                 child: Text(
                   pendientes.length == 1
@@ -307,7 +310,7 @@ class _FormularioEventoState extends State<_FormularioEvento> {
           selected: {_tipo},
           onSelectionChanged: (s) => setState(() => _tipo = s.first),
         ),
-        const SizedBox(height: 8),
+        ManiGap.vSm,
         TextField(
           key: const Key('campo-observacion-evento'),
           controller: _observacion,
@@ -337,7 +340,7 @@ class _FormularioEventoState extends State<_FormularioEvento> {
               ),
           ],
         ),
-        const SizedBox(height: 12),
+        ManiGap.vMd,
         Align(
           alignment: Alignment.centerLeft,
           child: ConstrainedBox(
@@ -352,7 +355,7 @@ class _FormularioEventoState extends State<_FormularioEvento> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        ManiGap.vMd,
       ],
     );
   }

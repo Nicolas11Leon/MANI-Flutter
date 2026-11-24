@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 
 import '../../domain/entities/solicitud_aliado.dart';
@@ -27,10 +29,16 @@ class BandejaVerificacionPage extends StatelessWidget {
 
   /// Los avisos flotan por encima de la barra Aprobar/Rechazar para no taparla
   /// mientras el administrador revisa en serie.
-  static const EdgeInsets _margenAvisos = EdgeInsets.fromLTRB(16, 0, 16, 104);
+  static const EdgeInsets _margenAvisos = EdgeInsets.fromLTRB(
+    ManiSpace.lg,
+    0,
+    ManiSpace.lg,
+    104,
+  );
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return BlocListener<BandejaVerificacionCubit, BandejaVerificacionState>(
       listenWhen: (antes, ahora) =>
           ahora.aviso != null && antes.aviso != ahora.aviso,
@@ -41,7 +49,7 @@ class BandejaVerificacionPage extends StatelessWidget {
         margin: _margenAvisos,
       ),
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: t.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -55,11 +63,7 @@ class BandejaVerificacionPage extends StatelessWidget {
                       buildWhen: (a, b) => a.carga != b.carga,
                       builder: (context, state) => switch (state.carga) {
                         EstadoCarga.inicial ||
-                        EstadoCarga.cargando => const Center(
-                          child: CircularProgressIndicator(
-                            color: AppTheme.dark,
-                          ),
-                        ),
+                        EstadoCarga.cargando => const ManiCargando(),
                         EstadoCarga.error => _ErrorCarga(
                           mensaje:
                               state.error?.mensajeUsuario ??
@@ -97,6 +101,7 @@ class _Contenido extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return LayoutBuilder(
       builder: (context, constraints) {
         final cubit = context.read<BandejaVerificacionCubit>();
@@ -116,7 +121,7 @@ class _Contenido extends StatelessWidget {
                 onSeleccionar: cubit.seleccionar,
               ),
             ),
-            Container(width: 2, color: AppTheme.dark),
+            Container(width: 2, color: t.border),
             Expanded(
               child:
                   BlocBuilder<
@@ -153,6 +158,7 @@ class _Bandeja extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final cubit = context.read<BandejaVerificacionCubit>();
     return BlocBuilder<BandejaVerificacionCubit, BandejaVerificacionState>(
       builder: (context, state) {
@@ -161,7 +167,12 @@ class _Bandeja extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              padding: const EdgeInsets.fromLTRB(
+                ManiSpace.xl,
+                ManiSpace.xl,
+                ManiSpace.xl,
+                0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -170,32 +181,33 @@ class _Bandeja extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.5,
+                      color: t.ink,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  ManiGap.vXs,
+                  Text(
                     'Revisa los documentos de cada candidato y decide quién entra a tu red de técnicos.',
                     style: TextStyle(
-                      color: AppTheme.textSecondary,
+                      color: t.inkMuted,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  ManiGap.vLg,
                   FiltroEstadoTabs(
                     seleccionado: state.filtro,
                     conteo: state.conteo,
                     onCambiar: cubit.cambiarFiltro,
                   ),
-                  const SizedBox(height: 12),
+                  ManiGap.vMd,
                   _CampoBusqueda(onCambio: cubit.buscar),
-                  const SizedBox(height: 12),
+                  ManiGap.vMd,
                 ],
               ),
             ),
             Expanded(
               child: RefreshIndicator(
-                color: AppTheme.dark,
-                backgroundColor: AppTheme.primary,
+                color: t.onBrand,
+                backgroundColor: t.brand,
                 onRefresh: () => cubit.cargar(silencioso: true),
                 child: visibles.isEmpty
                     ? ListView(
@@ -210,9 +222,14 @@ class _Bandeja extends StatelessWidget {
                     : ListView.separated(
                         key: PageStorageKey('lista-${state.filtro.name}'),
                         physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(20, 4, 24, 24),
+                        padding: const EdgeInsets.fromLTRB(
+                          ManiSpace.xl,
+                          ManiSpace.xs,
+                          ManiSpace.xxl,
+                          ManiSpace.xxl,
+                        ),
                         itemCount: visibles.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 12),
+                        separatorBuilder: (_, _) => ManiGap.vMd,
                         itemBuilder: (_, i) {
                           final aliado = visibles[i];
                           return SolicitudAliadoCard(
@@ -253,33 +270,31 @@ class _CampoBusquedaState extends State<_CampoBusqueda> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final borde = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-      borderSide: const BorderSide(color: AppTheme.dark, width: 2),
+      borderRadius: ManiRadius.brMd,
+      borderSide: BorderSide(color: t.border, width: ManiBorder.regular),
     );
     return TextField(
       key: const ValueKey('buscar-aliado'),
       controller: _controller,
-      onChanged: (t) {
+      onChanged: (v) {
         setState(() {});
-        widget.onCambio(t);
+        widget.onCambio(v);
       },
       textInputAction: TextInputAction.search,
-      style: const TextStyle(fontWeight: FontWeight.w600),
+      style: TextStyle(fontWeight: FontWeight.w600, color: t.ink),
       decoration: InputDecoration(
         isDense: true,
         filled: true,
-        fillColor: AppTheme.surface,
+        fillColor: t.surface,
         hintText: 'Buscar por nombre, correo o especialidad',
-        prefixIcon: const Icon(
-          Icons.search_rounded,
-          color: AppTheme.textSecondary,
-        ),
+        prefixIcon: Icon(Icons.search_rounded, color: t.inkMuted),
         suffixIcon: _controller.text.isEmpty
             ? null
             : IconButton(
                 tooltip: 'Limpiar búsqueda',
-                icon: const Icon(Icons.close_rounded),
+                icon: Icon(Icons.close_rounded, color: t.ink),
                 onPressed: () {
                   _controller.clear();
                   setState(() {});
@@ -288,7 +303,7 @@ class _CampoBusquedaState extends State<_CampoBusqueda> {
               ),
         enabledBorder: borde,
         focusedBorder: borde.copyWith(
-          borderSide: const BorderSide(color: AppTheme.dark, width: 2.5),
+          borderSide: BorderSide(color: t.border, width: ManiBorder.thick),
         ),
       ),
     );
@@ -302,83 +317,27 @@ class _BarraSuperior extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final puedeVolver = Navigator.of(context).canPop();
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        children: [
-          if (puedeVolver) ...[
-            IconButton(
-              tooltip: 'Volver',
-              onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.dark),
-            ),
-            const SizedBox(width: 4),
-          ],
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
-            ),
-            child: const Icon(
-              Icons.verified_user_rounded,
-              color: AppTheme.dark,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Verificación de aliados',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
-                  ),
-                ),
-                Text(
-                  'Panel del administrador',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (onAbrirCategorias != null)
-            IconButton(
-              key: const ValueKey('btn-ir-categorias'),
-              tooltip: 'Categorías de servicio',
-              onPressed: onAbrirCategorias,
-              icon: const Icon(Icons.category_outlined, color: AppTheme.dark),
-            ),
+    final t = context.mani;
+    return ManiEncabezadoPantalla(
+      icono: Icons.verified_user_rounded,
+      titulo: 'Verificación de aliados',
+      descripcion: 'Panel del administrador',
+      acciones: [
+        if (onAbrirCategorias != null)
           IconButton(
-            key: const ValueKey('btn-actualizar'),
-            tooltip: 'Actualizar bandeja',
-            onPressed: () => context.read<BandejaVerificacionCubit>().cargar(
-              silencioso: true,
-            ),
-            icon: const Icon(Icons.refresh_rounded, color: AppTheme.dark),
+            key: const ValueKey('btn-ir-categorias'),
+            tooltip: 'Categorías de servicio',
+            onPressed: onAbrirCategorias,
+            icon: Icon(Icons.category_outlined, color: t.ink),
           ),
-        ],
-      ),
+        IconButton(
+          key: const ValueKey('btn-actualizar'),
+          tooltip: 'Actualizar bandeja',
+          onPressed: () =>
+              context.read<BandejaVerificacionCubit>().cargar(silencioso: true),
+          icon: Icon(Icons.refresh_rounded, color: t.ink),
+        ),
+      ],
     );
   }
 }
@@ -391,6 +350,7 @@ class _BandejaVacia extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final buscando = busqueda.trim().isNotEmpty;
     final (icono, titulo, texto) = buscando
         ? (
@@ -417,29 +377,38 @@ class _BandejaVacia extends StatelessWidget {
           };
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 32, 20, 32),
+      padding: const EdgeInsets.fromLTRB(
+        ManiSpace.xl,
+        ManiSpace.xxxl,
+        ManiSpace.xl,
+        ManiSpace.xxxl,
+      ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(ManiSpace.lg),
             decoration: BoxDecoration(
-              color: AppTheme.primary,
+              color: t.brand,
               shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
+              border: Border.all(color: t.border, width: ManiBorder.regular),
+              boxShadow: [t.shadowSm],
             ),
-            child: Icon(icono, size: 32, color: AppTheme.dark),
+            child: Icon(icono, size: 32, color: t.onBrand),
           ),
-          const SizedBox(height: 16),
+          ManiGap.vLg,
           Text(
             titulo,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+            style: TextStyle(
+              fontSize: ManiFontSize.bodyLg,
+              fontWeight: FontWeight.w900,
+              color: t.ink,
+            ),
           ),
-          const SizedBox(height: 6),
+          ManiGap.vSm,
           Text(
             texto,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.textSecondary),
+            style: TextStyle(color: t.inkMuted),
           ),
         ],
       ),
@@ -452,27 +421,28 @@ class _SinSeleccion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final t = context.mani;
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(ManiSpace.xxxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.touch_app_outlined,
-              size: 48,
-              color: AppTheme.textTertiary,
-            ),
-            SizedBox(height: 12),
+            Icon(Icons.touch_app_outlined, size: 48, color: t.inkSubtle),
+            ManiGap.vMd,
             Text(
               'Selecciona un aliado',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                fontSize: ManiFontSize.bodyLg,
+                fontWeight: FontWeight.w900,
+                color: t.ink,
+              ),
             ),
-            SizedBox(height: 6),
+            ManiGap.vSm,
             Text(
               'Verás su perfil, sus documentos y las opciones para aprobarlo o rechazarlo.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textSecondary),
+              style: TextStyle(color: t.inkMuted),
             ),
           ],
         ),
@@ -489,20 +459,21 @@ class _ErrorCarga extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(ManiSpace.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.dark),
-            const SizedBox(height: 12),
+            Icon(Icons.cloud_off_rounded, size: 48, color: t.ink),
+            ManiGap.vMd,
             Text(
               mensaje,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: TextStyle(fontWeight: FontWeight.w600, color: t.ink),
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             ManiButton(
               key: const ValueKey('btn-reintentar'),
               etiqueta: 'Reintentar',

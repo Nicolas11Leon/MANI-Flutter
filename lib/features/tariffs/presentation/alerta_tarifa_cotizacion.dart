@@ -5,6 +5,7 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 
 import '../data/tarifas_datasource.dart';
 import '../domain/evaluacion_tarifa.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Alerta de tarifa de la cotización vigente (HU-M06-02 / SCRUM-866, RF-16).
 ///
@@ -151,18 +152,18 @@ class _Alerta extends StatelessWidget {
               'o rechazarla.';
     return Card(
       key: Key(encima ? 'alerta-tarifa-encima' : 'alerta-tarifa-debajo'),
-      color: const Color(0xFFFEF3C7),
+      color: ManiColors.warningContainer,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Color(0xFFB45309)),
+        borderRadius: ManiRadius.brMd,
+        side: const BorderSide(color: ManiColors.warning),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(ManiSpace.lg),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.warning_amber_rounded, color: Color(0xFFB45309)),
-            const SizedBox(width: 12),
+            const Icon(Icons.warning_amber_rounded, color: ManiColors.warning),
+            ManiGap.hMd,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,13 +174,13 @@ class _Alerta extends StatelessWidget {
                         : 'Cotización por debajo del rango de referencia',
                     style: tema.textTheme.titleSmall,
                   ),
-                  const SizedBox(height: 4),
+                  ManiGap.vXs,
                   Text(motivo, key: const Key('alerta-tarifa-motivo')),
                   Text(
                     '${_rango(e)} · típico ${formatearPesos(e.valorTipico!)}',
                     style: tema.textTheme.bodySmall,
                   ),
-                  const SizedBox(height: 4),
+                  ManiGap.vXs,
                   Text(consejo, style: tema.textTheme.bodySmall),
                   Text(
                     'La cotización no cambia por este aviso.',

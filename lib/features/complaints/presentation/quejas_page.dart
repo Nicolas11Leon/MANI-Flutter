@@ -1,3 +1,4 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/network/mensaje_error_gateway.dart';
@@ -53,7 +54,7 @@ class QuejasPage extends StatelessWidget {
                   ? 'Atiende las quejas de los clientes y cambia su estado. '
                         'Cada cambio queda registrado con tu usuario.'
                   : 'Quejas que presentaste sobre tus servicios. Para '
-                        'presentar una nueva, ve a Mis solicitudes.',
+                        'presentar una nueva, ve a Mis pedidos.',
             ),
             const SizedBox(height: 24),
             if (cubit.esAdmin) ...[
@@ -79,9 +80,7 @@ class QuejasPage extends StatelessWidget {
               const SizedBox(height: 20),
             ],
             if (state.cargando && state.quejas.isEmpty)
-              const Center(
-                child: CircularProgressIndicator(color: AppTheme.dark),
-              )
+              Center(child: CircularProgressIndicator(color: context.mani.ink))
             else if (state.error != null)
               ManiAvisoTarjeta(
                 key: const Key('quejas-error'),
@@ -139,23 +138,16 @@ class _Filtro extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: activo ? AppTheme.primary : AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: activo ? const [AppTheme.hardShadowSm] : const [],
+        color: activo ? context.mani.brand : context.mani.surface,
+        borderRadius: BorderRadius.circular(ManiRadius.lg),
+        border: Border.all(color: context.mani.ink, width: 2),
+        boxShadow: activo ? const [ManiShadow.sm] : const [],
       ),
-      child: TextButton(
+      child: ManiButton(
         key: clave,
+        variante: ManiButtonVariante.enlace,
+        etiqueta: etiqueta,
         onPressed: onTap,
-        style: TextButton.styleFrom(
-          foregroundColor: AppTheme.dark,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          textStyle: TextStyle(
-            fontSize: 13,
-            fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
-          ),
-        ),
-        child: Text(etiqueta),
       ),
     );
   }
@@ -163,7 +155,7 @@ class _Filtro extends StatelessWidget {
 
 /// Fondo del estado de una queja; el texto va en negro (contraste AA).
 Color _colorEstado(EstadoQueja e) => switch (e) {
-  EstadoQueja.abierta => AppTheme.primary,
+  EstadoQueja.abierta => ManiColors.brand,
   EstadoQueja.enRevision => const Color(0xFFBFDBFE),
   EstadoQueja.resuelta => const Color(0xFFBBF7D0),
   EstadoQueja.rechazada => const Color(0xFFFECACA),
@@ -195,10 +187,10 @@ class _TarjetaQueja extends StatelessWidget {
               Expanded(
                 child: Text(
                   '${queja.etiquetaMotivo} · ${queja.categoria}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -211,15 +203,15 @@ class _TarjetaQueja extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: _colorEstado(queja.estado),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  border: Border.all(color: AppTheme.dark, width: 1.5),
+                  borderRadius: BorderRadius.circular(ManiRadius.lg),
+                  border: Border.all(color: context.mani.ink, width: 1.5),
                 ),
                 child: Text(
                   queja.estado.etiqueta,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -228,7 +220,7 @@ class _TarjetaQueja extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             queja.descripcion,
-            style: const TextStyle(fontSize: 14, color: AppTheme.dark),
+            style: TextStyle(fontSize: 14, color: context.mani.ink),
           ),
           const SizedBox(height: 8),
           Text(
@@ -236,10 +228,10 @@ class _TarjetaQueja extends StatelessWidget {
               'Presentada ${_fecha(queja.creadaEn)}',
               if (esAdmin && queja.clienteEmail != null) queja.clienteEmail!,
             ].join(' · '),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: AppTheme.textSecondary,
+              color: context.mani.inkMuted,
             ),
           ),
           if (queja.respuesta != null) ...[
@@ -248,17 +240,17 @@ class _TarjetaQueja extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.background,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppTheme.dark, width: 1.5),
+                color: context.mani.background,
+                borderRadius: BorderRadius.circular(ManiRadius.lg),
+                border: Border.all(color: context.mani.ink, width: 1.5),
               ),
               child: Text(
                 'Respuesta: ${queja.respuesta}',
                 key: Key('queja-respuesta-${queja.id}'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.dark,
+                  color: context.mani.ink,
                 ),
               ),
             ),
@@ -276,14 +268,14 @@ class _TarjetaQueja extends StatelessWidget {
                 onPressed: () => _verHistorial(context, cubit, queja),
               ),
               if (esAdmin && actualizando)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(12),
                   child: SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppTheme.dark,
+                      color: context.mani.ink,
                     ),
                   ),
                 )
@@ -376,9 +368,10 @@ Future<void> _verHistorial(
       ),
     ),
     actions: [
-      TextButton(
+      ManiButton(
+        variante: ManiButtonVariante.enlace,
+        etiqueta: 'Cerrar',
         onPressed: () => Navigator.of(context).pop(),
-        child: const Text('Cerrar'),
       ),
     ],
   ),
@@ -418,7 +411,7 @@ class _DialogoRespuestaState extends State<_DialogoRespuesta> {
       ),
       content: SizedBox(
         width: 420,
-        child: TextField(
+        child: ManiTextField(
           key: const Key('queja-nota'),
           controller: _nota,
           maxLines: 3,
@@ -431,9 +424,10 @@ class _DialogoRespuestaState extends State<_DialogoRespuesta> {
         ),
       ),
       actions: [
-        TextButton(
+        ManiButton(
+          variante: ManiButtonVariante.enlace,
+          etiqueta: 'Cancelar',
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
         ),
         ManiButton(
           key: const Key('queja-confirmar'),

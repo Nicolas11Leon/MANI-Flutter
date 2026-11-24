@@ -1,9 +1,12 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/utils/formato_fecha.dart';
 
 import 'conversacion_queja_cubit.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Conversación de una queja (SCRUM-883): el administrador abre el hilo de un
 /// servicio indicando el motivo. La consulta queda registrada en la auditoría.
@@ -48,7 +51,7 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Conversación de una queja')),
+      appBar: barraDePantalla(context, titulo: 'Conversación de una queja'),
       body: BlocBuilder<ConversacionQuejaCubit, ConversacionQuejaState>(
         builder: (context, state) {
           final consultando = state.fase == FaseConversacion.consultando;
@@ -61,21 +64,21 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
                 key: Key('aviso-auditoria'),
               ),
               const SizedBox(height: 12),
-              TextField(
+              ManiTextField(
                 key: const Key('campo-solicitud'),
                 controller: _solicitud,
                 decoration: const InputDecoration(
                   labelText: 'Id de la solicitud',
                 ),
               ),
-              TextField(
+              ManiTextField(
                 key: const Key('campo-queja'),
                 controller: _queja,
                 decoration: const InputDecoration(
                   labelText: 'Referencia de la queja (opcional)',
                 ),
               ),
-              TextField(
+              ManiTextField(
                 key: const Key('campo-motivo'),
                 controller: _motivo,
                 maxLines: 3,
@@ -85,8 +88,9 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
                 ),
               ),
               const SizedBox(height: 8),
-              FilledButton(
+              ManiButton(
                 key: const Key('btn-consultar'),
+                etiqueta: consultando ? 'Consultando…' : 'Ver conversación',
                 onPressed: consultando
                     ? null
                     : () => context.read<ConversacionQuejaCubit>().consultar(
@@ -94,7 +98,6 @@ class _ConversacionQuejaViewState extends State<ConversacionQuejaView> {
                         motivo: _motivo.text,
                         quejaRef: _queja.text,
                       ),
-                child: Text(consultando ? 'Consultando…' : 'Ver conversación'),
               ),
               const SizedBox(height: 16),
               if (state.fase == FaseConversacion.error)

@@ -23,10 +23,10 @@ Future<bool> mostrarFormularioCategoria(BuildContext context) async {
     creada = await showDialog<bool>(
       context: context,
       builder: (_) => Dialog(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.mani.background,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-          side: const BorderSide(color: AppTheme.dark, width: 3),
+          borderRadius: ManiRadius.brLg,
+          side: BorderSide(color: context.mani.ink, width: 3),
         ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 580, maxHeight: 760),
@@ -39,12 +39,12 @@ Future<bool> mostrarFormularioCategoria(BuildContext context) async {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.mani.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppTheme.radius2xl),
+          top: Radius.circular(ManiRadius.lg),
         ),
-        side: BorderSide(color: AppTheme.dark, width: 2),
+        side: ManiBorder.side,
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
@@ -169,12 +169,17 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
             _Encabezado(onCerrar: () => Navigator.of(context).pop(false)),
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
+                padding: const EdgeInsets.fromLTRB(
+                  ManiSpace.xxl,
+                  ManiSpace.xs,
+                  ManiSpace.xxl,
+                  ManiSpace.lg,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const _Paso(numero: 1, titulo: 'Nombre de la categoría'),
-                    const SizedBox(height: 8),
+                    ManiGap.vSm,
                     TextField(
                       key: const ValueKey('campo-nombre-categoria'),
                       controller: _nombre,
@@ -197,19 +202,19 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                       ),
                     ),
                     if (sugerencias.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      const Text(
+                      ManiGap.vXs,
+                      Text(
                         'Sugerencias',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: ManiFontSize.micro,
                           fontWeight: FontWeight.w800,
-                          color: AppTheme.textTertiary,
+                          color: context.mani.inkSubtle,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      ManiGap.vSm,
                       Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
+                        spacing: ManiSpace.sm,
+                        runSpacing: ManiSpace.sm,
                         children: [
                           for (final s in sugerencias)
                             ActionChip(
@@ -217,41 +222,36 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                               label: Text(
                                 s,
                                 style: const TextStyle(
-                                  fontSize: 12,
+                                  fontSize: ManiFontSize.caption,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                               onPressed: state.guardando
                                   ? null
                                   : () => _usarSugerencia(s),
-                              backgroundColor: AppTheme.surface,
-                              side: const BorderSide(
-                                color: AppTheme.dark,
-                                width: 1.5,
-                              ),
+                              backgroundColor: context.mani.surface,
+                              side: ManiBorder.sideThin,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppTheme.radiusMd,
-                                ),
+                                borderRadius: ManiRadius.brSm,
                               ),
                             ),
                         ],
                       ),
                     ],
-                    const SizedBox(height: 24),
+                    ManiGap.vXxl,
                     const _Paso(
                       numero: 2,
                       titulo: '¿Cómo opera este servicio?',
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
+                    ManiGap.vXs,
+                    Text(
                       'Define qué pasa cuando un cliente solicita un servicio de esta categoría.',
                       style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
+                        fontSize: ManiFontSize.caption,
+                        color: context.mani.inkMuted,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    ManiGap.vSm,
                     for (final f in FlujoOperativo.values) ...[
                       _OpcionFlujo(
                         flujo: f,
@@ -263,19 +263,19 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                                 _errorEnvio = null;
                               }),
                       ),
-                      const SizedBox(height: 10),
+                      ManiGap.vSm,
                     ],
-                    const SizedBox(height: 14),
+                    ManiGap.vMd,
                     const _Paso(numero: 3, titulo: 'Visibilidad'),
-                    const SizedBox(height: 6),
+                    ManiGap.vSm,
                     // Material propio: el ListTile pinta ahí su fondo y el
                     // efecto de toque (un Container con color los ocultaría).
                     Material(
-                      color: AppTheme.surface,
+                      color: context.mani.surface,
                       clipBehavior: Clip.antiAlias,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                        side: const BorderSide(color: AppTheme.dark, width: 2),
+                        borderRadius: ManiRadius.brMd,
+                        side: ManiBorder.side,
                       ),
                       child: SwitchListTile(
                         key: const ValueKey('switch-visible'),
@@ -283,8 +283,8 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                         onChanged: state.guardando
                             ? null
                             : (v) => setState(() => _activa = v),
-                        activeThumbColor: AppTheme.dark,
-                        activeTrackColor: AppTheme.primary,
+                        activeThumbColor: context.mani.ink,
+                        activeTrackColor: context.mani.brand,
                         title: const Text(
                           'Visible para clientes de inmediato',
                           style: TextStyle(fontWeight: FontWeight.w800),
@@ -293,18 +293,20 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                           _activa
                               ? 'Aparecerá en el catálogo apenas la crees.'
                               : 'Quedará oculta hasta que la actives.',
-                          style: const TextStyle(fontSize: 12),
+                          style: const TextStyle(
+                            fontSize: ManiFontSize.caption,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    ManiGap.vXl,
                     _VistaPrevia(
                       nombre: normalizarNombre(_nombre.text),
                       flujo: _flujo,
                       activa: _activa,
                     ),
                     if (errorGeneral != null) ...[
-                      const SizedBox(height: 16),
+                      ManiGap.vLg,
                       _ErrorEnvio(mensaje: errorGeneral),
                     ],
                   ],
@@ -332,7 +334,7 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
 
   InputDecoration _decoracion({required String hint, String? error}) {
     OutlineInputBorder borde(Color color, double ancho) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+      borderRadius: ManiRadius.brMd,
       borderSide: BorderSide(color: color, width: ancho),
     );
     return InputDecoration(
@@ -341,13 +343,13 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
       errorText: error,
       errorMaxLines: 2,
       filled: true,
-      fillColor: AppTheme.surface,
-      prefixIcon: const Icon(Icons.category_outlined, color: AppTheme.dark),
-      enabledBorder: borde(AppTheme.dark, 2),
-      focusedBorder: borde(AppTheme.dark, 2.5),
-      disabledBorder: borde(AppTheme.borderLight, 2),
-      errorBorder: borde(AppTheme.error, 2),
-      focusedErrorBorder: borde(AppTheme.error, 2.5),
+      fillColor: context.mani.surface,
+      prefixIcon: Icon(Icons.category_outlined, color: context.mani.ink),
+      enabledBorder: borde(context.mani.ink, 2),
+      focusedBorder: borde(context.mani.ink, 2.5),
+      disabledBorder: borde(context.mani.borderSubtle, 2),
+      errorBorder: borde(ManiColors.danger, 2),
+      focusedErrorBorder: borde(ManiColors.danger, 2.5),
     );
   }
 }
@@ -360,32 +362,46 @@ class _Encabezado extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 12, 8),
+      padding: const EdgeInsets.fromLTRB(
+        ManiSpace.xxl,
+        ManiSpace.xl,
+        ManiSpace.md,
+        ManiSpace.sm,
+      ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(ManiSpace.sm),
             decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
+              color: context.mani.brand,
+              borderRadius: ManiRadius.brSm,
+              border: Border.all(
+                color: context.mani.border,
+                width: ManiBorder.regular,
+              ),
             ),
-            child: const Icon(Icons.add_business_rounded, color: AppTheme.dark),
+            child: Icon(
+              Icons.add_business_rounded,
+              color: context.mani.onBrand,
+            ),
           ),
-          const SizedBox(width: 12),
-          const Expanded(
+          ManiGap.hMd,
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Nueva categoría',
-                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+                  style: TextStyle(
+                    fontSize: ManiFontSize.title,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 Text(
                   'Organiza el catálogo que ven tus clientes.',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
+                    fontSize: ManiFontSize.caption,
+                    color: context.mani.inkMuted,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -395,7 +411,7 @@ class _Encabezado extends StatelessWidget {
           IconButton(
             tooltip: 'Cerrar',
             onPressed: onCerrar,
-            icon: const Icon(Icons.close_rounded, color: AppTheme.dark),
+            icon: Icon(Icons.close_rounded, color: context.mani.ink),
           ),
         ],
       ),
@@ -417,24 +433,27 @@ class _Paso extends StatelessWidget {
           width: 22,
           height: 22,
           alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            color: AppTheme.dark,
+          decoration: BoxDecoration(
+            color: context.mani.ink,
             shape: BoxShape.circle,
           ),
           child: Text(
             '$numero',
-            style: const TextStyle(
-              fontSize: 12,
+            style: TextStyle(
+              fontSize: ManiFontSize.caption,
               fontWeight: FontWeight.w900,
-              color: AppTheme.primary,
+              color: context.mani.brand,
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        ManiGap.hSm,
         Expanded(
           child: Text(
             titulo,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+            style: const TextStyle(
+              fontSize: ManiFontSize.body,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ),
       ],
@@ -456,7 +475,7 @@ class _OpcionFlujo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radio = BorderRadius.circular(AppTheme.radiusXl);
+    final radio = ManiRadius.brMd;
     return Semantics(
       inMutuallyExclusiveGroup: true,
       checked: seleccionado,
@@ -464,15 +483,15 @@ class _OpcionFlujo extends StatelessWidget {
       label: '${flujo.etiqueta}. ${flujo.descripcion}',
       excludeSemantics: true,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+        duration: ManiMotion.fast,
         decoration: BoxDecoration(
-          color: seleccionado ? flujo.fondo : AppTheme.surface,
+          color: seleccionado ? flujo.fondo : context.mani.surface,
           borderRadius: radio,
           border: Border.all(
-            color: AppTheme.dark,
+            color: context.mani.border,
             width: seleccionado ? 2.5 : 1.5,
           ),
-          boxShadow: [if (seleccionado) AppTheme.hardShadowSm],
+          boxShadow: [if (seleccionado) ManiShadow.sm],
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -481,20 +500,23 @@ class _OpcionFlujo extends StatelessWidget {
             borderRadius: radio,
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(ManiSpace.md),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(ManiSpace.sm),
                     decoration: BoxDecoration(
-                      color: seleccionado ? AppTheme.surface : flujo.fondo,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      border: Border.all(color: AppTheme.dark, width: 1.5),
+                      color: seleccionado ? context.mani.surface : flujo.fondo,
+                      borderRadius: ManiRadius.brSm,
+                      border: Border.all(
+                        color: context.mani.border,
+                        width: ManiBorder.thin,
+                      ),
                     ),
                     child: Icon(flujo.icono, color: flujo.acento, size: 22),
                   ),
-                  const SizedBox(width: 12),
+                  ManiGap.hMd,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -502,36 +524,36 @@ class _OpcionFlujo extends StatelessWidget {
                         Text(
                           flujo.etiqueta,
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: ManiFontSize.body,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        ManiGap.vXxs,
                         Text(
                           flujo.descripcion,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: ManiFontSize.caption,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        ManiGap.vXs,
                         Text(
                           flujo.ejemplo,
-                          style: const TextStyle(
-                            fontSize: 11,
+                          style: TextStyle(
+                            fontSize: ManiFontSize.micro,
                             fontStyle: FontStyle.italic,
-                            color: AppTheme.textSecondary,
+                            color: context.mani.inkMuted,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  ManiGap.hSm,
                   Icon(
                     seleccionado
                         ? Icons.radio_button_checked_rounded
                         : Icons.radio_button_off_rounded,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
                 ],
               ),
@@ -559,34 +581,34 @@ class _VistaPrevia extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       key: const ValueKey('vista-previa-categoria'),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF9C3),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 1.5),
+        color: context.mani.brandSoft,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: context.mani.border, width: ManiBorder.thin),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'ASÍ LA VERÁN TUS CLIENTES',
             style: TextStyle(
-              fontSize: 10,
+              fontSize: ManiFontSize.nano,
               fontWeight: FontWeight.w900,
               letterSpacing: 0.6,
-              color: AppTheme.textSecondary,
+              color: context.mani.inkMuted,
             ),
           ),
-          const SizedBox(height: 8),
+          ManiGap.vSm,
           if (!activa)
-            const Row(
+            Row(
               children: [
                 Icon(
                   Icons.visibility_off_outlined,
                   size: 18,
-                  color: AppTheme.textSecondary,
+                  color: context.mani.inkMuted,
                 ),
-                SizedBox(width: 8),
+                ManiGap.hSm,
                 Expanded(
                   child: Text(
                     'Oculta: tus clientes no la verán todavía.',
@@ -597,19 +619,22 @@ class _VistaPrevia extends StatelessWidget {
             )
           else
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(ManiSpace.md),
               decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppTheme.dark, width: 1.5),
+                color: context.mani.surface,
+                borderRadius: ManiRadius.brSm,
+                border: Border.all(
+                  color: context.mani.border,
+                  width: ManiBorder.thin,
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.home_repair_service_rounded,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
-                  const SizedBox(width: 10),
+                  ManiGap.hSm,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,23 +645,23 @@ class _VistaPrevia extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.w900,
                             color: nombre.isEmpty
-                                ? AppTheme.textTertiary
-                                : AppTheme.dark,
+                                ? context.mani.inkSubtle
+                                : context.mani.ink,
                           ),
                         ),
                         Text(
                           flujo?.textoCliente ?? 'Elige cómo opera el servicio',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
+                          style: TextStyle(
+                            fontSize: ManiFontSize.caption,
+                            color: context.mani.inkMuted,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right_rounded,
-                    color: AppTheme.textTertiary,
+                    color: context.mani.inkSubtle,
                   ),
                 ],
               ),
@@ -656,17 +681,17 @@ class _ErrorEnvio extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       key: const ValueKey('error-envio-categoria'),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEE2E2),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.error, width: 1.5),
+        color: ManiColors.dangerContainer,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: ManiColors.danger, width: ManiBorder.thin),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline_rounded, color: AppTheme.error),
-          const SizedBox(width: 8),
+          const Icon(Icons.error_outline_rounded, color: ManiColors.danger),
+          ManiGap.hSm,
           Expanded(
             child: Text(
               mensaje,
@@ -699,10 +724,13 @@ class _Acciones extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 14, 24, 18),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppTheme.dark, width: 2)),
+      padding: const EdgeInsets.fromLTRB(
+        ManiSpace.xxl,
+        ManiSpace.md,
+        ManiSpace.xxl,
+        ManiSpace.lg,
       ),
+      decoration: const BoxDecoration(border: Border(top: ManiBorder.side)),
       child: SafeArea(
         top: false,
         child: Column(
@@ -714,13 +742,13 @@ class _Acciones extends StatelessWidget {
                 pista!,
                 key: const ValueKey('pista-formulario-categoria'),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 12,
+                style: TextStyle(
+                  fontSize: ManiFontSize.caption,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.textSecondary,
+                  color: context.mani.inkMuted,
                 ),
               ),
-              const SizedBox(height: 10),
+              ManiGap.vSm,
             ],
             _botones(),
           ],
@@ -741,7 +769,7 @@ class _Acciones extends StatelessWidget {
             onPressed: guardando ? null : onCancelar,
           ),
         ),
-        const SizedBox(width: 12),
+        ManiGap.hMd,
         Expanded(
           flex: 2,
           child: ManiButton(

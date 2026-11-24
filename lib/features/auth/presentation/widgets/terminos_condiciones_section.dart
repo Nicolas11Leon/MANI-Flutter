@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mani/core/widgets/mani_pulsable.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/auth/presentation/widgets/documento_legal_modal.dart';
 
@@ -38,15 +39,15 @@ class TerminosCondicionesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       key: const Key('seccion_terminos_condiciones'),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(ManiSpace.lg),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
+        borderRadius: ManiRadius.brLg,
         border: Border.all(
-          color: mostrarError ? AppTheme.error : AppTheme.dark,
+          color: mostrarError ? ManiColors.danger : ManiColors.ink,
           width: mostrarError ? 2.5 : 2,
         ),
-        boxShadow: const [AppTheme.hardShadowSm],
+        boxShadow: const [ManiShadow.sm],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,16 +61,16 @@ class TerminosCondicionesSection extends StatelessWidget {
                 child: Checkbox(
                   key: const Key('checkbox_aceptacion_terminos'),
                   value: aceptaTerminos,
-                  activeColor: AppTheme.dark,
-                  checkColor: AppTheme.primary,
+                  activeColor: ManiColors.ink,
+                  checkColor: ManiColors.brand,
                   side: BorderSide(
-                    color: mostrarError ? AppTheme.error : AppTheme.dark,
-                    width: 2,
+                    color: mostrarError ? ManiColors.danger : ManiColors.ink,
+                    width: ManiBorder.regular,
                   ),
                   onChanged: (val) => onChanged(val ?? false),
                 ),
               ),
-              const SizedBox(width: 12),
+              ManiGap.hMd,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,25 +78,25 @@ class TerminosCondicionesSection extends StatelessWidget {
                     Text(
                       'Consentimiento Legal y Protección de Datos (Obligatorio)',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
+                        fontSize: ManiFontSize.bodySm,
                         fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
+                        color: ManiColors.ink,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    ManiGap.vXs,
                     Text(
                       'He leído y acepto de manera libre, previa, expresa e informada los Términos y Condiciones (v1.0) y la Política de Tratamiento de Datos Personales conforme a la Ley 1581 de 2012 (Habeas Data).',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
+                        fontSize: ManiFontSize.caption,
                         height: 1.4,
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.textSecondary,
+                        color: ManiColors.inkMuted,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    ManiGap.vSm,
                     Wrap(
-                      spacing: 10,
-                      runSpacing: 8,
+                      spacing: ManiSpace.sm,
+                      runSpacing: ManiSpace.sm,
                       children: [
                         _buildDocLinkButton(
                           key: const Key('btn_ver_terminos'),
@@ -123,23 +124,23 @@ class TerminosCondicionesSection extends StatelessWidget {
             ],
           ),
           if (mostrarError) ...[
-            const SizedBox(height: 10),
+            ManiGap.vSm,
             Row(
               children: [
                 const Icon(
                   Icons.error_outline_rounded,
-                  color: AppTheme.error,
+                  color: ManiColors.danger,
                   size: 16,
                 ),
-                const SizedBox(width: 6),
+                ManiGap.hSm,
                 Expanded(
                   child: Text(
                     'Debes leer y aceptar los Términos y Condiciones y la Política de Datos Personales para completar el registro.',
                     key: const Key('error_terminos_obligatorios'),
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
+                      fontSize: ManiFontSize.caption,
                       fontWeight: FontWeight.w800,
-                      color: AppTheme.error,
+                      color: ManiColors.danger,
                     ),
                   ),
                 ),
@@ -157,27 +158,30 @@ class TerminosCondicionesSection extends StatelessWidget {
     required String label,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
+    return ManiPulsable(
       key: key,
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        padding: const EdgeInsets.symmetric(
+          horizontal: ManiSpace.md,
+          vertical: 7,
+        ),
         decoration: BoxDecoration(
-          color: AppTheme.background,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          border: Border.all(color: AppTheme.dark, width: 1.5),
+          color: ManiColors.background,
+          borderRadius: ManiRadius.brSm,
+          border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 15, color: AppTheme.dark),
-            const SizedBox(width: 6),
+            Icon(icon, size: 15, color: ManiColors.ink),
+            ManiGap.hSm,
             Text(
               label,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 11,
+                fontSize: ManiFontSize.micro,
                 fontWeight: FontWeight.w800,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
                 decoration: TextDecoration.underline,
               ),
             ),

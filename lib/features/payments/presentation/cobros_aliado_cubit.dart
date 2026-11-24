@@ -29,16 +29,17 @@ class CobrosAliadoCubit extends Cubit<CobrosAliadoState> {
 
   final FuenteCobros _fuente;
 
-  Future<void> cargar() async {
-    emit(const CobrosAliadoState());
+  /// Con [silencioso] (sondeo, SCRUM-1710) no vuelve a «cargando» y, si
+  /// falla, conserva los cobros que ya se ven sin mostrar el error.
+  Future<void> cargar({bool silencioso = false}) async {
+    if (silencioso && state.fase == FaseCobros.cargando) return;
+    if (!silencioso) emit(const CobrosAliadoState());
     try {
-      emit(
-        CobrosAliadoState(
-          fase: FaseCobros.listo,
-          cobros: await _fuente.cobrosDelAliado(),
-        ),
-      );
+      final cobros = await _fuente.cobrosDelAliado();
+      if (isClosed) return;
+      emit(CobrosAliadoState(fase: FaseCobros.listo, cobros: cobros));
     } on PagoFailure catch (f) {
+      if (isClosed || silencioso) return;
       emit(CobrosAliadoState(fase: FaseCobros.error, error: f));
     }
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas_diferido.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Mapa del catálogo geográfico como pantalla propia (HU-M04-07 / SCRUM-1396).
 ///
@@ -10,15 +12,15 @@ import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
 class MapaZonasPage extends StatelessWidget {
   const MapaZonasPage({super.key});
 
-  /// Conservado por compatibilidad con quien ya lo referenciaba; el valor vive
-  /// en [MapaZonas].
-  static const centroBogota = MapaZonas.centroBogota;
+  /// Conservado por compatibilidad con quien ya lo referenciaba; el mismo valor que `MapaZonas.centroBogota`, que
+  /// no se puede referenciar aquí porque esa librería es diferida.
+  static const centroBogota = LatLng(4.6533, -74.0836);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mapa de zonas')),
-      body: const MapaZonas(),
+      appBar: barraDePantalla(context, titulo: 'Mapa de zonas'),
+      body: const MapaZonasDiferido(),
     );
   }
 }

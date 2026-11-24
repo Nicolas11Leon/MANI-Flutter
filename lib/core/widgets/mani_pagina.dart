@@ -3,7 +3,7 @@ import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_card.dart';
 
 /// Ancho máximo del contenido de una página con sesión en escritorio.
-const anchoMaximoPagina = 1400.0;
+const anchoMaximoPagina = ManiAncho.pagina;
 
 /// Página con sesión en el estilo de MANI: márgenes de escritorio, contenido
 /// centrado hasta [anchoMaximoPagina] y scroll que construye todo (las
@@ -15,20 +15,26 @@ class ManiPagina extends StatelessWidget {
     required this.children,
     this.alRefrescar,
     this.ancho = anchoMaximoPagina,
+    this.encabezado,
   });
 
   final List<Widget> children;
   final Future<void> Function()? alRefrescar;
   final double ancho;
 
+  /// Encabezado fijo sobre el contenido (normalmente un
+  /// [ManiEncabezadoPantalla]); no se desplaza con el scroll.
+  final Widget? encabezado;
+
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     final contenido = LayoutBuilder(
       builder: (context, c) => SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(
-          horizontal: c.maxWidth >= 600 ? 32 : 16,
-          vertical: 24,
+          horizontal: c.maxWidth >= 600 ? ManiSpace.xxxl : ManiSpace.lg,
+          vertical: ManiSpace.xxl,
         ),
         child: Center(
           child: ConstrainedBox(
@@ -41,19 +47,39 @@ class ManiPagina extends StatelessWidget {
         ),
       ),
     );
-    if (alRefrescar == null) return contenido;
-    return RefreshIndicator(
-      color: AppTheme.dark,
-      backgroundColor: AppTheme.primary,
-      onRefresh: alRefrescar!,
-      child: contenido,
+    final cuerpo = alRefrescar == null
+        ? contenido
+        : RefreshIndicator(
+            color: t.onBrand,
+            backgroundColor: t.brand,
+            onRefresh: alRefrescar!,
+            child: contenido,
+          );
+    if (encabezado == null) {
+      return ColoredBox(color: t.background, child: cuerpo);
+    }
+    return ColoredBox(
+      color: t.background,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          encabezado!,
+          Expanded(child: cuerpo),
+        ],
+      ),
     );
   }
 }
 
-/// Encabezado de página: tarjeta con el ícono en caja amarilla, título y
-/// descripción, y una acción opcional a la derecha (debajo en móvil). Es el
-/// mismo de la pantalla del servicio.
+/// Encabezado de una pantalla con sesión: abre el área de trabajo, debajo de
+/// la barra superior única, alineado con la columna del contenido ([ancho]).
+///
+/// Ícono en caja de marca, título, descripción opcional y acciones a la
+/// derecha. Por debajo de 600 px las acciones pasan a una segunda fila para
+/// que el título nunca se aplaste. Si la pantalla se abrió encima de otra,
+/// muestra la flecha para volver.
+/// Encabezado de página con una sola acción (forma de SCRUM-1646): delega en
+/// [ManiEncabezadoPantalla].
 class ManiEncabezadoPagina extends StatelessWidget {
   const ManiEncabezadoPagina({
     super.key,
@@ -69,113 +95,209 @@ class ManiEncabezadoPagina extends StatelessWidget {
   final Widget? accion;
 
   @override
+  Widget build(BuildContext context) => ManiEncabezadoPantalla(
+    icono: icono,
+    titulo: titulo,
+    descripcion: descripcion,
+    acciones: [?accion],
+  );
+}
+
+class ManiEncabezadoPantalla extends StatelessWidget {
+  const ManiEncabezadoPantalla({
+    super.key,
+    required this.icono,
+    required this.titulo,
+    this.descripcion,
+    this.acciones = const [],
+    this.ancho = ManiAncho.pagina,
+    this.tituloKey,
+    this.descripcionKey,
+  });
+
+  final IconData icono;
+  final String titulo;
+  final String? descripcion;
+  final List<Widget> acciones;
+
+  /// Ancho de la columna de contenido de la pantalla ([ManiAncho]), para que
+  /// el título quede alineado con lo que encabeza.
+  final double ancho;
+  final Key? tituloKey;
+  final Key? descripcionKey;
+
+  @override
   Widget build(BuildContext context) {
-    final texto = Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-            border: Border.all(color: AppTheme.dark, width: 2),
-            boxShadow: const [AppTheme.hardShadowSm],
-          ),
-          child: Icon(icono, color: AppTheme.dark, size: 24),
+    final t = context.mani;
+    final puedeVolver = ModalRoute.of(context)?.canPop ?? false;
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border(
+          bottom: BorderSide(color: t.borderSubtle, width: ManiBorder.thin),
         ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                titulo,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: AppTheme.dark,
-                ),
-              ),
-              if (descripcion != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  descripcion!,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-    return ManiCard(
-      padding: const EdgeInsets.all(20),
+      ),
+      alignment: Alignment.centerLeft,
       child: LayoutBuilder(
         builder: (context, c) {
-          if (accion == null) return texto;
-          if (c.maxWidth < 600) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [texto, const SizedBox(height: 14), accion!],
-            );
-          }
-          return Row(
-            children: [
-              Expanded(child: texto),
-              const SizedBox(width: 16),
-              accion!,
-            ],
+          final angosta = c.maxWidth < 600;
+          final identidad = _identidad(context, puedeVolver, angosta);
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: angosta ? ManiSpace.lg : ManiSpace.xxl,
+              vertical: angosta ? ManiSpace.md : ManiSpace.lg,
+            ),
+            // En pantalla angosta las acciones bajan debajo del título.
+            child: angosta && acciones.isNotEmpty
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [identidad, ManiGap.vMd, _accionesEnFila()],
+                  )
+                : identidad,
           );
         },
       ),
     );
   }
+
+  /// Volver (si hay a dónde), icono, título y descripción; en pantalla ancha
+  /// también las acciones, a la derecha.
+  Widget _identidad(BuildContext context, bool puedeVolver, bool angosta) {
+    final t = context.mani;
+    return Row(
+      children: [
+        if (puedeVolver) ...[
+          IconButton(
+            tooltip: 'Volver',
+            onPressed: () => Navigator.of(context).maybePop(),
+            icon: Icon(Icons.arrow_back_rounded, color: t.ink),
+          ),
+          ManiGap.hXs,
+        ],
+        _IconoEncabezado(icono: icono),
+        ManiGap.hMd,
+        Expanded(child: _textos(t, angosta)),
+        if (!angosta && acciones.isNotEmpty) ...[
+          ManiGap.hLg,
+          _accionesEnFila(),
+        ],
+      ],
+    );
+  }
+
+  Widget _textos(ManiTokens t, bool angosta) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(
+            titulo,
+            key: tituloKey,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: ManiText.h3.copyWith(color: t.ink),
+          ),
+        ),
+        if (descripcion != null) ...[
+          ManiGap.vXxs,
+          Text(
+            descripcion!,
+            key: descripcionKey,
+            maxLines: angosta ? 3 : 2,
+            overflow: TextOverflow.ellipsis,
+            style: ManiText.bodySm.copyWith(color: t.inkMuted),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _accionesEnFila() => Wrap(
+    spacing: ManiSpace.sm,
+    runSpacing: ManiSpace.sm,
+    crossAxisAlignment: WrapCrossAlignment.center,
+    children: acciones,
+  );
 }
 
-/// Título de sección: ícono en caja amarilla, texto en mayúsculas y subrayado
-/// negro. Separa los bloques de una página (y las columnas del servicio).
+/// Icono de la pantalla sobre un cuadro del color de marca.
+class _IconoEncabezado extends StatelessWidget {
+  const _IconoEncabezado({required this.icono});
+
+  final IconData icono;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.mani;
+    return ExcludeSemantics(
+      child: Container(
+        width: 42,
+        height: 42,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: t.brand,
+          borderRadius: ManiRadius.brSm,
+          border: Border.all(color: t.border, width: ManiBorder.regular),
+          boxShadow: [t.shadowSm],
+        ),
+        child: Icon(icono, color: t.onBrand, size: 22),
+      ),
+    );
+  }
+}
+
+/// Título de sección: ícono en caja de marca, texto en mayúsculas y línea
+/// divisoria estructural. Separa los bloques de una página y jerarquiza
+/// tableros.
 class ManiTituloSeccion extends StatelessWidget {
   const ManiTituloSeccion({
     super.key,
-    required this.icono,
+    this.icono,
     required this.titulo,
     this.accion,
   });
 
-  final IconData icono;
+  /// Sin ícono, el título va solo (secciones del inicio móvil, SCRUM-1647).
+  final IconData? icono;
   final String titulo;
   final Widget? accion;
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return Container(
-      padding: const EdgeInsets.only(bottom: 10),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+      padding: const EdgeInsets.only(bottom: ManiSpace.sm),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: t.border, width: ManiBorder.regular),
+        ),
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
+          if (icono != null) ...[
+            Container(
+              padding: const EdgeInsets.all(ManiSpace.sm),
+              decoration: BoxDecoration(
+                color: t.brand,
+                borderRadius: ManiRadius.brSm,
+                border: Border.all(color: t.border, width: ManiBorder.regular),
+                boxShadow: [t.shadowSm],
+              ),
+              child: Icon(icono, color: t.onBrand, size: 18),
             ),
-            child: Icon(icono, color: AppTheme.dark, size: 18),
-          ),
-          const SizedBox(width: 10),
+            ManiGap.hSm,
+          ],
           Expanded(
             child: Text(
               titulo.toUpperCase(),
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: ManiFontSize.bodySm,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.6,
-                color: AppTheme.dark,
+                color: t.ink,
               ),
             ),
           ),
@@ -223,9 +345,8 @@ class ManiRejilla extends StatelessWidget {
   }
 }
 
-/// Botón en píldora con borde negro: amarillo con sombra si es [principal],
-/// blanco si no. Es el de las acciones de Mis solicitudes; el texto oscuro
-/// sobre amarillo o blanco cumple el contraste AA.
+/// Botón en píldora con borde: color de marca con sombra si es [principal],
+/// superficie si no.
 class ManiBotonPildora extends StatelessWidget {
   const ManiBotonPildora({
     super.key,
@@ -242,17 +363,25 @@ class ManiBotonPildora extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
+    final fg = principal ? t.onBrand : t.ink;
     final estilo = TextButton.styleFrom(
-      foregroundColor: AppTheme.dark,
-      textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      foregroundColor: fg,
+      textStyle: const TextStyle(
+        fontSize: ManiFontSize.bodySm,
+        fontWeight: FontWeight.w800,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.md,
+        vertical: ManiSpace.sm,
+      ),
     );
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: principal ? AppTheme.primary : AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowSm],
+        color: principal ? t.brand : t.surface,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: t.border, width: ManiBorder.regular),
+        boxShadow: [t.shadowSm],
       ),
       child: icono == null
           ? TextButton(
@@ -263,7 +392,7 @@ class ManiBotonPildora extends StatelessWidget {
           : TextButton.icon(
               onPressed: onPressed,
               style: estilo,
-              icon: Icon(icono, size: 18),
+              icon: Icon(icono, size: 18, color: fg),
               label: Text(etiqueta),
             ),
     );
@@ -288,24 +417,47 @@ class ManiAvisoTarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
+    final colorTexto = esError ? ManiColors.dangerText : t.ink;
     return ManiCard(
-      color: esError ? const Color(0xFFFEE2E2) : AppTheme.surface,
-      sombra: AppTheme.hardShadowSm,
+      color: esError ? ManiColors.dangerContainer : t.surface,
+      sombra: t.shadowSm,
       child: Row(
         children: [
-          Icon(icono, color: esError ? const Color(0xFFB91C1C) : AppTheme.dark),
-          const SizedBox(width: 12),
+          Icon(icono, color: colorTexto),
+          ManiGap.hMd,
           Expanded(
             child: Text(
               texto,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                color: AppTheme.dark,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w700, color: colorTexto),
             ),
           ),
-          if (accion != null) ...[const SizedBox(width: 12), accion!],
+          if (accion != null) ...[ManiGap.hMd, accion!],
         ],
+      ),
+    );
+  }
+}
+
+/// Centra el contenido de una pantalla con un ancho máximo de [ManiAncho]
+/// (formulario, lista, panel) y lo alinea arriba. En móvil no cambia nada.
+class ManiAnchoContenido extends StatelessWidget {
+  const ManiAnchoContenido({
+    super.key,
+    required this.ancho,
+    required this.child,
+  });
+
+  final double ancho;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: ancho),
+        child: child,
       ),
     );
   }

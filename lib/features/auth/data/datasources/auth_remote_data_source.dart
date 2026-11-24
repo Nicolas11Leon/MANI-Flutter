@@ -269,11 +269,15 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
     // Tenant solo en X-Tenant-Slug y rutas de Storage construidas por Core
     // (ADR-0013, ADR-0018). Nombres de campo en camelCase: así los define el contrato
     // OpenAPI de CFG-16 (fullName/categoriaId), no snake_case español.
+    // Core exige acceptsTerms en este registro (SCRUM-856, TERMS_NOT_ACCEPTED)
+    // y registra él mismo la aceptación: el cubit ya exige la casilla y no se
+    // llama después a /legal/consents, que la duplicaría.
     final campos = <String, String>{
       'email': email.trim(),
       'password': password,
       'fullName': nombreCompleto.trim(),
       'categoriaId': categoriaId.trim(),
+      'acceptsTerms': 'true',
     };
 
     final respuesta = await gateway.postMultipart(
@@ -282,8 +286,6 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
       archivos: [for (final doc in documentosKYC) _archivo(doc)],
       headers: {headerTenantSlug: tenantId},
     );
-
-    await _registrarConsentimientoSeguro(respuesta);
 
     return {
       ...respuesta,
@@ -349,11 +351,25 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
             'adjunto. Vuelve a seleccionarlo.',
       );
     }
+    final nombre = doc['nombre_archivo'] ?? tipo.toLowerCase();
     return ArchivoMultipart(
       campo: tipo.toLowerCase(),
-      nombre: doc['nombre_archivo'] ?? tipo.toLowerCase(),
+      nombre: nombre,
       bytes: base64Decode(contenido),
+      // Sin tipo, el navegador envía application/octet-stream y Core rechaza el
+      // documento con 400 «Tipo de archivo no permitido» (QA, 22 nov).
+      tipoContenido: tipoContenidoDocumento(nombre),
     );
+  }
+
+  /// MIME del documento KYC según su extensión: Core solo acepta PDF, JPG y PNG.
+  /// Devuelve `null` con otra extensión, y Core responde con su propio mensaje.
+  static String? tipoContenidoDocumento(String nombreArchivo) {
+    final n = nombreArchivo.toLowerCase();
+    if (n.endsWith('.pdf')) return 'application/pdf';
+    if (n.endsWith('.jpg') || n.endsWith('.jpeg')) return 'image/jpeg';
+    if (n.endsWith('.png')) return 'image/png';
+    return null;
   }
 
   String? _texto(String? valor) {

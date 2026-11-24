@@ -60,6 +60,51 @@ class GatewayException implements Exception {
   /// sin depender del texto de [message].
   final Map<String, dynamic>? cuerpo;
 
+  /// Código de negocio de Core con la forma `MANI-XXX-NNN` (por ejemplo
+  /// `MANI-SOL-422Z`), o `null` si la respuesta no lo trae. Sale del campo
+  /// `code` del cuerpo y, si no está, del prefijo del mensaje (los errores de
+  /// Core empiezan con su código). Es lo que debe decidir qué se le dice al
+  /// usuario: el status HTTP solo sirve para códigos que la app no conoce.
+  String? get codigo {
+    final delCuerpo = cuerpo?['code'];
+    if (delCuerpo is String && _formatoCodigo.hasMatch(delCuerpo)) {
+      return delCuerpo;
+    }
+    return _prefijoCodigo.firstMatch(message)?.group(1);
+  }
+
+  /// Referencia para rastrear la petición en los logs: el `correlationId` que
+  /// Core devuelve en el cuerpo del error o, si no, el que la app envió en la
+  /// cabecera `X-Correlation-ID`.
+  String? get referencia {
+    final delCuerpo = cuerpo?['correlationId'];
+    if (delCuerpo is String && delCuerpo.isNotEmpty && delCuerpo != 'none') {
+      return delCuerpo;
+    }
+    return correlationId;
+  }
+
+  /// Línea de diagnóstico para mostrar en texto pequeño junto al error:
+  /// `Código: MANI-SOL-422Z · Ref: 3f2a…`. Omite la parte que no existe y es
+  /// `null` si no hay ninguna de las dos.
+  String? get lineaDeDiagnostico =>
+      lineaDeDiagnosticoDe(codigo: codigo, referencia: referencia);
+
+  /// Arma la línea de diagnóstico a partir de un código y una referencia ya
+  /// conocidos (para los errores de feature que los guardan por separado).
+  static String? lineaDeDiagnosticoDe({String? codigo, String? referencia}) {
+    final partes = <String>[
+      if (codigo != null && codigo.isNotEmpty) 'Código: $codigo',
+      if (referencia != null && referencia.isNotEmpty) 'Ref: $referencia',
+    ];
+    return partes.isEmpty ? null : partes.join(' · ');
+  }
+
+  static final _formatoCodigo = RegExp(r'^MANI-[A-Z0-9]+-[0-9]{3}[A-Z]?$');
+  static final _prefijoCodigo = RegExp(
+    r'^\s*(MANI-[A-Z0-9]+-[0-9]{3}[A-Z]?)\b',
+  );
+
   /// Indica si el error se debe a un conflicto de concurrencia o duplicado (HTTP 409).
   bool get isConflict => statusCode == 409;
 

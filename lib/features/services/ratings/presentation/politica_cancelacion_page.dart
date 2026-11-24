@@ -2,10 +2,14 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 
 import '../data/politica_cancelacion_datasource.dart';
 import '../domain/calificacion_cierre_modelos.dart';
+import 'package:mani/core/theme/app_theme.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 
 class PoliticaCancelacionState extends Equatable {
   const PoliticaCancelacionState({
@@ -116,47 +120,55 @@ class PoliticaCancelacionPage extends StatelessWidget {
       },
       builder: (context, state) {
         final cubit = context.read<PoliticaCancelacionCubit>();
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 640),
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Text(
-                  'Política de cancelación',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 4),
-                const Text(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ManiEncabezadoPantalla(
+              ancho: ManiAncho.formulario,
+              icono: Icons.event_busy_rounded,
+              titulo: 'Política de cancelación',
+              descripcion:
                   'Si está activa, el cliente que cancela un servicio ya asignado después de la ventana gratuita '
                   'paga una penalización. El cliente la ve antes de confirmar la cancelación.',
-                ),
-                const SizedBox(height: 16),
-                if (state.cargando)
-                  const Center(child: CircularProgressIndicator())
-                else if (state.error != null)
-                  Card(
-                    key: const Key('politica-error'),
-                    child: ListTile(
-                      leading: const Icon(Icons.error_outline),
-                      title: Text(state.error!),
-                      trailing: TextButton(
-                        onPressed: cubit.cargar,
-                        child: const Text('Reintentar'),
-                      ),
-                    ),
-                  )
-                else if (state.politica != null)
-                  _FormularioPolitica(
-                    // La clave renueva el formulario con lo que devolvió Core tras guardar.
-                    key: ValueKey(state.politica),
-                    politica: state.politica!,
-                    guardando: state.guardando,
-                    onGuardar: cubit.guardar,
-                  ),
-              ],
             ),
-          ),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: ManiAncho.formulario,
+                  ),
+                  child: ListView(
+                    padding: const EdgeInsets.all(ManiSpace.lg),
+                    children: [
+                      if (state.cargando)
+                        const ManiCargando()
+                      else if (state.error != null)
+                        Card(
+                          key: const Key('politica-error'),
+                          child: ListTile(
+                            leading: const Icon(Icons.error_outline),
+                            title: Text(state.error!),
+                            trailing: ManiButton(
+                              variante: ManiButtonVariante.enlace,
+                              etiqueta: 'Reintentar',
+                              onPressed: cubit.cargar,
+                            ),
+                          ),
+                        )
+                      else if (state.politica != null)
+                        _FormularioPolitica(
+                          // La clave renueva el formulario con lo que devolvió Core tras guardar.
+                          key: ValueKey(state.politica),
+                          politica: state.politica!,
+                          guardando: state.guardando,
+                          onGuardar: cubit.guardar,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -214,7 +226,7 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
     return Card(
       key: const Key('politica-formulario'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(ManiSpace.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -228,19 +240,17 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
                   ? null
                   : (v) => setState(() => _activa = v),
             ),
-            const SizedBox(height: 8),
-            TextField(
+            ManiGap.vSm,
+            ManiTextField(
               key: const Key('politica-ventana'),
               controller: _ventana,
               enabled: !widget.guardando,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(
-                labelText: 'Ventana gratuita (minutos desde la asignación)',
-                helperText: 'De 0 a 1440',
-              ),
+              label: 'Ventana gratuita (minutos desde la asignación)',
+              helperText: 'De 0 a 1440',
             ),
-            const SizedBox(height: 12),
+            ManiGap.vMd,
             DropdownButtonFormField<TipoCobroPenalizacion>(
               key: const Key('politica-tipo'),
               initialValue: _tipo,
@@ -253,8 +263,8 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
                   ? null
                   : (t) => setState(() => _tipo = t ?? _tipo),
             ),
-            const SizedBox(height: 12),
-            TextField(
+            ManiGap.vMd,
+            ManiTextField(
               key: const Key('politica-valor'),
               controller: _valor,
               enabled: !widget.guardando,
@@ -264,13 +274,11 @@ class _FormularioPoliticaState extends State<_FormularioPolitica> {
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
               ],
-              decoration: InputDecoration(
-                labelText: _tipo == TipoCobroPenalizacion.porcentaje
-                    ? 'Porcentaje (0 a 100)'
-                    : 'Monto en pesos',
-              ),
+              label: _tipo == TipoCobroPenalizacion.porcentaje
+                  ? 'Porcentaje (0 a 100)'
+                  : 'Monto en pesos',
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             ManiButton(
               key: const Key('politica-guardar'),
               etiqueta: 'Guardar política',

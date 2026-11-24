@@ -1,10 +1,13 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
-import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas.dart';
+import 'package:mani/features/catalog/map/presentation/widgets/mapa_zonas_diferido.dart';
 import 'package:mani/features/profiles/company_sites/domain/entities/sede_empresa.dart';
 import 'package:mani/features/profiles/company_sites/presentation/bloc/sedes_empresa_cubit.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Pantalla de gestión de múltiples sedes (`sitio`) del cliente empresa de la
 /// sesión (US-02.2.2 / SCRUM-852, SCRUM-1387): alta y edición, cada sede con
@@ -76,10 +79,11 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
             ),
           ),
           actions: [
-            TextButton(
+            ManiButton(
               key: const Key('btn_cancelar_edicion'),
+              variante: ManiButtonVariante.enlace,
+              etiqueta: 'Cancelar',
               onPressed: () => Navigator.of(dialogo).pop(),
-              child: const Text('Cancelar'),
             ),
           ],
         ),
@@ -90,21 +94,13 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'Mis Sedes y Sucursales Corporativas',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
-          ),
-        ),
-      ),
+      backgroundColor: context.mani.background,
+      appBar: barraDePantalla(context, titulo: 'Mis sedes'),
       body: BlocBuilder<SedesEmpresaCubit, SedesEmpresaState>(
         builder: (context, state) {
+          if (state.soloClientesEmpresa) {
+            return const _SoloClientesEmpresa();
+          }
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Center(
@@ -117,7 +113,7 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                       _Banner(
                         key: const Key('banner_error_sedes'),
                         texto: state.error!,
-                        color: AppTheme.error,
+                        color: ManiColors.danger,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -125,7 +121,7 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                       _Banner(
                         key: const Key('banner_aviso_sedes'),
                         texto: state.aviso!,
-                        color: AppTheme.dark,
+                        color: context.mani.ink,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -153,7 +149,7 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
-                                color: AppTheme.dark,
+                                color: context.mani.ink,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -165,7 +161,10 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                             const SizedBox(height: 12),
                             // Alto fijo: la pantalla ya hace scroll, así que el
                             // mapa no puede pedir el espacio disponible.
-                            const MapaZonas(key: Key('sedes_mapa'), alto: 320),
+                            const MapaZonasDiferido(
+                              key: Key('sedes_mapa'),
+                              alto: 320,
+                            ),
                           ],
                         ),
                       ),
@@ -176,7 +175,7 @@ class _GestionSedesEmpresaPageState extends State<GestionSedesEmpresaPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
+                        color: context.mani.ink,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -281,7 +280,7 @@ class _FormularioSedeState extends State<FormularioSede> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 15,
                 fontWeight: FontWeight.w900,
-                color: AppTheme.dark,
+                color: context.mani.ink,
               ),
             ),
             const SizedBox(height: 12),
@@ -292,12 +291,12 @@ class _FormularioSedeState extends State<FormularioSede> {
               key: const Key('error_formulario_sede'),
               style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w700,
-                color: AppTheme.error,
+                color: ManiColors.danger,
               ),
             ),
             const SizedBox(height: 12),
           ],
-          TextFormField(
+          ManiTextField(
             key: const Key('input_nombre_sede'),
             controller: _nombre,
             decoration: const InputDecoration(
@@ -308,7 +307,7 @@ class _FormularioSedeState extends State<FormularioSede> {
                 : null,
           ),
           const SizedBox(height: 12),
-          TextFormField(
+          ManiTextField(
             key: const Key('input_direccion_sede'),
             controller: _direccion,
             decoration: const InputDecoration(
@@ -341,7 +340,7 @@ class _FormularioSedeState extends State<FormularioSede> {
                 campo.didChange(z.id);
               },
               fieldViewBuilder: (context, texto, foco, alEnviar) =>
-                  TextFormField(
+                  ManiTextField(
                     key: const Key('input_zona_sede'),
                     controller: texto,
                     focusNode: foco,
@@ -365,7 +364,7 @@ class _FormularioSedeState extends State<FormularioSede> {
             ),
           ),
           const SizedBox(height: 12),
-          TextFormField(
+          ManiTextField(
             key: const Key('input_contacto_sede'),
             controller: _contactoNombre,
             decoration: const InputDecoration(
@@ -373,7 +372,7 @@ class _FormularioSedeState extends State<FormularioSede> {
             ),
           ),
           const SizedBox(height: 12),
-          TextFormField(
+          ManiTextField(
             key: const Key('input_telefono_sede'),
             controller: _contactoTelefono,
             keyboardType: TextInputType.phone,
@@ -382,10 +381,10 @@ class _FormularioSedeState extends State<FormularioSede> {
             ),
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
+          ManiButton(
             key: const Key('btn_guardar_sede'),
+            etiqueta: widget.guardando ? 'GUARDANDO...' : widget.textoBoton,
             onPressed: widget.guardando || sinZonas ? null : _guardar,
-            child: Text(widget.guardando ? 'GUARDANDO...' : widget.textoBoton),
           ),
         ],
       ),
@@ -404,9 +403,9 @@ class _Tarjeta extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowSm],
+        borderRadius: BorderRadius.circular(24.0),
+        border: Border.all(color: context.mani.ink, width: 2),
+        boxShadow: const [ManiShadow.sm],
       ),
       child: child,
     );
@@ -425,7 +424,7 @@ class _Banner extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+        borderRadius: BorderRadius.circular(ManiRadius.lg),
         border: Border.all(color: color, width: 2),
       ),
       child: Text(
@@ -456,12 +455,12 @@ class _SedeCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
+        borderRadius: BorderRadius.circular(ManiRadius.lg),
+        border: Border.all(color: context.mani.ink, width: 2),
       ),
       child: Row(
         children: [
-          const Icon(Icons.business_rounded, color: AppTheme.dark, size: 28),
+          Icon(Icons.business_rounded, color: context.mani.ink, size: 28),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -472,14 +471,14 @@ class _SedeCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
                 ),
                 Text(
                   '${sede.direccion} · Zona: $zona',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
-                    color: AppTheme.textSecondary,
+                    color: context.mani.inkMuted,
                   ),
                 ),
               ],
@@ -492,6 +491,53 @@ class _SedeCard extends StatelessWidget {
             onPressed: onEditar,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Explicación para quien entra con una cuenta que no es de cliente empresa: las sedes no le aplican, así que no se
+/// muestran los formularios (no podrían funcionar) ni un error genérico.
+class _SoloClientesEmpresa extends StatelessWidget {
+  const _SoloClientesEmpresa();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: _Tarjeta(
+            child: Column(
+              key: const Key('sedes_solo_empresa'),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.apartment_outlined,
+                  size: 36,
+                  color: context.mani.ink,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Las sedes son para clientes empresa',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: context.mani.ink,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tu cuenta es de persona natural, así que no necesitas registrar sedes: '
+                  'al pedir un servicio indicas la dirección directamente. '
+                  'Si representas a una empresa, regístrala como cliente empresa desde la pantalla de inicio de sesión.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

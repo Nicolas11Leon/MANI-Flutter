@@ -1,10 +1,11 @@
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/platform/guardador_archivo.dart';
-import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/barra_acciones_flujo.dart';
 import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
     show formatearPesos;
 
@@ -39,6 +40,29 @@ class PagoSandboxPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Pago en sandbox')),
+      // Barra estándar de los flujos: Atrás y la acción principal, siempre abajo (SCRUM-1647). Con el pago aprobado la
+      // acción principal pasa a «Listo» y vuelve a la solicitud.
+      bottomNavigationBar: BlocBuilder<PagoCubit, PagoState>(
+        builder: (context, state) {
+          final aprobado = state.pago?.aprobado ?? false;
+          void volver() => Navigator.of(context).maybePop();
+          return BarraAccionesFlujo(
+            claveAtras: const Key('btn-pago-atras'),
+            onAtras: state.pagando ? null : volver,
+            clavePrincipal: Key(
+              aprobado ? 'btn-pago-listo' : 'btn-pagar-sandbox',
+            ),
+            etiquetaPrincipal: aprobado ? 'Listo' : 'Pagar (simulado)',
+            iconoPrincipal: aprobado
+                ? Icons.check_rounded
+                : Icons.payments_outlined,
+            cargando: state.pagando,
+            onPrincipal: state.pagando
+                ? null
+                : (aprobado ? volver : context.read<PagoCubit>().pagar),
+          );
+        },
+      ),
       body: BlocBuilder<PagoCubit, PagoState>(
         builder: (context, state) {
           final cubit = context.read<PagoCubit>();
@@ -79,14 +103,6 @@ class PagoSandboxPage extends StatelessWidget {
                           },
                   ),
                   const SizedBox(height: 16),
-                  ManiButton(
-                    key: const Key('btn-pagar-sandbox'),
-                    etiqueta: 'Pagar (simulado)',
-                    icono: Icons.payments_outlined,
-                    expandir: true,
-                    cargando: state.pagando,
-                    onPressed: state.pagando ? null : cubit.pagar,
-                  ),
                   if (state.error != null) ...[
                     const SizedBox(height: 16),
                     _ErrorPago(error: state.error!),
@@ -285,11 +301,12 @@ class _Comprobante extends StatelessWidget {
             ],
             if (guardador != null) ...[
               const SizedBox(height: 8),
-              OutlinedButton.icon(
+              ManiButton(
                 key: const Key('btn-descargar-comprobante'),
+                variante: ManiButtonVariante.secundario,
+                icono: Icons.download_outlined,
+                etiqueta: 'Descargar comprobante',
                 onPressed: () => _descargar(context),
-                icon: const Icon(Icons.download_outlined),
-                label: const Text('Descargar comprobante'),
               ),
             ],
           ],

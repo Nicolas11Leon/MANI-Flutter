@@ -248,7 +248,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(resumen.pedido, RolUsuario.adminTenant);
-      expect(find.text('Hola, Ana Pérez'), findsOneWidget);
+      expect(find.text('Ana Pérez'), findsOneWidget);
       expect(find.text('4'), findsOneWidget);
       expect(find.text('Aliados por verificar'), findsOneWidget);
       expect(
@@ -325,31 +325,49 @@ void main() {
       );
     });
 
+    testWidgets('no duplica el botón de cerrar sesión al final del dashboard', (
+      tester,
+    ) async {
+      await montar(
+        tester,
+        rol: RolUsuario.cliente,
+        resumen: _ResumenFijo(const []),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('inicio-card-sesion')), findsNothing);
+      expect(find.byKey(const Key('inicio-cerrar-sesion')), findsNothing);
+    });
+
     testWidgets(
-      'muestra tarjeta de cerrar sesión cuando onCerrarSesion está configurado y lo ejecuta',
+      'en escritorio, la tarjeta de cerrar sesión pide confirmación (QAS-39)',
       (tester) async {
-        var cerro = false;
+        tester.view.physicalSize = const Size(1400, 1600);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        var cerro = 0;
         await montar(
           tester,
           rol: RolUsuario.cliente,
           resumen: _ResumenFijo(const []),
-          onCerrarSesion: () async => cerro = true,
+          onCerrarSesion: () async => cerro++,
         );
         await tester.pumpAndSettle();
 
-        final cardSesion = find.byKey(const Key('inicio-card-sesion'));
-        await tester.scrollUntilVisible(cardSesion, 200);
-        expect(cardSesion, findsOneWidget);
-        // La pantalla pinta una tarjeta por entrada del menú del rol, así que
-        // al crecer el menú el botón queda por debajo del pliegue y un toque
-        // a ciegas no aterriza. Se asegura la visibilidad antes de tocar.
-        await tester.ensureVisible(
-          find.byKey(const Key('inicio-cerrar-sesion')),
-        );
+        final tarjeta = find.byKey(const Key('inicio-cerrar-sesion'));
+        await tester.ensureVisible(tarjeta);
+        await tester.tap(tarjeta);
         await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const Key('inicio-cerrar-sesion')));
+        expect(find.text('¿Cerrar sesión?'), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('confirmacion-cancelar')));
         await tester.pumpAndSettle();
-        expect(cerro, isTrue);
+        expect(cerro, 0);
+
+        await tester.tap(tarjeta);
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('confirmacion-confirmar')));
+        await tester.pumpAndSettle();
+        expect(cerro, 1);
       },
     );
   });

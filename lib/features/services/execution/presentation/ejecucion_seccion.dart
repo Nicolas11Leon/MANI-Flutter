@@ -39,39 +39,42 @@ class EjecucionSeccion extends StatelessWidget {
         final e = state.ejecucion;
         return ManiCard(
           key: const Key('seccion-ejecucion'),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(ManiSpace.xl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(ManiSpace.sm),
                     decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                      border: Border.all(color: AppTheme.dark, width: 1.5),
+                      color: context.mani.brand,
+                      borderRadius: ManiRadius.brXs,
+                      border: Border.all(
+                        color: context.mani.border,
+                        width: ManiBorder.thin,
+                      ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.play_circle_outline,
                       size: 18,
-                      color: AppTheme.dark,
+                      color: context.mani.onBrand,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  ManiGap.hSm,
                   Text(
                     'Ejecución',
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: ManiFontSize.bodyLg,
                       fontWeight: FontWeight.w800,
-                      color: AppTheme.dark,
+                      color: context.mani.ink,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              ManiGap.vMd,
               if (state.cargando && e == null)
-                const LinearProgressIndicator(color: AppTheme.dark)
+                LinearProgressIndicator(color: context.mani.ink)
               else if (state.error != null && e == null)
                 Row(
                   children: [
@@ -105,7 +108,7 @@ class _Marca extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = marca;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: ManiSpace.xxs),
       child: Text(
         m == null
             ? '$etiqueta: pendiente'
@@ -127,7 +130,7 @@ class _Acciones extends StatelessWidget {
     final cubit = context.read<EjecucionCubit>();
     if (ejecucion.finalizada) {
       return const Padding(
-        padding: EdgeInsets.only(top: 8),
+        padding: EdgeInsets.only(top: ManiSpace.sm),
         child: Text('Servicio finalizado.'),
       );
     }
@@ -136,12 +139,12 @@ class _Acciones extends StatelessWidget {
         : HitoEjecucion.inicio;
     if (hito == HitoEjecucion.inicio && !ejecucion.puedeIniciar) {
       return const Padding(
-        padding: EdgeInsets.only(top: 8),
+        padding: EdgeInsets.only(top: ManiSpace.sm),
         child: Text('Podrás iniciar cuando el cliente acepte la cotización.'),
       );
     }
     return Padding(
-      padding: const EdgeInsets.only(top: 14),
+      padding: const EdgeInsets.only(top: ManiSpace.md),
       child: Align(
         alignment: Alignment.centerLeft,
         child: ConstrainedBox(

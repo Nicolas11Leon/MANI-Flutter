@@ -1,8 +1,11 @@
 import 'package:mani/features/profiles/company_sites/domain/entities/sede_empresa.dart';
 
 class SedeEmpresaFailure implements Exception {
-  const SedeEmpresaFailure(this.message);
+  const SedeEmpresaFailure(this.message, {this.soloClientesEmpresa = false});
   final String message;
+
+  /// Core respondió que la cuenta no es de un cliente empresa: la pantalla no aplica, no es un fallo transitorio.
+  final bool soloClientesEmpresa;
 
   @override
   String toString() => message;

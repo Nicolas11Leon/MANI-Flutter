@@ -1,13 +1,17 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
 import 'package:mani/core/widgets/mani_layout.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/features/profiles/own_profile/data/datasources/perfil_propio_remote_datasource.dart';
 import 'package:mani/features/profiles/own_profile/domain/entities/perfil_propio.dart';
 import 'package:mani/features/profiles/own_profile/presentation/widgets/foto_perfil_selector_widget.dart';
+import 'package:mani/core/widgets/mani_pagina.dart' show ManiEncabezadoPantalla;
 
 /// US-02.3.1 (SCRUM-854 / SCRUM-1029 / SCRUM-1030):
 /// Formulario donde el usuario (Cliente o Aliado) ve sus datos actuales y puede
@@ -155,71 +159,78 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _cargando
-          ? const Center(child: CircularProgressIndicator())
-          : LayoutBuilder(
-              builder: (context, c) => SingleChildScrollView(
-                padding: ManiContenido.margenes(c.maxWidth),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const ManiEncabezado(
-                        icono: Icons.manage_accounts_outlined,
-                        titulo: 'Editar mi perfil',
-                        descripcion:
-                            'Actualiza tus datos de contacto y tu foto. El rol y el estado de la cuenta no se pueden cambiar.',
-                      ),
-                      const SizedBox(height: 28),
-                      if (_mensajeError != null)
-                        _Aviso(
-                          texto: _mensajeError!,
-                          textoKey: const Key('banner-error-perfil'),
-                          error: true,
-                        ),
-                      if (_mensajeExito != null)
-                        _Aviso(
-                          texto: _mensajeExito!,
-                          textoKey: const Key('banner-exito-perfil'),
-                        ),
-                      if (c.maxWidth >= anchoEscritorio)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const ManiEncabezadoPantalla(
+            ancho: ManiAncho.panel,
+            icono: Icons.manage_accounts_outlined,
+            titulo: 'Editar mi perfil',
+            descripcion:
+                'Actualiza tus datos de contacto y tu foto. El rol y el estado de la cuenta no se pueden cambiar.',
+          ),
+          Expanded(
+            child: _cargando
+                ? const ManiCargando()
+                : LayoutBuilder(
+                    builder: (context, c) => SingleChildScrollView(
+                      padding: ManiContenido.margenes(c.maxWidth),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(flex: 4, child: _tarjetaCuenta()),
-                            const SizedBox(width: 28),
-                            Expanded(flex: 6, child: _tarjetaDatos()),
+                            if (_mensajeError != null)
+                              _Aviso(
+                                texto: _mensajeError!,
+                                textoKey: const Key('banner-error-perfil'),
+                                error: true,
+                              ),
+                            if (_mensajeExito != null)
+                              _Aviso(
+                                texto: _mensajeExito!,
+                                textoKey: const Key('banner-exito-perfil'),
+                              ),
+                            if (c.maxWidth >= anchoEscritorio)
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(flex: 4, child: _tarjetaCuenta()),
+                                  ManiGap.hXxl,
+                                  Expanded(flex: 6, child: _tarjetaDatos()),
+                                ],
+                              )
+                            else ...[
+                              _tarjetaCuenta(),
+                              ManiGap.vXxl,
+                              _tarjetaDatos(),
+                            ],
+                            ManiGap.vXxl,
+                            _barraAccion(c.maxWidth),
+                            ManiGap.vHuge,
                           ],
-                        )
-                      else ...[
-                        _tarjetaCuenta(),
-                        const SizedBox(height: 24),
-                        _tarjetaDatos(),
-                      ],
-                      const SizedBox(height: 24),
-                      _barraAccion(c.maxWidth),
-                      const SizedBox(height: 40),
-                    ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _tarjetaCuenta() {
     return Container(
       decoration: maniCaja(),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(ManiSpace.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ManiTituloSeccion(
+          const ManiTituloTarjeta(
             icono: Icons.badge_outlined,
             texto: '1. Tu cuenta',
           ),
-          const SizedBox(height: 20),
+          ManiGap.vXl,
           if (_perfil != null) ...[
             FotoPerfilSelectorWidget(
               fullName: _perfil!.fullName,
@@ -228,19 +239,20 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
               onFotoSeleccionada: _subirFoto,
               selectorImagen: widget.selectorImagen,
             ),
-            const SizedBox(height: 16),
+            ManiGap.vLg,
             Wrap(
               alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
+              spacing: ManiSpace.sm,
+              runSpacing: ManiSpace.sm,
               children: [
-                Chip(
+                ManiEstado(
                   key: const Key('chip-rol-solo-lectura'),
-                  label: Text('Rol: ${_perfil!.role}'),
+                  texto: _textoRol(_perfil!.role),
                 ),
-                Chip(
+                ManiEstado(
                   key: const Key('chip-estado-solo-lectura'),
-                  label: Text('Estado: ${_perfil!.status}'),
+                  texto: _estado(_perfil!.status).$1,
+                  tono: _estado(_perfil!.status).$2,
                 ),
               ],
             ),
@@ -253,17 +265,17 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
   Widget _tarjetaDatos() {
     return Container(
       decoration: maniCaja(),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(ManiSpace.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ManiTituloSeccion(
+          const ManiTituloTarjeta(
             icono: Icons.person_outline,
             texto: '2. Datos de contacto',
           ),
-          const SizedBox(height: 20),
+          ManiGap.vXl,
           const ManiEtiquetaCampo('Nombre completo o razón social'),
-          TextFormField(
+          ManiTextField(
             key: const Key('input-nombre-perfil'),
             controller: _nombreController,
             decoration: const InputDecoration(
@@ -278,9 +290,9 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
               return null;
             },
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
           const ManiEtiquetaCampo('Teléfono de contacto'),
-          TextFormField(
+          ManiTextField(
             key: const Key('input-telefono-perfil'),
             controller: _telefonoController,
             keyboardType: TextInputType.phone,
@@ -296,9 +308,9 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
               return null;
             },
           ),
-          const SizedBox(height: 18),
+          ManiGap.vLg,
           const ManiEtiquetaCampo('Dirección principal'),
-          TextFormField(
+          ManiTextField(
             key: const Key('input-direccion-perfil'),
             controller: _direccionController,
             decoration: const InputDecoration(
@@ -331,33 +343,33 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
     );
     final texto = Row(
       children: [
-        const Icon(Icons.lock_outline, color: AppTheme.dark),
-        const SizedBox(width: 12),
+        Icon(Icons.lock_outline, color: context.mani.ink),
+        ManiGap.hMd,
         Expanded(
           child: Text(
             'Tus datos solo se comparten con el aliado al confirmar un servicio.',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 12,
-              color: AppTheme.textSecondary,
+              fontSize: ManiFontSize.caption,
+              color: context.mani.inkMuted,
             ),
           ),
         ),
       ],
     );
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(ManiSpace.xxl),
       decoration: maniCaja(),
       child: ancho >= 600
           ? Row(
               children: [
                 Expanded(child: texto),
-                const SizedBox(width: 24),
+                ManiGap.hXxl,
                 SizedBox(width: 320, child: boton),
               ],
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [texto, const SizedBox(height: 16), boton],
+              children: [texto, ManiGap.vLg, boton],
             ),
     );
   }
@@ -377,14 +389,17 @@ class _Aviso extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = error ? AppTheme.error : AppTheme.success;
+    final color = error ? ManiColors.danger : ManiColors.success;
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.only(bottom: ManiSpace.xl),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ManiSpace.lg,
+        vertical: ManiSpace.md,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: color, width: 2),
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: color, width: ManiBorder.regular),
       ),
       child: Row(
         children: [
@@ -392,15 +407,15 @@ class _Aviso extends StatelessWidget {
             error ? Icons.error_outline : Icons.check_circle_outline,
             color: color,
           ),
-          const SizedBox(width: 10),
+          ManiGap.hSm,
           Expanded(
             child: Text(
               texto,
               key: textoKey,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 13,
+                fontSize: ManiFontSize.bodySm,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.dark,
+                color: context.mani.ink,
               ),
             ),
           ),
@@ -409,3 +424,22 @@ class _Aviso extends StatelessWidget {
     );
   }
 }
+
+/// El rol en palabras de persona; un valor desconocido se muestra tal cual.
+String _textoRol(String rol) => switch (rol.toUpperCase()) {
+  'ALLY' || 'ALIADO' => 'Aliado',
+  'CLIENT' || 'CLIENTE' => 'Cliente',
+  'ADMIN_TENANT' || 'ADMIN_PLATAFORMA' || 'ADMIN' => 'Administrador',
+  _ => rol,
+};
+
+/// El estado de la cuenta como texto de persona y su tono; un valor desconocido se muestra tal cual.
+(String, ManiTono) _estado(String estado) => switch (estado.toUpperCase()) {
+  'VERIFIED' || 'VERIFICADO' => ('Verificado', ManiTono.listo),
+  'ACTIVE' || 'ACTIVO' => ('Cuenta activa', ManiTono.listo),
+  'PENDING' ||
+  'PENDING_VERIFICATION' ||
+  'IN_REVIEW' => ('En verificación', ManiTono.atencion),
+  'SUSPENDED' || 'REJECTED' || 'SUSPENDIDO' => ('Suspendida', ManiTono.mal),
+  _ => (estado, ManiTono.neutro),
+};

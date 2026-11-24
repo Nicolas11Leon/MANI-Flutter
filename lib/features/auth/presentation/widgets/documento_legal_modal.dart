@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mani/core/widgets/mani_pulsable.dart';
 import 'package:mani/core/network/gateway_client.dart';
 import 'package:mani/core/theme/app_theme.dart';
 
@@ -89,24 +90,27 @@ class _DocumentoLegalModalState extends State<DocumentoLegalModal> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppTheme.background,
+      backgroundColor: ManiColors.background,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        side: const BorderSide(color: AppTheme.dark, width: 3),
+        borderRadius: ManiRadius.brLg,
+        side: const BorderSide(color: ManiColors.ink, width: 3),
       ),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 680, maxHeight: 640),
+        constraints: const BoxConstraints(
+          maxWidth: ManiAncho.formulario,
+          maxHeight: 640,
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(ManiSpace.xxl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildHeader(context),
-              const SizedBox(height: 16),
+              ManiGap.vLg,
               _buildTabs(),
-              const SizedBox(height: 16),
+              ManiGap.vLg,
               Expanded(child: _buildDocumentBody()),
-              const SizedBox(height: 16),
+              ManiGap.vLg,
               _buildFooterActions(context),
             ],
           ),
@@ -119,19 +123,22 @@ class _DocumentoLegalModalState extends State<DocumentoLegalModal> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(ManiSpace.sm),
           decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-            border: Border.all(color: AppTheme.dark, width: 2),
+            color: ManiColors.brand,
+            borderRadius: ManiRadius.brSm,
+            border: Border.all(
+              color: ManiColors.border,
+              width: ManiBorder.regular,
+            ),
           ),
           child: const Icon(
             Icons.gavel_rounded,
-            color: AppTheme.dark,
+            color: ManiColors.ink,
             size: 22,
           ),
         ),
-        const SizedBox(width: 12),
+        ManiGap.hMd,
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,17 +146,17 @@ class _DocumentoLegalModalState extends State<DocumentoLegalModal> {
               Text(
                 'Documentos Legales y Habeas Data',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 18,
+                  fontSize: ManiFontSize.title,
                   fontWeight: FontWeight.w900,
-                  color: AppTheme.dark,
+                  color: ManiColors.ink,
                 ),
               ),
               Text(
                 'Versión vigente ${_seleccionado.version} · Cumplimiento Ley 1581 de 2012',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
+                  fontSize: ManiFontSize.caption,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.textSecondary,
+                  color: ManiColors.inkMuted,
                 ),
               ),
             ],
@@ -158,7 +165,7 @@ class _DocumentoLegalModalState extends State<DocumentoLegalModal> {
         IconButton(
           key: const Key('btn_cerrar_modal_legal'),
           onPressed: () => Navigator.of(context).pop(false),
-          icon: const Icon(Icons.close_rounded, color: AppTheme.dark),
+          icon: const Icon(Icons.close_rounded, color: ManiColors.ink),
         ),
       ],
     );
@@ -174,7 +181,7 @@ class _DocumentoLegalModalState extends State<DocumentoLegalModal> {
             etiqueta: 'Términos y Condiciones',
           ),
         ),
-        const SizedBox(width: 10),
+        ManiGap.hSm,
         Expanded(
           child: _buildTabButton(
             key: const Key('tab_politica_datos'),
@@ -192,25 +199,31 @@ class _DocumentoLegalModalState extends State<DocumentoLegalModal> {
     required String etiqueta,
   }) {
     final activo = _seleccionado == tipo;
-    return GestureDetector(
+    return ManiPulsable(
       key: key,
       onTap: () => setState(() => _seleccionado = tipo),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(
+          horizontal: ManiSpace.md,
+          vertical: ManiSpace.sm,
+        ),
         decoration: BoxDecoration(
-          color: activo ? AppTheme.primary : Colors.white,
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          border: Border.all(color: AppTheme.dark, width: 2),
-          boxShadow: activo ? const [AppTheme.hardShadowSm] : const [],
+          color: activo ? ManiColors.brand : Colors.white,
+          borderRadius: ManiRadius.brMd,
+          border: Border.all(
+            color: ManiColors.border,
+            width: ManiBorder.regular,
+          ),
+          boxShadow: activo ? const [ManiShadow.sm] : const [],
         ),
         alignment: Alignment.center,
         child: Text(
           etiqueta,
           textAlign: TextAlign.center,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 12,
+            fontSize: ManiFontSize.caption,
             fontWeight: FontWeight.w800,
-            color: AppTheme.dark,
+            color: ManiColors.ink,
           ),
         ),
       ),
@@ -241,11 +254,11 @@ class _DocumentoLegalModalState extends State<DocumentoLegalModal> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(ManiSpace.lg),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
       ),
       child: SingleChildScrollView(
         key: const Key('scroll_contenido_documento_legal'),
@@ -255,27 +268,27 @@ class _DocumentoLegalModalState extends State<DocumentoLegalModal> {
             Text(
               _seleccionado.titulo,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 15,
+                fontSize: ManiFontSize.bodyLg,
                 fontWeight: FontWeight.w900,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
-            const SizedBox(height: 4),
+            ManiGap.vXs,
             Text(
               'Código: ${_seleccionado.codigo} · Versión $version',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 11,
+                fontSize: ManiFontSize.micro,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.textSecondary,
+                color: ManiColors.inkMuted,
               ),
             ),
             const Divider(height: 20),
             Text(
               contenido,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 13,
+                fontSize: ManiFontSize.bodySm,
                 height: 1.5,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
           ],
@@ -293,33 +306,39 @@ class _DocumentoLegalModalState extends State<DocumentoLegalModal> {
           child: Text(
             'CERRAR',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 12,
+              fontSize: ManiFontSize.caption,
               fontWeight: FontWeight.w800,
-              color: AppTheme.textSecondary,
+              color: ManiColors.inkMuted,
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        GestureDetector(
+        ManiGap.hMd,
+        ManiPulsable(
           key: const Key('btn_confirmar_lectura_terminos'),
           onTap: () {
             widget.onAceptar?.call();
             Navigator.of(context).pop(true);
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: ManiSpace.xl,
+              vertical: ManiSpace.md,
+            ),
             decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
+              color: ManiColors.brand,
+              borderRadius: ManiRadius.brMd,
+              border: Border.all(
+                color: ManiColors.border,
+                width: ManiBorder.regular,
+              ),
+              boxShadow: const [ManiShadow.sm],
             ),
             child: Text(
               'HE LEÍDO Y ACEPTO LOS DOCUMENTOS',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 12,
+                fontSize: ManiFontSize.caption,
                 fontWeight: FontWeight.w900,
-                color: AppTheme.dark,
+                color: ManiColors.ink,
               ),
             ),
           ),

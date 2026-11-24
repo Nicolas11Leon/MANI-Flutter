@@ -76,8 +76,24 @@ class EventoServicio extends Equatable {
     'EJECUCION_AVANCE' => 'Avance',
     'EJECUCION_NOVEDAD' => 'Novedad',
     'EJECUCION_OBSERVACION' => 'Observación',
-    _ => tipo,
+    'SOLICITUD_ASIGNADA' => 'Aliado asignado',
+    'SOLICITUD_CANCELADA' => 'Solicitud cancelada',
+    'ADICION_SOLICITADA' => 'Adición solicitada',
+    'ADICION_ACEPTADA' => 'Adición aceptada',
+    'ADICION_RECHAZADA' => 'Adición rechazada',
+    'CALIFICACION_ALIADO' => 'Calificación al aliado',
+    'CALIFICACION_CLIENTE' => 'Calificación al cliente',
+    'SERVICIO_CERRADO' => 'Servicio cerrado',
+    _ => _legible(tipo),
   };
+
+  /// Un tipo que la app no conoce se muestra como texto («SERVICIO_PAUSADO» → «Servicio pausado»), nunca como el
+  /// código de Core.
+  static String _legible(String codigo) {
+    final texto = codigo.replaceAll('_', ' ').trim().toLowerCase();
+    if (texto.isEmpty) return codigo;
+    return texto[0].toUpperCase() + texto.substring(1);
+  }
 
   @override
   List<Object?> get props => [

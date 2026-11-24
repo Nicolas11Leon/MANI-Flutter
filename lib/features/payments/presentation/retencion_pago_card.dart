@@ -5,6 +5,7 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 import '../data/cobros_datasource.dart';
 import '../domain/cobros.dart';
 import '../domain/pago.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Estado de la retención en garantía de un pago aprobado (SCRUM-891 y 892).
 /// Es una simulación: lo dice siempre, para que no se lea como custodia real.
@@ -35,7 +36,7 @@ class _RetencionPagoCardState extends State<RetencionPagoCard> {
         if (snap.hasError) {
           final e = snap.error;
           return Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: ManiSpace.sm),
             child: Text(
               e is PagoFailure
                   ? e.mensajeUsuario
@@ -46,16 +47,16 @@ class _RetencionPagoCardState extends State<RetencionPagoCard> {
         }
         if (!snap.hasData) {
           return const Padding(
-            padding: EdgeInsets.only(top: 8),
+            padding: EdgeInsets.only(top: ManiSpace.sm),
             child: LinearProgressIndicator(),
           );
         }
         final r = snap.data!;
         return Card(
           key: const Key('retencion-pago'),
-          margin: const EdgeInsets.only(top: 8),
+          margin: const EdgeInsets.only(top: ManiSpace.sm),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(ManiSpace.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

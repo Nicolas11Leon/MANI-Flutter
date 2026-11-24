@@ -4,6 +4,7 @@ import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_esqueleto.dart';
 import 'package:mani/core/widgets/mani_snackbar.dart';
 import 'package:mani/features/availability/domain/entities/ausencia.dart';
 import 'package:mani/features/availability/presentation/bloc/disponibilidad_cubit.dart';
@@ -29,12 +30,10 @@ class DisponibilidadView extends StatelessWidget {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppTheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppTheme.radius2xl),
-        ),
-        side: BorderSide(color: AppTheme.dark, width: 2),
+      backgroundColor: context.mani.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+        side: BorderSide(color: context.mani.ink, width: 2),
       ),
       builder: (_) => FormularioAusencia(
         ahora: cubit.ahora(),
@@ -68,17 +67,16 @@ class DisponibilidadView extends StatelessWidget {
           'y ${formatearFechaHora(ausencia.fin)}.',
         ),
         actions: [
-          TextButton(
+          ManiButton(
+            variante: ManiButtonVariante.enlace,
+            etiqueta: 'Cancelar',
             onPressed: () => Navigator.of(dialogo).pop(false),
-            child: const Text('Cancelar'),
           ),
-          TextButton(
+          ManiButton(
             key: const ValueKey('confirmar-eliminar'),
+            variante: ManiButtonVariante.enlace,
+            etiqueta: 'Eliminar',
             onPressed: () => Navigator.of(dialogo).pop(true),
-            child: const Text(
-              'Eliminar',
-              style: TextStyle(color: AppTheme.error),
-            ),
           ),
         ],
       ),
@@ -97,7 +95,7 @@ class DisponibilidadView extends StatelessWidget {
         esError: state.aviso!.esError,
       ),
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.mani.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -106,8 +104,9 @@ class DisponibilidadView extends StatelessWidget {
                 child: BlocBuilder<DisponibilidadCubit, DisponibilidadState>(
                   builder: (context, state) => switch (state.carga) {
                     CargaDisponibilidad.inicial ||
-                    CargaDisponibilidad.cargando => const Center(
-                      child: CircularProgressIndicator(color: AppTheme.dark),
+                    CargaDisponibilidad.cargando => Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: ManiEsqueleto.tarjetas(),
                     ),
                     CargaDisponibilidad.error => _ErrorCarga(
                       mensaje:
@@ -158,9 +157,9 @@ class _BarraSuperior extends StatelessWidget {
   Widget build(BuildContext context) {
     final puedeVolver = Navigator.of(context).canPop();
     return Container(
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(bottom: BorderSide(color: AppTheme.dark, width: 2)),
+      decoration: BoxDecoration(
+        color: context.mani.surface,
+        border: Border(bottom: BorderSide(color: context.mani.ink, width: 2)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
@@ -169,7 +168,7 @@ class _BarraSuperior extends StatelessWidget {
             IconButton(
               tooltip: 'Volver',
               onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.dark),
+              icon: Icon(Icons.arrow_back_rounded, color: context.mani.ink),
             ),
             const SizedBox(width: 4),
           ],
@@ -178,19 +177,19 @@ class _BarraSuperior extends StatelessWidget {
             height: 40,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.dark, width: 2),
-              boxShadow: const [AppTheme.hardShadowSm],
+              color: context.mani.brand,
+              borderRadius: BorderRadius.circular(ManiRadius.lg),
+              border: Border.all(color: context.mani.ink, width: 2),
+              boxShadow: const [ManiShadow.sm],
             ),
-            child: const Icon(
+            child: Icon(
               Icons.event_available_rounded,
-              color: AppTheme.dark,
+              color: context.mani.onBrand,
               size: 22,
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -200,7 +199,7 @@ class _BarraSuperior extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
                 ),
                 Text(
@@ -209,7 +208,7 @@ class _BarraSuperior extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: context.mani.inkMuted,
                   ),
                 ),
               ],
@@ -220,7 +219,7 @@ class _BarraSuperior extends StatelessWidget {
             tooltip: 'Actualizar',
             onPressed: () =>
                 context.read<DisponibilidadCubit>().cargar(silencioso: true),
-            icon: const Icon(Icons.refresh_rounded, color: AppTheme.dark),
+            icon: Icon(Icons.refresh_rounded, color: context.mani.ink),
           ),
         ],
       ),
@@ -246,23 +245,23 @@ class _Contenido extends StatelessWidget {
       children: [
         _EstadoActual(disponible: state.disponibleAhora),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'Ausencias programadas',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
+            color: context.mani.ink,
           ),
         ),
         const SizedBox(height: 10),
         if (state.ausencias.isEmpty)
-          const Padding(
+          Padding(
             key: ValueKey('sin-ausencias'),
             padding: EdgeInsets.symmetric(vertical: 24),
             child: Text(
               'No tienes ausencias programadas. Recibes solicitudes con normalidad.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textSecondary),
+              style: TextStyle(color: context.mani.inkMuted),
             ),
           )
         else
@@ -290,14 +289,16 @@ class _EstadoActual extends StatelessWidget {
   Widget build(BuildContext context) {
     return ManiCard(
       key: ValueKey(disponible ? 'estado-disponible' : 'estado-no-disponible'),
-      color: disponible ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
+      color: disponible
+          ? ManiColors.successContainer
+          : ManiColors.dangerContainer,
       child: Row(
         children: [
           Icon(
             disponible
                 ? Icons.check_circle_rounded
                 : Icons.do_not_disturb_on_rounded,
-            color: disponible ? AppTheme.success : AppTheme.error,
+            color: disponible ? ManiColors.successText : ManiColors.dangerText,
             size: 32,
           ),
           const SizedBox(width: 12),
@@ -307,20 +308,17 @@ class _EstadoActual extends StatelessWidget {
               children: [
                 Text(
                   disponible ? 'Disponible' : 'No disponible',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
                 ),
                 Text(
                   disponible
                       ? 'Estás recibiendo solicitudes nuevas.'
                       : 'Tienes una ausencia en curso: no recibes solicitudes nuevas.',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textSecondary,
-                  ),
+                  style: TextStyle(fontSize: 13, color: context.mani.inkMuted),
                 ),
               ],
             ),
@@ -359,10 +357,10 @@ class _TarjetaAusencia extends StatelessWidget {
                   children: [
                     Text(
                       ausencia.motivo.etiqueta,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
-                        color: AppTheme.dark,
+                        color: context.mani.ink,
                       ),
                     ),
                     if (ausencia.activa) ...[
@@ -373,11 +371,9 @@ class _TarjetaAusencia extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary,
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusSm,
-                          ),
-                          border: Border.all(color: AppTheme.dark),
+                          color: context.mani.brand,
+                          borderRadius: BorderRadius.circular(ManiRadius.sm),
+                          border: Border.all(color: context.mani.ink),
                         ),
                         child: const Text(
                           'En curso',
@@ -393,18 +389,15 @@ class _TarjetaAusencia extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Desde ${formatearFechaHora(ausencia.inicio)}\nHasta ${formatearFechaHora(ausencia.fin)}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textPrimary,
-                  ),
+                  style: TextStyle(fontSize: 13, color: context.mani.ink),
                 ),
                 if (ausencia.nota != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     ausencia.nota!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppTheme.textSecondary,
+                      color: context.mani.inkMuted,
                     ),
                   ),
                 ],
@@ -415,7 +408,7 @@ class _TarjetaAusencia extends StatelessWidget {
             key: ValueKey('editar-${ausencia.id}'),
             tooltip: 'Editar',
             onPressed: habilitada ? onEditar : null,
-            icon: const Icon(Icons.edit_outlined, color: AppTheme.dark),
+            icon: Icon(Icons.edit_outlined, color: context.mani.ink),
           ),
           IconButton(
             key: ValueKey('eliminar-${ausencia.id}'),
@@ -423,7 +416,7 @@ class _TarjetaAusencia extends StatelessWidget {
             onPressed: habilitada ? onEliminar : null,
             icon: const Icon(
               Icons.delete_outline_rounded,
-              color: AppTheme.error,
+              color: ManiColors.danger,
             ),
           ),
         ],
@@ -448,7 +441,7 @@ class _ErrorCarga extends StatelessWidget {
           Text(
             mensaje,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.textPrimary),
+            style: TextStyle(color: context.mani.ink),
           ),
           const SizedBox(height: 16),
           ManiButton(

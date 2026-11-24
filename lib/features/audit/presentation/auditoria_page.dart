@@ -1,3 +1,5 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/di/injection_container.dart';
@@ -7,6 +9,7 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 
 import '../domain/evento_transaccion.dart';
 import 'auditoria_cubit.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Auditoría de transacciones (SCRUM-889, HU-M11-03): el registro inmutable de
 /// pagos del tenant, solo para el administrador. Cada evento dice quién, cuándo
@@ -40,7 +43,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Auditoría de transacciones')),
+      appBar: barraDePantalla(context, titulo: 'Auditoría de transacciones'),
       body: BlocBuilder<AuditoriaCubit, AuditoriaState>(
         builder: (context, state) {
           final cubit = context.read<AuditoriaCubit>();
@@ -56,20 +59,20 @@ class _AuditoriaViewState extends State<AuditoriaView> {
               Row(
                 children: [
                   Expanded(
-                    child: TextField(
+                    child: ManiTextField(
                       key: const Key('filtro-pago'),
                       controller: _filtro,
                       decoration: const InputDecoration(
                         labelText: 'Filtrar por id de pago (opcional)',
                       ),
-                      onSubmitted: (v) => cubit.cargar(pagoId: v),
+                      onFieldSubmitted: (v) => cubit.cargar(pagoId: v),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  FilledButton(
+                  ManiButton(
                     key: const Key('btn-filtrar'),
+                    etiqueta: 'Buscar',
                     onPressed: () => cubit.cargar(pagoId: _filtro.text),
-                    child: const Text('Buscar'),
                   ),
                 ],
               ),
@@ -81,10 +84,11 @@ class _AuditoriaViewState extends State<AuditoriaView> {
                   children: [
                     Text(state.error!, key: const Key('error-auditoria')),
                     const SizedBox(height: 8),
-                    OutlinedButton(
+                    ManiButton(
                       key: const Key('reintentar-auditoria'),
+                      variante: ManiButtonVariante.secundario,
+                      etiqueta: 'Reintentar',
                       onPressed: () => cubit.cargar(pagoId: state.filtroPago),
-                      child: const Text('Reintentar'),
                     ),
                   ],
                 ),
@@ -96,10 +100,11 @@ class _AuditoriaViewState extends State<AuditoriaView> {
               for (final e in state.eventos) _TarjetaEvento(evento: e),
               if (state.hayMas)
                 Center(
-                  child: OutlinedButton(
+                  child: ManiButton(
                     key: const Key('cargar-mas'),
+                    variante: ManiButtonVariante.secundario,
+                    etiqueta: state.cargandoMas ? 'Cargando…' : 'Cargar más',
                     onPressed: state.cargandoMas ? null : cubit.cargarMas,
-                    child: Text(state.cargandoMas ? 'Cargando…' : 'Cargar más'),
                   ),
                 ),
             ],

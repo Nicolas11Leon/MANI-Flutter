@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:mani/features/catalog/map/data/mapa_remote_datasource.dart';
 import 'package:mani/features/catalog/map/domain/entities/geometria_zona.dart';
 import 'package:mani/features/catalog/map/presentation/bloc/mapa_cubit.dart';
@@ -96,6 +97,8 @@ void main() {
       ),
     );
     await tester.pump();
+    // El mapa es una librería diferida: el primer fotograma muestra el indicador y los siguientes, el mapa (SCRUM-1647).
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.byKey(const Key('mapa_zonas')), findsOneWidget);
     expect(find.byType(FlutterMap), findsOneWidget);
@@ -114,6 +117,8 @@ void main() {
   ) async {
     await tester.pumpWidget(_app(const MapaState(estado: MapaEstado.vacio)));
     await tester.pump();
+    // El mapa es una librería diferida: el primer fotograma muestra el indicador y los siguientes, el mapa (SCRUM-1647).
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.byType(FlutterMap), findsNothing);
     expect(find.text('Sin límites para mostrar'), findsOneWidget);
@@ -145,6 +150,8 @@ void main() {
       ),
     );
     await tester.pump();
+    // El mapa es una librería diferida: el primer fotograma muestra el indicador y los siguientes, el mapa (SCRUM-1647).
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.byKey(const Key('mapa_sin_geometria')), findsOneWidget);
     expect(find.textContaining('1 zona(s) sin límite cargado'), findsOneWidget);
@@ -180,6 +187,8 @@ void main() {
       ),
     );
     await tester.pump();
+    // El mapa es una librería diferida: el primer fotograma muestra el indicador y los siguientes, el mapa (SCRUM-1647).
+    await tester.pump(const Duration(milliseconds: 100));
 
     final capa = tester.widget<MarkerLayer>(find.byType(MarkerLayer));
     expect(capa.markers, hasLength(1));
@@ -215,6 +224,8 @@ void main() {
       ),
     );
     await tester.pump();
+    // El mapa es una librería diferida: el primer fotograma muestra el indicador y los siguientes, el mapa (SCRUM-1647).
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.byType(FlutterMap), findsOneWidget);
     expect(
@@ -249,6 +260,8 @@ void main() {
         ),
       );
       await tester.pump();
+      // El mapa es una librería diferida: el primer fotograma muestra el indicador y el segundo, el mapa (SCRUM-1647).
+      await tester.pump(const Duration(milliseconds: 100));
 
       final poligono = tester
           .widget<PolygonLayer>(find.byType(PolygonLayer))
@@ -293,6 +306,8 @@ void main() {
       ),
     );
     await tester.pump();
+    // El mapa es una librería diferida: el primer fotograma muestra el indicador y los siguientes, el mapa (SCRUM-1647).
+    await tester.pump(const Duration(milliseconds: 100));
 
     final poligono = tester
         .widget<PolygonLayer>(find.byType(PolygonLayer))
@@ -316,10 +331,12 @@ void main() {
       ),
     );
     await tester.pump();
+    // El mapa es una librería diferida: el primer fotograma muestra el indicador y los siguientes, el mapa (SCRUM-1647).
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('No se pudo cargar el mapa'), findsOneWidget);
     expect(find.text('Gateway caído'), findsOneWidget);
-    expect(find.widgetWithText(FilledButton, 'Reintentar'), findsOneWidget);
+    expect(find.widgetWithText(ManiButton, 'Reintentar'), findsOneWidget);
   });
 
   testWidgets('con varias localidades el selector cambia la que se pinta', (
@@ -337,6 +354,8 @@ void main() {
     );
     await tester.pumpWidget(_app(cubit.state, cubit: cubit));
     await tester.pump();
+    // El mapa es una librería diferida: el primer fotograma muestra el indicador y los siguientes, el mapa (SCRUM-1647).
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.byKey(const Key('mapa_selector_localidad')), findsOneWidget);
     await tester.tap(find.byKey(const Key('mapa_selector_localidad')));

@@ -49,6 +49,15 @@ class _FuenteFija implements FuenteSeguimiento {
       throw UnimplementedError();
 }
 
+/// La lista de solicitudes es un `ListView` perezoso: con la ventana de prueba
+/// por defecto (800x600) las secciones de abajo y la paginación no se
+/// construyen. Estas pruebas necesitan ver la lista completa.
+void _usarPantallaAlta(WidgetTester tester) {
+  tester.view.physicalSize = const Size(1280, 2800);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+}
+
 void main() {
   group('HU-M07-04 (SCRUM-871) · modelo', () {
     test('lee estado, categoría, zona declarada y fecha de actualización', () {
@@ -380,6 +389,107 @@ void main() {
       expect(find.byKey(const Key('seguimiento-error')), findsNothing);
       expect(find.text('Plomería'), findsOneWidget);
     });
+
+    testWidgets(
+      'agrupa por tipo de solicitud (publicadas, en curso, finalizadas, canceladas) y filtra por pestañas',
+      (tester) async {
+        _usarPantallaAlta(tester);
+        await montar(tester, [
+          [
+            SolicitudSeguimiento.fromJson(
+              _solicitudJson(id: 'sol-pub', estado: 'PENDIENTE'),
+            ),
+            SolicitudSeguimiento.fromJson(
+              _solicitudJson(id: 'sol-cur', estado: 'ASIGNADA'),
+            ),
+            SolicitudSeguimiento.fromJson(
+              _solicitudJson(id: 'sol-fin', estado: 'FINALIZADA'),
+            ),
+            SolicitudSeguimiento.fromJson(
+              _solicitudJson(id: 'sol-can', estado: 'CANCELADA'),
+            ),
+          ],
+        ]);
+
+        expect(
+          find.byKey(const Key('seccion-solicitudes-publicadas')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const Key('seccion-solicitudes-enCurso')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const Key('seccion-solicitudes-finalizadas')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const Key('seccion-solicitudes-canceladas')),
+          findsOneWidget,
+        );
+
+        await tester.ensureVisible(
+          find.byKey(const Key('tab-solicitudes-canceladas')),
+        );
+        await tester.tap(find.byKey(const Key('tab-solicitudes-canceladas')));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(const Key('seccion-solicitudes-canceladas')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const Key('seccion-solicitudes-publicadas')),
+          findsNothing,
+        );
+      },
+    );
+
+    testWidgets(
+      'pagina las solicitudes cuando superan itemsPorPagina y permite abrir detalle',
+      (tester) async {
+        _usarPantallaAlta(tester);
+        String? abierta;
+        final f = _FuenteFija([
+          [
+            for (var i = 1; i <= 5; i++)
+              SolicitudSeguimiento.fromJson(
+                _solicitudJson(id: 'sol-$i', estado: 'PENDIENTE'),
+              ),
+          ],
+        ]);
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: BlocProvider(
+                create: (_) => MisSolicitudesCubit(f)..cargar(),
+                child: MisSolicitudesPage(
+                  itemsPorPagina: 2,
+                  onVerCotizacion: (id) => abierta = id,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('paginacion-solicitudes')), findsOneWidget);
+        expect(find.byKey(const Key('ver-detalle-sol-1')), findsOneWidget);
+        expect(find.byKey(const Key('ver-detalle-sol-3')), findsNothing);
+
+        await tester.ensureVisible(find.byKey(const Key('ver-detalle-sol-1')));
+        await tester.tap(find.byKey(const Key('ver-detalle-sol-1')));
+        expect(abierta, 'sol-1');
+
+        await tester.ensureVisible(
+          find.byKey(const Key('pagina-solicitudes-2')),
+        );
+        await tester.tap(find.byKey(const Key('pagina-solicitudes-2')));
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('ver-detalle-sol-3')), findsOneWidget);
+      },
+    );
   });
 
   test('formatearFecha usa día, mes corto, año y hora local', () {

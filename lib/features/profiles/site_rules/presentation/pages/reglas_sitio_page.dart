@@ -1,9 +1,12 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
+import 'package:mani/core/widgets/mani_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/profiles/site_rules/domain/entities/reglas_sitio.dart';
 import 'package:mani/features/profiles/site_rules/presentation/bloc/reglas_sitio_cubit.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Pantalla dual para US-02.2.3 (SCRUM-853):
 /// - Como Cliente Corporativo (`esVistaAliado = false`): permite configurar
@@ -84,20 +87,12 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          widget.esVistaAliado
-              ? 'Reglas de Ingreso a la Sede (Vista Aliado)'
-              : 'Configurar Reglas Contextuales de la Sede',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            color: AppTheme.dark,
-          ),
-        ),
+      backgroundColor: context.mani.background,
+      appBar: barraDePantalla(
+        context,
+        titulo: widget.esVistaAliado
+            ? 'Reglas de ingreso a la sede'
+            : 'Reglas de la sede',
       ),
       body: BlocConsumer<ReglasSitioCubit, ReglasSitioState>(
         listener: (context, state) {
@@ -135,19 +130,19 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
       key: const Key('card_reglas_visibles_aliado'),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.primary,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2.5),
-        boxShadow: const [AppTheme.hardShadowSm],
+        color: context.mani.brand,
+        borderRadius: BorderRadius.circular(24.0),
+        border: Border.all(color: context.mani.ink, width: 2.5),
+        boxShadow: const [ManiShadow.sm],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.health_and_safety_rounded,
-                color: AppTheme.dark,
+                color: context.mani.ink,
                 size: 26,
               ),
               const SizedBox(width: 10),
@@ -157,7 +152,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.dark,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -169,7 +164,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: AppTheme.dark,
+              color: context.mani.ink,
             ),
           ),
           if (reglas.horarioPermitido != null &&
@@ -179,7 +174,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.dark,
+                color: context.mani.ink,
               ),
             ),
           if (reglas.documentosRequeridos.isNotEmpty)
@@ -188,7 +183,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.dark,
+                color: context.mani.ink,
               ),
             ),
           if (reglas.instruccionesIngreso != null &&
@@ -198,7 +193,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.dark,
+                color: context.mani.ink,
               ),
             ),
         ],
@@ -211,8 +206,8 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radius2xl),
-        border: Border.all(color: AppTheme.dark, width: 2),
+        borderRadius: BorderRadius.circular(24.0),
+        border: Border.all(color: context.mani.ink, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -229,7 +224,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
             ),
           ),
           const SizedBox(height: 12),
-          TextFormField(
+          ManiTextField(
             key: const Key('input_horario_reglas_sitio'),
             controller: _horarioController,
             decoration: const InputDecoration(
@@ -238,7 +233,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
             ),
           ),
           const SizedBox(height: 12),
-          TextFormField(
+          ManiTextField(
             key: const Key('input_documentos_reglas_sitio'),
             controller: _documentosController,
             decoration: const InputDecoration(
@@ -247,7 +242,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
             ),
           ),
           const SizedBox(height: 12),
-          TextFormField(
+          ManiTextField(
             key: const Key('input_instrucciones_reglas_sitio'),
             controller: _instruccionesController,
             decoration: const InputDecoration(
@@ -255,10 +250,10 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
             ),
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
+          ManiButton(
             key: const Key('btn_guardar_reglas_sitio'),
+            etiqueta: cargando ? 'GUARDANDO...' : 'GUARDAR REGLAS DEL SITIO',
             onPressed: cargando ? null : _guardar,
-            child: Text(cargando ? 'GUARDANDO...' : 'GUARDAR REGLAS DEL SITIO'),
           ),
         ],
       ),

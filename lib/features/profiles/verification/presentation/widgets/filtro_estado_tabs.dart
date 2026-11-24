@@ -21,17 +21,24 @@ class FiltroEstadoTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.dark, width: 2),
-        boxShadow: const [AppTheme.hardShadowSm],
+        color: context.mani.surface,
+        borderRadius: ManiRadius.brMd,
+        border: Border.all(
+          color: context.mani.border,
+          width: ManiBorder.regular,
+        ),
+        boxShadow: const [ManiShadow.sm],
       ),
       clipBehavior: Clip.antiAlias,
       child: Row(
         children: [
           for (final estado in EstadoVerificacion.values) ...[
             if (estado.index > 0)
-              Container(width: 2, height: 48, color: AppTheme.dark),
+              Container(
+                width: ManiBorder.regular,
+                height: 52,
+                color: context.mani.ink,
+              ),
             Expanded(
               child: _Tab(
                 estado: estado,
@@ -77,41 +84,53 @@ class _Tab extends StatelessWidget {
         key: ValueKey('tab-${estado.name}'),
         onTap: () => onTap(estado),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          height: 48,
-          color: activo ? AppTheme.primary : AppTheme.surface,
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
-                  _etiqueta,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: activo ? AppTheme.dark : AppTheme.textSecondary,
-                  ),
+          duration: ManiMotion.fast,
+          height: 52,
+          color: activo ? context.mani.brand : context.mani.surface,
+          padding: const EdgeInsets.symmetric(horizontal: ManiSpace.sm),
+          // En móvil (pestaña angosta) el conteo pasa debajo de la etiqueta
+          // para que "Aprobados" y "Rechazados" no se recorten.
+          child: LayoutBuilder(
+            builder: (context, c) {
+              final etiqueta = Text(
+                _etiqueta,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: ManiFontSize.caption,
+                  fontWeight: FontWeight.w800,
+                  color: activo ? context.mani.ink : context.mani.inkMuted,
                 ),
-              ),
-              const SizedBox(width: 6),
-              Container(
+              );
+              final conteo = Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
                 decoration: BoxDecoration(
-                  color: activo ? AppTheme.dark : estado.fondo,
-                  borderRadius: BorderRadius.circular(999),
+                  color: activo ? context.mani.ink : estado.fondo,
+                  borderRadius: ManiRadius.brPill,
                 ),
                 child: Text(
                   '$cantidad',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: ManiFontSize.micro,
                     fontWeight: FontWeight.w900,
-                    color: activo ? AppTheme.primary : estado.acento,
+                    color: activo ? context.mani.brand : estado.acento,
                   ),
                 ),
-              ),
-            ],
+              );
+              if (c.maxWidth < 120) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [etiqueta, ManiGap.vXxs, conteo],
+                );
+              }
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(child: etiqueta),
+                  ManiGap.hSm,
+                  conteo,
+                ],
+              );
+            },
           ),
         ),
       ),

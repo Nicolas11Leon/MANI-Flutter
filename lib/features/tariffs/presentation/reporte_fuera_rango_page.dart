@@ -2,7 +2,11 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mani/core/network/mensaje_error_gateway.dart';
+import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_card.dart';
+import 'package:mani/core/widgets/mani_estado.dart';
+import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
     show formatearPesos;
 
@@ -91,112 +95,176 @@ class ReporteFueraDeRangoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.mani;
     return BlocBuilder<ReporteFueraDeRangoCubit, ReporteFueraDeRangoState>(
       builder: (context, state) {
         final cubit = context.read<ReporteFueraDeRangoCubit>();
-        final tema = Theme.of(context).textTheme;
         final reporte = state.reporte;
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 820),
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Text('Cotizaciones fuera de rango', style: tema.headlineSmall),
-                const SizedBox(height: 4),
-                const Text(
-                  'Cotizaciones del periodo que el motor de reglas evaluó por '
-                  'debajo o por encima de la tarifa de referencia que regía.',
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    OutlinedButton.icon(
-                      key: const Key('reporte-periodo'),
-                      icon: const Icon(Icons.date_range),
-                      label: Text(
-                        '${fechaIso(state.desde)} a ${fechaIso(state.hasta)}',
-                      ),
-                      onPressed: () async {
-                        final rango = await showDateRangePicker(
-                          context: context,
-                          firstDate: DateTime(2024),
-                          lastDate: DateTime.now().add(const Duration(days: 1)),
-                          initialDateRange: DateTimeRange(
-                            start: state.desde,
-                            end: state.hasta,
+        return ColoredBox(
+          color: t.background,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const ManiEncabezadoPantalla(
+                ancho: ManiAncho.lista,
+                icono: Icons.trending_up_rounded,
+                titulo: 'Cotizaciones fuera de rango',
+                descripcion:
+                    'Cotizaciones del periodo que el motor de reglas evaluó por '
+                    'debajo o por encima de la tarifa de referencia que regía.',
+              ),
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: ManiAncho.lista,
+                    ),
+                    child: ListView(
+                      padding: const EdgeInsets.all(ManiSpace.xl),
+                      children: [
+                        Wrap(
+                          spacing: ManiSpace.sm,
+                          runSpacing: ManiSpace.sm,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            OutlinedButton.icon(
+                              key: const Key('reporte-periodo'),
+                              icon: const Icon(Icons.date_range),
+                              label: Text(
+                                '${fechaIso(state.desde)} a ${fechaIso(state.hasta)}',
+                              ),
+                              onPressed: () async {
+                                final rango = await showDateRangePicker(
+                                  context: context,
+                                  firstDate: DateTime(2024),
+                                  lastDate: DateTime.now().add(
+                                    const Duration(days: 1),
+                                  ),
+                                  initialDateRange: DateTimeRange(
+                                    start: state.desde,
+                                    end: state.hasta,
+                                  ),
+                                );
+                                if (rango != null) {
+                                  cubit.periodo(rango.start, rango.end);
+                                }
+                              },
+                            ),
+                            ManiButton(
+                              key: const Key('reporte-consultar'),
+                              etiqueta: 'Consultar',
+                              icono: Icons.search,
+                              cargando: state.cargando,
+                              onPressed: state.cargando
+                                  ? null
+                                  : cubit.consultar,
+                            ),
+                          ],
+                        ),
+                        ManiGap.vLg,
+                        if (state.error != null)
+                          Card(
+                            key: const Key('reporte-error'),
+                            child: ListTile(
+                              leading: const Icon(Icons.error_outline),
+                              title: Text(state.error!),
+                            ),
+                          )
+                        else if (reporte != null) ...[
+                          ManiCard(
+                            color: t.surfaceMuted,
+                            sombra: t.shadowSm,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: ManiSpace.lg,
+                              vertical: ManiSpace.md,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.analytics_outlined,
+                                  size: 20,
+                                  color: t.ink,
+                                ),
+                                ManiGap.hSm,
+                                Expanded(
+                                  child: Text(
+                                    '${reporte.totalCotizaciones} cotizaciones · '
+                                    '${reporte.evaluadas} evaluadas · '
+                                    '${reporte.sinTarifa} sin tarifa · '
+                                    '${reporte.cotizaciones.length} fuera de rango',
+                                    key: const Key('reporte-totales'),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      color: t.ink,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                        if (rango != null) {
-                          cubit.periodo(rango.start, rango.end);
-                        }
-                      },
+                          ManiGap.vLg,
+                          if (reporte.cotizaciones.isEmpty)
+                            const ManiEstadoVacio(
+                              key: Key('reporte-vacio'),
+                              icono: Icons.check_circle_outline,
+                              titulo:
+                                  'No hay cotizaciones fuera de rango en el periodo',
+                            )
+                          else
+                            for (final c in reporte.cotizaciones) ...[
+                              ManiCard(
+                                key: Key('reporte-cotizacion-${c.id}'),
+                                sombra: t.shadowSm,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: ManiSpace.lg,
+                                  vertical: ManiSpace.sm,
+                                ),
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      color: ManiColors.dangerContainer,
+                                      borderRadius: ManiRadius.brSm,
+                                      border: Border.all(
+                                        color: t.border,
+                                        width: ManiBorder.thin,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      c.porEncima
+                                          ? Icons.arrow_upward_rounded
+                                          : Icons.arrow_downward_rounded,
+                                      color: ManiColors.dangerText,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    '${c.categoria} · ${formatearPesos(c.total)} '
+                                    '(${c.porEncima ? 'por encima' : 'por debajo'} '
+                                    '${c.desviacionPorcentaje.toStringAsFixed(2)} %)',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      color: t.ink,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    'Aliado: ${c.aliado} · Rango v${c.tarifaVersion}: '
+                                    '${formatearPesos(c.tarifaMin)} – ${formatearPesos(c.tarifaMax)}',
+                                    style: TextStyle(color: t.inkMuted),
+                                  ),
+                                ),
+                              ),
+                              ManiGap.vMd,
+                            ],
+                        ],
+                      ],
                     ),
-                    ManiButton(
-                      key: const Key('reporte-consultar'),
-                      etiqueta: 'Consultar',
-                      icono: Icons.search,
-                      cargando: state.cargando,
-                      onPressed: state.cargando ? null : cubit.consultar,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                if (state.error != null)
-                  Card(
-                    key: const Key('reporte-error'),
-                    child: ListTile(
-                      leading: const Icon(Icons.error_outline),
-                      title: Text(state.error!),
-                    ),
-                  )
-                else if (reporte != null) ...[
-                  Text(
-                    '${reporte.totalCotizaciones} cotizaciones · '
-                    '${reporte.evaluadas} evaluadas · '
-                    '${reporte.sinTarifa} sin tarifa · '
-                    '${reporte.cotizaciones.length} fuera de rango',
-                    key: const Key('reporte-totales'),
                   ),
-                  const SizedBox(height: 8),
-                  if (reporte.cotizaciones.isEmpty)
-                    const Card(
-                      key: Key('reporte-vacio'),
-                      child: ListTile(
-                        leading: Icon(Icons.check_circle_outline),
-                        title: Text(
-                          'No hay cotizaciones fuera de rango en el periodo',
-                        ),
-                      ),
-                    )
-                  else
-                    for (final c in reporte.cotizaciones)
-                      Card(
-                        key: Key('reporte-cotizacion-${c.id}'),
-                        child: ListTile(
-                          leading: Icon(
-                            c.porEncima
-                                ? Icons.arrow_upward
-                                : Icons.arrow_downward,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          title: Text(
-                            '${c.categoria} · ${formatearPesos(c.total)} '
-                            '(${c.porEncima ? 'por encima' : 'por debajo'} '
-                            '${c.desviacionPorcentaje.toStringAsFixed(2)} %)',
-                          ),
-                          subtitle: Text(
-                            'Aliado: ${c.aliado} · Rango v${c.tarifaVersion}: '
-                            '${formatearPesos(c.tarifaMin)} – ${formatearPesos(c.tarifaMax)}',
-                          ),
-                        ),
-                      ),
-                ],
-              ],
-            ),
+                ),
+              ),
+            ],
           ),
         );
       },

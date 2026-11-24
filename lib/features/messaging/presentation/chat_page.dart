@@ -1,14 +1,19 @@
+import 'package:mani/core/widgets/mani_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mani/core/shell/al_cambiar_visibilidad.dart';
 import 'package:mani/core/theme/app_theme.dart';
-import 'package:mani/core/widgets/mani_button.dart';
+import 'package:mani/core/widgets/mani_esqueleto.dart';
+import 'package:mani/core/widgets/mani_estados.dart';
+import 'package:mani/core/widgets/mani_personaje.dart';
 
 import '../domain/mensaje.dart';
 import 'chat_cubit.dart';
+import 'package:mani/core/shell/titulo_de_pantalla.dart';
 
 /// Conversación del cliente con el aliado de un servicio (SCRUM-881, HU-M09-02).
-/// Se actualiza consultando a Core cada pocos segundos mientras está abierta, y
-/// deja de consultar cuando la app pasa a segundo plano.
+/// Se actualiza consultando a Core cada pocos segundos mientras está a la vista, y
+/// deja de consultar cuando la app pasa a segundo plano o la pantalla queda oculta.
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
 
@@ -16,29 +21,21 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
+class _ChatPageState extends State<ChatPage> {
   final _texto = TextEditingController();
   final _scroll = ScrollController();
   int _vistos = 0;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     _texto.dispose();
     _scroll.dispose();
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState estado) {
+  void _alCambiarVisibilidad(bool visible) {
     final cubit = context.read<ChatCubit>();
-    if (estado == AppLifecycleState.resumed) {
+    if (visible) {
       cubit.reanudar();
     } else {
       cubit.pausar();
@@ -68,8 +65,15 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    return AlCambiarVisibilidad(
+      alCambiar: _alCambiarVisibilidad,
+      child: _pantalla(context),
+    );
+  }
+
+  Widget _pantalla(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mensajes del servicio')),
+      appBar: barraDePantalla(context, titulo: 'Mensajes'),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 780),
@@ -90,6 +94,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 if (state.soloLectura)
                   const _Aviso(
                     key: Key('aviso-solo-lectura'),
+                    cerrado: true,
                     texto:
                         'Este servicio ya no admite mensajes nuevos. Puedes leer '
                         'la conversación.',
@@ -123,18 +128,24 @@ class _Hilo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state.cargando) {
-      return const Center(
-        child: CircularProgressIndicator(key: Key('cargando-chat')),
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: KeyedSubtree(
+          key: const Key('cargando-chat'),
+          child: ManiEsqueleto.lista(filas: 3),
+        ),
       );
     }
     if (state.mensajes.isEmpty) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(24),
-          child: Text(
-            'Aún no hay mensajes. Escribe el primero.',
+          child: ManiEstadoVacio(
             key: Key('chat-vacio'),
-            textAlign: TextAlign.center,
+            compacto: true,
+            pose: PoseMani.saludo,
+            titulo: 'Mensajes',
+            texto: 'Aún no hay mensajes. Escribe el primero.',
           ),
         ),
       );
@@ -161,21 +172,31 @@ class _Burbuja extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colores = Theme.of(context).colorScheme;
     final mio = mensaje.esMio;
     final hora = _hora(mensaje.creadoEn);
+    const radio = Radius.circular(16);
+    const esquina = Radius.circular(4);
     return Align(
       alignment: mio ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         key: Key('mensaje-${mensaje.id}'),
         margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         constraints: BoxConstraints(
           maxWidth: MediaQuery.sizeOf(context).width * 0.78,
         ),
         decoration: BoxDecoration(
-          color: mio ? colores.primaryContainer : colores.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(10),
+          // Propias en amarillo suave y sin borde; ajenas en blanco con borde fino.
+          color: mio ? context.mani.brandSoft : context.mani.surface,
+          border: mio
+              ? null
+              : Border.all(color: context.mani.ink, width: ManiBorder.thin),
+          borderRadius: BorderRadius.only(
+            topLeft: radio,
+            topRight: radio,
+            bottomLeft: mio ? radio : esquina,
+            bottomRight: mio ? esquina : radio,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,15 +204,26 @@ class _Burbuja extends StatelessWidget {
             if (!mio && mensaje.etiquetaRemitente.isNotEmpty)
               Text(
                 mensaje.etiquetaRemitente,
-                style: Theme.of(context).textTheme.labelSmall,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: context.mani.inkMuted,
+                ),
               ),
-            Text(mensaje.contenido),
+            Text(
+              mensaje.contenido,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: context.mani.ink,
+              ),
+            ),
             if (hora.isNotEmpty)
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
                   hora,
-                  style: Theme.of(context).textTheme.labelSmall,
+                  style: TextStyle(fontSize: 12, color: context.mani.inkMuted),
                 ),
               ),
           ],
@@ -201,19 +233,39 @@ class _Burbuja extends StatelessWidget {
   }
 }
 
+/// Aviso plano sobre el redactor o la conversación: un candado cuando el chat está cerrado.
 class _Aviso extends StatelessWidget {
-  const _Aviso({super.key, required this.texto});
+  const _Aviso({super.key, required this.texto, this.cerrado = false});
 
   final String texto;
+  final bool cerrado;
 
   @override
   Widget build(BuildContext context) {
-    final colores = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(10),
-      color: colores.tertiaryContainer,
-      child: Text(texto, style: TextStyle(color: colores.onTertiaryContainer)),
+      padding: const EdgeInsets.all(12),
+      color: cerrado ? context.mani.surfaceMuted : ManiColors.warningContainer,
+      child: Row(
+        children: [
+          Icon(
+            cerrado ? Icons.lock_outline : Icons.info_outline,
+            size: 20,
+            color: cerrado ? context.mani.ink : ManiColors.warningText,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              texto,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: cerrado ? context.mani.ink : ManiColors.warningText,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -239,7 +291,7 @@ class _Redactor extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
-              child: TextField(
+              child: ManiTextField(
                 key: const Key('campo-mensaje'),
                 controller: controlador,
                 enabled: !enviando,
@@ -256,45 +308,52 @@ class _Redactor extends StatelessWidget {
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   hintText: 'Escribe un mensaje…',
-                  filled: true,
-                  fillColor: AppTheme.surface,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 18,
                     vertical: 14,
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    borderSide: const BorderSide(
-                      color: AppTheme.dark,
-                      width: 2,
+                    borderRadius: BorderRadius.circular(24.0),
+                    borderSide: BorderSide(
+                      color: context.mani.ink,
+                      width: ManiBorder.thin,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    borderSide: const BorderSide(
-                      color: AppTheme.dark,
-                      width: 2,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    borderSide: const BorderSide(
-                      color: AppTheme.dark,
-                      width: 2,
+                    borderRadius: BorderRadius.circular(24.0),
+                    borderSide: BorderSide(
+                      color: context.mani.ink,
+                      width: ManiBorder.thin,
                     ),
                   ),
                 ),
               ),
             ),
             const SizedBox(width: 10),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 2),
-              child: ManiButton(
-                key: const Key('btn-enviar-mensaje'),
-                etiqueta: 'Enviar',
-                icono: Icons.send,
-                cargando: enviando,
-                onPressed: enviando ? null : alEnviar,
+            Tooltip(
+              message: 'Enviar',
+              child: Material(
+                color: enviando
+                    ? context.mani.surfaceMuted
+                    : context.mani.brand,
+                shape: CircleBorder(
+                  side: BorderSide(color: context.mani.ink, width: 2),
+                ),
+                child: InkWell(
+                  key: const Key('btn-enviar-mensaje'),
+                  customBorder: const CircleBorder(),
+                  onTap: enviando ? null : alEnviar,
+                  child: SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: enviando
+                        ? const Padding(
+                            padding: EdgeInsets.all(14),
+                            child: CircularProgressIndicator(strokeWidth: 2.5),
+                          )
+                        : Icon(Icons.send_rounded, color: context.mani.ink),
+                  ),
+                ),
               ),
             ),
           ],

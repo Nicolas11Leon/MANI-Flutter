@@ -5,6 +5,7 @@ import 'package:mani/features/services/quotes/presentation/cotizacion_page.dart'
 
 import '../data/tarifas_datasource.dart';
 import '../domain/tarifa.dart';
+import 'package:mani/core/theme/app_theme.dart';
 
 /// Tarifa de referencia vigente al cotizar (HU-M10-02 / SCRUM-886).
 ///
@@ -88,7 +89,7 @@ class _ReferenciaTarifaSeccionState extends State<ReferenciaTarifaSeccion> {
         return Card(
           key: const Key('referencia-disponible'),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(ManiSpace.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -96,7 +97,7 @@ class _ReferenciaTarifaSeccionState extends State<ReferenciaTarifaSeccion> {
                   'Tarifa de referencia · ${tarifa.categoriaNombre}',
                   style: tema.titleSmall,
                 ),
-                const SizedBox(height: 4),
+                ManiGap.vXs,
                 Text(
                   '${formatearPesos(tarifa.valorMin)} – ${formatearPesos(tarifa.valorMax)} ${tarifa.moneda}',
                   key: const Key('referencia-rango'),

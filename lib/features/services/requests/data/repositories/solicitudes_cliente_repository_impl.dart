@@ -171,32 +171,48 @@ class SolicitudesClienteRepositoryImpl implements SolicitudesClienteRepository {
     }
   }
 
-  /// Traduce la respuesta de Core: los 400/422 traen el código `MANI-SOL-*`
-  /// al inicio del mensaje; el resto se decide por el status.
+  /// Códigos de Core que la pantalla de solicitudes sabe explicar (SCRUM-1643).
+  /// Cualquier otro código, o ninguno, se resuelve por el status HTTP.
+  static const _tipoPorCodigo = <String, SolicitudErrorTipo>{
+    'MANI-SOL-401': SolicitudErrorTipo.sinSesion,
+    'MANI-SOL-403C': SolicitudErrorTipo.noEsCliente,
+    'MANI-SOL-422C': SolicitudErrorTipo.categoriaInvalida,
+    'MANI-SOL-422D': SolicitudErrorTipo.descripcionInvalida,
+    'MANI-SOL-422F': SolicitudErrorTipo.fotosInvalidas,
+    'MANI-SOL-422S': SolicitudErrorTipo.ubicacionInvalida,
+    'MANI-SOL-422Z': SolicitudErrorTipo.zonaInvalida,
+    // Contexto de plataforma (administrador que actúa en nombre de un tenant).
+    'MANI-PLA-403': SolicitudErrorTipo.sinPermiso,
+  };
+
+  /// Traduce la respuesta de Core **por su código** `MANI-XXX-NNN`: es lo que
+  /// decide el mensaje. El status HTTP solo se usa cuando el código no viene o
+  /// no se conoce; así un 403 de otra causa ya no se muestra como «solo los
+  /// clientes pueden publicar» (SCRUM-1643).
   static SolicitudFailure mapearGateway(GatewayException e) {
     final detalle = '${e.statusCode ?? 'sin respuesta'}: ${e.message}';
-    return switch (e.statusCode) {
-      null => SolicitudFailure(SolicitudErrorTipo.sinConexion, detalle),
-      401 => SolicitudFailure(SolicitudErrorTipo.sinSesion, detalle),
-      403 => SolicitudFailure(SolicitudErrorTipo.noEsCliente, detalle),
-      413 => SolicitudFailure(SolicitudErrorTipo.fotoMuyPesada, detalle),
-      400 || 422 => mapearMensaje(e.message),
-      _ => SolicitudFailure(SolicitudErrorTipo.desconocido, detalle),
+    final codigo = e.codigo;
+    final referencia = e.referencia;
+
+    final porCodigo = codigo == null ? null : _tipoPorCodigo[codigo];
+    if (porCodigo != null) {
+      return SolicitudFailure(porCodigo, detalle, codigo, referencia);
+    }
+
+    final tipo = switch (e.statusCode) {
+      null => SolicitudErrorTipo.sinConexion,
+      401 => SolicitudErrorTipo.sinSesion,
+      403 => SolicitudErrorTipo.sinPermiso,
+      413 => SolicitudErrorTipo.fotoMuyPesada,
+      400 || 422 => mapearMensaje(e.message).tipo,
+      _ => SolicitudErrorTipo.desconocido,
     };
+    return SolicitudFailure(tipo, detalle, codigo, referencia);
   }
 
-  /// Traduce el prefijo `MANI-SOL-*` (Core y RPC de la migración 006).
+  /// Traduce el prefijo `MANI-SOL-*` de un mensaje (Core y RPC de la migración 006).
   static SolicitudFailure mapearMensaje(String mensaje) {
-    const tabla = <String, SolicitudErrorTipo>{
-      'MANI-SOL-401': SolicitudErrorTipo.sinSesion,
-      'MANI-SOL-403C': SolicitudErrorTipo.noEsCliente,
-      'MANI-SOL-422C': SolicitudErrorTipo.categoriaInvalida,
-      'MANI-SOL-422D': SolicitudErrorTipo.descripcionInvalida,
-      'MANI-SOL-422F': SolicitudErrorTipo.fotosInvalidas,
-      'MANI-SOL-422S': SolicitudErrorTipo.ubicacionInvalida,
-      'MANI-SOL-422Z': SolicitudErrorTipo.zonaInvalida,
-    };
-    for (final e in tabla.entries) {
+    for (final e in _tipoPorCodigo.entries) {
       if (mensaje.startsWith(e.key)) {
         return SolicitudFailure(e.value, mensaje);
       }

@@ -6,8 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mani/core/network/gateway_client.dart';
+import 'package:mani/core/widgets/mani_avatar.dart';
 import 'package:mani/features/profiles/own_profile/data/datasources/perfil_propio_remote_datasource.dart';
 import 'package:mani/features/profiles/own_profile/presentation/pages/editar_perfil_page.dart';
+
+const _urlFirmada =
+    'https://storage.example/object/sign/kyc-documentos/trama-demo/u-1/avatar-nuevo.png?token=abc';
 
 void main() {
   group(
@@ -131,7 +135,8 @@ void main() {
                 request.url.path == '/api/v1/core/profiles/me/photo') {
               estadoServidor = {
                 ...estadoServidor,
-                'photoUrl': 'trama-demo/u-1/avatar-nuevo.png',
+                // SCRUM-1634: Core responde la foto como URL firmada, no como la ruta del bucket.
+                'photoUrl': _urlFirmada,
               };
               return http.Response(
                 jsonEncode({'profile': estadoServidor}),
@@ -165,8 +170,8 @@ void main() {
 
           // Verifica carga inicial y que rol/estado se muestran en solo lectura
           expect(find.text('Carlos Mendoza'), findsOneWidget);
-          expect(find.text('Rol: ALLY'), findsOneWidget);
-          expect(find.text('Estado: VERIFIED'), findsOneWidget);
+          expect(find.text('Aliado'), findsOneWidget);
+          expect(find.text('Verificado'), findsOneWidget);
 
           // SCRUM-1028 / SCRUM-1031: Rechaza dirección vacía y teléfono inválido en el formulario
           await tester.enterText(
@@ -199,7 +204,16 @@ void main() {
             find.text('Foto de perfil actualizada correctamente'),
             findsOneWidget,
           );
-          expect(find.text('trama-demo/u-1/avatar-nuevo.png'), findsOneWidget);
+          // SCRUM-1634: la foto nueva llega al avatar y su dirección no se escribe como texto.
+          expect(
+            tester
+                .widget<ManiAvatar>(
+                  find.byKey(const Key('avatar-perfil-propio')),
+                )
+                .foto,
+            _urlFirmada,
+          );
+          expect(find.text(_urlFirmada), findsNothing);
 
           // SCRUM-1029 / SCRUM-1031: Edita y guarda datos válidos y refleja los cambios
           await tester.enterText(

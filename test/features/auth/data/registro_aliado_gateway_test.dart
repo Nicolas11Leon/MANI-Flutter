@@ -123,6 +123,47 @@ void main() {
       expect(r.headers.containsKey('X-Tenant-ID'), isFalse);
     });
 
+    test(
+      'cada documento sale con su tipo MIME, no como octet-stream',
+      () async {
+        await registrar(
+          datasource(),
+          documentos: [
+            doc('CEDULA_CIUDADANIA', 'cedula.PDF', 'PDF-CEDULA'),
+            doc('RUT_CERTIFICADO', 'rut.jpg', 'JPG-RUT'),
+          ],
+        );
+
+        final cuerpo = alGateway.single.body;
+        expect(cuerpo, contains('content-type: application/pdf'));
+        expect(cuerpo, contains('content-type: image/jpeg'));
+        expect(cuerpo, isNot(contains('application/octet-stream')));
+      },
+    );
+
+    test('tipo MIME por extensión', () {
+      expect(
+        AuthRemoteDataSource.tipoContenidoDocumento('a.pdf'),
+        'application/pdf',
+      );
+      expect(
+        AuthRemoteDataSource.tipoContenidoDocumento('a.JPEG'),
+        'image/jpeg',
+      );
+      expect(AuthRemoteDataSource.tipoContenidoDocumento('a.png'), 'image/png');
+      expect(AuthRemoteDataSource.tipoContenidoDocumento('a.docx'), isNull);
+    });
+
+    test('envía acceptsTerms, que Core exige (TERMS_NOT_ACCEPTED)', () async {
+      await registrar(datasource());
+
+      final cuerpo = alGateway.single.body;
+      expect(cuerpo, contains('name="acceptsTerms"'));
+      expect(cuerpo, contains('\r\n\r\ntrue\r\n'));
+      // Core registra el consentimiento: no hay segunda llamada a /legal/consents.
+      expect(alGateway, hasLength(1));
+    });
+
     test('mantiene la forma de respuesta que espera la UI', () async {
       final res = await registrar(datasource());
 
