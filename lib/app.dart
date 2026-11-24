@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mani/core/i18n/mani_idioma.dart';
 import 'package:mani/core/routing/app_router.dart';
 import 'package:mani/core/theme/app_theme.dart';
 
@@ -16,6 +17,10 @@ class ManiApp extends StatelessWidget {
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: modo,
+          // SCRUM-1732: el lector de pantalla lee con voz en español (<html lang="es-CO">).
+          locale: ManiIdioma.principal,
+          supportedLocales: ManiIdioma.soportados,
+          localizationsDelegates: ManiIdioma.delegados,
           routerConfig: appRouter,
           debugShowCheckedModeBanner: false,
         );
