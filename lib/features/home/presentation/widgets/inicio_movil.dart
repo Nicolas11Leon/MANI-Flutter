@@ -9,6 +9,7 @@ import 'package:mani/core/widgets/mani_layout.dart';
 import 'package:mani/core/widgets/mani_pagina.dart';
 import 'package:mani/features/home/presentation/widgets/saludo_inicio.dart';
 import 'package:mani/features/home/data/resumen_inicio.dart';
+import 'package:mani/core/widgets/mani_anillo_foco.dart';
 
 /// Inicio del celular (SCRUM-1647): un tablero por módulos con un poco de cada cosa, para que se vea de un vistazo qué
 /// pasa y se llegue a cualquier parte con un toque.
@@ -122,35 +123,38 @@ class _Resumen extends StatelessWidget {
                       width: ancho,
                       child: ManiCard(
                         padding: EdgeInsets.zero,
-                        child: InkWell(
-                          key: Key('inicio-indicador-${i.etiqueta}'),
-                          borderRadius: BorderRadius.circular(ManiRadius.lg),
-                          onTap: () => onNavegar(i.ruta),
-                          child: Padding(
-                            padding: const EdgeInsets.all(14),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  i.valor ?? '—',
-                                  style: AppTheme.titulo(
-                                    size: 28,
-                                    height: 32 / 28,
-                                    color: i.valor == '0'
-                                        ? context.mani.inkMuted
-                                        : context.mani.ink,
+                        child: ManiAnilloFoco(
+                          radio: BorderRadius.circular(ManiRadius.lg),
+                          child: InkWell(
+                            key: Key('inicio-indicador-${i.etiqueta}'),
+                            borderRadius: BorderRadius.circular(ManiRadius.lg),
+                            onTap: () => onNavegar(i.ruta),
+                            child: Padding(
+                              padding: const EdgeInsets.all(14),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    i.valor ?? '—',
+                                    style: AppTheme.titulo(
+                                      size: 28,
+                                      height: 32 / 28,
+                                      color: i.valor == '0'
+                                          ? context.mani.inkMuted
+                                          : context.mani.ink,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  i.etiqueta,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: context.mani.inkMuted,
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    i.etiqueta,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: context.mani.inkMuted,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -241,34 +245,36 @@ class _Fila extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: alTocar,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 60),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Row(
-            children: [
-              ManiIconoCaja(icono: icono),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  titulo,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: context.mani.ink,
+    return ManiAnilloFoco(
+      child: InkWell(
+        onTap: alTocar,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 60),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: Row(
+              children: [
+                ManiIconoCaja(icono: icono),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    titulo,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: context.mani.ink,
+                    ),
                   ),
                 ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 20,
-                color: context.mani.inkMuted,
-              ),
-            ],
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: context.mani.inkMuted,
+                ),
+              ],
+            ),
           ),
         ),
       ),

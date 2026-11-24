@@ -3,6 +3,7 @@ import 'package:mani/core/session/rol_usuario.dart';
 import 'package:mani/core/shell/menu_por_rol.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/core/widgets/mani_mano.dart';
+import 'package:mani/core/widgets/mani_anillo_foco.dart';
 
 const _rutaInicio = '/inicio';
 
@@ -261,43 +262,46 @@ class _Destino extends StatelessWidget {
       selected: activo,
       label: etiqueta,
       excludeSemantics: true,
-      child: InkWell(
-        onTap: alTocar,
-        child: Padding(
-          padding: const EdgeInsets.only(top: BarraInferiorMovil._saliente),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedContainer(
-                duration: ManiMotion.fast,
-                width: 48,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: activo ? context.mani.brand : Colors.transparent,
-                  borderRadius: BorderRadius.circular(ManiRadius.pill),
-                  border: Border.all(
-                    color: activo ? context.mani.border : Colors.transparent,
-                    width: ManiBorder.thick,
+      child: ManiAnilloFoco(
+        radio: BorderRadius.circular(ManiRadius.lg),
+        child: InkWell(
+          onTap: alTocar,
+          child: Padding(
+            padding: const EdgeInsets.only(top: BarraInferiorMovil._saliente),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedContainer(
+                  duration: ManiMotion.fast,
+                  width: 48,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: activo ? context.mani.brand : Colors.transparent,
+                    borderRadius: BorderRadius.circular(ManiRadius.pill),
+                    border: Border.all(
+                      color: activo ? context.mani.border : Colors.transparent,
+                      width: ManiBorder.thick,
+                    ),
+                  ),
+                  child: Icon(
+                    icono,
+                    size: 22,
+                    color: activo ? context.mani.onBrand : context.mani.ink,
                   ),
                 ),
-                child: Icon(
-                  icono,
-                  size: 22,
-                  color: activo ? context.mani.onBrand : context.mani.ink,
+                const SizedBox(height: 2),
+                Text(
+                  etiqueta,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
+                    color: context.mani.ink,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                etiqueta,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
-                  color: context.mani.ink,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -320,39 +324,42 @@ class _Centro extends StatelessWidget {
       selected: activo,
       label: 'Inicio',
       excludeSemantics: true,
-      child: InkWell(
-        onTap: alTocar,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: ManiMotion.fast,
-              width: 44,
-              height: 44,
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: activo ? context.mani.brand : context.mani.brandSoft,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: context.mani.border,
-                  width: ManiBorder.thick,
+      child: ManiAnilloFoco(
+        radio: BorderRadius.circular(ManiRadius.lg),
+        child: InkWell(
+          onTap: alTocar,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: ManiMotion.fast,
+                width: 44,
+                height: 44,
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: activo ? context.mani.brand : context.mani.brandSoft,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: context.mani.border,
+                    width: ManiBorder.thick,
+                  ),
+                ),
+                child: const ManiMano(mini: true),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Inicio',
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
+                  color: context.mani.ink,
                 ),
               ),
-              child: const ManiMano(mini: true),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'Inicio',
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: activo ? FontWeight.w900 : FontWeight.w700,
-                color: context.mani.ink,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -387,51 +394,54 @@ class CampanaAvisos extends StatelessWidget {
             width: ManiBorder.thin,
           ),
         ),
-        child: InkWell(
-          key: const Key('menu-avisos'),
-          borderRadius: BorderRadius.circular(ManiRadius.lg),
-          onTap: alTocar,
-          child: SizedBox(
-            width: 44,
-            height: 44,
-            child: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
-              children: [
-                Icon(
-                  Icons.notifications_none,
-                  color: context.mani.ink,
-                  size: 24,
-                ),
-                if (sinLeer > 0)
-                  Positioned(
-                    top: -6,
-                    right: -6,
-                    child: Container(
-                      key: const Key('menu-avisos-contador'),
-                      constraints: const BoxConstraints(minWidth: 20),
-                      height: 20,
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: ManiColors.danger,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: context.mani.background,
-                          width: 2,
+        child: ManiAnilloFoco(
+          radio: BorderRadius.circular(ManiRadius.lg),
+          child: InkWell(
+            key: const Key('menu-avisos'),
+            borderRadius: BorderRadius.circular(ManiRadius.lg),
+            onTap: alTocar,
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  Icon(
+                    Icons.notifications_none,
+                    color: context.mani.ink,
+                    size: 24,
+                  ),
+                  if (sinLeer > 0)
+                    Positioned(
+                      top: -6,
+                      right: -6,
+                      child: Container(
+                        key: const Key('menu-avisos-contador'),
+                        constraints: const BoxConstraints(minWidth: 20),
+                        height: 20,
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: ManiColors.danger,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: context.mani.background,
+                            width: 2,
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        texto,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
+                        child: Text(
+                          texto,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
