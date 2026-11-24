@@ -26,8 +26,9 @@ workflows:
             "$SUPABASE_URL" "$SUPABASE_ANON_KEY" "$API_GATEWAY_URL" > .env
       - name: Dependencias de Flutter
         script: flutter pub get
-      - name: Instalar pods
+      - name: Generar Podfile e instalar pods
         script: |
+          flutter build ios --config-only --no-codesign
           cd ios
           pod install
       - name: Obtener o crear certificado y perfil de firma en App Store Connect
