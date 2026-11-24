@@ -37,8 +37,8 @@ class FlujoOperativoBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final f = flujo;
-    final fondo = f?.fondo ?? ManiColors.borderSubtle;
-    final acento = f?.acento ?? ManiColors.inkMuted;
+    final fondo = f?.fondo ?? context.mani.borderSubtle;
+    final acento = f?.acento ?? context.mani.inkMuted;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: ManiSpace.sm,
@@ -47,7 +47,7 @@ class FlujoOperativoBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: fondo,
         borderRadius: ManiRadius.brPill,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
+        border: Border.all(color: context.mani.border, width: ManiBorder.thin),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

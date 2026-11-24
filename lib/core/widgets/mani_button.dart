@@ -6,8 +6,9 @@ import 'package:mani/core/widgets/mani_anillo_foco.dart';
 /// `enlace` es la acción de menor jerarquía (texto subrayado, sin borde ni
 /// sombra): ver u ocultar contraseña, «¿Olvidaste tu contraseña?», reintentar
 /// dentro de una fila.
-/// `oscuro` (fondo de tinta) y `texto` (igual a `enlace`) vienen de la
-/// navegación móvil y el inicio de SCRUM-1646/1647.
+/// `oscuro` (relleno oscuro y texto blanco en los dos modos: va sobre la tarjeta
+/// de marca, que es amarilla también en modo oscuro) y `texto` (igual a
+/// `enlace`) vienen de la navegación móvil y el inicio de SCRUM-1646/1647.
 enum ManiButtonVariante { primario, peligro, secundario, enlace, oscuro, texto }
 
 /// Botón neo-brutalista MANI. Al presionarlo "se hunde": la sombra dura
@@ -62,7 +63,7 @@ class _ManiButtonState extends State<ManiButton> {
         ManiButtonVariante.secundario => (t.surface, t.ink),
         ManiButtonVariante.enlace ||
         ManiButtonVariante.texto => (Colors.transparent, t.ink),
-        ManiButtonVariante.oscuro => (t.ink, t.surface),
+        ManiButtonVariante.oscuro => (t.onBrand, ManiColors.onInk),
       };
 
   void _presionar(bool valor) {

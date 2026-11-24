@@ -187,10 +187,10 @@ class _Burbuja extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           // Propias en amarillo suave y sin borde; ajenas en blanco con borde fino.
-          color: mio ? ManiColors.brandSoft : ManiColors.surface,
+          color: mio ? context.mani.brandSoft : context.mani.surface,
           border: mio
               ? null
-              : Border.all(color: ManiColors.ink, width: ManiBorder.thin),
+              : Border.all(color: context.mani.ink, width: ManiBorder.thin),
           borderRadius: BorderRadius.only(
             topLeft: radio,
             topRight: radio,
@@ -204,18 +204,18 @@ class _Burbuja extends StatelessWidget {
             if (!mio && mensaje.etiquetaRemitente.isNotEmpty)
               Text(
                 mensaje.etiquetaRemitente,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: ManiColors.inkMuted,
+                  color: context.mani.inkMuted,
                 ),
               ),
             Text(
               mensaje.contenido,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
             if (hora.isNotEmpty)
@@ -223,10 +223,7 @@ class _Burbuja extends StatelessWidget {
                 alignment: Alignment.centerRight,
                 child: Text(
                   hora,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: ManiColors.inkMuted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: context.mani.inkMuted),
                 ),
               ),
           ],
@@ -248,13 +245,13 @@ class _Aviso extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
-      color: cerrado ? ManiColors.surfaceMuted : ManiColors.warningContainer,
+      color: cerrado ? context.mani.surfaceMuted : ManiColors.warningContainer,
       child: Row(
         children: [
           Icon(
             cerrado ? Icons.lock_outline : Icons.info_outline,
             size: 20,
-            color: cerrado ? ManiColors.ink : ManiColors.warningText,
+            color: cerrado ? context.mani.ink : ManiColors.warningText,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -263,7 +260,7 @@ class _Aviso extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: cerrado ? ManiColors.ink : ManiColors.warningText,
+                color: cerrado ? context.mani.ink : ManiColors.warningText,
               ),
             ),
           ),
@@ -317,15 +314,15 @@ class _Redactor extends StatelessWidget {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24.0),
-                    borderSide: const BorderSide(
-                      color: ManiColors.ink,
+                    borderSide: BorderSide(
+                      color: context.mani.ink,
                       width: ManiBorder.thin,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24.0),
-                    borderSide: const BorderSide(
-                      color: ManiColors.ink,
+                    borderSide: BorderSide(
+                      color: context.mani.ink,
                       width: ManiBorder.thin,
                     ),
                   ),
@@ -336,9 +333,11 @@ class _Redactor extends StatelessWidget {
             Tooltip(
               message: 'Enviar',
               child: Material(
-                color: enviando ? ManiColors.surfaceMuted : ManiColors.brand,
-                shape: const CircleBorder(
-                  side: BorderSide(color: ManiColors.ink, width: 2),
+                color: enviando
+                    ? context.mani.surfaceMuted
+                    : context.mani.brand,
+                shape: CircleBorder(
+                  side: BorderSide(color: context.mani.ink, width: 2),
                 ),
                 child: InkWell(
                   key: const Key('btn-enviar-mensaje'),
@@ -352,7 +351,7 @@ class _Redactor extends StatelessWidget {
                             padding: EdgeInsets.all(14),
                             child: CircularProgressIndicator(strokeWidth: 2.5),
                           )
-                        : const Icon(Icons.send_rounded, color: ManiColors.ink),
+                        : Icon(Icons.send_rounded, color: context.mani.ink),
                   ),
                 ),
               ),

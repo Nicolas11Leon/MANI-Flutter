@@ -46,16 +46,16 @@ class CategoriaCard extends StatelessWidget {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: c.flujo?.fondo ?? ManiColors.background,
+                  color: c.flujo?.fondo ?? context.mani.background,
                   borderRadius: ManiRadius.brMd,
                   border: Border.all(
-                    color: ManiColors.border,
+                    color: context.mani.border,
                     width: ManiBorder.regular,
                   ),
                 ),
                 child: Icon(
                   Icons.home_repair_service_rounded,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                   size: 22,
                 ),
               ),
@@ -68,10 +68,10 @@ class CategoriaCard extends StatelessWidget {
                       c.nombre,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: ManiFontSize.body,
                         fontWeight: FontWeight.w900,
-                        color: ManiColors.ink,
+                        color: context.mani.ink,
                       ),
                     ),
                     ManiGap.vXs,
@@ -87,10 +87,10 @@ class CategoriaCard extends StatelessWidget {
           ManiGap.vSm,
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.engineering_outlined,
                 size: 14,
-                color: ManiColors.inkSubtle,
+                color: context.mani.inkSubtle,
               ),
               ManiGap.hXs,
               Expanded(
@@ -101,10 +101,10 @@ class CategoriaCard extends StatelessWidget {
                     final n => '$n aliados',
                   },
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: ManiFontSize.caption,
                     fontWeight: FontWeight.w600,
-                    color: ManiColors.inkMuted,
+                    color: context.mani.inkMuted,
                   ),
                 ),
               ),
@@ -145,7 +145,7 @@ class _BotonVisibilidad extends StatelessWidget {
           ? 'Ocultar del catálogo público sin afectar servicios en curso'
           : 'Volver a mostrar en el catálogo público',
       child: Material(
-        color: activa ? ManiColors.background : ManiColors.brand,
+        color: activa ? context.mani.background : context.mani.brand,
         borderRadius: ManiRadius.brXs,
         child: InkWell(
           key: ValueKey('toggle-estado-categoria-$categoriaId'),
@@ -159,7 +159,7 @@ class _BotonVisibilidad extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: ManiRadius.brXs,
               border: Border.all(
-                color: ManiColors.border,
+                color: context.mani.border,
                 width: ManiBorder.thin,
               ),
             ),
@@ -167,12 +167,12 @@ class _BotonVisibilidad extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (cargando)
-                  const SizedBox(
+                  SizedBox(
                     width: 12,
                     height: 12,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: ManiColors.ink,
+                      color: context.mani.ink,
                     ),
                   )
                 else
@@ -181,15 +181,15 @@ class _BotonVisibilidad extends StatelessWidget {
                         ? Icons.visibility_off_outlined
                         : Icons.visibility_outlined,
                     size: 13,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ManiGap.hXs,
                 Text(
                   cargando ? 'Guardando...' : (activa ? 'Ocultar' : 'Activar'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: ManiFontSize.micro,
                     fontWeight: FontWeight.w800,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ],
@@ -208,7 +208,7 @@ class _EstadoVisibilidad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = activa ? ManiColors.success : ManiColors.inkSubtle;
+    final color = activa ? ManiColors.success : context.mani.inkSubtle;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -226,7 +226,7 @@ class _EstadoVisibilidad extends StatelessWidget {
             style: TextStyle(
               fontSize: ManiFontSize.caption,
               fontWeight: FontWeight.w700,
-              color: activa ? ManiColors.success : ManiColors.inkMuted,
+              color: activa ? ManiColors.success : context.mani.inkMuted,
             ),
           ),
         ),
@@ -246,16 +246,16 @@ class _EtiquetaNueva extends StatelessWidget {
         vertical: ManiSpace.xs,
       ),
       decoration: BoxDecoration(
-        color: ManiColors.ink,
+        color: context.mani.ink,
         borderRadius: ManiRadius.brXs,
       ),
-      child: const Text(
+      child: Text(
         'NUEVA',
         style: TextStyle(
           fontSize: ManiFontSize.nano,
           fontWeight: FontWeight.w900,
           letterSpacing: 0.6,
-          color: ManiColors.brand,
+          color: context.mani.brand,
         ),
       ),
     );

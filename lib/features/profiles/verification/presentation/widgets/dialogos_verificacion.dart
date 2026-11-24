@@ -136,7 +136,7 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
                     ),
                   ),
                   onPressed: () => _agregarMotivo(m),
-                  backgroundColor: ManiColors.background,
+                  backgroundColor: context.mani.background,
                   side: ManiBorder.sideThin,
                   shape: RoundedRectangleBorder(borderRadius: ManiRadius.brSm),
                 ),
@@ -155,7 +155,7 @@ class _DialogoRechazoState extends State<_DialogoRechazo> {
               hintText:
                   'Ej: La foto de la cédula está borrosa, vuelve a cargarla.',
               filled: true,
-              fillColor: ManiColors.surface,
+              fillColor: context.mani.surface,
               errorText: mostrarError
                   ? 'Escribe al menos ${DecisionVerificacion.motivoMinimo} caracteres.'
                   : null,
@@ -222,10 +222,10 @@ class _DialogoMani extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: ManiColors.background,
+      backgroundColor: context.mani.background,
       shape: RoundedRectangleBorder(
         borderRadius: ManiRadius.brLg,
-        side: const BorderSide(color: ManiColors.ink, width: 3),
+        side: BorderSide(color: context.mani.ink, width: 3),
       ),
       titlePadding: const EdgeInsets.fromLTRB(
         ManiSpace.xxl,
@@ -244,10 +244,10 @@ class _DialogoMani extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(ManiSpace.sm),
             decoration: BoxDecoration(
-              color: ManiColors.surface,
+              color: context.mani.surface,
               borderRadius: ManiRadius.brSm,
               border: Border.all(
-                color: ManiColors.border,
+                color: context.mani.border,
                 width: ManiBorder.regular,
               ),
             ),
@@ -257,10 +257,10 @@ class _DialogoMani extends StatelessWidget {
           Expanded(
             child: Text(
               titulo,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: ManiFontSize.title,
                 fontWeight: FontWeight.w900,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
           ),

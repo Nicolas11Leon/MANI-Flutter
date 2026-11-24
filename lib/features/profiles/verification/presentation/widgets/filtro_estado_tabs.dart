@@ -21,9 +21,12 @@ class FiltroEstadoTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: ManiColors.surface,
+        color: context.mani.surface,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        border: Border.all(
+          color: context.mani.border,
+          width: ManiBorder.regular,
+        ),
         boxShadow: const [ManiShadow.sm],
       ),
       clipBehavior: Clip.antiAlias,
@@ -34,7 +37,7 @@ class FiltroEstadoTabs extends StatelessWidget {
               Container(
                 width: ManiBorder.regular,
                 height: 52,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             Expanded(
               child: _Tab(
@@ -83,7 +86,7 @@ class _Tab extends StatelessWidget {
         child: AnimatedContainer(
           duration: ManiMotion.fast,
           height: 52,
-          color: activo ? ManiColors.brand : ManiColors.surface,
+          color: activo ? context.mani.brand : context.mani.surface,
           padding: const EdgeInsets.symmetric(horizontal: ManiSpace.sm),
           // En móvil (pestaña angosta) el conteo pasa debajo de la etiqueta
           // para que "Aprobados" y "Rechazados" no se recorten.
@@ -95,13 +98,13 @@ class _Tab extends StatelessWidget {
                 style: TextStyle(
                   fontSize: ManiFontSize.caption,
                   fontWeight: FontWeight.w800,
-                  color: activo ? ManiColors.ink : ManiColors.inkMuted,
+                  color: activo ? context.mani.ink : context.mani.inkMuted,
                 ),
               );
               final conteo = Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
                 decoration: BoxDecoration(
-                  color: activo ? ManiColors.ink : estado.fondo,
+                  color: activo ? context.mani.ink : estado.fondo,
                   borderRadius: ManiRadius.brPill,
                 ),
                 child: Text(
@@ -109,7 +112,7 @@ class _Tab extends StatelessWidget {
                   style: TextStyle(
                     fontSize: ManiFontSize.micro,
                     fontWeight: FontWeight.w900,
-                    color: activo ? ManiColors.brand : estado.acento,
+                    color: activo ? context.mani.brand : estado.acento,
                   ),
                 ),
               );

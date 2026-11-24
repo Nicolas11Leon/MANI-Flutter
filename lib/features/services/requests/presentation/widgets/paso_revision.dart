@@ -42,7 +42,7 @@ class PasoRevision extends StatelessWidget {
             children: [
               Icon(
                 iconoCategoria(categoria?.nombre ?? ''),
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
               ManiGap.hSm,
               Expanded(
@@ -56,9 +56,9 @@ class PasoRevision extends StatelessWidget {
                     if (categoria != null)
                       Text(
                         textoModalidad(categoria.modalidad),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: ManiFontSize.caption,
-                          color: ManiColors.inkMuted,
+                          color: context.mani.inkMuted,
                         ),
                       ),
                   ],
@@ -79,10 +79,10 @@ class PasoRevision extends StatelessWidget {
               ManiGap.vSm,
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.photo_library_outlined,
                     size: 16,
-                    color: ManiColors.inkMuted,
+                    color: context.mani.inkMuted,
                   ),
                   ManiGap.hXs,
                   Text(
@@ -91,10 +91,10 @@ class PasoRevision extends StatelessWidget {
                       1 => '1 foto',
                       final n => '$n fotos',
                     },
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: ManiFontSize.caption,
                       fontWeight: FontWeight.w700,
-                      color: ManiColors.inkMuted,
+                      color: context.mani.inkMuted,
                     ),
                   ),
                 ],
@@ -116,9 +116,9 @@ class PasoRevision extends StatelessWidget {
               ),
               Text(
                 ubicacion.$2,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: ManiFontSize.caption,
-                  color: ManiColors.inkMuted,
+                  color: context.mani.inkMuted,
                 ),
               ),
             ],
@@ -154,9 +154,12 @@ class _Seccion extends StatelessWidget {
         ManiSpace.md,
       ),
       decoration: BoxDecoration(
-        color: ManiColors.surface,
+        color: context.mani.surface,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        border: Border.all(
+          color: context.mani.border,
+          width: ManiBorder.regular,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,11 +169,11 @@ class _Seccion extends StatelessWidget {
               Expanded(
                 child: Text(
                   titulo.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: ManiFontSize.micro,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.6,
-                    color: ManiColors.inkSubtle,
+                    color: context.mani.inkSubtle,
                   ),
                 ),
               ),
@@ -180,7 +183,7 @@ class _Seccion extends StatelessWidget {
                 icon: const Icon(Icons.edit_outlined, size: 16),
                 label: const Text('Editar'),
                 style: TextButton.styleFrom(
-                  foregroundColor: ManiColors.ink,
+                  foregroundColor: context.mani.ink,
                   textStyle: const TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),
@@ -210,9 +213,9 @@ class _QuePasaDespues extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(ManiSpace.md),
       decoration: BoxDecoration(
-        color: ManiColors.brandSoft,
+        color: context.mani.brandSoft,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
+        border: Border.all(color: context.mani.border, width: ManiBorder.thin),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,16 +235,16 @@ class _QuePasaDespues extends StatelessWidget {
                     width: 20,
                     height: 20,
                     alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: ManiColors.ink,
+                    decoration: BoxDecoration(
+                      color: context.mani.ink,
                       shape: BoxShape.circle,
                     ),
                     child: Text(
                       '${i + 1}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: ManiFontSize.micro,
                         fontWeight: FontWeight.w900,
-                        color: ManiColors.brand,
+                        color: context.mani.brand,
                       ),
                     ),
                   ),

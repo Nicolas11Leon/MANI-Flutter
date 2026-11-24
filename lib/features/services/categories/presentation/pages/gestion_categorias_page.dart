@@ -29,7 +29,7 @@ class GestionCategoriasPage extends StatelessWidget {
         esError: state.aviso!.esError,
       ),
       child: Scaffold(
-        backgroundColor: ManiColors.background,
+        backgroundColor: context.mani.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -117,9 +117,7 @@ class _Catalogo extends StatelessWidget {
                             child: Text(
                               'Ninguna categoría coincide con "${state.busqueda.trim()}".',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: ManiColors.inkMuted,
-                              ),
+                              style: TextStyle(color: context.mani.inkMuted),
                             ),
                           ),
                         )
@@ -219,8 +217,8 @@ class _Encabezado extends StatelessWidget {
               : '$activas ${activas == 1 ? 'visible' : 'visibles'} para clientes'
                     '${ocultas > 0 ? ' · $ocultas ${ocultas == 1 ? 'oculta' : 'ocultas'}' : ''}',
           key: const ValueKey('resumen-categorias'),
-          style: const TextStyle(
-            color: ManiColors.inkMuted,
+          style: TextStyle(
+            color: context.mani.inkMuted,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -270,12 +268,9 @@ class _CampoBusqueda extends StatelessWidget {
       decoration: InputDecoration(
         isDense: true,
         filled: true,
-        fillColor: ManiColors.surface,
+        fillColor: context.mani.surface,
         hintText: 'Buscar categoría',
-        prefixIcon: const Icon(
-          Icons.search_rounded,
-          color: ManiColors.inkMuted,
-        ),
+        prefixIcon: Icon(Icons.search_rounded, color: context.mani.inkMuted),
         enabledBorder: borde,
         focusedBorder: borde.copyWith(borderSide: ManiBorder.sideThick),
       ),
@@ -319,7 +314,7 @@ class _BarraSuperior extends StatelessWidget {
           tooltip: 'Actualizar',
           onPressed: () =>
               context.read<CategoriasCubit>().cargar(silencioso: true),
-          icon: const Icon(Icons.refresh_rounded, color: ManiColors.ink),
+          icon: Icon(Icons.refresh_rounded, color: context.mani.ink),
         ),
       ],
     );
@@ -340,11 +335,7 @@ class _ErrorCarga extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.cloud_off_rounded,
-              size: 48,
-              color: ManiColors.ink,
-            ),
+            Icon(Icons.cloud_off_rounded, size: 48, color: context.mani.ink),
             ManiGap.vMd,
             Text(
               mensaje,

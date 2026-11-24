@@ -87,7 +87,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ManiColors.background,
+      backgroundColor: context.mani.background,
       appBar: barraDePantalla(
         context,
         titulo: widget.esVistaAliado
@@ -130,9 +130,9 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
       key: const Key('card_reglas_visibles_aliado'),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: ManiColors.brand,
+        color: context.mani.brand,
         borderRadius: BorderRadius.circular(24.0),
-        border: Border.all(color: ManiColors.ink, width: 2.5),
+        border: Border.all(color: context.mani.ink, width: 2.5),
         boxShadow: const [ManiShadow.sm],
       ),
       child: Column(
@@ -140,9 +140,9 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.health_and_safety_rounded,
-                color: ManiColors.ink,
+                color: context.mani.ink,
                 size: 26,
               ),
               const SizedBox(width: 10),
@@ -152,7 +152,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -164,7 +164,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: ManiColors.ink,
+              color: context.mani.ink,
             ),
           ),
           if (reglas.horarioPermitido != null &&
@@ -174,7 +174,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
           if (reglas.documentosRequeridos.isNotEmpty)
@@ -183,7 +183,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
           if (reglas.instruccionesIngreso != null &&
@@ -193,7 +193,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
         ],
@@ -207,7 +207,7 @@ class _ReglasSitioPageState extends State<ReglasSitioPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24.0),
-        border: Border.all(color: ManiColors.ink, width: 2),
+        border: Border.all(color: context.mani.ink, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
