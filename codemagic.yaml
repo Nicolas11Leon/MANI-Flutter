@@ -1,0 +1,48 @@
+# Codemagic: compila la app MANI para iPhone y la sube a TestFlight.
+# Variables (grupo mani_env, en Codemagic): SUPABASE_URL, SUPABASE_ANON_KEY, API_GATEWAY_URL.
+# Ninguna clave va en el repositorio: el archivo .env se crea en cada build.
+workflows:
+  ios-testflight:
+    name: MANI iOS (TestFlight)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: NOMBRE_DE_LA_INTEGRACION   # el nombre exacto en Codemagic > Teams > Integrations
+    environment:
+      groups:
+        - mani_env
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.rogerdevs.mani
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Crear .env con las variables del grupo mani_env
+        script: |
+          for v in SUPABASE_URL SUPABASE_ANON_KEY API_GATEWAY_URL; do
+            [ -n "${!v}" ] || { echo "Falta la variable $v en el grupo mani_env"; exit 1; }
+          done
+          printf 'SUPABASE_URL=%s\nSUPABASE_ANON_KEY=%s\nAPI_GATEWAY_URL=%s\n' \
+            "$SUPABASE_URL" "$SUPABASE_ANON_KEY" "$API_GATEWAY_URL" > .env
+      - name: Dependencias de Flutter
+        script: flutter pub get
+      - name: Instalar pods
+        script: |
+          cd ios
+          pod install
+      - name: Aplicar los perfiles de firma al proyecto Xcode
+        script: xcode-project use-profiles
+      - name: Compilar el IPA
+        script: |
+          flutter build ipa --release \
+            --build-name=1.0.0 \
+            --build-number=$BUILD_NUMBER \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
