@@ -7,6 +7,7 @@ import 'package:mani/core/di/injection_container.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mani/features/auth/presentation/validators/cliente_empresa_validators.dart';
+import 'package:mani/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:mani/features/auth/presentation/widgets/terminos_condiciones_section.dart';
 import 'package:mani/features/auth/domain/entities/registro_cliente_empresa.dart';
 
@@ -176,144 +177,151 @@ class _RegistroClienteEmpresaViewState
             ),
           ),
           body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: ManiSpace.xxl,
-                vertical: ManiSpace.xxl,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: ManiAncho.formulario,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _seccion(
-                          Icons.business_outlined,
-                          '1. Datos de la empresa',
-                          [
-                            _campo(
-                              key: const Key('razonSocial'),
-                              label: 'RAZÓN SOCIAL',
-                              controller: _razonSocialController,
-                              hint: 'Ej: Constructora Andina SAS',
-                              icon: Icons.apartment_outlined,
-                              validator: (v) =>
-                                  ClienteEmpresaValidators.obligatorio(
-                                    v,
-                                    'La razón social es obligatoria',
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ManiSpace.xxl,
+                      vertical: ManiSpace.xxl,
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: ManiAncho.formulario,
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _seccion(
+                                Icons.business_outlined,
+                                '1. Datos de la empresa',
+                                [
+                                  _campo(
+                                    key: const Key('razonSocial'),
+                                    label: 'RAZÓN SOCIAL',
+                                    controller: _razonSocialController,
+                                    hint: 'Ej: Constructora Andina SAS',
+                                    icon: Icons.apartment_outlined,
+                                    validator: (v) =>
+                                        ClienteEmpresaValidators.obligatorio(
+                                          v,
+                                          'La razón social es obligatoria',
+                                        ),
                                   ),
-                            ),
-                            _campo(
-                              key: const Key('nit'),
-                              label: 'NIT',
-                              controller: _nitController,
-                              hint: '900.123.456-7',
-                              icon: Icons.badge_outlined,
-                              validator: ClienteEmpresaValidators.nit,
-                            ),
-                            _campo(
-                              key: const Key('nombreRepresentante'),
-                              label: 'REPRESENTANTE LEGAL',
-                              controller: _representanteController,
-                              hint: 'Nombre completo del representante',
-                              icon: Icons.person_outline,
-                              validator: (v) =>
-                                  ClienteEmpresaValidators.obligatorio(
-                                    v,
-                                    'El representante legal es obligatorio',
+                                  _campo(
+                                    key: const Key('nit'),
+                                    label: 'NIT',
+                                    controller: _nitController,
+                                    hint: '900.123.456-7',
+                                    icon: Icons.badge_outlined,
+                                    validator: ClienteEmpresaValidators.nit,
                                   ),
-                            ),
-                            _campo(
-                              key: const Key('telefono'),
-                              label: 'TELÉFONO DE CONTACTO (OPCIONAL)',
-                              controller: _telefonoController,
-                              hint: '+57 601 123 4567',
-                              icon: Icons.phone_outlined,
-                              keyboardType: TextInputType.phone,
-                            ),
-                          ],
-                        ),
-                        ManiGap.vXl,
-                        _seccion(
-                          Icons.lock_rounded,
-                          '2. Credenciales de acceso',
-                          [
-                            _campo(
-                              key: const Key('email'),
-                              label: 'CORREO ELECTRÓNICO',
-                              controller: _emailController,
-                              hint: 'compras@empresa.com',
-                              icon: Icons.email_outlined,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: ClienteEmpresaValidators.email,
-                            ),
-                            _campo(
-                              key: const Key('password'),
-                              label: 'CONTRASEÑA',
-                              controller: _passwordController,
-                              hint: '••••••••',
-                              icon: Icons.key_outlined,
-                              obscure: !_showPassword,
-                              validator: ClienteEmpresaValidators.password,
-                              suffix: TextButton(
-                                onPressed: () => setState(
-                                  () => _showPassword = !_showPassword,
-                                ),
-                                child: Text(_showPassword ? 'OCULTAR' : 'VER'),
+                                  _campo(
+                                    key: const Key('nombreRepresentante'),
+                                    label: 'REPRESENTANTE LEGAL',
+                                    controller: _representanteController,
+                                    hint: 'Nombre completo del representante',
+                                    icon: Icons.person_outline,
+                                    validator: (v) =>
+                                        ClienteEmpresaValidators.obligatorio(
+                                          v,
+                                          'El representante legal es obligatorio',
+                                        ),
+                                  ),
+                                  _campo(
+                                    key: const Key('telefono'),
+                                    label: 'TELÉFONO DE CONTACTO (OPCIONAL)',
+                                    controller: _telefonoController,
+                                    hint: '+57 601 123 4567',
+                                    icon: Icons.phone_outlined,
+                                    keyboardType: TextInputType.phone,
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                        ManiGap.vXl,
-                        TerminosCondicionesSection(
-                          aceptaTerminos: _aceptaTerminos,
-                          mostrarError: _mostrarErrorTerminos,
-                          onChanged: (val) => setState(() {
-                            _aceptaTerminos = val;
-                            if (val) _mostrarErrorTerminos = false;
-                          }),
-                        ),
-                        ManiGap.vXl,
-                        SizedBox(
-                          height: 52,
-                          child: ElevatedButton(
-                            key: const Key('crearCuentaEmpresa'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: ManiColors.brand,
-                              foregroundColor: ManiColors.ink,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: ManiRadius.brMd,
-                                side: ManiBorder.side,
-                              ),
-                            ),
-                            onPressed: isLoading ? null : _handleRegistro,
-                            child: isLoading
-                                ? const SizedBox(
-                                    height: 22,
-                                    width: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      color: ManiColors.ink,
-                                    ),
-                                  )
-                                : Text(
-                                    'CREAR LA CUENTA DE MI EMPRESA',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 0.8,
+                              ManiGap.vXl,
+                              _seccion(
+                                Icons.lock_rounded,
+                                '2. Credenciales de acceso',
+                                [
+                                  _campo(
+                                    key: const Key('email'),
+                                    label: 'CORREO ELECTRÓNICO',
+                                    controller: _emailController,
+                                    hint: 'compras@empresa.com',
+                                    icon: Icons.email_outlined,
+                                    keyboardType: TextInputType.emailAddress,
+                                    validator: ClienteEmpresaValidators.email,
+                                  ),
+                                  _campo(
+                                    key: const Key('password'),
+                                    label: 'CONTRASEÑA',
+                                    controller: _passwordController,
+                                    hint: '••••••••',
+                                    icon: Icons.key_outlined,
+                                    obscure: !_showPassword,
+                                    validator:
+                                        ClienteEmpresaValidators.password,
+                                    suffix: TextButton(
+                                      onPressed: () => setState(
+                                        () => _showPassword = !_showPassword,
+                                      ),
+                                      child: Text(
+                                        _showPassword ? 'OCULTAR' : 'VER',
+                                      ),
                                     ),
                                   ),
+                                ],
+                              ),
+                              ManiGap.vXl,
+                              TerminosCondicionesSection(
+                                aceptaTerminos: _aceptaTerminos,
+                                mostrarError: _mostrarErrorTerminos,
+                                onChanged: (val) => setState(() {
+                                  _aceptaTerminos = val;
+                                  if (val) _mostrarErrorTerminos = false;
+                                }),
+                              ),
+                              ManiGap.vXl,
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+                // La acción de envío queda fija al pie, fuera de la zona que se desplaza, igual que en los otros registros:
+                // con dos secciones y los términos, el botón quedaba bajo el pliegue a cualquier alto de ventana
+                // (SCRUM-1717, QAS-30).
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    ManiSpace.xxl,
+                    ManiSpace.md,
+                    ManiSpace.xxl,
+                    ManiSpace.md,
+                  ),
+                  child: Center(
+                    heightFactor: 1,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: ManiAncho.formulario,
+                      ),
+                      child: AuthBarraEnvio(
+                        claveBoton: const Key('crearCuentaEmpresa'),
+                        icono: Icons.verified_user_outlined,
+                        titulo: 'Cuenta empresarial verificada',
+                        descripcion:
+                            'El NIT y el representante legal quedan asociados a la cuenta de tu empresa.',
+                        etiquetaBoton: 'CREAR LA CUENTA DE MI EMPRESA',
+                        cargando: isLoading,
+                        onPressed: _handleRegistro,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         );
