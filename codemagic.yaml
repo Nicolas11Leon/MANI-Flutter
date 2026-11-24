@@ -11,9 +11,8 @@ workflows:
     environment:
       groups:
         - mani_env
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.rogerdevs.mani
+      vars:
+        BUNDLE_ID: com.rogerdevs.mani
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -31,6 +30,18 @@ workflows:
         script: |
           cd ios
           pod install
+      - name: Obtener o crear certificado y perfil de firma en App Store Connect
+        script: |
+          keychain initialize
+          if [ -z "$CERTIFICATE_PRIVATE_KEY" ]; then
+            ssh-keygen -t rsa -b 2048 -m PEM -f /tmp/cert_key -q -N ""
+            CERTIFICATE_PRIVATE_KEY="$(cat /tmp/cert_key)"
+          fi
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create \
+            --certificate-key "$CERTIFICATE_PRIVATE_KEY"
+          keychain add-certificates
       - name: Aplicar los perfiles de firma al proyecto Xcode
         script: xcode-project use-profiles
       - name: Compilar el IPA
