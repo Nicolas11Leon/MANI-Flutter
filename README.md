@@ -184,19 +184,23 @@ $$\text{develop (Development)} \longrightarrow \text{release (Testing / QA)} \lo
 
 | Rama | Propósito | Pipeline / Workflows | Artefacto Generado |
 | :--- | :--- | :--- | :--- |
-| **`develop`** | Integración continua de features | Formato, Linter, Tests con Cobertura, Build Web Check | Imagen Docker `ghcr.io/trama-as/mani-flutter:dev` |
+| **`develop`** | Integración continua de features | Formato, Linter, Tests con Cobertura, Build Web Check | Imagen Docker `ghcr.io/trama-as/mani-flutter:develop` |
 | **`release`** | Estabilización y pruebas de QA | Formato, Linter, Tests con Cobertura, Build Web Check | Imagen Docker `ghcr.io/trama-as/mani-flutter:staging` y artefacto `flutter-web-staging.zip` |
-| **`main`** | Producción oficial | Formato, Linter, Tests, SonarCloud SAST & Quality Gate | Imagen Docker `ghcr.io/trama-as/mani-flutter:latest` y GitHub Release con tag `vX.Y.Z` |
+| **`main`** | Producción oficial | Formato, Linter, Tests, SonarCloud SAST & Quality Gate | Imagen Docker `ghcr.io/trama-as/mani-flutter:latest` (al fusionar en `main`) y, con una etiqueta `vX.Y.Z`, la imagen `:X.Y.Z` y el GitHub Release (`release.yml`) |
 
-### Convención de Commits
-Se exige el estándar de **Conventional Commits** en inglés:
-* `feat:` Nueva funcionalidad.
-* `fix:` Corrección de errores.
-* `docs:` Cambios en documentación.
-* `style:` Formato, punto y coma faltantes, etc. (sin cambios en lógica).
-* `refactor:` Refactorización de código en producción.
-* `test:` Adición o refactorización de tests.
-* `ci:` Cambios en configuración de integración continua y pipelines.
+### Despliegue
+
+- `release` publica `:staging` y el artefacto `flutter-web-staging.zip`; esa imagen es la que DevOps despliega en **QA** (VM `10.43.100.141`).
+- La misma imagen corre en DEV, QA y PROD; lo que cambia es la configuración del contenedor (ver «Configuración por ambiente» arriba).
+- PROD toma la imagen de `main` (`:latest`). El despliegue en las VM lo hace **DevOps**.
+- Flujo de ramas: [Ramas, flujo y protección](https://github.com/Trama-AS/MANI-docs/blob/main/wiki/03-repositorios/ramas-flujo-y-proteccion.md). Ambientes: [Ambientes y promoción](https://github.com/Trama-AS/MANI-docs/blob/main/wiki/04-proceso/ambientes-y-promocion.md).
+
+### Convención de commits y PR
+
+La que exige la plantilla de PR (`.github/pull_request_template.md`):
+* Rama `feature/SCRUM-<id>-descripcion` o `fix/SCRUM-<id>-descripcion`, desde `develop`.
+* Título del PR y mensajes de commit con `[SCRUM-<id>]`, en español, diciendo qué cambia y por qué.
+* El PR va a `develop`; nunca directo a `release` ni a `main`.
 
 ---
 
