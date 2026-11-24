@@ -67,6 +67,7 @@ class PasoUbicacion extends StatelessWidget {
             textInputAction: TextInputAction.next,
             style: const TextStyle(fontWeight: FontWeight.w600),
             decoration: _decoracion(
+              context,
               etiqueta: 'Dirección',
               hint: 'Ej: Calle Colima 120, Apto 401',
               icono: Icons.signpost_outlined,
@@ -89,6 +90,7 @@ class PasoUbicacion extends StatelessWidget {
               textInputAction: TextInputAction.search,
               style: const TextStyle(fontWeight: FontWeight.w600),
               decoration: _decoracion(
+                context,
                 etiqueta: 'Barrio o localidad',
                 hint: 'Escribe al menos 2 letras',
                 icono: Icons.search_rounded,
@@ -96,14 +98,14 @@ class PasoUbicacion extends StatelessWidget {
             ),
             ManiGap.vSm,
             if (state.buscandoZonas)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(ManiSpace.md),
                 child: Center(
                   child: SizedBox.square(
                     dimension: 22,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
-                      color: ManiColors.ink,
+                      color: context.mani.ink,
                     ),
                   ),
                 ),
@@ -111,7 +113,7 @@ class PasoUbicacion extends StatelessWidget {
             else if (state.zonasEncontradas.isNotEmpty)
               // Material propio: los ListTile pintan ahí su efecto de toque.
               Material(
-                color: ManiColors.surface,
+                color: context.mani.surface,
                 clipBehavior: Clip.antiAlias,
                 shape: RoundedRectangleBorder(
                   borderRadius: ManiRadius.brMd,
@@ -137,11 +139,11 @@ class PasoUbicacion extends StatelessWidget {
                 ),
               )
             else if (busquedaZona.text.trim().length >= 2)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(ManiSpace.sm),
                 child: Text(
                   'No encontramos ese barrio. Prueba con otro nombre.',
-                  style: TextStyle(color: ManiColors.inkMuted),
+                  style: TextStyle(color: context.mani.inkMuted),
                 ),
               ),
           ],
@@ -150,21 +152,22 @@ class PasoUbicacion extends StatelessWidget {
     );
   }
 
-  static InputDecoration _decoracion({
+  static InputDecoration _decoracion(
+    BuildContext context, {
     required String etiqueta,
     required String hint,
     required IconData icono,
   }) {
     OutlineInputBorder borde(double ancho) => OutlineInputBorder(
       borderRadius: ManiRadius.brMd,
-      borderSide: BorderSide(color: ManiColors.ink, width: ancho),
+      borderSide: BorderSide(color: context.mani.ink, width: ancho),
     );
     return InputDecoration(
       labelText: etiqueta,
       hintText: hint,
-      prefixIcon: Icon(icono, color: ManiColors.ink),
+      prefixIcon: Icon(icono, color: context.mani.ink),
       filled: true,
-      fillColor: ManiColors.surface,
+      fillColor: context.mani.surface,
       enabledBorder: borde(2),
       focusedBorder: borde(2.5),
     );
@@ -200,10 +203,10 @@ class _Opcion extends StatelessWidget {
       child: AnimatedContainer(
         duration: ManiMotion.fast,
         decoration: BoxDecoration(
-          color: seleccionada ? ManiColors.brandSoft : ManiColors.surface,
+          color: seleccionada ? context.mani.brandSoft : context.mani.surface,
           borderRadius: radio,
           border: Border.all(
-            color: ManiColors.border,
+            color: context.mani.border,
             width: seleccionada ? 2.5 : 1.5,
           ),
           boxShadow: [if (seleccionada) ManiShadow.sm],
@@ -218,7 +221,7 @@ class _Opcion extends StatelessWidget {
               padding: const EdgeInsets.all(ManiSpace.md),
               child: Row(
                 children: [
-                  Icon(icono, color: ManiColors.ink),
+                  Icon(icono, color: context.mani.ink),
                   ManiGap.hMd,
                   Expanded(
                     child: Column(
@@ -234,9 +237,9 @@ class _Opcion extends StatelessWidget {
                           subtitulo,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: ManiFontSize.caption,
-                            color: ManiColors.inkMuted,
+                            color: context.mani.inkMuted,
                           ),
                         ),
                       ],
@@ -246,7 +249,7 @@ class _Opcion extends StatelessWidget {
                     seleccionada
                         ? Icons.radio_button_checked_rounded
                         : Icons.radio_button_off_rounded,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ],
               ),
@@ -277,11 +280,11 @@ class _ZonaElegida extends StatelessWidget {
       decoration: BoxDecoration(
         color: ManiColors.successContainer,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.thin),
+        border: Border.all(color: context.mani.border, width: ManiBorder.thin),
       ),
       child: Row(
         children: [
-          const Icon(Icons.place_rounded, color: ManiColors.ink),
+          Icon(Icons.place_rounded, color: context.mani.ink),
           ManiGap.hSm,
           Expanded(
             child: Text(
@@ -292,10 +295,10 @@ class _ZonaElegida extends StatelessWidget {
           TextButton(
             key: const ValueKey('btn-cambiar-zona'),
             onPressed: onCambiar,
-            child: const Text(
+            child: Text(
               'Cambiar',
               style: TextStyle(
-                color: ManiColors.ink,
+                color: context.mani.ink,
                 fontWeight: FontWeight.w800,
               ),
             ),

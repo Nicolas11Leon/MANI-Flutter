@@ -2,19 +2,19 @@
 name: MANI
 description: Traceable service operations for multi-tenant companies, from request to close.
 colors:
-  brand: "#FED1B0"
-  brand-soft: "#FFF2E8"
-  on-brand: "#1C1613"
-  on-brand-muted: "#63341E"
-  ink: "#1C1613"
-  ink-muted: "#5C5049"
-  ink-subtle: "#665A52"
+  brand: "#F2B705"
+  brand-soft: "#FDE896"
+  on-brand: "#1B2A4A"
+  on-brand-muted: "#4A3B00"
+  ink: "#1B2A4A"
+  ink-muted: "#536485"
+  ink-subtle: "#576687"
   on-ink: "#FFFFFF"
-  background: "#FAF6F2"
+  background: "#FBF3E4"
   surface: "#FFFFFF"
-  surface-muted: "#F3ECE6"
-  surface-warm: "#FCE6D4"
-  border-subtle: "#E4DAD1"
+  surface-muted: "#F3E5CD"
+  surface-warm: "#FFF9EE"
+  border-subtle: "#E6D9C0"
   success: "#15803D"
   success-text: "#166534"
   success-container: "#DCFCE7"
@@ -30,16 +30,16 @@ colors:
   info-container: "#E0F0FF"
   accent: "#894C2F"
   accent-container: "#F7E6DC"
-  dark-background: "#14110F"
-  dark-surface: "#1F1A17"
-  dark-surface-muted: "#2B2420"
-  dark-surface-warm: "#362A22"
-  dark-ink: "#F7F2ED"
-  dark-ink-muted: "#C4B5AA"
-  dark-ink-subtle: "#9E8E83"
-  dark-border: "#D6C2B2"
-  dark-border-subtle: "#3D332D"
-  dark-brand-soft: "#3A291F"
+  dark-background: "#242424"
+  dark-surface: "#2E2E2E"
+  dark-surface-muted: "#383838"
+  dark-surface-warm: "#3A3320"
+  dark-ink: "#F7F4EC"
+  dark-ink-muted: "#C9C5B9"
+  dark-ink-subtle: "#B0AC9F"
+  dark-border: "#E0DCCF"
+  dark-border-subtle: "#4D4D4D"
+  dark-brand-soft: "#3A2F0A"
 typography:
   display:
     fontFamily: "Plus Jakarta Sans, sans-serif"
@@ -143,31 +143,31 @@ components:
 
 **Creative North Star: "La ficha sellada"**
 
-Every surface in MANI reads like a printed, stamped work card: a crisp card with a firm 2px outline, sitting on a warm paper ground, casting a hard offset shadow as if it had been pressed onto the desk. The brand color (`#FED1B0`, warm peach / peanut cream) is the stamp. It marks what matters right now (the active tab, the primary action, the selected option, the identity of the page) and nothing else. A service moves from request to close as a stack of these cards, and each one shows its state openly.
+Every surface in MANI reads like a printed, stamped work card: a crisp card with a firm 2px outline, sitting on a warm paper ground, casting a hard offset shadow as if it had been pressed onto the desk. The brand color (`#F2B705`, MANI yellow, the same as the landing) is the stamp. It marks what matters right now (the active tab, the primary action, the selected option, the identity of the page) and nothing else. A service moves from request to close as a stack of these cards, and each one shows its state openly.
 
 The system is neo-brutalist by product decision, supporting both **Light Mode** (`AppTheme.light` / `ManiTokens.claro`) and **Dark Mode** (`AppTheme.dark` / `ManiTokens.oscuro`, toggled via `maniThemeController` in the top bar). Density is moderate: the screens are working tools for clients, allies and tenant/platform admins, so structure, hierarchy and state come first, while expression lives in the outline, the hard shadow and the warm Maní stamp.
 
 **Key Characteristics:**
 - 2px outlines (`ManiBorder.regular`) on primary containers and controls; 1.5px (`ManiBorder.thin`) on inactive pills and internal dividers.
 - Hard offset shadows (`2px`, `4px`, `6px`) with zero blur; they collapse when a control is pressed.
-- Warm Maní palette: `#FED1B0` stamp fill, `#894C2F` roasted peanut accent, `#0065B3` cobalt blue operational info, `#EE1C25`/`#D61921` alert red, `#FFFFFF` card surface.
-- Composed Dark Mode ("La ficha sellada nocturna"): warm roasted espresso surfaces (`#14110F` / `#1F1A17`), bone-cream 2px outlines (`#D6C2B2`), and `#FED1B0` stamps with dark `#1C1613` ink.
+- MANI palette (the landing's): `#F2B705` yellow fill, `#1B2A4A` navy ink, `#FBF3E4` cream ground, `#894C2F` roasted peanut accent, `#0065B3` cobalt blue operational info, `#EE1C25`/`#D61921` alert red, `#FFFFFF` card surface.
+- Composed Dark Mode ("La ficha sellada nocturna"): neutral charcoal surfaces (`#242424` / `#2E2E2E`), bone-cream 2px outlines (`#E0DCCF`), and `#F2B705` yellow fills with dark `#1A1A1A` ink.
 - Plus Jakarta Sans in heavy weights for titles and labels; medium for reading text.
 
 ## Colors
 
 ### Primary & Heritage
-- **Stamp Peach (`#FED1B0`, `brand`)**: primary buttons, the active menu entry and tab, selected options, primary KPI/module icon badges, the logo square.
-- **Pale Stamp (`#FFF2E8`, `brandSoft`)**: selected cards, secondary KPI badges, and highlighted rows.
+- **MANI Yellow (`#F2B705`, `brand`)**: primary buttons, the active menu entry and tab, selected options, primary KPI/module icon badges, the logo square.
+- **Pale Yellow (`#FDE896` light / `#3A2F0A` dark, `brandSoft`)**: selected cards, secondary KPI badges, and highlighted rows.
 - **Roasted Maní (`#894C2F`, `accent`)**: heritage warm brown accent for tenant badges, secondary status chips (`ManiTono.acento`), and on-brand secondary emphasis.
 
 ### Neutral (Light & Dark)
-- **Espresso Ink (`#1C1613` light / `#F7F2ED` dark, `ink`)**: all primary text, outlines in light mode, focus rings.
-- **Warm Muted (`#5C5049` light / `#C4B5AA` dark, `inkMuted`)**: secondary text, descriptions under titles.
-- **Warm Subtle (`#665A52` light / `#9E8E83` dark, `inkSubtle`)**: hints, placeholders, tertiary metadata.
-- **Warm Paper (`#FAF6F2` light / `#14110F` dark, `background`)**: the page ground behind every card.
-- **Card Surface (`#FFFFFF` light / `#1F1A17` dark, `surface`)**: cards, fields, bars, dialogs.
-- **Sunk Surface (`#F3ECE6` light / `#2B2420` dark, `surfaceMuted`)**: grouped backgrounds, secondary module cards, table headings.
+- **Navy Ink (`#1B2A4A` light / `#F7F4EC` dark, `ink`)**: all primary text, outlines in light mode, focus rings.
+- **Navy Muted (`#536485` light / `#C9C5B9` dark, `inkMuted`)**: secondary text, descriptions under titles.
+- **Navy Subtle (`#576687` light / `#B0AC9F` dark, `inkSubtle`)**: hints, placeholders, tertiary metadata.
+- **Cream Paper (`#FBF3E4` light / `#242424` dark, `background`)**: the page ground behind every card.
+- **Card Surface (`#FFFFFF` light / `#2E2E2E` dark, `surface`)**: cards, fields, bars, dialogs.
+- **Sunk Surface (`#F3E5CD` light / `#383838` dark, `surfaceMuted`)**: grouped backgrounds, secondary module cards, table headings.
 
 ### Semantic State (`ManiTono`)
 - **Info (`#0065B3` / `#005294` on `#E0F0FF`)**: operational cobalt blue from the palette.
@@ -176,8 +176,8 @@ The system is neo-brutalist by product decision, supporting both **Light Mode** 
 - **Warning (`#B45309` / `#92400E` on `#FEF3C7`)**: pending reviews, late cancellations, and paused tenants.
 
 ### Named Rules
-**The Stamp Needs Ink Rule.** Stamp Peach (`#FED1B0`) against the light paper ground is 1.4:1, so a brand fill always carries the 2px outline. Color alone never separates a brand surface.
+**The Stamp Needs Ink Rule.** MANI Yellow (`#F2B705`) against the light paper ground (`#FBF3E4`) is 1.8:1, so a brand fill always carries the 2px outline. Color alone never separates a brand surface.
 
-**The Stamp Is Not Text Rule.** Stamp Peach is a fill, never a text color on light surfaces. On a brand fill, text is Espresso Ink (`#1C1613`, 11.9:1) and secondary text is On-Brand Muted (`#63341E`, 4.8:1).
+**The Stamp Is Not Text Rule.** MANI Yellow is a fill, never a text color on light surfaces. On a brand fill, text is Navy Ink (`#1B2A4A`, 7.8:1) and secondary text is On-Brand Muted (`#4A3B00`, 6.0:1).
 
 **The Red Means Loss Rule.** Danger red is reserved for destructive or failed outcomes. A normal save is the primary stamp button, never red.

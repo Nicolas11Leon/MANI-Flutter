@@ -343,14 +343,14 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
     );
     final texto = Row(
       children: [
-        const Icon(Icons.lock_outline, color: ManiColors.ink),
+        Icon(Icons.lock_outline, color: context.mani.ink),
         ManiGap.hMd,
         Expanded(
           child: Text(
             'Tus datos solo se comparten con el aliado al confirmar un servicio.',
             style: GoogleFonts.plusJakartaSans(
               fontSize: ManiFontSize.caption,
-              color: ManiColors.inkMuted,
+              color: context.mani.inkMuted,
             ),
           ),
         ),
@@ -415,7 +415,7 @@ class _Aviso extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: ManiFontSize.bodySm,
                 fontWeight: FontWeight.w700,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
           ),

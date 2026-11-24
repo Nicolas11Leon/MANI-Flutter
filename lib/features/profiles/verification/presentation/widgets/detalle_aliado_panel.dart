@@ -61,10 +61,10 @@ class DetalleAliadoPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (state.cargandoDetalleId == aliadoId)
-              const LinearProgressIndicator(
+              LinearProgressIndicator(
                 minHeight: 3,
-                color: ManiColors.ink,
-                backgroundColor: ManiColors.brand,
+                color: context.mani.ink,
+                backgroundColor: context.mani.brand,
               ),
             Expanded(
               child: ListView(
@@ -160,7 +160,9 @@ class _Encabezado extends StatelessWidget {
                 ManiGap.vXs,
                 Text(
                   aliado.email,
-                  style: tema.bodyMedium?.copyWith(color: ManiColors.inkMuted),
+                  style: tema.bodyMedium?.copyWith(
+                    color: context.mani.inkMuted,
+                  ),
                 ),
                 ManiGap.vSm,
                 EstadoVerificacionBadge(estado: aliado.estado),
@@ -171,7 +173,7 @@ class _Encabezado extends StatelessWidget {
             IconButton(
               tooltip: 'Cerrar detalle',
               onPressed: onCerrar,
-              icon: const Icon(Icons.close_rounded, color: ManiColors.ink),
+              icon: Icon(Icons.close_rounded, color: context.mani.ink),
             ),
         ],
       ),
@@ -198,9 +200,9 @@ class _DatosRegistro extends StatelessWidget {
         _Dato(
           etiqueta: 'Especialidades',
           child: aliado.categorias.isEmpty
-              ? const Text(
+              ? Text(
                   'Sin especialidad declarada',
-                  style: TextStyle(color: ManiColors.inkMuted),
+                  style: TextStyle(color: context.mani.inkMuted),
                 )
               : Wrap(
                   spacing: ManiSpace.sm,
@@ -213,10 +215,10 @@ class _DatosRegistro extends StatelessWidget {
                           vertical: ManiSpace.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: ManiColors.brand,
+                          color: context.mani.brand,
                           borderRadius: ManiRadius.brPill,
                           border: Border.all(
-                            color: ManiColors.border,
+                            color: context.mani.border,
                             width: ManiBorder.thin,
                           ),
                         ),
@@ -252,20 +254,20 @@ class _Dato extends StatelessWidget {
         children: [
           Text(
             etiqueta.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: ManiFontSize.micro,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
-              color: ManiColors.inkSubtle,
+              color: context.mani.inkSubtle,
             ),
           ),
           ManiGap.vXs,
           child ??
               Text(
                 valor ?? '',
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                 ),
               ),
         ],
@@ -292,7 +294,7 @@ class _Seccion extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icono, size: 18, color: ManiColors.ink),
+            Icon(icono, size: 18, color: context.mani.ink),
             ManiGap.hSm,
             Text(
               titulo,
@@ -362,7 +364,10 @@ class _Resultado extends StatelessWidget {
       decoration: BoxDecoration(
         color: estado.fondo,
         borderRadius: ManiRadius.brMd,
-        border: Border.all(color: ManiColors.border, width: ManiBorder.regular),
+        border: Border.all(
+          color: context.mani.border,
+          width: ManiBorder.regular,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,14 +432,14 @@ class _BarraAcciones extends StatelessWidget {
         ManiSpace.xxl,
         ManiSpace.lg,
       ),
-      decoration: const BoxDecoration(
-        color: ManiColors.surface,
+      decoration: BoxDecoration(
+        color: context.mani.surface,
         border: Border(top: ManiBorder.side),
       ),
       child: SafeArea(
         top: false,
         child: procesando
-            ? const SizedBox(
+            ? SizedBox(
                 height: 48,
                 child: Row(
                   key: ValueKey('guardando-decision'),
@@ -444,7 +449,7 @@ class _BarraAcciones extends StatelessWidget {
                       dimension: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: ManiColors.ink,
+                        color: context.mani.ink,
                       ),
                     ),
                     ManiGap.hMd,

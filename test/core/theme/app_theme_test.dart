@@ -8,11 +8,19 @@ import 'package:mani/core/theme/app_theme.dart';
 void main() {
   group('tokens', () {
     test('colores de marca', () {
-      expect(ManiColors.background, const Color(0xFFFAF6F2));
-      expect(ManiColors.brand, const Color(0xFFFED1B0));
-      expect(ManiColors.ink, const Color(0xFF1C1613));
+      expect(ManiColors.background, const Color(0xFFFBF3E4));
+      expect(ManiColors.brand, const Color(0xFFF2B705));
+      expect(ManiColors.ink, const Color(0xFF1B2A4A));
       expect(ManiColors.surface, const Color(0xFFFFFFFF));
       expect(ManiColors.border, ManiColors.ink);
+    });
+
+    test('titulo() sin color toma el del tema, no una tinta fija', () {
+      expect(AppTheme.titulo().color, isNull);
+      expect(
+        AppTheme.titulo(color: ManiColors.inkMuted).color,
+        ManiColors.inkMuted,
+      );
     });
 
     test('sombras duras de 2, 4 y 6 px, sin desenfoque', () {

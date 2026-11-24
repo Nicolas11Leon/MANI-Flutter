@@ -321,7 +321,7 @@ class _TarjetaTenant extends StatelessWidget {
                 ),
                 child: Text(
                   t.estado.etiqueta,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: ManiFontSize.caption,
                     fontWeight: FontWeight.w800,
                     color: ManiColors.ink,

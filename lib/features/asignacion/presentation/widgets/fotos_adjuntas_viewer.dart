@@ -133,9 +133,12 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
               width: 74,
               height: 74,
               decoration: BoxDecoration(
-                color: ManiColors.background,
+                color: context.mani.background,
                 borderRadius: BorderRadius.circular(ManiRadius.lg),
-                border: Border.all(color: ManiColors.borderSubtle, width: 1.5),
+                border: Border.all(
+                  color: context.mani.borderSubtle,
+                  width: 1.5,
+                ),
               ),
               child: const Center(
                 child: SizedBox(
@@ -146,11 +149,11 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
+            Text(
               'Cargando vista previa...',
               style: TextStyle(
                 fontSize: 12,
-                color: ManiColors.inkMuted,
+                color: context.mani.inkMuted,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -164,22 +167,22 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
         margin: const EdgeInsets.only(top: 8),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: ManiColors.background,
+          color: context.mani.background,
           borderRadius: BorderRadius.circular(ManiRadius.lg),
-          border: Border.all(color: ManiColors.borderSubtle, width: 1.5),
+          border: Border.all(color: context.mani.borderSubtle, width: 1.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.broken_image_outlined,
               size: 18,
-              color: ManiColors.inkMuted,
+              color: context.mani.inkMuted,
             ),
             const SizedBox(width: 6),
             Text(
               '${widget.fotosRutas.length} foto(s) no disponible(s)',
-              style: const TextStyle(fontSize: 12, color: ManiColors.inkMuted),
+              style: TextStyle(fontSize: 12, color: context.mani.inkMuted),
             ),
           ],
         ),
@@ -195,20 +198,20 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
           children: [
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.photo_library_outlined,
                   size: 16,
-                  color: ManiColors.ink,
+                  color: context.mani.ink,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   widget.fotosRutas.length == 1
                       ? '1 foto adjunta'
                       : '${widget.fotosRutas.length} fotos adjuntas',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ],
@@ -217,17 +220,17 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
               onTap: () => _abrirDetalle(0),
               borderRadius: BorderRadius.circular(ManiRadius.sm),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 child: Row(
-                  children: const [
-                    Icon(Icons.zoom_in, size: 16, color: ManiColors.ink),
+                  children: [
+                    Icon(Icons.zoom_in, size: 16, color: context.mani.ink),
                     SizedBox(width: 4),
                     Text(
                       'Ver en detalle',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: ManiColors.ink,
+                        color: context.mani.ink,
                         decoration: TextDecoration.underline,
                       ),
                     ),
@@ -256,9 +259,9 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
                     width: 76,
                     height: 76,
                     decoration: BoxDecoration(
-                      color: ManiColors.background,
+                      color: context.mani.background,
                       borderRadius: BorderRadius.circular(ManiRadius.lg),
-                      border: Border.all(color: ManiColors.ink, width: 2),
+                      border: Border.all(color: context.mani.ink, width: 2),
                       boxShadow: const [ManiShadow.sm],
                     ),
                     child: ClipRRect(
@@ -270,11 +273,11 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
                                 Image.network(
                                   url,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) => const Center(
+                                  errorBuilder: (_, _, _) => Center(
                                     child: Icon(
                                       Icons.broken_image,
                                       size: 24,
-                                      color: ManiColors.inkMuted,
+                                      color: context.mani.inkMuted,
                                     ),
                                   ),
                                   loadingBuilder: (_, child, progress) {
@@ -310,11 +313,11 @@ class _FotosAdjuntasPreviewState extends State<FotosAdjuntasPreview> {
                                 ),
                               ],
                             )
-                          : const Center(
+                          : Center(
                               child: Icon(
                                 Icons.image,
                                 size: 24,
-                                color: ManiColors.inkMuted,
+                                color: context.mani.inkMuted,
                               ),
                             ),
                     ),
@@ -383,9 +386,9 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
           constraints: const BoxConstraints(maxWidth: 760, maxHeight: 640),
           child: Container(
             decoration: BoxDecoration(
-              color: ManiColors.surface,
+              color: context.mani.surface,
               borderRadius: BorderRadius.circular(ManiRadius.lg),
-              border: Border.all(color: ManiColors.ink, width: 2.5),
+              border: Border.all(color: context.mani.ink, width: 2.5),
               boxShadow: const [ManiShadow.md],
             ),
             child: Column(
@@ -398,9 +401,9 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                     horizontal: 16,
                     vertical: 12,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     border: Border(
-                      bottom: BorderSide(color: ManiColors.ink, width: 2),
+                      bottom: BorderSide(color: context.mani.ink, width: 2),
                     ),
                   ),
                   child: Row(
@@ -408,23 +411,26 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: ManiColors.brand,
+                          color: context.mani.brand,
                           borderRadius: BorderRadius.circular(ManiRadius.sm),
-                          border: Border.all(color: ManiColors.ink, width: 1.5),
+                          border: Border.all(
+                            color: context.mani.ink,
+                            width: 1.5,
+                          ),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.image_outlined,
                           size: 20,
-                          color: ManiColors.ink,
+                          color: context.mani.onBrand,
                         ),
                       ),
                       const SizedBox(width: 10),
                       Text(
                         'Foto ${_currentIndex + 1} de $total',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
-                          color: ManiColors.ink,
+                          color: context.mani.ink,
                         ),
                       ),
                       const Spacer(),
@@ -437,19 +443,19 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: ManiColors.background,
+                              color: context.mani.background,
                               borderRadius: BorderRadius.circular(
                                 ManiRadius.sm,
                               ),
                               border: Border.all(
-                                color: ManiColors.ink,
+                                color: context.mani.ink,
                                 width: 1.5,
                               ),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.close,
                               size: 20,
-                              color: ManiColors.ink,
+                              color: context.mani.ink,
                             ),
                           ),
                         ),
@@ -525,15 +531,15 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                                 color: Colors.white,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: ManiColors.ink,
+                                  color: context.mani.ink,
                                   width: 2,
                                 ),
                                 boxShadow: const [ManiShadow.sm],
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.arrow_back_ios_new_rounded,
                                 size: 18,
-                                color: ManiColors.ink,
+                                color: context.mani.ink,
                               ),
                             ),
                           ),
@@ -552,15 +558,15 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                                 color: Colors.white,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: ManiColors.ink,
+                                  color: context.mani.ink,
                                   width: 2,
                                 ),
                                 boxShadow: const [ManiShadow.sm],
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 18,
-                                color: ManiColors.ink,
+                                color: context.mani.ink,
                               ),
                             ),
                           ),
@@ -577,10 +583,10 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                       horizontal: 16,
                       vertical: 8,
                     ),
-                    decoration: const BoxDecoration(
-                      color: ManiColors.background,
+                    decoration: BoxDecoration(
+                      color: context.mani.background,
                       border: Border(
-                        top: BorderSide(color: ManiColors.ink, width: 2),
+                        top: BorderSide(color: context.mani.ink, width: 2),
                       ),
                     ),
                     child: Center(
@@ -604,8 +610,8 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                                 ),
                                 border: Border.all(
                                   color: isSelected
-                                      ? ManiColors.ink
-                                      : ManiColors.borderSubtle,
+                                      ? context.mani.ink
+                                      : context.mani.borderSubtle,
                                   width: isSelected ? 2.5 : 1.5,
                                 ),
                                 boxShadow: isSelected
@@ -619,10 +625,10 @@ class _FotosDetalleDialogState extends State<FotosDetalleDialog> {
                                 child: Image.network(
                                   widget.urls[index],
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) => const Icon(
+                                  errorBuilder: (_, _, _) => Icon(
                                     Icons.broken_image,
                                     size: 20,
-                                    color: ManiColors.inkMuted,
+                                    color: context.mani.inkMuted,
                                   ),
                                 ),
                               ),

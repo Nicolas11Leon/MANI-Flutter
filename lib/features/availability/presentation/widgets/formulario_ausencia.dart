@@ -164,18 +164,18 @@ class _FormularioAusenciaState extends State<FormularioAusencia> {
           children: [
             Text(
               widget.titulo,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: ManiFontSize.title,
                 fontWeight: FontWeight.w900,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
             ManiGap.vXs,
-            const Text(
+            Text(
               'Durante este intervalo no recibirás solicitudes nuevas.',
               style: TextStyle(
                 fontSize: ManiFontSize.bodySm,
-                color: ManiColors.inkMuted,
+                color: context.mani.inkMuted,
               ),
             ),
             ManiGap.vLg,
@@ -188,7 +188,7 @@ class _FormularioAusenciaState extends State<FormularioAusencia> {
                     key: ValueKey('motivo-${m.codigo}'),
                     label: Text(m.etiqueta),
                     selected: _motivo == m,
-                    selectedColor: ManiColors.brand,
+                    selectedColor: context.mani.brand,
                     side: ManiBorder.sideThin,
                     onSelected: (_) => setState(() => _motivo = m),
                   ),
@@ -258,10 +258,10 @@ class _Etiqueta extends StatelessWidget {
     padding: const EdgeInsets.only(bottom: ManiSpace.sm),
     child: Text(
       texto,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: ManiFontSize.bodySm,
         fontWeight: FontWeight.w800,
-        color: ManiColors.ink,
+        color: context.mani.ink,
       ),
     ),
   );
@@ -287,14 +287,14 @@ class _SelectorFechaHora extends StatelessWidget {
         child: OutlinedButton.icon(
           key: ValueKey('$prefijo-fecha'),
           onPressed: onFecha,
-          icon: const Icon(
+          icon: Icon(
             Icons.calendar_today_rounded,
             size: 18,
-            color: ManiColors.ink,
+            color: context.mani.ink,
           ),
           label: Text(
             formatearFecha(valor),
-            style: const TextStyle(color: ManiColors.ink),
+            style: TextStyle(color: context.mani.ink),
           ),
         ),
       ),
@@ -302,14 +302,10 @@ class _SelectorFechaHora extends StatelessWidget {
       OutlinedButton.icon(
         key: ValueKey('$prefijo-hora'),
         onPressed: onHora,
-        icon: const Icon(
-          Icons.schedule_rounded,
-          size: 18,
-          color: ManiColors.ink,
-        ),
+        icon: Icon(Icons.schedule_rounded, size: 18, color: context.mani.ink),
         label: Text(
           formatearHora(valor),
-          style: const TextStyle(color: ManiColors.ink),
+          style: TextStyle(color: context.mani.ink),
         ),
       ),
     ],

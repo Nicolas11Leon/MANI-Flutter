@@ -22,21 +22,21 @@ void showManiSnackBar(
                   ? Icons.error_outline_rounded
                   : Icons.check_circle_outline,
               size: 20,
-              color: esError ? ManiColors.onInk : ManiColors.ink,
+              color: esError ? ManiColors.onInk : context.mani.ink,
             ),
             ManiGap.hMd,
             Expanded(
               child: Text(
                 mensaje,
                 style: ManiText.label.copyWith(
-                  color: esError ? ManiColors.onInk : ManiColors.ink,
+                  color: esError ? ManiColors.onInk : context.mani.ink,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ),
           ],
         ),
-        backgroundColor: esError ? ManiColors.danger : ManiColors.brand,
+        backgroundColor: esError ? ManiColors.danger : context.mani.brand,
         behavior: SnackBarBehavior.floating,
         shape: const RoundedRectangleBorder(
           borderRadius: ManiRadius.brMd,

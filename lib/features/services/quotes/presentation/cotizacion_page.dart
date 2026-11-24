@@ -168,8 +168,8 @@ class CotizacionPage extends StatelessWidget {
             ),
         ];
         return RefreshIndicator(
-          color: ManiColors.ink,
-          backgroundColor: ManiColors.brand,
+          color: context.mani.ink,
+          backgroundColor: context.mani.brand,
           onRefresh: () async {
             await Future.wait([cubit.cargar(), ?alRefrescar?.call()]);
           },
@@ -230,14 +230,14 @@ class CotizacionPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: ManiColors.brand,
+                  color: context.mani.brand,
                   borderRadius: BorderRadius.circular(ManiRadius.lg),
-                  border: Border.all(color: ManiColors.ink, width: 2),
+                  border: Border.all(color: context.mani.ink, width: 2),
                   boxShadow: const [ManiShadow.sm],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.request_quote_outlined,
-                  color: ManiColors.ink,
+                  color: context.mani.onBrand,
                   size: 24,
                 ),
               ),
@@ -245,10 +245,10 @@ class CotizacionPage extends StatelessWidget {
               Expanded(
                 child: Text(
                   esAliado ? 'Cotizar el servicio' : 'Cotización del servicio',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -296,29 +296,31 @@ class _Columna extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.only(bottom: 10),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: ManiColors.ink, width: 2)),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: context.mani.ink, width: 2),
+            ),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: ManiColors.brand,
+                  color: context.mani.brand,
                   borderRadius: BorderRadius.circular(ManiRadius.lg),
-                  border: Border.all(color: ManiColors.ink, width: 2),
+                  border: Border.all(color: context.mani.ink, width: 2),
                 ),
-                child: Icon(icono, color: ManiColors.ink, size: 18),
+                child: Icon(icono, color: context.mani.onBrand, size: 18),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   titulo.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.6,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -354,7 +356,7 @@ class _TarjetaCotizacion extends StatelessWidget {
                   style: TextStyle(
                     fontSize: vigente ? 16 : 14,
                     fontWeight: FontWeight.w800,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
               ),
@@ -364,11 +366,7 @@ class _TarjetaCotizacion extends StatelessWidget {
           const SizedBox(height: 12),
           _Renglon('Mano de obra', formatearPesos(c.valorManoObra)),
           _Renglon('Materiales', formatearPesos(c.valorMateriales)),
-          const Divider(
-            color: ManiColors.borderSubtle,
-            thickness: 1.0,
-            height: 24,
-          ),
+          Divider(color: context.mani.borderSubtle, thickness: 1.0, height: 24),
           _Renglon('Total', formatearPesos(c.total), negrita: true),
         ],
       ),
@@ -408,7 +406,7 @@ class _Renglon extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: negrita ? FontWeight.w700 : FontWeight.w500,
-                color: negrita ? ManiColors.ink : ManiColors.inkMuted,
+                color: negrita ? context.mani.ink : context.mani.inkMuted,
               ),
             ),
           ),
@@ -418,12 +416,12 @@ class _Renglon extends StatelessWidget {
                 ? AppTheme.titulo(
                     size: 22,
                     height: 28 / 22,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ).copyWith(fontFeatures: tabular)
-                : const TextStyle(
+                : TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                     fontFeatures: tabular,
                   ),
           ),
@@ -534,24 +532,24 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: ManiColors.brand,
+                    color: context.mani.brand,
                     borderRadius: BorderRadius.circular(ManiRadius.sm),
-                    border: Border.all(color: ManiColors.ink, width: 1.5),
+                    border: Border.all(color: context.mani.ink, width: 1.5),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.edit_note_rounded,
                     size: 18,
-                    color: ManiColors.ink,
+                    color: context.mani.onBrand,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     widget.titulo,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: ManiColors.ink,
+                      color: context.mani.ink,
                     ),
                   ),
                 ),
@@ -613,28 +611,28 @@ class _FormularioCotizacionState extends State<_FormularioCotizacion> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: ManiColors.background,
+                color: context.mani.background,
                 borderRadius: BorderRadius.circular(ManiRadius.lg),
-                border: Border.all(color: ManiColors.ink, width: 1.5),
+                border: Border.all(color: context.mani.ink, width: 1.5),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Total calculado:',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: ManiColors.ink,
+                      color: context.mani.ink,
                     ),
                   ),
                   Text(
                     'Total: ${formatearPesos((_valor(_manoObra.text) ?? 0) + (_valor(_materiales.text) ?? 0))}',
                     key: const Key('total-calculado'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      color: ManiColors.ink,
+                      color: context.mani.ink,
                     ),
                   ),
                 ],

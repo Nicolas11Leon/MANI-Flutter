@@ -28,8 +28,8 @@ class AliadosElegiblesPage extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 720),
             child: RefreshIndicator(
-              color: ManiColors.ink,
-              backgroundColor: ManiColors.brand,
+              color: context.mani.ink,
+              backgroundColor: context.mani.brand,
               onRefresh: cubit.cargar,
               child: ListView(
                 padding: const EdgeInsets.symmetric(
@@ -37,12 +37,12 @@ class AliadosElegiblesPage extends StatelessWidget {
                   vertical: 24,
                 ),
                 children: [
-                  const Text(
+                  Text(
                     'Aliados para tu solicitud',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
-                      color: ManiColors.ink,
+                      color: context.mani.ink,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -54,11 +54,13 @@ class AliadosElegiblesPage extends StatelessWidget {
                   if (state.error != null)
                     _Error(mensaje: state.error!, onReintentar: cubit.cargar),
                   if (state.cargando && lista == null)
-                    const Padding(
+                    Padding(
                       key: Key('elegibles-cargando'),
                       padding: EdgeInsets.all(32),
                       child: Center(
-                        child: CircularProgressIndicator(color: ManiColors.ink),
+                        child: CircularProgressIndicator(
+                          color: context.mani.ink,
+                        ),
                       ),
                     )
                   else if (lista != null) ...[
@@ -83,8 +85,8 @@ class AliadosElegiblesPage extends StatelessWidget {
                             'Mostrando ${lista.aliados.length} de ${lista.total} aliados.',
                             key: const Key('elegibles-parcial'),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: ManiColors.inkMuted,
+                            style: TextStyle(
+                              color: context.mani.inkMuted,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -117,16 +119,16 @@ class _FiltroTipo extends StatelessWidget {
           etiqueta,
           style: TextStyle(
             fontWeight: FontWeight.w700,
-            color: ManiColors.ink,
+            color: context.mani.ink,
             fontSize: 13,
           ),
         ),
         selected: activo,
-        selectedColor: ManiColors.brand,
-        backgroundColor: ManiColors.surface,
+        selectedColor: context.mani.brand,
+        backgroundColor: context.mani.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(ManiRadius.lg),
-          side: const BorderSide(color: ManiColors.ink, width: 1.5),
+          side: BorderSide(color: context.mani.ink, width: 1.5),
         ),
         onSelected: onCambiar == null ? null : (_) => onCambiar!(tipo),
       );
@@ -155,7 +157,7 @@ class _AvisoOrden extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: aplicado ? ManiColors.brandSoft : ManiColors.surfaceMuted,
+        color: aplicado ? context.mani.brandSoft : context.mani.surfaceMuted,
         borderRadius: BorderRadius.circular(ManiRadius.md),
       ),
       child: Row(
@@ -164,7 +166,7 @@ class _AvisoOrden extends StatelessWidget {
           Icon(
             aplicado ? Icons.sort : Icons.info_outline,
             size: 18,
-            color: ManiColors.ink,
+            color: context.mani.ink,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -173,10 +175,10 @@ class _AvisoOrden extends StatelessWidget {
                   ? 'Ordenados por las reglas de tu empresa: primero los más adecuados.'
                   : 'Orden no disponible: los aliados no están ordenados por recomendación.',
               key: Key(aplicado ? 'elegibles-orden' : 'elegibles-sin-orden'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
-                color: ManiColors.ink,
+                color: context.mani.ink,
               ),
             ),
           ),
@@ -217,19 +219,19 @@ class _TarjetaAliado extends StatelessWidget {
                     height: 22,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: ManiColors.brand,
+                      color: context.mani.brand,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: ManiColors.ink,
+                        color: context.mani.onBrand,
                         width: ManiBorder.thin,
                       ),
                     ),
                     child: Text(
                       '$puesto',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 12,
-                        color: ManiColors.ink,
+                        color: context.mani.ink,
                       ),
                     ),
                   ),
@@ -258,9 +260,9 @@ class _TarjetaAliado extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   aliado.etiquetaTipo,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: ManiColors.inkMuted,
+                    color: context.mani.inkMuted,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -268,10 +270,10 @@ class _TarjetaAliado extends StatelessWidget {
                 Text(
                   aliado.textoCalificacionAgregada,
                   key: Key('elegible-calificacion-${aliado.id}'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: ManiColors.ink,
+                    color: context.mani.ink,
                   ),
                 ),
                 if (puesto != null && aliado.razones.isNotEmpty) ...[
@@ -279,9 +281,9 @@ class _TarjetaAliado extends StatelessWidget {
                   for (final r in aliado.razones)
                     Text(
                       '• $r',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: ManiColors.inkMuted,
+                        color: context.mani.inkMuted,
                       ),
                     ),
                 ],

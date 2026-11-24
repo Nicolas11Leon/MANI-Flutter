@@ -6,6 +6,7 @@ import 'package:mani/core/shell/navegacion_movil.dart';
 import 'package:mani/core/theme/app_theme.dart';
 import 'package:mani/features/home/data/resumen_inicio.dart';
 import 'package:mani/features/home/presentation/pages/inicio_page.dart';
+import 'package:mani/features/home/presentation/widgets/saludo_inicio.dart';
 
 /// El inicio del celular y la barra inferior siguen el tema: en modo oscuro el texto no se queda con el color del
 /// modo claro (texto oscuro sobre tarjeta oscura, casi ilegible) y los fondos tampoco.
@@ -149,5 +150,52 @@ void main() {
       expect((fondo.decoration as BoxDecoration).color, ManiColors.surface);
       expect(_colorDelTexto(tester, 'Perfil'), ManiColors.ink);
     });
+  });
+
+  group('Botón del saludo', () {
+    Future<Color?> relleno(WidgetTester tester, ThemeData tema) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: tema,
+          home: Scaffold(
+            body: SaludoInicio(
+              sesion: Future.value(const DatosSesion(nombreUsuario: 'Ana')),
+              subtitulo: '¿Qué arreglamos hoy?',
+              accion: accionSaludoPara(RolUsuario.cliente),
+              onNavegar: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final fondo = tester.widget<AnimatedContainer>(
+        find
+            .descendant(
+              of: find.byKey(const Key('inicio-saludo-accion')),
+              matching: find.byType(AnimatedContainer),
+            )
+            .first,
+      );
+      return (fondo.decoration as BoxDecoration).color;
+    }
+
+    testWidgets('modo claro: relleno oscuro sobre la tarjeta de marca', (
+      tester,
+    ) async {
+      final color = await relleno(tester, AppTheme.light);
+
+      expect(color, ManiColors.onBrand);
+      expect(color!.computeLuminance(), lessThan(0.2));
+    });
+
+    testWidgets(
+      'modo oscuro: sigue siendo oscuro y no se funde con el amarillo',
+      (tester) async {
+        final color = await relleno(tester, AppTheme.dark);
+
+        expect(color, ManiDarkColors.onBrand);
+        expect(color!.computeLuminance(), lessThan(0.2));
+      },
+    );
   });
 }
