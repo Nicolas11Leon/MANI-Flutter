@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Textos del framework en español (SCRUM-1732): sin esto Flutter web declara lang="en-US" y el lector de pantalla
+  # lee el contenido en español con voz en inglés (WCAG 3.1.1).
+  flutter_localizations:
+    sdk: flutter
   supabase_flutter: ^2.5.0
   flutter_dotenv: ^5.1.0
 
